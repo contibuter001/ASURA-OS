@@ -804,7 +804,7 @@ chmod 0440 "$TARGET_DIR/etc/sudoers.d/zz-asura-session"
 
 # Enable core system runit services
 mkdir -p "$TARGET_DIR/etc/runit/runsvdir/default"
-for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled zramen ananicy-cpp chronyd nftables cupsd asura-sysd asura-boot-guard; do
+for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled tlp zramen ananicy-cpp chronyd nftables cupsd asura-sysd asura-boot-guard; do
 	if [ -d "$TARGET_DIR/etc/sv/$svc" ]; then
 		ln -sf "/etc/sv/$svc" "$TARGET_DIR/etc/runit/runsvdir/default/$svc"
 	fi

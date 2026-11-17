@@ -119,6 +119,7 @@ confirm.
 - [x] CI automation in `.github/workflows/ci.yml` producing verified ISO artifacts and sha256 checksums
 - [x] Hybrid GPU management: `asura gpu`, `system/helpers/prime-run`, and `asura power` for NVIDIA RTX 3050 D3cold power management
 - [x] Daily-driver services ([`docs/system-services.md`](system-services.md)): clock sync (`chrony`), a default inbound firewall (`nftables`, `system/nftables/nftables.conf`), removable-media mounting (`udisks2`), firmware updates (`fwupd`) and printing (`cups`), installed and enabled on the live ISO and on installed systems
+- [ ] Hyprland version: the ISO ships prebuilt Hyprland 0.49.0 from `Makrennel/hyprland-void`, while the session configuration and the Hub's generator target 0.53.3. Build the Hyprland stack (`hyprutils`, `hyprlang`, `hyprcursor`, `hyprgraphics`, `aquamarine`, `hyprland`, `xdg-desktop-portal-hyprland`, `hypridle`, `hyprlock`) from `packaging/xbps/` and switch the ISO to it
 - [ ] Secure Boot — not supported yet; the ISO and installed systems boot only with Secure Boot disabled (see [`docs/system-services.md`](system-services.md#secure-boot))
 
 Exit criterion: an ASURA ISO boots on a clean machine into the live Wayland desktop session with functional display, audio, and network, and the guided installer can partition a drive and lay down a bootable system image.
@@ -335,6 +336,8 @@ is unsigned.*
   packages. Everything built so far ships in the one `asura` package, and `asura-shell`
   and `asura-hub` are a binary and a launcher inside it, not packages of their own
 - [ ] Published, and `asura update` verified against a machine that installed from it
+- [x] Release pipeline: pushing a `v*` tag runs `.github/workflows/release.yml`, which builds the ISO with the same steps as CI (`.github/actions/build-iso`), boot-tests it in QEMU (strict), writes `SHA256SUMS`, signs it with minisign when `MINISIGN_SECRET_KEY` is set, and publishes a GitHub Release (`-alpha`/`-beta`/`-rc` tags as pre-releases)
+- [ ] First tagged release (`v0.1.0-beta.1`) published, with the install steps in `README.md` checked end to end on real hardware
 
 The boundary check exists because a package that quietly gains a file another package owns is
 a fork of that package, and that cost arrives at the next rebase as a conflict nobody remembers

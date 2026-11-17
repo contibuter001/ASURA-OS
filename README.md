@@ -25,7 +25,99 @@ control tools, its hardware matrix, its updater, and its supervised session daem
 ASURA is not a Void spin. Void supplies the minimalist, lightning-fast substrate and nothing else. ASURA is the
 distribution; Void Linux is what ASURA is built on top of.
 
-> **Status: Beta.** Live bootable ISO images (`asura-os-void-beta-001.iso`) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`asura install` / `asura-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
+> **Status: Beta.** Live bootable ISO images (`asura-os-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/ASURA-OS/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`asura install` / `asura-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
+
+---
+
+## Install
+
+ASURA is in beta. Install it on a machine you can afford to wipe, and back up anything you
+care about first.
+
+### What you need
+
+| | |
+|---|---|
+| CPU | 64-bit x86 (x86_64), Intel or AMD |
+| Memory | 4 GB minimum, 8 GB or more recommended (the live session boots in 2 GB) |
+| Storage | A whole disk for ASURA (the installer erases it), 32 GB or more recommended, SSD preferred |
+| Firmware | UEFI or legacy BIOS. **Secure Boot must be turned off** in the firmware settings; it is [not supported yet](docs/system-services.md#secure-boot) |
+| USB stick | 4 GB or larger, for the installer image |
+| Network | Optional for the install, needed for updates |
+
+Check your laptop in the [hardware matrix](system/hardware/) first. Machines without a
+profile get conservative defaults (support tier 3) and may need manual fixes.
+
+### 1. Download
+
+Get these files from the latest release on the
+[Releases page](https://github.com/mohitjoer/ASURA-OS/releases):
+
+- `asura-os-<version>-x86_64.iso`: the installer image
+- `SHA256SUMS`: its checksum
+- `SHA256SUMS.sig`: a minisign signature of the checksums, when the release is signed
+
+### 2. Verify the download
+
+In the folder holding both files:
+
+```console
+$ sha256sum -c SHA256SUMS
+asura-os-<version>-x86_64.iso: OK
+```
+
+Anything other than `OK` means the download is corrupt or has been tampered with. Download it
+again, and don't write it to a USB stick.
+
+If the release includes `SHA256SUMS.sig`, also check the signature with
+[minisign](https://jedisct1.github.io/minisign/) and the project's public key, as published
+on the release page:
+
+```bash
+minisign -Vm SHA256SUMS -x SHA256SUMS.sig -P <public key>
+```
+
+### 3. Write the image to a USB stick
+
+Any of these work:
+
+- **Linux, `dd`.** Find the stick with `lsblk` and be certain it is the right device: `dd`
+  overwrites whatever you point it at.
+
+  ```bash
+  sudo dd if=asura-os-<version>-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
+  ```
+
+- **[Ventoy](https://www.ventoy.net/)**: copy the ISO onto a Ventoy stick and pick it from
+  Ventoy's menu.
+- **[Fedora Media Writer](https://github.com/FedoraQt/MediaWriter)** (Windows, macOS, Linux):
+  choose "Select .iso file" and pick the ASURA ISO.
+
+### 4. Boot the live session
+
+1. Turn off Secure Boot in the firmware settings.
+2. Boot from the USB stick (usually F12, F11, F8 or Esc at power-on opens the boot menu).
+3. The live session logs in automatically as `asura` and starts the desktop. Nothing is
+   written to your disk yet, so check that display, audio, Wi-Fi and the keyboard work.
+
+### 5. Install
+
+Open **Install Asura OS** from the launcher, or run this in a terminal:
+
+```bash
+asura install
+```
+
+The installer walks you through choosing the disk, the filesystem (Btrfs with snapshots, or
+ext4), full-disk encryption (LUKS2, on by default), your user account and hostname. It shows a
+summary and asks you to type `YES` before it erases anything. `asura install --dry-run` shows
+what it would do without touching the disk.
+
+When it finishes, reboot and remove the USB stick. If you chose encryption, you'll be asked for
+the disk passphrase at boot.
+
+After installing, `asura hardware report --profile` produces a profile of your machine that you
+can [contribute](CONTRIBUTING.md), so the next person with the same laptop gets a verified setup.
 
 ---
 
