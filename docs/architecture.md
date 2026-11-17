@@ -851,7 +851,7 @@ Every item here is a real support ticket someone will file:
 | Fingerprint | `fprintd` + libfprint, with goodix quirks |
 | Displays | `ddcutil` for external-monitor brightness, docks, multi-GPU output routing |
 | Handhelds | Steam Deck, ROG Ally, Legion Go — gamescope session, gyro, controller mapping |
-| Secure Boot | shim + MOK, signed. Non-optional or nothing installs on a locked laptop |
+| Secure Boot | shim + MOK, signed. Non-optional or nothing installs on a locked laptop. **Not implemented yet** — see [`system-services.md`](system-services.md#secure-boot) |
 
 **The prior project's machine tuning is deliberately not ported.** The desktop was ported from a distribution
 that tunes each machine under its own `system/hardware/` — udev rules, NetworkManager and
@@ -931,7 +931,9 @@ rather than inherited from a draft.
   graphical installer that partitions the disk, installs the rootfs, and writes the
   `fstab` in the new root.
 - **GRUB EFI** as the boot chain, on a separate ESP with its own `/boot`. The installer
-  runs `grub-install` and `grub-mkconfig`. Secure Boot rides the Void-shipped GRUB shim.
+  runs `grub-install` and `grub-mkconfig`. Secure Boot is not supported yet: no shim or MOK
+  enrolment is set up, so firmware Secure Boot must be disabled (see
+  [`system-services.md`](system-services.md#secure-boot)).
 
 Package flow is an XBPS first-party repository (`packaging/xbps/build-repo.sh`:
 `xbps-create` + `xbps-rindex`). The built repository is currently unsigned and unpublished;

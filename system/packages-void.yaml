@@ -199,6 +199,15 @@ power-and-hardware-services:
     - podman
     - docker
     - docker-compose
+    # Daily-driver basics: clock sync, inbound firewall, removable-media
+    # mounting, firmware updates and printing. Services are linked in
+    # installation/build-iso-void.sh and installation/asura-installer.sh.
+    - chrony
+    - nftables
+    - udisks2
+    - fwupd
+    - cups
+    - cups-filters
 
 fonts-and-icons:
   packages:

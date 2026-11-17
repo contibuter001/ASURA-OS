@@ -554,6 +554,8 @@ fi
 cp "$REPO_ROOT/system/sysctl.d/99-asura-performance.conf" "$INCLUDE_DIR/etc/sysctl.d/99-asura-performance.conf"
 cp "$REPO_ROOT/session/turnstile/turnstile.conf" "$INCLUDE_DIR/etc/turnstile/turnstile.conf"
 cp "$REPO_ROOT/system/xbps.d/asura.conf" "$INCLUDE_DIR/etc/xbps.d/asura.conf"
+# Default host firewall (block inbound, allow outbound), loaded by the nftables runit service
+cp "$REPO_ROOT/system/nftables/nftables.conf" "$INCLUDE_DIR/etc/nftables.conf"
 cp "$REPO_ROOT/system/xbps.d/asura.conf" "$INCLUDE_DIR/etc/xbps.d/00-repository-main.conf"
 
 # Default environment for seatd & Wayland
@@ -945,7 +947,7 @@ rm -f "$ROOTFS/home/asura/Desktop/btop.desktop"
 
 # Enable core system runit services (Layer 1 seatd, Layer 3 scx-lavd, ananicy-cpp, zramen). Docker is opt-in: not enabled by default (podman is the default container tool).
 mkdir -p "$ROOTFS/etc/runit/runsvdir/default"
-for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled tlp zramen asura-sysd asura-boot-guard; do
+for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled tlp zramen chronyd nftables cupsd asura-sysd asura-boot-guard; do
 	if [ -d "$ROOTFS/etc/sv/$svc" ]; then
 		ln -sf "/etc/sv/$svc" "$ROOTFS/etc/runit/runsvdir/default/$svc"
 	fi
@@ -1137,6 +1139,10 @@ if [ -d "$REPO_ROOT/system/tlp.d" ]; then
 	mkdir -p "$ROOTFS/etc/tlp.d"
 	cp "$REPO_ROOT/system/tlp.d"/*.conf "$ROOTFS/etc/tlp.d/" 2>/dev/null || true
 fi
+
+# Default host firewall. Copied again here because the nftables package's own
+# /etc/nftables.conf is laid down when packages install into the rootfs.
+cp "$REPO_ROOT/system/nftables/nftables.conf" "$ROOTFS/etc/nftables.conf"
 
 # Ensure wpa_supplicant does not run as a standalone runit service (managed by NetworkManager)
 rm -f "$ROOTFS/etc/runit/runsvdir/default/wpa_supplicant" "$ROOTFS/var/service/wpa_supplicant"
