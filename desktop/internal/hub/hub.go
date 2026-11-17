@@ -60,12 +60,13 @@ var Pages = []Page{
 	{
 		Slug:    "desktop",
 		Title:   "Desktop & Dock",
-		Summary: "Bar and dock placement, autohide, and pinned favorite applications",
+		Summary: "Bar and dock placement, autohide, pinned favorite applications, and rounded screen corners",
 		Keys: []string{
 			"org.asura.shell.bar-position",
 			"org.asura.shell.dock-position",
 			"org.asura.shell.dock-autohide",
 			"org.asura.shell.favorites",
+			"org.asura.shell.screen-corners",
 		},
 	},
 	{

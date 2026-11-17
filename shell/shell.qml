@@ -976,6 +976,16 @@ ShellRoot {
         source: "modules/ii/sessionScreen/SessionScreen.qml"
     }
 
+    // The screen corners: a rounded black corner on every corner of every
+    // screen, hidden over a fullscreen window. Off in the Hub (Desktop &
+    // Dock), the module stays loaded and its windows stay unmapped. The
+    // Loader confines it like the selector and the session screen: corners
+    // that will not load are square corners, not a desktop that does not boot.
+    Loader {
+        id: screenCorners
+        source: "modules/ii/screenCorners/ScreenCorners.qml"
+    }
+
     PanelWindow {
         id: asuraSheetWindow
         visible: false
