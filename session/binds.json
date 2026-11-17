@@ -97,6 +97,14 @@
       "argument": "lock"
     },
     {
+      "id": "session",
+      "category": "desktop",
+      "label": "Open the session screen",
+      "chord": "CTRL + ALT + Delete",
+      "kind": "shell",
+      "action": "session"
+    },
+    {
       "id": "settings",
       "category": "desktop",
       "label": "Open Asura Settings",

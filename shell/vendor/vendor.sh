@@ -78,6 +78,7 @@ modules/ii/overview
 modules/ii/notificationPopup
 modules/ii/onScreenDisplay
 modules/ii/regionSelector
+modules/ii/sessionScreen
 modules/ii/mediaControls
 modules/ii/cheatsheet
 modules/ii/background
@@ -133,6 +134,16 @@ GlobalStates.qml
 #                   the desktop's other halves of the other actions already
 #                   exist elsewhere and an entry point for a missing command
 #                   is a control that runs nothing.
+#   sessionScreen/SessionScreen.qml
+#                   upstream's full-screen session menu, which registers one
+#                   IPC handler and three global shortcuts and calls its
+#                   Session singleton for each of eight actions — logout by
+#                   killing every window and the compositor, poweroff through
+#                   loginctl. Asura's version registers none of them, carries
+#                   the four actions the desktop has (lock through the
+#                   daemon's hyprlock; logout, reboot and shutdown through
+#                   the shell's confirmation dialog), and leaves the rest
+#                   out for the same reason as the selector's.
 #
 # They are Asura's files, in Asura's tree, at upstream's paths. That is the
 # overlay: the vendored components are upstream's, the context they run in is
@@ -144,6 +155,7 @@ modules/common/widgets/AppIcon.qml
 modules/common/widgets/MaterialSymbol.qml
 modules/common/utils/ScreenshotAction.qml
 modules/ii/regionSelector/RegionSelector.qml
+modules/ii/sessionScreen/SessionScreen.qml
 GlobalStates.qml
 "
 

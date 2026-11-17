@@ -531,6 +531,8 @@ components:
         blob: 19435a74c43cabc54d10b32517824663f8b73835
       - path: modules/ii/regionSelector/TargetRegion.qml
         blob: d3763e0abb30a5ee3da34de4e54fc1f5302e68db
+      - path: modules/ii/sessionScreen/SessionActionButton.qml
+        blob: 000c4e20154514659020279be80c1be745cbe5a7
       - path: modules/ii/sidebarRight/bluetoothDevices/BluetoothDeviceItem.qml
         blob: 570ab95a20cc8f73edbcb208cdfb13e368adef33
       - path: modules/ii/sidebarRight/bluetoothDevices/BluetoothDialog.qml

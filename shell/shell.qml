@@ -877,6 +877,17 @@ ShellRoot {
                 regionSelector.item.ocr();
         }
 
+        // Ctrl+Alt+Delete toggles the session screen — the full-screen
+        // power menu the vendored kit draws: lock through the daemon's
+        // hyprlock, logout and reboot and shutdown through the confirmation
+        // dialog. The chord is the one upstream binds to this screen's own
+        // global shortcut; here it reaches the flag through this bridge,
+        // which both sides of the bind contract name, so it may not rename
+        // alone. The sidebar's power button opens the same screen.
+        function session(): void {
+            GlobalStates.sessionOpen = !GlobalStates.sessionOpen;
+        }
+
         // A Hub write to the idle keys lands here: hypridle reads its timeouts
         // when it starts, so `asura-idle apply` restarts it only if they changed.
         // Every other setting is read by the reader at the root, which runs
@@ -950,6 +961,19 @@ ShellRoot {
     Loader {
         id: regionSelector
         source: "modules/ii/regionSelector/RegionSelector.qml"
+    }
+
+    // The session screen, the vendored power menu: lock, logout, reboot and
+    // shutdown, on a translucent overlay layer over the focused screen. It
+    // is toggled through the IPC bridge (Ctrl+Alt+Delete) and opened by the
+    // sidebar's power button; it closes itself on a click anywhere, Escape,
+    // or the lock engaging. The Scope is cheap while closed — its window is
+    // built on the flag, not at load — and the Loader confines it the same
+    // way it confines the selector and the switcher: a menu that will not
+    // load is a menu that does not open, not a desktop that does not boot.
+    Loader {
+        id: sessionScreen
+        source: "modules/ii/sessionScreen/SessionScreen.qml"
     }
 
     PanelWindow {
