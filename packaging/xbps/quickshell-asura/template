@@ -1,18 +1,34 @@
 # Template file for 'quickshell-asura'
+#
+# ASURA's desktop shell runs on the current Quickshell stable tag rather than
+# the git head: the shell is session-critical, and a tag gives the base layer a
+# dependency that resolves to one hash. v0.3.2 carries the Polkit, PAM,
+# PipeWire and Hyprland integrations the vendored shell surfaces need.
+#
+# ASURA does not need X11 or i3/Sway support, so those integrations are built
+# off. The Wayland layer-shell, session-lock, toplevel-management, screencopy,
+# Hyprland, PipeWire, PAM and Polkit integrations stay on.
 pkgname=quickshell-asura
-version=0.1.0
+version=0.3.2
 revision=1
 build_style=cmake
-configure_args="-DQUICKSHELL_USE_SYSTEM_WAYLAND=ON -DQUICKSHELL_BUILD_TESTS=OFF"
-hostmakedepends="pkg-config cmake wayland-devel qt6-declarative-devel"
-makedepends="qt6-base-devel qt6-declarative-devel qt6-svg-devel qt6-wayland-devel
- qt6-multimedia-devel wayland-devel pam-devel"
-depends="qt6-declarative qt6-svg qt6-wayland qt6-multimedia"
-short_desc="Flexible Qt6/QML desktop shell framework for Wayland"
+configure_args="-DDISTRIBUTOR=Asura -DINSTALL_QML_PREFIX=lib/qt6/qml
+ -DBUILD_TESTING=OFF -DX11=OFF -DI3=OFF
+ -DWAYLAND=ON -DWAYLAND_WLR_LAYERSHELL=ON -DWAYLAND_SESSION_LOCK=ON
+ -DWAYLAND_TOPLEVEL_MANAGEMENT=ON -DSCREENCOPY=ON -DHYPRLAND=ON
+ -DSERVICE_PIPEWIRE=ON -DSERVICE_PAM=ON -DSERVICE_POLKIT=ON"
+hostmakedepends="pkg-config cmake wayland-devel qt6-base qt6-declarative-devel
+ qt6-shadertools"
+makedepends="cli11 qt6-base-private-devel qt6-declarative-private-devel
+ qt6-shadertools-devel pipewire-devel jemalloc-devel pam-devel cpptrace-devel
+ polkit-devel Vulkan-Headers libdrm-devel libgbm-devel glib-devel"
+depends="qt6-svg"
+short_desc="Flexible QtQuick-based desktop shell toolkit for Wayland"
 maintainer="Asura OS Project <dev@asuraos.dev>"
-license="LGPL-3.0-or-later"
-homepage="https://quickshell.outfoxxed.me"
-distfiles="https://git.outfoxxed.me/outfoxxed/quickshell/archive/v${version}.tar.gz"
+license="LGPL-3.0-only"
+homepage="https://quickshell.org"
+distfiles="https://git.outfoxxed.me/quickshell/quickshell/archive/v${version}.tar.gz"
+checksum=f14115a73c9fff6aa6399f924b632e88c3ce2cead2657f814a7825341f35baad
 
 post_install() {
 	vlicense LICENSE

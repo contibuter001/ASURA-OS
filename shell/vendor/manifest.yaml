@@ -8,7 +8,7 @@ components:
     upstream_name: end-4/dots-hyprland
     upstream_url: https://github.com/end-4/dots-hyprland.git
     upstream_path: dots/.config/quickshell/ii
-    pinned_commit: 2f2a376fdb2ad738bf55f693dd0b474b64bb0ab8
+    pinned_commit: 21733c3ca7f4edc20faafedea844dc96002c6f7f
     licence: GPL-3.0-only
     licence_file: shell/vendor/COPYING
     copyright: Copyright (C) the end-4/dots-hyprland contributors
@@ -508,7 +508,7 @@ components:
       - path: modules/ii/onScreenDisplay/OsdValueIndicator.qml
         blob: e209ce28613e6b46681b149f347d660edfe41263
       - path: modules/ii/overview/Overview.qml
-        blob: b28ff5a4656a958b2afe166c187acaf3670ff3d8
+        blob: 1d2f5e5c6ae9cb1d460e763a441b104bc11b5e1b
       - path: modules/ii/overview/OverviewWidget.qml
         blob: 3bd504c76be8a0fa0d5ac33e7dc10817c450fccf
       - path: modules/ii/overview/OverviewWindow.qml
