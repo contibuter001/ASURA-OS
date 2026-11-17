@@ -91,6 +91,10 @@ desktop:
     - qt6-qt5compat
     - qt6-position
     - qt6-shadertools
+    # end-4's desktop (shell-end4): app icons through Kirigami, and the
+    # syntax highlighting its sidebar uses.
+    - kf6-kirigami
+    - kf6-syntax-highlighting
     # Core utilities
     - dconf
     - glib
