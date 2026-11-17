@@ -113,6 +113,7 @@ var overlayFiles = map[string]string{
 	"modules/common/widgets/MaterialSymbol.qml":    "maps Material Symbol names to Font Awesome 4.7 codepoints; upstream expects a font the base layer does not carry",
 	"modules/ii/regionSelector/RegionSelector.qml": "the selector's entry point reaches its one Asura action, text recognition, through the shell's own IPC bridge instead of registering its own",
 	"modules/ii/sessionScreen/SessionScreen.qml":   "the session menu's entry point reaches its four Asura actions through the shell's own IPC bridge, the daemon's hyprlock and the confirmation dialog instead of registering its own IPC and shortcuts or calling upstream's Session singleton",
+	"modules/ii/screenCorners/ScreenCorners.qml":   "the corner-panel module reaches its four sidebar-toggle actions through GlobalStates.sidebarLeftOpen / sidebarRightOpen instead of registering its own IPC or shortcuts",
 }
 
 // isVendored reports whether a file belongs to the vendored upstream tree.
