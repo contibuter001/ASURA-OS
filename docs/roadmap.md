@@ -336,6 +336,8 @@ is unsigned.*
   packages. Everything built so far ships in the one `asura` package, and `asura-shell`
   and `asura-hub` are a binary and a launcher inside it, not packages of their own
 - [ ] Published, and `asura update` verified against a machine that installed from it
+- [x] Release pipeline: pushing a `v*` tag runs `.github/workflows/release.yml`, which builds the ISO with the same steps as CI (`.github/actions/build-iso`), boot-tests it in QEMU (strict), writes `SHA256SUMS`, signs it with minisign when `MINISIGN_SECRET_KEY` is set, and publishes a GitHub Release (`-alpha`/`-beta`/`-rc` tags as pre-releases)
+- [ ] First tagged release (`v0.1.0-beta.1`) published, with the install steps in `README.md` checked end to end on real hardware
 
 The boundary check exists because a package that quietly gains a file another package owns is
 a fork of that package, and that cost arrives at the next rebase as a conflict nobody remembers

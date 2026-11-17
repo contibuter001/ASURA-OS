@@ -3,13 +3,28 @@
 #
 # Usage: installation/build-iso-void.sh [build-directory]
 #
+# ASURA_VERSION=0.1.0-beta.1 names the image asura-os-0.1.0-beta.1-x86_64.iso
+# and records IMAGE_VERSION in /etc/os-release. Unset, the image is
+# asura-os-x86_64.iso. The file name never names the base layer.
+#
 set -eu
 
 REPO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 BUILD_DIR=${1:-"$REPO_ROOT/build/iso-void"}
 ARCH=${ASURA_ARCH:-x86_64}
 MIRROR=${ASURA_MIRROR:-https://repo-fastly.voidlinux.org/current}
-ISO_NAME=asura-os-x86_64
+ASURA_VERSION=${ASURA_VERSION:-}
+case "$ASURA_VERSION" in
+	*[!0-9A-Za-z.+-]*)
+		echo "build-iso-void: ASURA_VERSION may contain only letters, digits, '.', '+' and '-'" >&2
+		exit 2
+		;;
+esac
+if [ -n "$ASURA_VERSION" ]; then
+	ISO_NAME="asura-os-${ASURA_VERSION}-x86_64"
+else
+	ISO_NAME=asura-os-x86_64
+fi
 ISO_TITLE="Asura OS x86_64"
 export GOWORK=off
 
@@ -150,6 +165,9 @@ HOME_URL="https://asuraos.dev/"
 SUPPORT_URL="https://asuraos.dev/support"
 BUG_REPORT_URL="https://github.com/mohitjoer/Asura-OS/issues"
 EOF
+if [ -n "$ASURA_VERSION" ]; then
+	printf 'IMAGE_VERSION=%s\n' "$ASURA_VERSION" >>"$INCLUDE_DIR/etc/os-release"
+fi
 
 printf 'asura-os\n' >"$INCLUDE_DIR/etc/hostname"
 
@@ -928,6 +946,7 @@ cat >"$POSTSETUP_SCRIPT" <<EOF
 #!/bin/sh
 ROOTFS="\$1"
 HYPR_CACHE="$HYPR_CACHE"
+ASURA_VERSION="$ASURA_VERSION"
 REPO_ROOT="$REPO_ROOT"
 INCLUDE_DIR="$INCLUDE_DIR"
 EOF
@@ -1235,6 +1254,9 @@ HOME_URL="https://asuraos.dev/"
 SUPPORT_URL="https://asuraos.dev/support"
 BUG_REPORT_URL="https://github.com/mohitjoer/Asura-OS/issues"
 OSREL
+if [ -n "$ASURA_VERSION" ]; then
+	printf 'IMAGE_VERSION=%s\n' "$ASURA_VERSION" >>"$ROOTFS/etc/os-release"
+fi
 
 # Branding replacement: Change Welcome to Void! to Welcome to Asura OS! in the boot sequence
 for runit_file in "$ROOTFS/etc/runit/1" "$ROOTFS/etc/runit/2" "$ROOTFS/etc/runit/3" "$ROOTFS/etc/rc.local"; do
