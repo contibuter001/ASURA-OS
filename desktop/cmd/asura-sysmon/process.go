@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type ProcessInfo struct {
@@ -25,6 +26,10 @@ type ProcessInfo struct {
 	MemoryBytes uint64  `json:"memoryBytes"`
 	MemoryPct   float64 `json:"memoryPercent"`
 	Threads     int     `json:"threads"`
+
+	// cpuTicks is utime+stime from /proc/<pid>/stat, in clock ticks. It is
+	// only the raw counter; CPUPercent is computed from two readings of it.
+	cpuTicks uint64
 }
 
 var uidCache = make(map[int]string)
@@ -72,8 +77,17 @@ func resolveProcessName(comm string, cmdline string) string {
 
 	// For interpreters like python / node / ruby / perl
 	if base0 == "python" || base0 == "python3" || base0 == "node" || base0 == "ruby" || base0 == "perl" {
-		for _, arg := range args[1:] {
-			if !strings.HasPrefix(arg, "-") {
+		rest := args[1:]
+		for i := 0; i < len(rest); i++ {
+			arg := rest[i]
+			switch {
+			case arg == "-m" && i+1 < len(rest):
+				// python3 -m http.server: the module is the program.
+				return fmt.Sprintf("%s (%s)", base0, rest[i+1])
+			case arg == "-c" || arg == "-e":
+				// Inline code, not a script: there is no better name.
+				return base0
+			case !strings.HasPrefix(arg, "-"):
 				return fmt.Sprintf("%s (%s)", base0, filepath.Base(arg))
 			}
 		}
@@ -111,6 +125,10 @@ func readProcess(pid int, totalMem uint64) (*ProcessInfo, error) {
 
 	state := rest[0]
 	ppid, _ := strconv.Atoi(rest[1])
+	// rest[0] is field 3 of proc(5)'s stat, so utime (14) and stime (15)
+	// are rest[11] and rest[12].
+	utime, _ := strconv.ParseUint(rest[11], 10, 64)
+	stime, _ := strconv.ParseUint(rest[12], 10, 64)
 	threads, _ := strconv.Atoi(rest[17])
 
 	// Read status for UID and VmRSS
@@ -159,14 +177,77 @@ func readProcess(pid int, totalMem uint64) (*ProcessInfo, error) {
 		User:        usernameFromUID(uid),
 		UID:         uid,
 		State:       state,
-		CPUPercent:  0.0, // populated when delta is sampled or from top
 		MemoryBytes: rssBytes,
 		MemoryPct:   memPct,
 		Threads:     threads,
+		cpuTicks:    utime + stime,
 	}, nil
 }
 
+// processCPUPercent is a process's share of the whole machine's CPU time
+// between two readings: its own ticks over every CPU's ticks, so a process
+// keeping one core of eight busy reads 12.5, and the sum over all processes
+// never exceeds 100.
+func processCPUPercent(procTicks1, procTicks2, totalTicks1, totalTicks2 uint64) float64 {
+	if totalTicks2 <= totalTicks1 || procTicks2 < procTicks1 {
+		return 0
+	}
+	pct := float64(procTicks2-procTicks1) / float64(totalTicks2-totalTicks1) * 100.0
+	if pct > 100.0 {
+		return 100.0
+	}
+	return pct
+}
+
+// processTicks reads utime+stime for every process, cheaply: only stat.
+func processTicks() map[int]uint64 {
+	ticks := make(map[int]uint64)
+	entries, err := os.ReadDir("/proc")
+	if err != nil {
+		return ticks
+	}
+	for _, e := range entries {
+		pid, err := strconv.Atoi(e.Name())
+		if err != nil || pid <= 0 {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join("/proc", e.Name(), "stat"))
+		if err != nil {
+			continue
+		}
+		str := string(data)
+		closeParen := strings.LastIndex(str, ")")
+		if closeParen == -1 {
+			continue
+		}
+		rest := strings.Fields(str[closeParen+1:])
+		if len(rest) < 13 {
+			continue
+		}
+		utime, _ := strconv.ParseUint(rest[11], 10, 64)
+		stime, _ := strconv.ParseUint(rest[12], 10, 64)
+		ticks[pid] = utime + stime
+	}
+	return ticks
+}
+
+// ListProcesses lists processes without measuring CPU usage (cpuPercent is 0).
 func ListProcesses(sortBy string, limit int) ([]ProcessInfo, error) {
+	return ListProcessesSampled(sortBy, limit, 0)
+}
+
+// ListProcessesSampled lists processes and, when interval > 0, measures each
+// one's CPU usage over that interval. A process that started during the
+// interval reads 0 for this sample.
+func ListProcessesSampled(sortBy string, limit int, interval time.Duration) ([]ProcessInfo, error) {
+	var before map[int]uint64
+	var total1 cpuSample
+	if interval > 0 {
+		before = processTicks()
+		total1, _, _ = readCPUSamples()
+		time.Sleep(interval)
+	}
+
 	entries, err := os.ReadDir("/proc")
 	if err != nil {
 		return nil, err
@@ -186,15 +267,30 @@ func ListProcesses(sortBy string, limit int) ([]ProcessInfo, error) {
 		}
 	}
 
+	var total2 cpuSample
+	if interval > 0 {
+		total2, _, _ = readCPUSamples()
+	}
+
 	var procs []ProcessInfo
 	for _, pid := range pids {
 		pi, err := readProcess(pid, totalMem)
 		if err == nil && pi != nil {
+			if t1, ok := before[pid]; ok {
+				pi.CPUPercent = processCPUPercent(t1, pi.cpuTicks, total1.total, total2.total)
+			}
 			procs = append(procs, *pi)
 		}
 	}
 
 	switch strings.ToLower(sortBy) {
+	case "cpu":
+		sort.SliceStable(procs, func(i, j int) bool {
+			if procs[i].CPUPercent != procs[j].CPUPercent {
+				return procs[i].CPUPercent > procs[j].CPUPercent
+			}
+			return procs[i].MemoryBytes > procs[j].MemoryBytes
+		})
 	case "mem", "memory":
 		sort.Slice(procs, func(i, j int) bool {
 			return procs[i].MemoryBytes > procs[j].MemoryBytes
@@ -230,8 +326,9 @@ func KillProcess(pid int, force bool) error {
 	proc, err := readProcess(pid, 0)
 	if err == nil && proc != nil {
 		lower := strings.ToLower(proc.Name)
-		if lower == "systemd" || lower == "init" || lower == "runit" {
-			return fmt.Errorf("refusing to terminate core init process (%s)", proc.Name)
+		// runsvdir supervises every runit service: ending it stops them all.
+		if lower == "systemd" || lower == "init" || lower == "runit" || lower == "runsvdir" {
+			return fmt.Errorf("refusing to end %s, which the whole system depends on", proc.Name)
 		}
 	}
 
@@ -240,5 +337,14 @@ func KillProcess(pid int, force bool) error {
 		sig = syscall.SIGKILL
 	}
 
-	return syscall.Kill(pid, sig)
+	switch err := syscall.Kill(pid, sig); err {
+	case nil:
+		return nil
+	case syscall.EPERM:
+		return fmt.Errorf("permission denied: process %d belongs to another user", pid)
+	case syscall.ESRCH:
+		return fmt.Errorf("process %d has already exited", pid)
+	default:
+		return err
+	}
 }
