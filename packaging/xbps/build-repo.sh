@@ -87,7 +87,7 @@ xbps-create \
 	-m "Asura OS Project <dev@asuraos.dev>" \
 	-l "MIT" \
 	-H "https://asuraos.dev" \
-	-D "hyprland quickshell-asura seatd turnstile ghostty papirus-icon-theme font-awesome" \
+	-D "hyprland quickshell seatd turnstile ghostty papirus-icon-theme font-awesome" \
 	"$STAGE"
 
 mv "asura-daemon-${VERSION}_1.x86_64.xbps" "$BUILD_DIR/"
