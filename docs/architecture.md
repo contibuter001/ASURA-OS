@@ -18,6 +18,7 @@ ASURA OS is powered by a Void Linux x86_64 (glibc) base layer with runit service
 | Init System & Session Supervision | runit (system services) + `asura-user-services` (user desktop services) | Deterministic, lightweight service supervision. System services live in `/etc/sv/`, supervised user desktop daemons live in `~/.config/service/`. |
 | Seat Management | seatd (`LIBSEAT_BACKEND=seatd`) with fallback to elogind | Unprivileged Wayland session DRM master and input claiming without desktop environment bloat. |
 | Filesystem & Storage | Btrfs / ext4 with guided partitioning in installer | Robust root filesystem support with automated partitioning (`installation/asura-installer.sh`). |
+| Disk Encryption & /boot Layout | LUKS2 (argon2id) with unencrypted /boot | Standardized LUKS2 container unlocked during early boot via dracut crypt module. A dedicated unencrypted 1 GiB /boot partition prevents dual-passphrase prompts and allows GRUB to load kernel/initramfs without Argon2 limitations. Snapshot boot entries (`40_asura_snapshots`) boot the active kernel against the restored root snapshot. If a rollback is necessitated by a broken kernel update, the previous kernel package must be held or selected. |
 | Compositor | Hyprland | ASURA draws its own shell and does not need a stock one. |
 | Desktop shell | Quickshell (QML) — bar, dock, launcher, popouts, widgets; the lock screen is `hyprlock` and the login screen an SDDM theme. The **engine** is built by ASURA; the **surfaces** are vendored open-source Quickshell components, re-themed to ASURA's monochrome design language | Compositor-agnostic, proven, and the design language already lives in QML/CSS. The surfaces are upstream's and the re-theme is ASURA's. See [the shell](#the-shell) and [vendored upstream components](#vendored-upstream-components). |
 | Control plane & State | Go — `asura`; `asura-sysd` (root daemon at `/run/asura/sysd.sock`); `asura-userd` (user session daemon); `asura-shell`; `asura-hubd`; `asura-wallpaper`; `apm` | Static binaries, cross-compiles cleanly, fast startup, with strong typing and no CGo dependencies. |
@@ -133,6 +134,8 @@ violation until it is added:
 | `/etc/modprobe.d/nvidia-optimus.conf` | Kernel module options for NVIDIA power management | `modprobe` / `kmod` parses module configuration parameters from `/etc/modprobe.d/` |
 | `/etc/sysctl.d/99-asura-power.rules` | Kernel sysctl runtime power and responsiveness parameters | `sysctl` reads system tuning directives from `/etc/sysctl.d/` |
 | `/etc/ananicy.d/00-asura-rules.rules` | Process nice/scheduling autogroup rules for ananicy-cpp | `ananicy-cpp` reads process priority rules from `/etc/ananicy.d/` |
+| `/etc/crypttab` | LUKS disk mapping | The early-boot crypt module reads mapped container UUIDs from `/etc/crypttab` |
+| `/etc/dracut.conf.d/40-asura-crypt.conf` | Dracut crypt module configuration | dracut reads initramfs module inclusion drop-ins from `/etc/dracut.conf.d/` |
 
 Content stays inside the two directories: the login surface's own files belong at
 `/usr/share/asura/session/`, and everything SDDM needs to point at belongs there too. The

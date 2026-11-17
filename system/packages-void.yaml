@@ -45,6 +45,7 @@ essential:
     - e2fsprogs
     - dosfstools
     - parted
+    - cryptsetup
     - rsync
     - grub
     - grub-x86_64-efi

@@ -113,6 +113,7 @@ confirm.
 - [x] `installation/build-iso-void.sh` — Void Linux live ISO builder via `void-mklive`, package extraction from `system/packages-void.yaml`, user autologin (`agetty-tty1`), and user group membership (`_seatd`, `video`, `audio`, `input`)
 - [x] `installation/build-iso-void_test.sh` — validation suite asserting required packages, runit services, and postsetup hooks
 - [x] `installation/asura-installer.sh` — guided disk partitioner, rootfs installer, fstab generator, and GRUB EFI bootloader config
+- [x] Full-disk encryption (LUKS2 + argon2id) in `installation/asura-installer.sh` with dedicated `/boot` partition, dracut crypt module, and Plymouth password prompt integration
 - [x] `desktop/cmd/asura/install.go` and `session/applications/asura-installer.desktop` — CLI and desktop entry launcher for the installer
 - [x] `packaging/xbps/build-repo.sh` and `.github/workflows/xbps-repo.yml` — automated XBPS binary package creation via `xbps-create` and repository indexing via `xbps-rindex`
 - [x] CI automation in `.github/workflows/ci.yml` producing verified ISO artifacts and sha256 checksums

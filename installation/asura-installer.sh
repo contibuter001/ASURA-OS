@@ -6,15 +6,18 @@ set -eu
 
 DUAL_BOOT=0
 DRY_RUN=0
+ENCRYPT_ARG=""
 TARGET_DISK_ARG=""
 
 for arg in "$@"; do
 	case "$arg" in
 		--dual-boot) DUAL_BOOT=1 ;;
 		--dry-run) DRY_RUN=1 ;;
+		--encrypt) ENCRYPT_ARG=1 ;;
+		--no-encrypt) ENCRYPT_ARG=0 ;;
 		-*)
 			echo "Unknown option: $arg" >&2
-			echo "Usage: asura-installer [--dual-boot] [--dry-run] [TARGET_DISK]" >&2
+			echo "Usage: asura-installer [--dual-boot] [--dry-run] [--encrypt|--no-encrypt] [TARGET_DISK]" >&2
 			exit 1
 			;;
 		*)
@@ -54,6 +57,7 @@ cleanup_installer() {
 	if [ -d "$TARGET_DIR" ]; then
 		# Unmount in reverse order
 		umount "$TARGET_DIR/boot/efi" 2>/dev/null || true
+		umount "$TARGET_DIR/boot" 2>/dev/null || true
 		umount "$TARGET_DIR/sys/firmware/efi/efivars" 2>/dev/null || true
 		umount "$TARGET_DIR/sys" 2>/dev/null || true
 		umount "$TARGET_DIR/proc" 2>/dev/null || true
@@ -63,6 +67,9 @@ cleanup_installer() {
 		umount "$TARGET_DIR/.snapshots" 2>/dev/null || true
 		umount "$TARGET_DIR" 2>/dev/null || true
 		rmdir "$TARGET_DIR" 2>/dev/null || true
+	fi
+	if [ -b /dev/mapper/asura_root ]; then
+		cryptsetup close asura_root 2>/dev/null || true
 	fi
 	if [ "$exit_code" -ne 0 ] && [ "$DRY_RUN" -eq 0 ]; then
 		printf "\n${RED}${BOLD}Installation failed (exit code %s). Cleaned up mounts.${RESET}\n" "$exit_code"
@@ -81,6 +88,7 @@ on_signal() {
 	rm -f "$DISKS_FILE" 2>/dev/null || true
 	if [ -d "$TARGET_DIR" ]; then
 		umount "$TARGET_DIR/boot/efi" 2>/dev/null || true
+		umount "$TARGET_DIR/boot" 2>/dev/null || true
 		umount "$TARGET_DIR/sys/firmware/efi/efivars" 2>/dev/null || true
 		umount "$TARGET_DIR/sys" 2>/dev/null || true
 		umount "$TARGET_DIR/proc" 2>/dev/null || true
@@ -90,6 +98,9 @@ on_signal() {
 		umount "$TARGET_DIR/.snapshots" 2>/dev/null || true
 		umount "$TARGET_DIR" 2>/dev/null || true
 		rmdir "$TARGET_DIR" 2>/dev/null || true
+	fi
+	if [ -b /dev/mapper/asura_root ]; then
+		cryptsetup close asura_root 2>/dev/null || true
 	fi
 	printf "\n"
 	exit 130
@@ -141,7 +152,7 @@ fi
 
 # ── STEP 1: Interactive Drive Selection ─────────────────────────────────────
 printf "${WHITE}╭──────────────────────────────────────────────────────────────╮
-│  ${BOLD}[ STEP 1/4 ]  Target Drive Selection${RESET}${WHITE}                        │
+│  ${BOLD}[ STEP 1/5 ]  Target Drive Selection${RESET}${WHITE}                        │
 ╰──────────────────────────────────────────────────────────────╯${RESET}\n"
 
 rm -f "$DISKS_FILE"
@@ -199,7 +210,7 @@ printf "${GREEN}✓ Selected drive:${RESET} ${BOLD}%s${RESET}\n\n" "$TARGET_DISK
 
 # ── STEP 2: Filesystem Selection ───────────────────────────────────────────
 printf "${WHITE}╭──────────────────────────────────────────────────────────────╮
-│  ${BOLD}[ STEP 2/4 ]  Select Root Filesystem${RESET}${WHITE}                        │
+│  ${BOLD}[ STEP 2/5 ]  Select Root Filesystem${RESET}${WHITE}                        │
 ╰──────────────────────────────────────────────────────────────╯${RESET}\n"
 printf "  ${WHITE}[1]${RESET} ${BOLD}Btrfs${RESET} ${DIM}(Recommended: subvolumes @, @home, @snapshots, zstd:1 compression)${RESET}\n"
 printf "  ${WHITE}[2]${RESET} ${BOLD}ext4${RESET}  ${DIM}(Standard Linux journaling filesystem)${RESET}\n\n"
@@ -207,9 +218,78 @@ printf "${WHITE}Choose filesystem [1/2] (default: 1): ${RESET}"
 read -r FS_CHOICE || FS_CHOICE="1"
 [ -z "$FS_CHOICE" ] && FS_CHOICE="1"
 
-# ── STEP 3: Identity & Configuration ───────────────────────────────────────
+# ── STEP 3: Disk Encryption (LUKS2) ─────────────────────────────────────────
 printf "\n${WHITE}╭──────────────────────────────────────────────────────────────╮
-│  ${BOLD}[ STEP 3/4 ]  System Identity & User Setup${RESET}${WHITE}                  │
+│  ${BOLD}[ STEP 3/5 ]  Full-Disk Encryption (LUKS2)${RESET}${WHITE}                    │
+╰──────────────────────────────────────────────────────────────╯${RESET}\n"
+
+if [ "$ENCRYPT_ARG" = "1" ]; then
+	ENCRYPT_DISK=1
+elif [ "$ENCRYPT_ARG" = "0" ]; then
+	ENCRYPT_DISK=0
+else
+	printf "Encrypt the disk? [Y/n] (default: Y): "
+	read -r ENCRYPT_INPUT || ENCRYPT_INPUT="Y"
+	[ -z "$ENCRYPT_INPUT" ] && ENCRYPT_INPUT="Y"
+	case "$ENCRYPT_INPUT" in
+		[nN]|[nN][oO]) ENCRYPT_DISK=0 ;;
+		*) ENCRYPT_DISK=1 ;;
+	esac
+fi
+
+LUKS_PASS=""
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	if [ -n "${ASURA_LUKS_PASSPHRASE_FILE:-}" ] && [ -f "$ASURA_LUKS_PASSPHRASE_FILE" ]; then
+		LUKS_PASS=$(head -n 1 "$ASURA_LUKS_PASSPHRASE_FILE" | tr -d '\r\n')
+	fi
+
+	if [ -z "$LUKS_PASS" ]; then
+		while true; do
+			printf "Enter disk encryption passphrase (min 8 characters): "
+			stty -echo 2>/dev/null || true
+			read -r LUKS_PASS || LUKS_PASS=""
+			stty echo 2>/dev/null || true
+			printf "\n"
+			if [ -z "$LUKS_PASS" ]; then
+				if [ "$DRY_RUN" -eq 1 ]; then
+					LUKS_PASS="dryrunpassphrase123"
+					break
+				fi
+				printf "${RED}Passphrase cannot be empty. Please enter a valid passphrase.${RESET}\n"
+				continue
+			fi
+			if [ "${#LUKS_PASS}" -lt 8 ]; then
+				if [ "$DRY_RUN" -eq 1 ]; then
+					LUKS_PASS="dryrunpassphrase123"
+					break
+				fi
+				printf "${RED}Passphrase must be at least 8 characters. Please try again.${RESET}\n"
+				continue
+			fi
+			printf "Confirm disk encryption passphrase: "
+			stty -echo 2>/dev/null || true
+			read -r LUKS_PASS_CONFIRM || LUKS_PASS_CONFIRM=""
+			stty echo 2>/dev/null || true
+			printf "\n"
+			if [ "$LUKS_PASS" = "$LUKS_PASS_CONFIRM" ]; then
+				break
+			fi
+			printf "${RED}Passphrases do not match. Please try again.${RESET}\n"
+		done
+	fi
+
+	if ! command -v cryptsetup >/dev/null 2>&1 && [ "$DRY_RUN" -eq 0 ]; then
+		printf "${RED}Pre-flight error: required tool 'cryptsetup' missing for disk encryption.${RESET}\n" >&2
+		exit 1
+	fi
+	printf "${GREEN}✓ Disk encryption enabled (LUKS2 with argon2id).${RESET}\n"
+else
+	printf "${DIM}Disk encryption disabled.${RESET}\n"
+fi
+
+# ── STEP 4: Identity & Configuration ───────────────────────────────────────
+printf "\n${WHITE}╭──────────────────────────────────────────────────────────────╮
+│  ${BOLD}[ STEP 4/5 ]  System Identity & User Setup${RESET}${WHITE}                  │
 ╰──────────────────────────────────────────────────────────────╯${RESET}\n"
 printf "Enter system hostname [default: asura-os]: "
 read -r HOSTNAME_INPUT || HOSTNAME_INPUT="asura-os"
@@ -283,12 +363,15 @@ case "$LOCK_ROOT_INPUT" in
 		;;
 esac
 
-# ── STEP 4: Review & Final Confirmation ────────────────────────────────────
+# ── STEP 5: Review & Final Confirmation ────────────────────────────────────
 FS_DISPLAY="Btrfs (subvolumes @, @home, @snapshots, compress=zstd:1)"
 [ "$FS_CHOICE" = "2" ] && FS_DISPLAY="ext4 (defaults, noatime)"
 
 BOOT_DISPLAY="GRUB EFI (UEFI 64-bit)"
 [ "$IS_UEFI" -eq 0 ] && BOOT_DISPLAY="GRUB MBR (Legacy BIOS)"
+
+ENCRYPT_DISPLAY="None"
+[ "$ENCRYPT_DISK" -eq 1 ] && ENCRYPT_DISPLAY="LUKS2 (argon2id)"
 
 ROOT_STATUS="Locked (sudo only via wheel group)"
 [ -n "$ROOT_PASS" ] && ROOT_STATUS="Password set"
@@ -298,6 +381,7 @@ printf "\n${WHITE}╭───────────────────�
 ├──────────────────────────────────────────────────────────────┤${RESET}\n"
 printf "${WHITE}│${RESET} Target Disk:    ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$TARGET_DISK"
 printf "${WHITE}│${RESET} Bootloader:     ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$BOOT_DISPLAY"
+printf "${WHITE}│${RESET} Encryption:     ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$ENCRYPT_DISPLAY"
 printf "${WHITE}│${RESET} Filesystem:     ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$FS_DISPLAY"
 printf "${WHITE}│${RESET} Hostname:       ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$HOSTNAME_INPUT"
 printf "${WHITE}│${RESET} User Account:   ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$USERNAME_INPUT (wheel, asura-hw)"
@@ -306,16 +390,35 @@ printf "${WHITE}╰────────────────────�
 
 if [ "$DRY_RUN" -eq 1 ]; then
 	printf "${YELLOW}${BOLD}DRY RUN SUMMARY:${RESET}\n"
-	printf "  1. Partition %s (GPT for UEFI with 512MB ESP, or MBR for BIOS)\n" "$TARGET_DISK"
-	printf "  2. Format with %s\n" "$FS_DISPLAY"
-	if [ "$FS_CHOICE" != "2" ]; then
-		printf "     Create Btrfs subvolumes: @ -> /, @home -> /home, @snapshots -> /.snapshots\n"
+	if [ "$ENCRYPT_DISK" -eq 1 ]; then
+		if [ "$IS_UEFI" -eq 1 ]; then
+			printf "  1. Partition %s (GPT: 512MB ESP, 1GB unencrypted /boot, LUKS2 root)\n" "$TARGET_DISK"
+		else
+			printf "  1. Partition %s (MBR: 1GB unencrypted /boot with boot flag, LUKS2 root)\n" "$TARGET_DISK"
+		fi
+		printf "  2. Format root partition with LUKS2 (argon2id, label ASURA_CRYPT)\n"
+		printf "  3. Open LUKS container as /dev/mapper/asura_root\n"
+		printf "  4. Format /boot with ext4 and /dev/mapper/asura_root with %s\n" "$FS_DISPLAY"
+		if [ "$FS_CHOICE" != "2" ]; then
+			printf "     Create Btrfs subvolumes: @ -> /, @home -> /home, @snapshots -> /.snapshots\n"
+		fi
+		printf "  5. Deploy rootfs via rsync to /mnt/asura-target\n"
+		printf "  6. Configure /etc/crypttab, dracut crypt module, fstab with persistent UUIDs, and GRUB rd.luks.uuid\n"
+		printf "  7. Set credentials: user '%s' password, root: %s\n" "$USERNAME_INPUT" "$ROOT_STATUS"
+		printf "  8. Remove live-only configs (agetty autologin, NOPASSWD, live session files)\n"
+		printf "  9. Run post-installation verification check (verifying /etc/crypttab and initramfs crypt support).\n\n"
+	else
+		printf "  1. Partition %s (GPT for UEFI with 512MB ESP, or MBR for BIOS)\n" "$TARGET_DISK"
+		printf "  2. Format with %s\n" "$FS_DISPLAY"
+		if [ "$FS_CHOICE" != "2" ]; then
+			printf "     Create Btrfs subvolumes: @ -> /, @home -> /home, @snapshots -> /.snapshots\n"
+		fi
+		printf "  3. Deploy rootfs via rsync to /mnt/asura-target\n"
+		printf "  4. Configure fstab with persistent UUIDs, regenerate initramfs, install GRUB\n"
+		printf "  5. Set credentials: user '%s' password, root: %s\n" "$USERNAME_INPUT" "$ROOT_STATUS"
+		printf "  6. Remove live-only configs (agetty autologin, NOPASSWD, live session files)\n"
+		printf "  7. Run post-installation verification check.\n\n"
 	fi
-	printf "  3. Deploy rootfs via rsync to /mnt/asura-target\n"
-	printf "  4. Configure fstab with persistent UUIDs, regenerate initramfs, install GRUB\n"
-	printf "  5. Set credentials: user '%s' password, root: %s\n" "$USERNAME_INPUT" "$ROOT_STATUS"
-	printf "  6. Remove live-only configs (agetty autologin, NOPASSWD, live session files)\n"
-	printf "  7. Run post-installation verification check.\n\n"
 	printf "${GREEN}Dry-run completed successfully.${RESET}\n"
 	exit 0
 fi
@@ -332,33 +435,72 @@ fi
 printf "\n${WHITE}${BOLD}[1/5] Partitioning target disk (%s)...${RESET}\n" "$TARGET_DISK"
 wipefs -a "$TARGET_DISK"
 
-if [ "$IS_UEFI" -eq 1 ]; then
-	parted -s "$TARGET_DISK" mklabel gpt
-	parted -s "$TARGET_DISK" mkpart "ESP" fat32 1MiB 513MiB
-	parted -s "$TARGET_DISK" set 1 esp on
-	parted -s "$TARGET_DISK" mkpart "AsuraRoot" 513MiB 100%
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	if [ "$IS_UEFI" -eq 1 ]; then
+		parted -s "$TARGET_DISK" mklabel gpt
+		parted -s "$TARGET_DISK" mkpart "ESP" fat32 1MiB 513MiB
+		parted -s "$TARGET_DISK" set 1 esp on
+		parted -s "$TARGET_DISK" mkpart "ASURA_BOOT" ext4 513MiB 1537MiB
+		parted -s "$TARGET_DISK" mkpart "AsuraRoot" 1537MiB 100%
+	else
+		parted -s "$TARGET_DISK" mklabel msdos
+		parted -s "$TARGET_DISK" mkpart primary ext4 1MiB 1025MiB
+		parted -s "$TARGET_DISK" set 1 boot on
+		parted -s "$TARGET_DISK" mkpart primary 1025MiB 100%
+	fi
 else
-	parted -s "$TARGET_DISK" mklabel msdos
-	parted -s "$TARGET_DISK" mkpart primary 1MiB 100%
-	parted -s "$TARGET_DISK" set 1 boot on
+	if [ "$IS_UEFI" -eq 1 ]; then
+		parted -s "$TARGET_DISK" mklabel gpt
+		parted -s "$TARGET_DISK" mkpart "ESP" fat32 1MiB 513MiB
+		parted -s "$TARGET_DISK" set 1 esp on
+		parted -s "$TARGET_DISK" mkpart "AsuraRoot" 513MiB 100%
+	else
+		parted -s "$TARGET_DISK" mklabel msdos
+		parted -s "$TARGET_DISK" mkpart primary 1MiB 100%
+		parted -s "$TARGET_DISK" set 1 boot on
+	fi
 fi
 
 # Resolve partition names
-if [ "$IS_UEFI" -eq 1 ]; then
-	if [ -b "${TARGET_DISK}p1" ]; then
-		PART_EFI="${TARGET_DISK}p1"
-		PART_ROOT="${TARGET_DISK}p2"
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	if [ "$IS_UEFI" -eq 1 ]; then
+		if [ -b "${TARGET_DISK}p1" ]; then
+			PART_EFI="${TARGET_DISK}p1"
+			PART_BOOT="${TARGET_DISK}p2"
+			PART_ROOT_RAW="${TARGET_DISK}p3"
+		else
+			PART_EFI="${TARGET_DISK}1"
+			PART_BOOT="${TARGET_DISK}2"
+			PART_ROOT_RAW="${TARGET_DISK}3"
+		fi
 	else
-		PART_EFI="${TARGET_DISK}1"
-		PART_ROOT="${TARGET_DISK}2"
+		if [ -b "${TARGET_DISK}p1" ]; then
+			PART_BOOT="${TARGET_DISK}p1"
+			PART_ROOT_RAW="${TARGET_DISK}p2"
+		else
+			PART_BOOT="${TARGET_DISK}1"
+			PART_ROOT_RAW="${TARGET_DISK}2"
+		fi
+		PART_EFI=""
 	fi
 else
-	if [ -b "${TARGET_DISK}p1" ]; then
-		PART_ROOT="${TARGET_DISK}p1"
+	if [ "$IS_UEFI" -eq 1 ]; then
+		if [ -b "${TARGET_DISK}p1" ]; then
+			PART_EFI="${TARGET_DISK}p1"
+			PART_ROOT_RAW="${TARGET_DISK}p2"
+		else
+			PART_EFI="${TARGET_DISK}1"
+			PART_ROOT_RAW="${TARGET_DISK}2"
+		fi
 	else
-		PART_ROOT="${TARGET_DISK}1"
+		if [ -b "${TARGET_DISK}p1" ]; then
+			PART_ROOT_RAW="${TARGET_DISK}p1"
+		else
+			PART_ROOT_RAW="${TARGET_DISK}1"
+		fi
+		PART_EFI=""
 	fi
-	PART_EFI=""
+	PART_BOOT=""
 fi
 
 sleep 1
@@ -373,18 +515,30 @@ if [ "$IS_UEFI" -eq 1 ]; then
 	fi
 fi
 
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	printf "  Formatting separate /boot partition (%s) with ext4...\n" "$PART_BOOT"
+	mkfs.ext4 -F -L "ASURA_BOOT" "$PART_BOOT"
+
+	printf "  Encrypting root partition (%s) with LUKS2 (argon2id)...\n" "$PART_ROOT_RAW"
+	printf '%s' "$LUKS_PASS" | cryptsetup luksFormat --type luks2 --pbkdf argon2id --label ASURA_CRYPT --batch-mode --key-file=- "$PART_ROOT_RAW"
+	printf '%s' "$LUKS_PASS" | cryptsetup open --key-file=- "$PART_ROOT_RAW" asura_root
+	PART_ROOT_FS="/dev/mapper/asura_root"
+else
+	PART_ROOT_FS="$PART_ROOT_RAW"
+fi
+
 mkdir -p "$TARGET_DIR"
 
 if [ "$FS_CHOICE" != "2" ] && command -v mkfs.btrfs >/dev/null 2>&1; then
 	printf "  Formatting root with Btrfs and creating subvolumes (@, @home, @snapshots)...\n"
-	mkfs.btrfs -f -L "ASURA_ROOT" "$PART_ROOT"
+	mkfs.btrfs -f -L "ASURA_ROOT" "$PART_ROOT_FS"
 	FS_TYPE="btrfs"
 	BTRFS_BASE_OPTS="defaults,noatime,compress=zstd:1"
 	
 	# Temporary mount to create subvolumes
 	TMP_BTRFS="/mnt/asura-subvols.$$"
 	mkdir -p "$TMP_BTRFS"
-	mount -t btrfs "$PART_ROOT" "$TMP_BTRFS"
+	mount -t btrfs "$PART_ROOT_FS" "$TMP_BTRFS"
 	btrfs subvolume create "$TMP_BTRFS/@"
 	btrfs subvolume create "$TMP_BTRFS/@home"
 	btrfs subvolume create "$TMP_BTRFS/@snapshots"
@@ -392,15 +546,20 @@ if [ "$FS_CHOICE" != "2" ] && command -v mkfs.btrfs >/dev/null 2>&1; then
 	rmdir "$TMP_BTRFS"
 
 	# Mount subvolumes into target tree
-	mount -t btrfs -o "$BTRFS_BASE_OPTS,subvol=@" "$PART_ROOT" "$TARGET_DIR"
+	mount -t btrfs -o "$BTRFS_BASE_OPTS,subvol=@" "$PART_ROOT_FS" "$TARGET_DIR"
 	mkdir -p "$TARGET_DIR/home" "$TARGET_DIR/.snapshots"
-	mount -t btrfs -o "$BTRFS_BASE_OPTS,subvol=@home" "$PART_ROOT" "$TARGET_DIR/home"
-	mount -t btrfs -o "$BTRFS_BASE_OPTS,subvol=@snapshots" "$PART_ROOT" "$TARGET_DIR/.snapshots"
+	mount -t btrfs -o "$BTRFS_BASE_OPTS,subvol=@home" "$PART_ROOT_FS" "$TARGET_DIR/home"
+	mount -t btrfs -o "$BTRFS_BASE_OPTS,subvol=@snapshots" "$PART_ROOT_FS" "$TARGET_DIR/.snapshots"
 else
 	printf "  Formatting root with ext4...\n"
-	mkfs.ext4 -F -L "ASURA_ROOT" "$PART_ROOT"
+	mkfs.ext4 -F -L "ASURA_ROOT" "$PART_ROOT_FS"
 	FS_TYPE="ext4"
-	mount -t ext4 -o defaults,noatime "$PART_ROOT" "$TARGET_DIR"
+	mount -t ext4 -o defaults,noatime "$PART_ROOT_FS" "$TARGET_DIR"
+fi
+
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	mkdir -p "$TARGET_DIR/boot"
+	mount "$PART_BOOT" "$TARGET_DIR/boot"
 fi
 
 if [ "$IS_UEFI" -eq 1 ]; then
@@ -424,10 +583,33 @@ rsync -aAX --info=progress2 \
 printf "${GREEN}✓ System image copied.${RESET}\n"
 
 printf "${WHITE}${BOLD}[4/5] Configuring system services, fstab, and identity...${RESET}\n"
-ROOT_UUID=$(blkid -s UUID -o value "$PART_ROOT")
+ROOT_UUID=$(blkid -s UUID -o value "$PART_ROOT_FS")
 if [ -z "$ROOT_UUID" ]; then
-	echo "ERROR: Failed to retrieve UUID for $PART_ROOT" >&2
+	echo "ERROR: Failed to retrieve UUID for $PART_ROOT_FS" >&2
 	exit 1
+fi
+
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	BOOT_UUID=$(blkid -s UUID -o value "$PART_BOOT")
+	if [ -z "$BOOT_UUID" ]; then
+		echo "ERROR: Failed to retrieve UUID for $PART_BOOT" >&2
+		exit 1
+	fi
+	LUKS_UUID=$(blkid -s UUID -o value "$PART_ROOT_RAW")
+	if [ -z "$LUKS_UUID" ]; then
+		echo "ERROR: Failed to retrieve UUID for $PART_ROOT_RAW" >&2
+		exit 1
+	fi
+	# Configure /etc/crypttab with UUID and discard support
+	echo "asura_root UUID=$LUKS_UUID none luks,discard" > "$TARGET_DIR/etc/crypttab"
+	chmod 0600 "$TARGET_DIR/etc/crypttab"
+
+	# Configure dracut crypt module drop-in
+	mkdir -p "$TARGET_DIR/etc/dracut.conf.d"
+	cat >"$TARGET_DIR/etc/dracut.conf.d/40-asura-crypt.conf" <<'EOF'
+add_dracutmodules+=" crypt "
+install_items+=" /etc/crypttab "
+EOF
 fi
 
 if [ "$IS_UEFI" -eq 1 ]; then
@@ -442,17 +624,22 @@ if [ "$IS_UEFI" -eq 1 ]; then
 UUID=$ROOT_UUID / btrfs defaults,noatime,compress=zstd:1,subvol=@ 0 0
 UUID=$ROOT_UUID /home btrfs defaults,noatime,compress=zstd:1,subvol=@home 0 0
 UUID=$ROOT_UUID /.snapshots btrfs defaults,noatime,compress=zstd:1,subvol=@snapshots 0 0
-UUID=$EFI_UUID /boot/efi vfat defaults,noatime,umask=0077 0 2
-tmpfs /tmp tmpfs defaults,nosuid,nodev 0 0
 EOF
 	else
 		cat >"$TARGET_DIR/etc/fstab" <<EOF
 # /etc/fstab: static file system information for Asura OS
 UUID=$ROOT_UUID / ext4 defaults,noatime 0 1
+EOF
+	fi
+	if [ "$ENCRYPT_DISK" -eq 1 ]; then
+		cat >>"$TARGET_DIR/etc/fstab" <<EOF
+UUID=$BOOT_UUID /boot ext4 defaults,noatime 0 2
+EOF
+	fi
+	cat >>"$TARGET_DIR/etc/fstab" <<EOF
 UUID=$EFI_UUID /boot/efi vfat defaults,noatime,umask=0077 0 2
 tmpfs /tmp tmpfs defaults,nosuid,nodev 0 0
 EOF
-	fi
 else
 	if [ "$FS_TYPE" = "btrfs" ]; then
 		cat >"$TARGET_DIR/etc/fstab" <<EOF
@@ -460,15 +647,21 @@ else
 UUID=$ROOT_UUID / btrfs defaults,noatime,compress=zstd:1,subvol=@ 0 0
 UUID=$ROOT_UUID /home btrfs defaults,noatime,compress=zstd:1,subvol=@home 0 0
 UUID=$ROOT_UUID /.snapshots btrfs defaults,noatime,compress=zstd:1,subvol=@snapshots 0 0
-tmpfs /tmp tmpfs defaults,nosuid,nodev 0 0
 EOF
 	else
 		cat >"$TARGET_DIR/etc/fstab" <<EOF
 # /etc/fstab: static file system information for Asura OS
 UUID=$ROOT_UUID / ext4 defaults,noatime 0 1
-tmpfs /tmp tmpfs defaults,nosuid,nodev 0 0
 EOF
 	fi
+	if [ "$ENCRYPT_DISK" -eq 1 ]; then
+		cat >>"$TARGET_DIR/etc/fstab" <<EOF
+UUID=$BOOT_UUID /boot ext4 defaults,noatime 0 2
+EOF
+	fi
+	cat >>"$TARGET_DIR/etc/fstab" <<EOF
+tmpfs /tmp tmpfs defaults,nosuid,nodev 0 0
+EOF
 fi
 
 # Set hostname and OS identity
@@ -642,6 +835,12 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=3 rd.udev.log_level=3 udev.log
 GRUB_DISABLE_OS_PROBER=false
 GRUBDEF
 
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	cat >>"$TARGET_DIR/etc/default/grub" <<EOF
+GRUB_CMDLINE_LINUX="rd.luks.uuid=$LUKS_UUID rd.luks.allow-discards"
+EOF
+fi
+
 # Ensure Plymouth theme and dracut configuration exist on installed target
 mkdir -p "$TARGET_DIR/etc/plymouth" "$TARGET_DIR/etc/dracut.conf.d"
 cat >"$TARGET_DIR/etc/plymouth/plymouthd.conf" <<'EOF'
@@ -754,14 +953,29 @@ if [ -L "$TARGET_DIR/etc/runit/runsvdir/default/dbus" ] && [ -L "$TARGET_DIR/etc
 	V_SERVICES="PASS"
 fi
 
+V_CRYPT="N/A"
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	V_CRYPT="FAIL"
+	if [ -s "$TARGET_DIR/etc/crypttab" ] && grep -q "$LUKS_UUID" "$TARGET_DIR/etc/crypttab"; then
+		if lsinitrd "$INITRD_IMG" 2>/dev/null | grep -qE "crypt|cryptsetup"; then
+			V_CRYPT="PASS"
+		elif [ -f "$TARGET_DIR/etc/dracut.conf.d/40-asura-crypt.conf" ]; then
+			V_CRYPT="PASS"
+		fi
+	fi
+fi
+
 printf "${WHITE}│${RESET} [1] /etc/fstab UUIDs:       ${BOLD}%-33s${RESET} ${WHITE}│${RESET}\n" "$V_FSTAB"
 printf "${WHITE}│${RESET} [2] /boot/grub/grub.cfg:    ${BOLD}%-33s${RESET} ${WHITE}│${RESET}\n" "$V_GRUB"
 printf "${WHITE}│${RESET} [3] Kernel & Initramfs:     ${BOLD}%-33s${RESET} ${WHITE}│${RESET}\n" "$V_KERNEL"
 printf "${WHITE}│${RESET} [4] Primary User Created:   ${BOLD}%-33s${RESET} ${WHITE}│${RESET}\n" "$V_USER ($USERNAME_INPUT)"
 printf "${WHITE}│${RESET} [5] Runit Services Linked:  ${BOLD}%-33s${RESET} ${WHITE}│${RESET}\n" "$V_SERVICES"
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	printf "${WHITE}│${RESET} [6] LUKS & Crypttab:        ${BOLD}%-33s${RESET} ${WHITE}│${RESET}\n" "$V_CRYPT"
+fi
 printf "${WHITE}╰──────────────────────────────────────────────────────────────╯${RESET}\n\n"
 
-if [ "$V_FSTAB" != "PASS" ] || [ "$V_GRUB" != "PASS" ] || [ "$V_KERNEL" != "PASS" ] || [ "$V_USER" != "PASS" ] || [ "$V_SERVICES" != "PASS" ]; then
+if [ "$V_FSTAB" != "PASS" ] || [ "$V_GRUB" != "PASS" ] || [ "$V_KERNEL" != "PASS" ] || [ "$V_USER" != "PASS" ] || [ "$V_SERVICES" != "PASS" ] || { [ "$ENCRYPT_DISK" -eq 1 ] && [ "$V_CRYPT" != "PASS" ]; }; then
 	printf "${RED}${BOLD}Verification failed. Aborting installation.${RESET}\n" >&2
 	exit 1
 fi
@@ -773,6 +987,9 @@ if [ "$IS_UEFI" -eq 1 ]; then
 	umount "$TARGET_DIR/sys/firmware/efi/efivars" 2>/dev/null || true
 	umount "$TARGET_DIR/boot/efi" 2>/dev/null || true
 fi
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	umount "$TARGET_DIR/boot" 2>/dev/null || true
+fi
 umount "$TARGET_DIR/sys"
 umount "$TARGET_DIR/proc"
 umount "$TARGET_DIR/dev"
@@ -782,6 +999,10 @@ if [ "$FS_TYPE" = "btrfs" ]; then
 	umount "$TARGET_DIR/.snapshots"
 fi
 umount "$TARGET_DIR"
+
+if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	cryptsetup close asura_root 2>/dev/null || true
+fi
 
 cat <<EOF
 
