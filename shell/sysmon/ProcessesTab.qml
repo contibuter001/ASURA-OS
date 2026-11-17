@@ -200,10 +200,11 @@ Item {
                 var f = tab.filterText;
                 for (var i = 0; i < list.length; i++) {
                     var p = list[i];
-                    if (!f || p.name.toLowerCase().indexOf(f) >= 0 || String(p.pid).indexOf(f) >= 0 || p.user.toLowerCase().indexOf(f) >= 0) {
+                    if (!f || p.name.toLowerCase().indexOf(f) >= 0 || (p.cmdline && p.cmdline.toLowerCase().indexOf(f) >= 0) || String(p.pid).indexOf(f) >= 0 || p.user.toLowerCase().indexOf(f) >= 0) {
                         filteredModel.append({
                             pid: p.pid,
                             name: p.name,
+                            cmdline: p.cmdline || "",
                             user: p.user,
                             memoryBytes: p.memoryBytes,
                             threads: p.threads,
@@ -224,6 +225,7 @@ Item {
             delegate: Rectangle {
                 required property int pid
                 required property string name
+                required property string cmdline
                 required property string user
                 required property real memoryBytes
                 required property int threads
@@ -235,6 +237,10 @@ Item {
                 color: tab.selectedPID === pid ? "#222736" : (rowMouse.containsMouse ? "#161922" : "transparent")
                 border.color: tab.selectedPID === pid ? "#3b4255" : "transparent"
                 border.width: 1
+
+                ToolTip.visible: rowMouse.containsMouse && cmdline.length > 0
+                ToolTip.text: cmdline
+                ToolTip.delay: 500
 
                 Row {
                     anchors.fill: parent

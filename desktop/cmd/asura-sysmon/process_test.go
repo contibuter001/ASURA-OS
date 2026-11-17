@@ -50,3 +50,27 @@ func TestKillProcessSafety(t *testing.T) {
 		t.Fatalf("expected error refusing to kill PID 0")
 	}
 }
+
+func TestResolveProcessName(t *testing.T) {
+	cases := []struct {
+		comm     string
+		cmdline  string
+		expected string
+	}{
+		{"quickshell", "quickshell -p /usr/share/asura/shell --no-color", "quickshell (shell)"},
+		{"quickshell", "quickshell -p /usr/share/asura/sysmon/sysmon.qml", "quickshell (sysmon)"},
+		{"quickshell", "quickshell --path=/usr/share/asura/shell/hub.qml", "quickshell (hub)"},
+		{"xdg-desktop-por", "/usr/libexec/xdg-desktop-portal-hyprland", "xdg-desktop-portal-hyprland"},
+		{"xdg-desktop-por", "/usr/libexec/xdg-desktop-portal", "xdg-desktop-portal"},
+		{"python3", "python3 /usr/bin/asura-doctor", "python3 (asura-doctor)"},
+		{"bash", "bash", "bash"},
+		{"kthreadd", "", "kthreadd"},
+	}
+
+	for _, tc := range cases {
+		got := resolveProcessName(tc.comm, tc.cmdline)
+		if got != tc.expected {
+			t.Errorf("resolveProcessName(%q, %q) = %q; want %q", tc.comm, tc.cmdline, got, tc.expected)
+		}
+	}
+}
