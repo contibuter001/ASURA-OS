@@ -62,6 +62,7 @@ The desktop shell is inspired by ryoku.
 ### Why Void Linux is the base layer
 
 Void Linux provides a clean, bloat-free foundation:
+
 1. **glibc x86_64**: Complete binary compatibility with NVIDIA proprietary drivers, Steam, Electron, and modern developer toolchains.
 2. **runit init system**: Fast, predictable service supervision without systemd overhead, paired with ASURA's user-level session supervisor (`asura-user-services`).
 3. **XBPS package manager**: Fast package installation and native binary package generation (`xbps-create`, `xbps-rindex`).
@@ -109,16 +110,19 @@ into a union of working setups that grows without anyone owning a hardware lab.
 ## Repository layout
 
 ```
-desktop/             the control tools: cmd/asura, and the shell, hub, agent layer
+apps/                built-in desktop applications (Hub, Store, Sysmon, VM)
+desktop/             the control tools: cmd/asura, asura-sysd, asura-userd, asura-shell, asura-hubd, apm
 system/hardware/     detection, matching, redaction, reports, profiles and tiers
 system/kernel/       pinned kernel fleet
-installation/        installer backend and ISO build
-release/             .deb packaging, signed APT repository, boundary check
-session/             the session entry point, its registration and portal config
-docs/                guides and architecture notes
+installation/        installer backend (asura-installer.sh) and ISO builder (build-iso-void.sh)
+packaging/           packaging infrastructure: packaging/xbps/ with binary repo generator
+session/             session startup, Hyprland configs, binds, SDDM greeter theme, GRUB snapshots
+shell/               Quickshell QML desktop shell (bar, dock, launcher, popouts, Hub)
+system/              system services (runit), hardware detection, kernel fleet, packages manifest
+docs/                guides, roadmap, and architecture records
 agents/              the agent contract and the design system
-tests/               CI checks
-tools/               maintenance scripts; port.py re-ports code from its upstream (see NOTICE.md)
+tests/               contract tests and CI suites
+public/              branding assets, wallpapers, and logos
 ```
 
 The desktop source lives under `desktop/`, never in a directory named after one of the
@@ -132,7 +136,7 @@ The four design documents, and what each one decides:
 | [`docs/architecture.md`](docs/architecture.md) | The stack and the reasoning behind it — settled decisions, rejected options, the base-layer boundary, the portal seam |
 | [`docs/hardware-detection.md`](docs/hardware-detection.md) | The subsystem that decides whether ASURA works on someone else's laptop — probes, matching, PII stripping, tier assignment |
 | [`docs/session.md`](docs/session.md) | The boot and login chain — GRUB through runit to Hyprland, the session entry point, what starts in what order, and who owns logout, suspend and shutdown |
-| [`docs/adopting-asura.md`](docs/adopting-asura.md) | `asura adopt` — switching an existing GNOME desktop over in place, built around a reversibility contract |
+| [`docs/adopting-asura.md`](docs/adopting-asura.md) | `asura adopt` (Legacy — Ubuntu/APT design) — historical in-place adoption design; current installation uses the live ISO and `asura install` |
 
 [`docs/roadmap.md`](docs/roadmap.md) orders the work.
 
@@ -158,7 +162,7 @@ on nothing outside the standard library; `desktop/` is a second module that depe
 The commands that reach it:
 
 ```console
-$ asura adopt --check                # can this machine switch? changes nothing
+$ asura install                      # launch the guided disk installer
 $ asura hardware report              # this machine, redacted, safe to paste
 $ asura hardware report --profile    # a candidate profile to review and submit
 $ asura hardware match               # which profile claims this machine, and at what tier
@@ -184,9 +188,7 @@ matched — an answer, not a failure.
 The one rule the overlay model exists to keep: **a user's override wins at its mirrored path,
 and no update can clobber it.**
 
-`asura adopt --check` is a preflight for moving an existing GNOME desktop over in place. It
-needs no root, changes nothing, and exits `0` ready, `1` blocked, `2` ready with warnings — so a
-script can tell the three cases apart. `--json` emits the same report machine-readably.
+The legacy in-place adoption design (`asura adopt`) is documented in [`docs/adopting-asura.md`](docs/adopting-asura.md); current installation is driven by the bootable ISO and `asura install`.
 
 ## Branches
 
@@ -198,8 +200,7 @@ script can tell the three cases apart. `--json` emits the same report machine-re
 Documentation changes land on `main` directly. Implementation lands on `dev-unstable`. A
 milestone is done when its code has merged forward, not when it is written.
 
-Only the documentation framework exists today. See [`docs/roadmap.md`](docs/roadmap.md) for
-what lands in what order.
+`dev-unstable` contains the complete working implementation, including the bootable Void-based Live ISO, the guided installer (`asura install`), hardware detection, and the Quickshell desktop shell. See [`docs/roadmap.md`](docs/roadmap.md) for milestone progress.
 
 ---
 

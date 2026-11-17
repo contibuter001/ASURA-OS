@@ -165,10 +165,11 @@ glib-compile-schemas --strict --dry-run shell/
 # quickshell or no Wayland display.
 sh shell/shell_test.sh
 
-# The session, the greeter, the package and the repository
+# The session, the greeter, the installer and the package tests
 sh session/session_test.sh
 sh session/greeter_test.sh
-sh release/release_test.sh
+sh installation/build-iso-void_test.sh
+sh installation/asura-installer_test.sh
 
 # gofmt / vet — the control tools are Go. There is no go.mod at the
 # repository root: `desktop/` is one module and `system/hardware/` is
@@ -206,8 +207,6 @@ rules.
 - [2026-10-29] The OS must not mention anything about Void Linux/Void OS; completely hide all upstream base branding across boot sequences, motd, issue, os-release, hostnames, and greetings.
 - [2026-10-29] ASURA OS uses Void Linux x86_64 (glibc) as its base operating system.
 - [2026-10-27] Never use or ship kitty in this OS; Ghostty is the sole supported terminal emulator.
-
-
 
 ## Branches
 
