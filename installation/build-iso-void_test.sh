@@ -102,6 +102,19 @@ grep -Fq 'zramen' "$MANIFEST"
 grep -Fq 'mimalloc' "$MANIFEST"
 grep -Fq 'podman' "$MANIFEST"
 grep -Fq 'docker' "$MANIFEST"
+# Daily-driver basics: clock sync, firewall, removable media, firmware, printing
+for pkg in chrony nftables udisks2 fwupd cups cups-filters; do
+	grep -Eq "^[[:space:]]+- ${pkg}\$" "$MANIFEST" || { echo "build-iso-void_test: $pkg missing from packages-void.yaml" >&2; exit 1; }
+done
+for f in "$SCRIPT" "$REPO_ROOT/installation/asura-installer.sh"; do
+	for svc in chronyd nftables cupsd; do
+		grep -E '^for svc in ' "$f" | grep -Fqw "$svc" || { echo "build-iso-void_test: $svc not enabled in $f" >&2; exit 1; }
+	done
+done
+test -s "$REPO_ROOT/system/nftables/nftables.conf"
+grep -Fq 'policy drop' "$REPO_ROOT/system/nftables/nftables.conf"
+! grep -Fq 'flush ruleset' "$REPO_ROOT/system/nftables/nftables.conf"
+grep -Fq 'system/nftables/nftables.conf' "$SCRIPT"
 test -x "$REPO_ROOT/system/helpers/systemctl"
 test -x "$REPO_ROOT/system/helpers/journalctl"
 test -x "$REPO_ROOT/system/helpers/asura-gpu"

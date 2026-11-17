@@ -117,6 +117,8 @@ confirm.
 - [x] `packaging/xbps/build-repo.sh` and `.github/workflows/xbps-repo.yml` — automated XBPS binary package creation via `xbps-create` and repository indexing via `xbps-rindex`
 - [x] CI automation in `.github/workflows/ci.yml` producing verified ISO artifacts and sha256 checksums
 - [x] Hybrid GPU management: `asura gpu`, `system/helpers/prime-run`, and `asura power` for NVIDIA RTX 3050 D3cold power management
+- [x] Daily-driver services ([`docs/system-services.md`](system-services.md)): clock sync (`chrony`), a default inbound firewall (`nftables`, `system/nftables/nftables.conf`), removable-media mounting (`udisks2`), firmware updates (`fwupd`) and printing (`cups`), installed and enabled on the live ISO and on installed systems
+- [ ] Secure Boot — not supported yet; the ISO and installed systems boot only with Secure Boot disabled (see [`docs/system-services.md`](system-services.md#secure-boot))
 
 Exit criterion: an ASURA ISO boots on a clean machine into the live Wayland desktop session with functional display, audio, and network, and the guided installer can partition a drive and lay down a bootable system image.
 

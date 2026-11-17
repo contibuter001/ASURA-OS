@@ -67,7 +67,8 @@ And the list of things ASURA deliberately does **not** touch:
 
 The shipped boot chain is **GRUB EFI**. The installer (`installation/asura-installer.sh`)
 writes `/boot/grub/grub.cfg` via `grub-mkconfig`, and the ISO boots through GRUB on both
-BIOS and UEFI firmware. Secure Boot rides the Void-shipped GRUB shim.
+BIOS and UEFI firmware. Secure Boot is not supported yet; disable it in the firmware
+settings before booting the ISO (see [`system-services.md`](system-services.md#secure-boot)).
 
 ### Stages and owners
 
