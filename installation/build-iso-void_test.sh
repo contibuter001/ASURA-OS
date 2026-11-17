@@ -256,7 +256,9 @@ grep -Fq '_asura_cache_eval' "$REPO_ROOT/apps/zsh/asura.zsh"
 # STAGE 6: Kernel and CI Verifications
 grep -Fq 'grub-reboot' "$REPO_ROOT/system/runit/services/asura-boot-guard/run"
 grep -Fq '/.snapshots' "$REPO_ROOT/system/runit/services/asura-boot-guard/run"
-grep -Fq 'qemu64' "$REPO_ROOT/.github/workflows/ci.yml"
+grep -Fq 'qemu64' "$REPO_ROOT/installation/ci/qemu-boot-test.sh"
+grep -Fq 'installation/ci/qemu-boot-test.sh' "$REPO_ROOT/.github/actions/build-iso/action.yml"
+grep -Fq './.github/actions/build-iso' "$REPO_ROOT/.github/workflows/ci.yml"
 
 echo "build-iso-void_test: ok"
 
