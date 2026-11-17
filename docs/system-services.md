@@ -14,6 +14,7 @@ into `/etc/runit/runsvdir/default` by the same loop in
 | Removable media | `udisks2` | none (D-Bus activated) | Lets Thunar and gvfs mount USB drives and SD cards without root |
 | Firmware updates | `fwupd` | none (D-Bus activated) | `fwupdmgr refresh && fwupdmgr update` updates BIOS, SSD and dock firmware from LVFS |
 | Printing | `cups`, `cups-filters` | `cupsd` | Add printers at <http://localhost:631> |
+| Device power saving | `tlp` | `tlp` | USB autosuspend, Wi-Fi power save, SATA and PCIe runtime PM. CPU governor, EPP and platform profile stay with `asura-sysd`; [`system/tlp.d/01-asura-cpu.conf`](../system/tlp.d/01-asura-cpu.conf) disables them in tlp |
 
 ## Firewall
 

@@ -1136,7 +1136,7 @@ no fragile desktop udev hacks, and no interactive authentication prompts on ever
 `session.md` puts the window switcher with the compositor's own bindings. It is
 recorded there as an exception now, and this is why.
 
-Hyprland has nothing to bind to. Across `v0.53.3` (what the Void archive ships),
+Hyprland has nothing to bind to. Across `v0.53.3` (the version the configuration targets),
 `v0.54.3`, `v0.56.2` and `main`, there is no `tab` bind in any shipped default
 config and no compositor-internal Tab handling, and the official plugins
 repository ships four plugins, none of them a switcher. The built-in `cycleNext`
@@ -1154,8 +1154,16 @@ than assumed:
 
 | Fact | Consequence |
 |---|---|
-| The archive's `hyprland 0.53.3` | Pre-Lua. hyprlang `bind =` syntax, and `hyprctl dispatch focuswindow address:0x…` is used bare. From 0.55 a Lua config wraps dispatch in `hl.dispatch({window=…})`, which is a different argument and a quoting rule |
+| `hyprland 0.53.3`, the configuration's target | Pre-Lua. hyprlang `bind =` syntax, and `hyprctl dispatch focuswindow address:0x…` is used bare. From 0.55 a Lua config wraps dispatch in `hl.dispatch({window=…})`, which is a different argument and a quoting rule |
 | `focusHistoryID` is a rank, not a timestamp | Snapshot the list once on open. Focusing a window mutates the id immediately, so re-querying per keypress makes this press change what the next press means |
+
+> **What the ISO ships today is older.** Void's own repository has no Hyprland package.
+> `installation/build-iso-void.sh` installs prebuilt **Hyprland 0.49.0** and its libraries
+> (`HYPR_PKGS`) from the third-party `Makrennel/hyprland-void` repository, checksum-pinned in
+> `installation/binary-checksums.txt`. `packaging/xbps/hyprland/template` (0.53.3) is not
+> built by anything yet. Closing the gap between the 0.49.0 that ships and the 0.53.3 the
+> configuration, the Hub generator and this section target is open in
+> [`roadmap.md`](roadmap.md).
 
 `focusHistoryID` is also inverted relative to intuition, and this is the single
 easiest thing to get wrong in the whole feature. Hyprland's history vector is

@@ -93,7 +93,16 @@ grep -Fq 'pipewire' "$MANIFEST"
 grep -Fq 'wireplumber' "$MANIFEST"
 grep -Fq 'seatd' "$MANIFEST"
 grep -Fq 'turnstile' "$MANIFEST"
-! grep -Fq 'tlp' "$MANIFEST"
+grep -Eq '^[[:space:]]+- tlp$' "$MANIFEST"
+for f in "$SCRIPT" "$REPO_ROOT/installation/asura-installer.sh"; do
+	grep -E '^for svc in ' "$f" | grep -Fqw tlp || { echo "build-iso-void_test: tlp not enabled in $f" >&2; exit 1; }
+done
+# asura-sysd owns governor, EPP and platform profile: tlp must leave all three alone in every profile
+for param in CPU_SCALING_GOVERNOR CPU_ENERGY_PERF_POLICY PLATFORM_PROFILE; do
+	for prof in AC BAT SAV; do
+		grep -Fqx "${param}_ON_${prof}=\"\"" "$REPO_ROOT/system/tlp.d/01-asura-cpu.conf" || { echo "build-iso-void_test: tlp.d does not disable ${param}_ON_${prof}" >&2; exit 1; }
+	done
+done
 grep -Fq 'btrfs-progs' "$MANIFEST"
 grep -Fq 'cryptsetup' "$MANIFEST"
 ! grep -Fq 'gamemode' "$MANIFEST"
