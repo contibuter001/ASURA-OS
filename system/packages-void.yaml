@@ -156,6 +156,10 @@ terminal-and-shell:
     - zsh
     - starship
     - fastfetch
+    # The terminal editor: $EDITOR/$VISUAL for git, sudoedit, crontab and
+    # visudo, and the editor that works with no graphical session (TTY, SSH,
+    # recovery). Zed stays the graphical default through mimeapps.
+    - neovim
     - zoxide
     - fzf
     - zsh-autosuggestions
