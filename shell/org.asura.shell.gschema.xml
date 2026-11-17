@@ -142,6 +142,16 @@
       <summary>Label the regions the selection snaps to</summary>
     </key>
 
+    <key name="screen-corners" type="b">
+      <default>true</default>
+      <summary>Round the screen's corners</summary>
+      <description>
+        Draws a rounded black corner over each corner of every screen, so the
+        desktop's edges match the rounded panels. The corners hide while a
+        window is fullscreen, so a game or a video keeps its full frame.
+      </description>
+    </key>
+
     <key name="region-selector-aim-lines" type="b">
       <default>true</default>
       <summary>Draw guide lines through the pointer in rectangle mode</summary>

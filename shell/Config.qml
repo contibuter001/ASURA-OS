@@ -71,6 +71,10 @@ Singleton {
     readonly property int regionSelectorCircleStrokeWidth: shell.regionSelectorCircleStrokeWidth ?? 6
     readonly property int regionSelectorCirclePadding: shell.regionSelectorCirclePadding ?? 10
 
+    // Rounded screen corners. The vendored module reads it through the
+    // overlay at modules/common/Config.qml as upstream's fakeScreenRounding.
+    readonly property bool screenCorners: shell.screenCorners ?? true
+
     readonly property string wallpaper: dark
         ? (shell.wallpaperPathDark ?? "")
         : (shell.wallpaperPath ?? "")
