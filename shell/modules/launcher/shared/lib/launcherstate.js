@@ -2,6 +2,7 @@ var MODES = Object.freeze({
   REST: "rest",
   FEDERATED: "federated",
   ALL: "all",
+  MENU: "menu",
   IMAGE: "image",
   FILE: "file",
   RECENT: "recent",
@@ -11,6 +12,7 @@ var MODES = Object.freeze({
 
 var SCOPED_MODES = new Set([
   MODES.ALL,
+  MODES.MENU,
   MODES.IMAGE,
   MODES.FILE,
   MODES.RECENT
@@ -19,6 +21,7 @@ var SCOPED_MODES = new Set([
 var BODY_MODES = new Set([
   MODES.FEDERATED,
   MODES.ALL,
+  MODES.MENU,
   MODES.IMAGE,
   MODES.FILE,
   MODES.RECENT,
@@ -72,6 +75,8 @@ function routeForMode(mode, query) {
   switch (mode) {
   case MODES.ALL:
     return { providerId: "apps", prefix: "", query: visibleQuery };
+  case MODES.MENU:
+    return { providerId: "menu", prefix: "", query: visibleQuery };
   case MODES.IMAGE:
     return { providerId: "find", prefix: "/image", query: visibleQuery };
   case MODES.FILE:

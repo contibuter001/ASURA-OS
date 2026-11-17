@@ -222,6 +222,7 @@ has a price: the bridges into the tree are a contract that nothing checks.*
   The keys adoption imports into — `wallpaper-path`, `wallpaper-path-dark`,
   `favorites`, `dock-position` — keep the names and types
   [adopting-asura.md](adopting-asura.md) already uses
+- [x] The ASURA "do everything" menu (`asura menu`, `SUPER ALT, Space`), built directly into the launcher as a native mode coordinating apps, keybindings cheatsheet, styling, settings deep-links, package management, updates, screenshots, and session controls. Documented in [`docs/menu.md`](menu.md).
 - [x] The bar, the dock, the launcher and the popover surfaces, taken from a
   vendored upstream component at a pinned commit and re-themed, rather than
   written from nothing. Since the port the running shell draws ported

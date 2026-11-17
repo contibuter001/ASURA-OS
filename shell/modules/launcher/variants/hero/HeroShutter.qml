@@ -465,6 +465,12 @@ Item {
         }
         HeroVariant.ModeKey {
             s: root.s
+            label: I18n.tr("MENU")
+            active: root.activeMode === "menu"
+            onActivated: root.modeRequested("menu")
+        }
+        HeroVariant.ModeKey {
+            s: root.s
             label: I18n.tr("IMG")
             visible: root.hasFind
             active: root.activeMode === "image"

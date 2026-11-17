@@ -44,6 +44,15 @@
       "argument": "launcher"
     },
     {
+      "id": "menu",
+      "category": "desktop",
+      "label": "Open the ASURA menu",
+      "chord": "SUPER + ALT + Space",
+      "kind": "shell",
+      "action": "togglePopover",
+      "argument": "menu"
+    },
+    {
       "id": "quick-settings",
       "category": "desktop",
       "label": "Open the quick settings",

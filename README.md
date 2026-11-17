@@ -228,6 +228,7 @@ The four design documents, and what each one decides:
 | [`docs/architecture.md`](docs/architecture.md) | The stack and the reasoning behind it — settled decisions, rejected options, the base-layer boundary, the portal seam |
 | [`docs/hardware-detection.md`](docs/hardware-detection.md) | The subsystem that decides whether ASURA works on someone else's laptop — probes, matching, PII stripping, tier assignment |
 | [`docs/session.md`](docs/session.md) | The boot and login chain — GRUB through runit to Hyprland, the session entry point, what starts in what order, and who owns logout, suspend and shutdown |
+| [`docs/menu.md`](docs/menu.md) | `asura menu` — the unified "do everything" menu on Super+Alt+Space coordinating apps, setup, themes, updates and power |
 | [`docs/adopting-asura.md`](docs/adopting-asura.md) | `asura adopt` (Legacy — Ubuntu/APT design) — historical in-place adoption design; current installation uses the live ISO and `asura install` |
 
 [`docs/roadmap.md`](docs/roadmap.md) orders the work.
@@ -254,6 +255,7 @@ on nothing outside the standard library; `desktop/` is a second module that depe
 The commands that reach it:
 
 ```console
+$ asura menu                         # open the unified "do everything" menu
 $ asura install                      # launch the guided disk installer
 $ asura hardware report              # this machine, redacted, safe to paste
 $ asura hardware report --profile    # a candidate profile to review and submit

@@ -272,7 +272,13 @@ ShellRoot {
                 Launcher {
                     screen: perScreen.modelData
                     active: launcherLoader.showNow
-                    onRequestClose: if (perScreen.st) perScreen.st.launcherOpen = false
+                    initialMode: perScreen.st ? perScreen.st.launcherInitialMode : ""
+                    onRequestClose: {
+                        if (perScreen.st) {
+                            perScreen.st.launcherOpen = false;
+                            perScreen.st.launcherInitialMode = "";
+                        }
+                    }
                 }
             }
             Timer { id: launcherHold; interval: 15000 }
@@ -436,8 +442,25 @@ ShellRoot {
                 st.barRevealed = !st.barRevealed;
             break;
         case "launcher":
-            if (st)
-                st.launcherOpen = !st.launcherOpen;
+            if (st) {
+                if (st.launcherOpen && st.launcherInitialMode !== "menu") {
+                    st.launcherOpen = false;
+                } else {
+                    st.launcherInitialMode = "";
+                    st.launcherOpen = true;
+                }
+            }
+            break;
+        case "menu":
+            if (st) {
+                if (st.launcherOpen && st.launcherInitialMode === "menu") {
+                    st.launcherOpen = false;
+                    st.launcherInitialMode = "";
+                } else {
+                    st.launcherInitialMode = "menu";
+                    st.launcherOpen = true;
+                }
+            }
             break;
         case "overview":
             if (Wm.caps.nativeOverview)
@@ -772,6 +795,9 @@ ShellRoot {
             switch (name) {
             case "launcher":
                 root.toggleSurface("launcher");
+                break;
+            case "menu":
+                root.toggleSurface("menu");
                 break;
             case "quick":
                 root.toggleSurface("quicksettings");
