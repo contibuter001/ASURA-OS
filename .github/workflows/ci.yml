@@ -282,3 +282,52 @@ jobs:
             ${{ runner.temp }}/asura-iso/*.iso.sha256
           if-no-files-found: error
           retention-days: 7
+
+  # ==========================================================================
+  # PART 9: End-to-end install of the ISO just built
+  # ==========================================================================
+  # installation/ci/installer-e2e.sh runs this checkout's installer inside the
+  # ISO's own live rootfs onto a disk image (BIOS). `plain` then boots the
+  # installed disk in QEMU and waits for runit stage 2; `luks` unlocks the
+  # encrypted disk with its passphrase and checks crypttab, fstab and GRUB.
+  #
+  # Non-blocking while it proves itself: it was written without a machine that
+  # could build the ISO, so its first runs are its first test. Drop
+  # continue-on-error once it has passed on dev-unstable.
+  installer-e2e:
+    name: Installer — end to end (${{ matrix.mode }})
+    needs: iso
+    continue-on-error: true
+    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [plain, luks]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Enable KVM for the boot test
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install the test's tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends qemu-system-x86 cryptsetup parted
+      - uses: actions/download-artifact@v7
+        with:
+          name: asura-os-iso
+          path: iso
+      - name: Install from the ISO, then check the result
+        run: |
+          iso="$(find iso -name '*.iso' -print -quit)"
+          sh installation/ci/installer-e2e.sh "$iso" "${{ matrix.mode }}" "$RUNNER_TEMP/installer-e2e"
+      - name: Upload the install log and serial console
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: installer-e2e-${{ matrix.mode }}
+          path: ${{ runner.temp }}/installer-e2e/
+          if-no-files-found: ignore
+          retention-days: 7
