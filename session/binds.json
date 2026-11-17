@@ -97,6 +97,14 @@
       "argument": "lock"
     },
     {
+      "id": "session",
+      "category": "desktop",
+      "label": "Open the session screen",
+      "chord": "CTRL + ALT + Delete",
+      "kind": "shell",
+      "action": "session"
+    },
+    {
       "id": "settings",
       "category": "desktop",
       "label": "Open Asura Settings",
@@ -651,6 +659,14 @@
       "chord": "SUPER + SHIFT + C",
       "kind": "app",
       "action": "asura-cmd-color-picker"
+    },
+    {
+      "id": "ocr",
+      "category": "tools",
+      "label": "Recognize the text in a screen region",
+      "chord": "SUPER + SHIFT + T",
+      "kind": "shell",
+      "action": "ocr"
     },
     {
       "id": "volume-up",
