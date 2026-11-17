@@ -80,6 +80,7 @@ modules/ii/onScreenDisplay
 modules/ii/regionSelector
 modules/ii/sessionScreen
 modules/ii/mediaControls
+modules/ii/screenCorners
 modules/ii/cheatsheet
 modules/ii/background
 modules/ii/lock
@@ -156,6 +157,7 @@ modules/common/widgets/MaterialSymbol.qml
 modules/common/utils/ScreenshotAction.qml
 modules/ii/regionSelector/RegionSelector.qml
 modules/ii/sessionScreen/SessionScreen.qml
+modules/ii/screenCorners/ScreenCorners.qml
 GlobalStates.qml
 "
 
