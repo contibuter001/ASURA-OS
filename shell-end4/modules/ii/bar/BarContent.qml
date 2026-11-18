@@ -10,10 +10,11 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 
 // ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): the bar's layout.
-// Left: the workspaces (no active window title).
+// Left: the workspaces, then media while a player has a track (no active
+// window title).
 // Centre: the clock and date, alone. Right, from the end: the resources, the
 // left sidebar button, the status indicators (right sidebar), battery, util
-// buttons, media, the tray, weather. Only the buttons open the sidebars.
+// buttons, the tray, weather. Only the buttons open the sidebars.
 Item { // Bar content region
     id: root
 
@@ -105,6 +106,16 @@ Item { // Bar content region
                         }
                     }
                 }
+            }
+
+            // Media, second from the start, only while a player has a track
+            // (playing or paused); nothing at all otherwise.
+            Media {
+                visible: root.useShortenedForm < 2 && !!MprisController.activePlayer
+                    && (MprisController.activePlayer.trackTitle ?? "") !== ""
+                Layout.leftMargin: 6
+                Layout.fillHeight: true
+                Layout.maximumWidth: 260
             }
 
             Item {
@@ -312,12 +323,6 @@ Item { // Bar content region
             UtilButtons {
                 visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
                 Layout.alignment: Qt.AlignVCenter
-            }
-
-            Media {
-                visible: root.useShortenedForm < 2
-                Layout.fillHeight: true
-                Layout.maximumWidth: 260
             }
 
             SysTray {
