@@ -28,7 +28,7 @@ ApplicationWindow {
         Quickshell.execDetached(["notify-send", Translation.tr("Welcome app"), Translation.tr("Enjoy! You can reopen the welcome app any time with <tt>Super+Shift+Alt+/</tt>. To open the settings app, hit <tt>Super+I</tt>"), "-a", "Shell"]);
         Qt.quit();
     }
-    title: Translation.tr("illogical-impulse Welcome")
+    title: Translation.tr("ASURA OS Welcome")
 
     Component.onCompleted: {
         MaterialThemeLoader.reapplyTheme();
@@ -40,18 +40,6 @@ ApplicationWindow {
     width: 900
     height: 650
     color: Appearance.m3colors.m3background
-
-    Process {
-        id: konachanWallProc
-        property string status: ""
-        command: ["bash", "-c", Quickshell.shellPath("scripts/colors/random/random_konachan_wall.sh")]
-        stdout: SplitParser {
-            onRead: data => {
-                console.log(`Konachan wall proc output: ${data}`);
-                konachanWallProc.status = data.trim();
-            }
-        }
-    }
 
     Process {
         id: translationProc
@@ -281,21 +269,6 @@ ApplicationWindow {
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter
                         RippleButtonWithIcon {
-                            id: rndWallBtn
-                            visible: Config.options.policies.weeb === 1
-                            Layout.alignment: Qt.AlignHCenter
-                            buttonRadius: Appearance.rounding.small
-                            materialIcon: "ifl"
-                            mainText: konachanWallProc.running ? Translation.tr("Be patient...") : Translation.tr("Random: Konachan")
-                            onClicked: {
-                                console.log(konachanWallProc.command.join(" "));
-                                konachanWallProc.running = true;
-                            }
-                            StyledToolTip {
-                                text: Translation.tr("Random SFW Anime wallpaper from Konachan\nImage is saved to ~/Pictures/Wallpapers")
-                            }
-                        }
-                        RippleButtonWithIcon {
                             materialIcon: "wallpaper"
                             StyledToolTip {
                                 text: Translation.tr("Pick wallpaper image on your system")
@@ -442,42 +415,10 @@ ApplicationWindow {
                         }
 
                         RippleButtonWithIcon {
-                            materialIcon: "help"
-                            mainText: Translation.tr("Usage")
+                            materialIcon: "settings"
+                            mainText: Translation.tr("Settings")
                             onClicked: {
-                                Qt.openUrlExternally("https://end-4.github.io/dots-hyprland-wiki/en/ii-qs/02usage/");
-                            }
-                        }
-                        RippleButtonWithIcon {
-                            materialIcon: "construction"
-                            mainText: Translation.tr("Configuration")
-                            onClicked: {
-                                Qt.openUrlExternally("https://end-4.github.io/dots-hyprland-wiki/en/ii-qs/03config/");
-                            }
-                        }
-                    }
-                }
-
-                ContentSection {
-                    icon: "monitoring"
-                    title: Translation.tr("Useless buttons")
-
-                    Flow {
-                        Layout.fillWidth: true
-                        spacing: 5
-
-                        RippleButtonWithIcon {
-                            nerdIcon: "󰊤"
-                            mainText: Translation.tr("GitHub")
-                            onClicked: {
-                                Qt.openUrlExternally("https://github.com/end-4/dots-hyprland");
-                            }
-                        }
-                        RippleButtonWithIcon {
-                            materialIcon: "favorite"
-                            mainText: "Funny number"
-                            onClicked: {
-                                Qt.openUrlExternally("https://github.com/sponsors/end-4");
+                                Quickshell.execDetached(["asura-shell", "hub", "open"]);
                             }
                         }
                     }
