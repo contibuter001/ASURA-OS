@@ -49,7 +49,9 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # services/GlobalFocusGrab.qml keeps the bar in the focus grab, so a sidebar
 # opened from the bar is not closed by the grab at once.
 # panelFamilies/IllogicalImpulseFamily.qml loads end-4's panels without the
-# left sidebar (AI chat, anime).
+# left sidebar (AI chat, anime). welcome.qml, modules/settings/About.qml and
+# modules/common/widgets/LightDarkPreferenceButton.qml show the ASURA desktop
+# and links instead of upstream's previews and third-party links.
 OVERLAYS="
 shell.qml
 matugen/config.toml
@@ -64,6 +66,9 @@ modules/ii/bar/BarGroup.qml
 modules/settings/InterfaceConfig.qml
 services/GlobalFocusGrab.qml
 panelFamilies/IllogicalImpulseFamily.qml
+welcome.qml
+modules/settings/About.qml
+modules/common/widgets/LightDarkPreferenceButton.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }
