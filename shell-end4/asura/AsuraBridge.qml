@@ -61,7 +61,7 @@ Item {
     // own bar widgets, which set their own radii.
     Process {
         id: dockMarker
-        command: ["sh", "-c", "m=\"$1/end4-layout-5\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
+        command: ["sh", "-c", "m=\"$1/end4-layout-6\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
         onExited: (code) => {
             if (code !== 0)
                 return;
@@ -85,6 +85,8 @@ Item {
             Config.options.policies.ai = 0;
             Config.options.policies.weeb = 0;
             Config.options.dock.enable = true;
+            // The island dock auto-hides (Settings > Interface > Dock).
+            Config.options.dock.pinnedOnStartup = false;
             // Apps in their own colours (end-4 tints them; Settings still
             // offers "Tint app icons").
             Config.options.dock.monochromeIcons = false;

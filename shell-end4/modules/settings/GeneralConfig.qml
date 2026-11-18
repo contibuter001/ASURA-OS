@@ -1,3 +1,5 @@
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): end-4's general settings
+// without the AI/weeb policies (their sidebar is not part of ASURA).
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -191,76 +193,9 @@ ContentPage {
         }
     }
 
-    ContentSection {
-        icon: "rule"
-        title: Translation.tr("Policies")
-
-        ConfigRow {
-
-            // AI policy
-            ColumnLayout {
-                ContentSubsectionLabel {
-                    text: Translation.tr("AI")
-                }
-
-                ConfigSelectionArray {
-                    currentValue: Config.options.policies.ai
-                    onSelected: newValue => {
-                        Config.options.policies.ai = newValue;
-                    }
-                    options: [
-                        {
-                            displayName: Translation.tr("No"),
-                            icon: "close",
-                            value: 0
-                        },
-                        {
-                            displayName: Translation.tr("Yes"),
-                            icon: "check",
-                            value: 1
-                        },
-                        {
-                            displayName: Translation.tr("Local only"),
-                            icon: "sync_saved_locally",
-                            value: 2
-                        }
-                    ]
-                }
-            }
-
-            // Weeb policy
-            ColumnLayout {
-
-                ContentSubsectionLabel {
-                    text: Translation.tr("Weeb")
-                }
-
-                ConfigSelectionArray {
-                    currentValue: Config.options.policies.weeb
-                    onSelected: newValue => {
-                        Config.options.policies.weeb = newValue;
-                    }
-                    options: [
-                        {
-                            displayName: Translation.tr("No"),
-                            icon: "close",
-                            value: 0
-                        },
-                        {
-                            displayName: Translation.tr("Yes"),
-                            icon: "check",
-                            value: 1
-                        },
-                        {
-                            displayName: Translation.tr("Closet"),
-                            icon: "ev_shadow",
-                            value: 2
-                        }
-                    ]
-                }
-            }
-        }
-    }
+    // ASURA: no "Policies" section. Its AI and weeb policies drive the left
+    // sidebar's assistant and anime browser, which ASURA does not load; the
+    // bridge keeps both off.
 
     ContentSection {
         icon: "notification_sound"

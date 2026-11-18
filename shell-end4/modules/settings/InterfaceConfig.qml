@@ -1,5 +1,6 @@
 // ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): end-4's interface
-// settings without the dock's hover-to-reveal and pin switches.
+// settings: the dock's Auto-hide switch instead of end-4's hover-to-reveal and
+// pin switches, and no translator switch (the left sidebar is not loaded).
 import QtQuick
 import QtQuick.Layouts
 import qs.services
@@ -114,9 +115,22 @@ ContentPage {
             }
         }
 
-        // ASURA: the dock is an island that is always shown
-        // (modules/ii/dock/Dock.qml), so end-4's "Hover to reveal" and
-        // "Pinned on startup" switches are removed.
+        // ASURA: the island dock (modules/ii/dock/Dock.qml) hides while a
+        // window is focused and comes back at the bottom edge. Its setting is
+        // end-4's dock.pinnedOnStartup, read as "keep the dock shown", so the
+        // switch is its inverse. end-4's "Hover to reveal" is gone: the
+        // bottom edge always reveals a hidden dock.
+        ConfigSwitch {
+            buttonIcon: "visibility_off"
+            text: Translation.tr("Auto-hide")
+            checked: !Config.options.dock.pinnedOnStartup
+            onCheckedChanged: {
+                Config.options.dock.pinnedOnStartup = !checked;
+            }
+            StyledToolTip {
+                text: Translation.tr("Hide the dock while a window is focused; move the pointer to the bottom edge to show it.\nWhen off, the dock is always shown and windows stay above it.")
+            }
+        }
         ConfigSwitch {
             buttonIcon: "colors"
             text: Translation.tr("Tint app icons")
@@ -464,14 +478,8 @@ ContentPage {
             }
         }
 
-        ConfigSwitch {
-            buttonIcon: "translate"
-            text: Translation.tr('Enable translator')
-            checked: Config.options.sidebar.translator.enable
-            onCheckedChanged: {
-                Config.options.sidebar.translator.enable = checked;
-            }
-        }
+        // ASURA: no translator switch; it lived in the left sidebar, which
+        // ASURA does not load (panelFamilies/IllogicalImpulseFamily.qml).
 
         ContentSubsection {
             title: Translation.tr("Quick toggles")

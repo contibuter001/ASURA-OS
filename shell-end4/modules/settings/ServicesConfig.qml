@@ -1,3 +1,5 @@
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): end-4's services
+// settings without the AI section (its sidebar is not part of ASURA).
 import QtQuick
 import QtQuick.Layouts
 import qs.services
@@ -7,22 +9,8 @@ import qs.modules.common.widgets
 ContentPage {
     forceWidth: true
 
-    ContentSection {
-        icon: "neurology"
-        title: Translation.tr("AI")
-
-        MaterialTextArea {
-            Layout.fillWidth: true
-            placeholderText: Translation.tr("System prompt")
-            text: Config.options.ai.systemPrompt
-            wrapMode: TextEdit.Wrap
-            onTextChanged: {
-                Qt.callLater(() => {
-                    Config.options.ai.systemPrompt = text;
-                });
-            }
-        }
-    }
+    // ASURA: no "AI" section; the assistant lived in the left sidebar,
+    // which ASURA does not load.
 
     ContentSection {
         icon: "music_cast"
