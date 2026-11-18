@@ -68,7 +68,7 @@ BASE_COMMANDS = {
     "modinfo", "nice", "nproc", "numfmt", "od", "pidof", "reboot",
     "apt", "apt-get", "apt-cache", "dpkg", "dpkg-query", "dpkg-deb", "usermod",
     "dbus-update-activation-environment",
-    "xbps-install", "xbps-query", "xbps-reconfigure", "xbps-remove", "xbps-rindex",
+    "xbps-install", "xbps-query", "xbps-reconfigure", "xbps-remove", "xbps-rindex", "xbps-uhelper", "xbps-pkgdb",
     "sv", "chpst", "runsv", "runsvdir", "file", "lspci", "lsusb", "rfkill",
     "grub-mkconfig", "grub-reboot", "pkexec", "btrfs", "git",
 }

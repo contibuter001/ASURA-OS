@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -85,5 +86,20 @@ func TestApplyRepoArgs(t *testing.T) {
 func TestApplyRepoRefusesOldCheckout(t *testing.T) {
 	if err := applyRepo(t.TempDir(), "/"); err == nil {
 		t.Fatal("a checkout without installation/apply-repo.sh must be an error, not a silent no-op")
+	}
+}
+
+func TestParseBrokenShlibs(t *testing.T) {
+	out := "[*] Updating repository ...\n" +
+		"aquamarine-0.8.0_2: broken, unresolvable shlib `libdisplay-info.so.2'\n" +
+		"hyprgraphics-0.1.3_2: broken, unresolvable shlib `libjxl.so.0.11'\n" +
+		"hyprgraphics-0.1.3_2: broken, unresolvable shlib `libjxl_threads.so.0.11'\n" +
+		"ERROR: Transaction aborted due to unresolved shlibs.\n"
+	pkgs, libs := parseBrokenShlibs(out)
+	if strings.Join(pkgs, " ") != "aquamarine hyprgraphics" {
+		t.Errorf("pkgs = %v", pkgs)
+	}
+	if strings.Join(libs, " ") != "libdisplay-info.so.2 libjxl.so.0.11 libjxl_threads.so.0.11" {
+		t.Errorf("libs = %v", libs)
 	}
 }

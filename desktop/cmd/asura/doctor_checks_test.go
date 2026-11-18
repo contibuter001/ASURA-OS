@@ -47,3 +47,19 @@ func TestRecommendedAbsent(t *testing.T) {
 		t.Errorf("absent %v of %d, want %v of 8", absent, total, want)
 	}
 }
+
+func TestParseSvStatus(t *testing.T) {
+	cases := map[string]svState{
+		"run: turnstiled: (pid 1328) 826s; run: log: (pid 1327) 826s\n":                svRunning,
+		"down: elogind: 1s, normally up, want up; run: log: (pid 1324) 826s\n":         svFlapping,
+		"down: tlp: 40s, normally up; run: log: (pid 9) 40s\n":                         svStopped,
+		"fail: scx-lavd: unable to change to service directory: file does not exist\n": svMissing,
+		"warning: x: unable to open supervise/ok: file does not exist\n":               svMissing,
+		"": svUnknown,
+	}
+	for in, want := range cases {
+		if got := parseSvStatus(in); got != want {
+			t.Errorf("parseSvStatus(%q) = %d, want %d", in, got, want)
+		}
+	}
+}

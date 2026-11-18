@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"asura/desktop/internal/runner"
@@ -215,66 +216,136 @@ func reportRunitServices(root string) int {
 	return exitOK
 }
 
-// reportCoreServices checks that scx-lavd, ananicy-cpp, asura-sysd, and seatd
-// runit services are active, and with fix enables them.
+// coreServices are the system services the desktop needs, in boot order, and
+// the optional ones that are reported but never fail doctor.
+var (
+	coreServices     = []string{"dbus", "udevd", "elogind", "seatd", "turnstiled", "NetworkManager", "asura-sysd"}
+	optionalServices = []string{"scx-lavd", "ananicy-cpp", "tlp"}
+)
+
+// svState is what `sv status` says about one service.
+type svState int
+
+const (
+	svUnknown  svState = iota
+	svRunning          // run:
+	svFlapping         // down, but runit wants it up: it keeps exiting
+	svStopped          // down, and nothing wants it up
+	svMissing          // not enabled (no supervise directory)
+)
+
+// parseSvStatus reads the first clause of `sv status` output, the service's
+// own (the log service follows after a semicolon).
+func parseSvStatus(out string) svState {
+	first := strings.TrimSpace(strings.SplitN(out, ";", 2)[0])
+	switch {
+	case strings.HasPrefix(first, "run:"):
+		return svRunning
+	case strings.HasPrefix(first, "down:"):
+		if strings.Contains(first, "want up") {
+			return svFlapping
+		}
+		return svStopped
+	case strings.HasPrefix(first, "fail:"), strings.HasPrefix(first, "warning:"):
+		return svMissing
+	}
+	return svUnknown
+}
+
+// reportCoreServices checks the system services the session depends on. On a
+// running machine it asks runit (`sv status`), which tells a service that is
+// enabled but keeps crashing — "down: elogind: 1s, normally up, want up" —
+// from one that runs; a crash-looping elogind is a login with no
+// /run/user/<uid> and a desktop that cannot start. Under --root it can only
+// see which are enabled. --fix enables a disabled required service.
 func reportCoreServices(root string, fix bool) int {
 	fmt.Println()
 	fmt.Println("Core System Services (runit)")
-	services := []string{"seatd", "asura-sysd", "scx-lavd", "ananicy-cpp"}
 	problems := 0
 
-	for _, svc := range services {
-		active := false
+	enabled := func(svc string) bool {
 		for _, dir := range []string{"/var/service", "/etc/runit/runsvdir/default"} {
-			svcPath := filepath.Join(root, dir, svc)
-			if _, err := os.Stat(svcPath); err == nil {
-				active = true
-				break
+			if _, err := os.Stat(filepath.Join(root, dir, svc)); err == nil {
+				return true
 			}
 		}
-		if !active && root == "" {
-			if out, err := exec.Command("sv", "status", svc).Output(); err == nil {
-				if strings.HasPrefix(string(out), "run:") {
-					active = true
-				}
+		return false
+	}
+	state := func(svc string) svState {
+		if root != "" {
+			if enabled(svc) {
+				return svRunning
 			}
+			return svMissing
 		}
+		out, _ := exec.Command("sv", "status", "/var/service/"+svc).CombinedOutput()
+		st := parseSvStatus(string(out))
+		if st == svUnknown {
+			if enabled(svc) {
+				return svRunning
+			}
+			return svMissing
+		}
+		return st
+	}
 
-		if active {
-			fmt.Printf("  • %-16s active\n", svc)
-		} else {
-			// Check if the service definition exists in /etc/sv
-			svcDef := filepath.Join(root, "/etc/sv", svc)
-			if _, err := os.Stat(svcDef); err != nil {
-				if svc == "ananicy-cpp" || svc == "scx-lavd" {
-					fmt.Printf("  • %-16s not installed (optional scheduler)\n", svc)
-					continue
-				}
-			}
+	check := func(svc string, optional bool) {
+		_, defErr := os.Stat(filepath.Join(root, "/etc/sv", svc))
+		switch st := state(svc); {
+		case st == svRunning:
+			fmt.Printf("  • %-16s running\n", svc)
+		case defErr != nil && optional:
+			fmt.Printf("  • %-16s not installed (optional)\n", svc)
+		case st == svMissing && optional:
+			fmt.Printf("  • %-16s not enabled (optional)\n", svc)
+		case st == svFlapping:
 			problems++
-			fmt.Printf("  • %-16s inactive (enable: ln -sf /etc/sv/%s /var/service/)\n", svc, svc)
+			fmt.Printf("  • %-16s CRASHING: runit keeps restarting it\n", svc)
+			fmt.Printf("    see why: sudo sv down %s; sudo sh -x /etc/sv/%s/run; sudo sv up %s\n", svc, svc, svc)
+		case st == svStopped:
+			problems++
+			fmt.Printf("  • %-16s stopped (start: sudo sv up %s)\n", svc, svc)
+		case defErr != nil:
+			problems++
+			fmt.Printf("  • %-16s not installed\n", svc)
+		default:
+			problems++
+			fmt.Printf("  • %-16s not enabled (enable: sudo ln -s /etc/sv/%s /var/service/)\n", svc, svc)
 			if fix {
-				sudo := "sudo"
-				if os.Geteuid() == 0 {
-					sudo = ""
+				target := filepath.Join(root, "/var/service")
+				if _, err := os.Stat(target); err != nil {
+					target = filepath.Join(root, "/etc/runit/runsvdir/default")
 				}
-				targetDir := filepath.Join(root, "/var/service")
-				if _, err := os.Stat(targetDir); err != nil {
-					targetDir = filepath.Join(root, "/etc/runit/runsvdir/default")
+				args := []string{"ln", "-sf", filepath.Join("/etc/sv", svc), filepath.Join(target, svc)}
+				if os.Geteuid() != 0 {
+					args = append([]string{"sudo"}, args...)
 				}
-				src := filepath.Join(root, "/etc/sv", svc)
-				dest := filepath.Join(targetDir, svc)
-				var lnCmd *exec.Cmd
-				if sudo != "" {
-					lnCmd = exec.Command(sudo, "ln", "-sf", src, dest)
-				} else {
-					lnCmd = exec.Command("ln", "-sf", src, dest)
-				}
-				if err := lnCmd.Run(); err == nil {
-					fmt.Printf("    fixed: enabled /etc/sv/%s -> %s\n", svc, dest)
+				if err := exec.Command(args[0], args[1:]...).Run(); err == nil {
+					fmt.Printf("    fixed: enabled %s\n", svc)
 					problems--
 				}
 			}
+		}
+	}
+	for _, svc := range coreServices {
+		check(svc, false)
+	}
+	for _, svc := range optionalServices {
+		check(svc, true)
+	}
+
+	// The login's runtime directory, which elogind (or turnstile) creates. A
+	// session without it cannot start Hyprland at all.
+	if root == "" {
+		rt := os.Getenv("XDG_RUNTIME_DIR")
+		if rt == "" {
+			rt = fmt.Sprintf("/run/user/%d", os.Getuid())
+		}
+		if info, err := os.Stat(rt); err != nil || !info.IsDir() {
+			problems++
+			fmt.Printf("  • %-16s %s is missing: the login did not create it (is elogind running?)\n", "runtime dir", rt)
+		} else {
+			fmt.Printf("  • %-16s %s\n", "runtime dir", rt)
 		}
 	}
 
@@ -523,6 +594,91 @@ func reportHardwarePower(root string, fix bool) int {
 		}
 	}
 
+	if problems > 0 {
+		return exitFail
+	}
+	return exitOK
+}
+
+// reportDesktopShell checks the desktop shell the session will start: which
+// one org.asura.shell desktop-shell picks, that its tree is installed, and,
+// for end-4, what its look depends on (matugen, a generated palette, the
+// compositor look) and whether the crash fallback has replaced it.
+func reportDesktopShell(root string, run runner.Func) int {
+	fmt.Println()
+	fmt.Println("Desktop shell")
+	problems := 0
+
+	choice := os.Getenv("ASURA_DESKTOP_SHELL")
+	if choice == "" && root == "" {
+		if out, err := run("gsettings", "get", "org.asura.shell", "desktop-shell"); err == nil {
+			choice = strings.Trim(strings.TrimSpace(out), "'")
+		}
+	}
+	if choice == "" {
+		choice = "end4"
+	}
+	dir := "/usr/share/asura/shell"
+	if choice == "end4" {
+		dir = "/usr/share/asura/shell-end4"
+	}
+	fmt.Printf("  %-18s %s (org.asura.shell desktop-shell)\n", "chosen", choice)
+	if _, err := os.Stat(filepath.Join(root, dir, "shell.qml")); err != nil {
+		problems++
+		fmt.Printf("  %-18s %s/shell.qml is missing; the session falls back to ASURA's shell\n", "installed", dir)
+	} else {
+		fmt.Printf("  %-18s %s\n", "installed", dir)
+	}
+	if choice != "end4" {
+		if problems > 0 {
+			return exitFail
+		}
+		return exitOK
+	}
+
+	for _, f := range []string{"asura/AsuraBridge.qml", "asura/first-run.sh", "asura/hyprland.conf", "matugen/config.toml"} {
+		if _, err := os.Stat(filepath.Join(root, dir, f)); err != nil {
+			problems++
+			fmt.Printf("  %-18s %s/%s is missing (asura update reinstalls it)\n", "ASURA bridge", dir, f)
+		}
+	}
+	if _, err := exec.LookPath("matugen"); err != nil && root == "" {
+		problems++
+		fmt.Printf("  %-18s not installed: end-4 cannot take colours from the wallpaper (sudo xbps-install -S matugen)\n", "matugen")
+	} else if root == "" {
+		fmt.Printf("  %-18s installed\n", "matugen")
+	}
+	if root != "" {
+		if problems > 0 {
+			return exitFail
+		}
+		return exitOK
+	}
+
+	home := homeDir()
+	state := os.Getenv("XDG_STATE_HOME")
+	if state == "" {
+		state = filepath.Join(home, ".local", "state")
+	}
+	if info, err := os.Stat(filepath.Join(state, "quickshell", "user", "generated", "colors.json")); err != nil || info.Size() == 0 {
+		fmt.Printf("  %-18s none generated yet: the desktop uses end-4's default colours (Super+Shift+W picks a wallpaper and makes one)\n", "palette")
+	} else {
+		fmt.Printf("  %-18s generated from the wallpaper\n", "palette")
+	}
+	look, _ := os.ReadFile(filepath.Join(home, ".config", "asura", "hyprland", "shell.conf"))
+	if strings.Contains(string(look), "shell-end4") {
+		fmt.Printf("  %-18s end-4's compositor look is loaded\n", "compositor look")
+	} else {
+		fmt.Printf("  %-18s not loaded yet (asura refresh, or log in again)\n", "compositor look")
+	}
+	if b, err := os.ReadFile(filepath.Join(state, "asura", "end4-quick-exits")); err == nil {
+		if n, _ := strconv.Atoi(strings.TrimSpace(string(b))); n >= 3 {
+			problems++
+			fmt.Printf("  %-18s end-4 kept exiting, so this session runs ASURA's shell; see %s\n", "fallback",
+				filepath.Join(state, "asura", "quickshell.log"))
+			fmt.Printf("  %-18s after fixing it: rm %s/asura/end4-*; sv restart ~/.config/service/quickshell\n", "", state)
+		}
+	}
 	if problems > 0 {
 		return exitFail
 	}

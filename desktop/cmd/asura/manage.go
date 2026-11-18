@@ -187,6 +187,9 @@ func reportSessionChecks(root string, paths overlay.Paths, fix bool) int {
 	if shellCode := reportShell(root); shellCode != exitOK {
 		code = shellCode
 	}
+	if desktopCode := reportDesktopShell(root, runner.Exec(5*time.Second)); desktopCode != exitOK {
+		code = desktopCode
+	}
 	if hubCode := reportHub(root); hubCode != exitOK {
 		code = hubCode
 	}

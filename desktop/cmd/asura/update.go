@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"syscall"
 	"time"
@@ -83,25 +85,20 @@ func asuraUpdate(args []string) int {
 		}
 	}
 
+	var asuraErr error
 	var fetch func() error
 	if !*dryRun {
 		fetch = func() error {
-			// Step: Update ASURA git code and packages
-			if targetBranch != "" {
-				fmt.Printf("==> Updating ASURA packages from '%s' branch...\n", targetBranch)
-				if err := pullGitUpdates(targetBranch, *root); err != nil {
-					fmt.Fprintf(os.Stderr, "asura update: git pull warning: %v\n", err)
-				} else {
-					fmt.Printf("==> Successfully updated ASURA packages from '%s'\n", targetBranch)
-				}
-			} else {
-				// If a local source repo exists, pull and sync updates
-				if repo, err := findOrCloneRepo("dev-unstable"); err == nil && repo != "" {
-					fmt.Printf("==> Updating ASURA components from local repository (%s)...\n", repo)
-					if err := pullGitUpdates("dev-unstable", *root); err != nil {
-						fmt.Fprintf(os.Stderr, "asura update: the repository was not updated: %v\n", err)
-					}
-				}
+			// Step: the ASURA code from its branch (dev-unstable unless the
+			// channel or a flag names another), applied to this system.
+			b := targetBranch
+			if b == "" {
+				b = "dev-unstable"
+			}
+			fmt.Printf("==> Step 1/4: Updating ASURA from the '%s' branch...\n", b)
+			if err := pullGitUpdates(b, *root); err != nil {
+				asuraErr = err
+				fmt.Fprintf(os.Stderr, "asura update: ASURA was not updated: %v\n", err)
 			}
 
 			// Full system package update via XBPS (only when root or --system)
@@ -157,7 +154,7 @@ func asuraUpdate(args []string) int {
 		// The running desktop picks up what was just installed: services
 		// re-synced, Hyprland reloaded, the shell and daemons restarted. No
 		// logout needed.
-		fmt.Println("==> Refreshing the running desktop...")
+		fmt.Println("==> Step 4/4: Refreshing the running desktop...")
 		if os.Geteuid() == 0 {
 			refreshAsSudoUser(os.Stdout, os.Stderr)
 		} else {
@@ -165,6 +162,11 @@ func asuraUpdate(args []string) int {
 		}
 	}
 
+	if asuraErr != nil {
+		fmt.Fprintln(os.Stderr, "\n==> ASURA update FAILED:", asuraErr)
+		fmt.Fprintln(os.Stderr, "==> The desktop was refreshed, but runs the code it had before. `asura doctor` checks the system.")
+		return exitFail
+	}
 	if !updateSystemPkgs {
 		fmt.Println("\n--------------------------------------------------------------------------------")
 		fmt.Println("==> ASURA packages and desktop components are up to date.")
@@ -233,45 +235,107 @@ func runSysdPkgUpdate() error {
 }
 
 // runLocalXbpsUpdate executes xbps-install -Su -y locally with privilege elevation.
+//
+// A third-party repository (hyprland-void) can lag behind a library soname
+// bump in Void: the update then aborts with exit 8, "broken, unresolvable
+// shlib", and nothing at all is updated. In that case the packages XBPS names
+// as broken, and the installed library each of them needs, are held for one
+// retry so everything else updates; the holds are released afterwards, so the
+// next update tries them again once the repository has rebuilt.
 func runLocalXbpsUpdate() error {
-	sudo := "sudo"
-	if os.Geteuid() == 0 {
-		sudo = ""
-	}
-
-	execCommand := func(prog string, args ...string) *exec.Cmd {
-		if sudo != "" {
-			fullArgs := append([]string{prog}, args...)
-			return exec.Command(sudo, fullArgs...)
+	elevate := func(prog string, args ...string) *exec.Cmd {
+		if os.Geteuid() != 0 {
+			return exec.Command("sudo", append([]string{prog}, args...)...)
 		}
 		return exec.Command(prog, args...)
 	}
+	run := func() (string, error) {
+		var buf strings.Builder
+		cmd := elevate("xbps-install", "-Su", "-y")
+		cmd.Stdout = io.MultiWriter(os.Stdout, &buf)
+		cmd.Stderr = io.MultiWriter(os.Stderr, &buf)
+		cmd.Stdin = os.Stdin
+		err := cmd.Run()
+		return buf.String(), err
+	}
 
-	syncCmd := execCommand("xbps-install", "-Su", "-y")
-	syncCmd.Stdout, syncCmd.Stderr, syncCmd.Stdin = os.Stdout, os.Stderr, os.Stdin
-	if err := syncCmd.Run(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 8 {
-			fmt.Fprintf(os.Stderr, "\n==> XBPS Warning: package transaction aborted due to unresolved shared libraries.\n")
-			fmt.Fprintf(os.Stderr, "==> Third-party repository (hyprland-void) has packages awaiting base system library rebuilds.\n")
-			fmt.Fprintf(os.Stderr, "==> Attempting fallback: holding mismatched third-party packages to update remaining system packages...\n")
-
-			holdCmd := execCommand("xbps-pkgdb", "-m", "hold", "aquamarine", "hyprgraphics", "hyprland")
-			_ = holdCmd.Run()
-
-			retryCmd := execCommand("xbps-install", "-Su", "-y")
-			retryCmd.Stdout, retryCmd.Stderr, retryCmd.Stdin = os.Stdout, os.Stderr, os.Stdin
-			if retryErr := retryCmd.Run(); retryErr == nil {
-				fmt.Println("==> System packages updated successfully (mismatched third-party packages held).")
-				return nil
-			}
-
-			fmt.Fprintf(os.Stderr, "\n==> Note: Base system update deferred until upstream library transitions complete.\n")
-			fmt.Fprintf(os.Stderr, "==> Continuing ASURA desktop update...\n\n")
-			return nil
-		}
+	out, err := run()
+	if err == nil {
+		return nil
+	}
+	exitErr, ok := err.(*exec.ExitError)
+	if !ok || exitErr.ExitCode() != 8 {
 		return fmt.Errorf("xbps-install: %w", err)
 	}
+
+	broken, shlibs := parseBrokenShlibs(out)
+	hold := append([]string(nil), broken...)
+	for _, lib := range shlibs {
+		if owner := shlibOwner(lib); owner != "" {
+			hold = append(hold, owner)
+		}
+	}
+	hold = uniqueStrings(hold)
+	if len(hold) == 0 {
+		return fmt.Errorf("xbps-install: unresolved shared libraries")
+	}
+	fmt.Fprintf(os.Stderr, "\n==> A repository has not caught up with a library update; holding back for now: %s\n", strings.Join(hold, " "))
+	if err := elevate("xbps-pkgdb", append([]string{"-m", "hold"}, hold...)...).Run(); err != nil {
+		return fmt.Errorf("xbps-pkgdb hold: %w", err)
+	}
+	_, retryErr := run()
+	_ = elevate("xbps-pkgdb", append([]string{"-m", "unhold"}, hold...)...).Run()
+	if retryErr != nil {
+		fmt.Fprintln(os.Stderr, "==> The system packages could not be updated yet; the desktop update continues.")
+		return nil
+	}
+	fmt.Printf("==> System packages updated; held back until their repository rebuilds: %s\n", strings.Join(hold, " "))
 	return nil
+}
+
+// brokenShlibLine is xbps's "aquamarine-0.8.0_2: broken, unresolvable shlib `libdisplay-info.so.2'".
+var brokenShlibLine = regexp.MustCompile("^\\s*(\\S+)-[^-\\s]+_[0-9]+: broken, unresolvable shlib [`'](\\S+?)'")
+
+// parseBrokenShlibs returns the package names XBPS reports broken and the
+// shared libraries they cannot resolve.
+func parseBrokenShlibs(out string) (pkgs, libs []string) {
+	for _, line := range strings.Split(out, "\n") {
+		if m := brokenShlibLine.FindStringSubmatch(line); m != nil {
+			pkgs = append(pkgs, m[1])
+			libs = append(libs, m[2])
+		}
+	}
+	return uniqueStrings(pkgs), uniqueStrings(libs)
+}
+
+// shlibOwner names the installed package that provides lib, the one whose
+// update would remove it.
+func shlibOwner(lib string) string {
+	for _, dir := range []string{"/usr/lib", "/usr/lib64"} {
+		out, err := exec.Command("xbps-query", "-o", filepath.Join(dir, lib)).Output()
+		if err != nil {
+			continue
+		}
+		// "libdisplay-info-0.2.0_1: /usr/lib/libdisplay-info.so.2 (...)"
+		if pkgver, _, ok := strings.Cut(strings.TrimSpace(string(out)), ":"); ok {
+			if name, err := exec.Command("xbps-uhelper", "getpkgname", pkgver).Output(); err == nil {
+				return strings.TrimSpace(string(name))
+			}
+		}
+	}
+	return ""
+}
+
+func uniqueStrings(in []string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, s := range in {
+		if !seen[s] {
+			seen[s] = true
+			out = append(out, s)
+		}
+	}
+	return out
 }
 
 // updateFlatpaks executes flatpak update -y if Flatpak is installed.
@@ -354,17 +418,17 @@ func pullGitUpdates(branch string, root string) error {
 
 	fmt.Printf("==> Pulling latest changes from branch '%s' in %s...\n", branch, repoDir)
 
-	fetchCmd := exec.Command("git", "-c", "safe.directory=*", "-C", repoDir, "fetch", "origin", branch)
+	fetchCmd := repoGit(repoDir, "fetch", "origin", branch)
 	fetchCmd.Stdout, fetchCmd.Stderr = os.Stdout, os.Stderr
 	if err := fetchCmd.Run(); err != nil {
 		return fmt.Errorf("git fetch: %w", err)
 	}
 
-	checkoutCmd := exec.Command("git", "-c", "safe.directory=*", "-C", repoDir, "checkout", branch)
+	checkoutCmd := repoGit(repoDir, "checkout", branch)
 	checkoutCmd.Stdout, checkoutCmd.Stderr = os.Stdout, os.Stderr
 	_ = checkoutCmd.Run()
 
-	pullCmd := exec.Command("git", "-c", "safe.directory=*", "-C", repoDir, "pull", "--ff-only", "origin", branch)
+	pullCmd := repoGit(repoDir, "pull", "--ff-only", "origin", branch)
 	pullCmd.Stdout, pullCmd.Stderr = os.Stdout, os.Stderr
 	if err := pullCmd.Run(); err != nil {
 		return fmt.Errorf("git pull: %w", err)
@@ -448,18 +512,25 @@ func findOrCloneRepo(branch string) (string, error) {
 		}
 	}
 
-	// 4. Clone to cache directory if not found locally
+	// 4. Clone to cache directory if not found locally. Under sudo the clone
+	// is the invoking user's, in their cache, made as them: a root-owned clone
+	// is one the user's own `asura update` can never pull into.
 	cacheDir := filepath.Join(home, ".cache", "asura", "source")
+	cloneAs := ""
 	if os.Geteuid() == 0 {
 		cacheDir = "/var/cache/asura/source"
+		if u := os.Getenv("SUDO_USER"); u != "" && u != "root" {
+			cacheDir = filepath.Join("/home", u, ".cache", "asura", "source")
+			cloneAs = u
+		}
 	}
-	if err := os.MkdirAll(filepath.Dir(cacheDir), 0o755); err != nil {
-		return "", err
-	}
-
 	if _, err := os.Stat(filepath.Join(cacheDir, ".git")); os.IsNotExist(err) {
 		fmt.Printf("==> Cloning Asura OS repository (%s) into %s...\n", branch, cacheDir)
-		cmd := exec.Command("git", "clone", "--depth", "1", "--branch", branch, defaultGitRepoURL, cacheDir)
+		args := []string{"sh", "-c", `mkdir -p "$(dirname "$1")" && git clone --depth 1 --branch "$2" "$3" "$1"`, "sh", cacheDir, branch, defaultGitRepoURL}
+		if cloneAs != "" {
+			args = append([]string{"sudo", "-u", cloneAs}, args...)
+		}
+		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 		if err := cmd.Run(); err != nil {
 			return "", fmt.Errorf("git clone failed: %w", err)
@@ -468,6 +539,21 @@ func findOrCloneRepo(branch string) (string, error) {
 	}
 
 	return cacheDir, nil
+}
+
+// repoGit runs git in repoDir as the checkout's owner. `sudo asura update`
+// otherwise writes root-owned objects into the user's own checkout, after which
+// the user's `asura update` fails with "Permission denied".
+func repoGit(repoDir string, args ...string) *exec.Cmd {
+	full := append([]string{"-c", "safe.directory=*", "-C", repoDir}, args...)
+	if os.Geteuid() == 0 {
+		if info, err := os.Stat(repoDir); err == nil {
+			if st, ok := info.Sys().(*syscall.Stat_t); ok && st.Uid != 0 {
+				return exec.Command("sudo", append([]string{"-u", fmt.Sprintf("#%d", st.Uid), "git"}, full...)...)
+			}
+		}
+	}
+	return exec.Command("git", full...)
 }
 
 // canWriteRepo reports whether git can update the checkout at path.
