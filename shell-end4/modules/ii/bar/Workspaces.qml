@@ -76,7 +76,7 @@ ButtonMouseArea {
 
                 implicitWidth: root.workspaceButtonWidth
                 implicitHeight: root.workspaceButtonWidth
-                radius: Appearance.rounding.small
+                radius: 3
                 // No fill for the active one: it is underlined. Hover tints.
                 color: ws.hovered ? Appearance.colors.colLayer1Hover : "transparent"
                 Behavior on color {

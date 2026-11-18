@@ -1,3 +1,5 @@
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): the bar's groups with a
+// small fixed radius instead of end-4's rounding.small.
 import qs.modules.common
 import QtQuick
 import QtQuick.Layouts
@@ -20,7 +22,7 @@ Item {
             rightMargin: root.vertical ? 4 : 0
         }
         color: Config.options?.bar.borderless ? "transparent" : Appearance.colors.colLayer1
-        radius: Appearance.rounding.small
+        radius: 4 // ASURA: crisp, near-square groups on the plain bar
     }
 
     GridLayout {

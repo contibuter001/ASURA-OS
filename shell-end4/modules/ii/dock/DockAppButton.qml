@@ -1,3 +1,5 @@
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): end-4's dock button
+// without the window-count marks under a running app's icon.
 import qs.services
 import qs.modules.common
 import qs.modules.common.functions
@@ -112,26 +114,6 @@ DockButton {
                         anchors.fill: desaturatedIcon
                         source: desaturatedIcon
                         color: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.9)
-                    }
-                }
-            }
-
-            RowLayout {
-                spacing: 3
-                anchors {
-                    top: iconImageLoader.bottom
-                    topMargin: 2
-                    horizontalCenter: parent.horizontalCenter
-                }
-                Repeater {
-                    model: Math.min(appToplevel.toplevels.length, 3)
-                    delegate: Rectangle {
-                        required property int index
-                        radius: Appearance.rounding.full
-                        implicitWidth: (appToplevel.toplevels.length <= 3) ? 
-                            root.countDotWidth : root.countDotHeight // Circles when too many
-                        implicitHeight: root.countDotHeight
-                        color: appIsActive ? Appearance.colors.colPrimary : ColorUtils.transparentize(Appearance.colors.colOnLayer0, 0.4)
                     }
                 }
             }
