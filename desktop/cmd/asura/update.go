@@ -151,8 +151,15 @@ func asuraUpdate(args []string) int {
 	}
 
 	if !*dryRun {
-		fmt.Println("triggering live shell and service reload...")
-		reloadMain(nil, os.Stdout, os.Stderr, runner.Exec(15*time.Second))
+		// The running desktop picks up what was just installed: services
+		// re-synced, Hyprland reloaded, the shell and daemons restarted. No
+		// logout needed.
+		fmt.Println("==> Refreshing the running desktop...")
+		if os.Geteuid() == 0 {
+			refreshAsSudoUser(os.Stdout, os.Stderr)
+		} else {
+			refreshMain(os.Stdout, os.Stderr, runner.Exec(20*time.Second))
+		}
 	}
 
 	if !updateSystemPkgs {

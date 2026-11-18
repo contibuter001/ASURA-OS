@@ -197,4 +197,4 @@ if [ "$ROOT" = "" ]; then
 else
 	command -v glib-compile-schemas >/dev/null 2>&1 && glib-compile-schemas "$ROOT/usr/share/glib-2.0/schemas" || true
 fi
-log "done. Log out and back in to start the updated desktop."
+log "done. asura update now refreshes the running desktop; or run: asura refresh"
