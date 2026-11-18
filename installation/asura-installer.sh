@@ -889,6 +889,14 @@ printf "${GREEN}✓ Kernel and initramfs verified in /boot.${RESET}\n"
 
 printf "${WHITE}${BOLD}[5/5] Installing bootloader (%s)...${RESET}\n" "$BOOT_DISPLAY"
 
+# The Asura snapshot GRUB snippet goes into /etc/grub.d before grub-mkconfig
+# runs, so the first grub.cfg already has it.
+if [ -d "$TARGET_DIR/usr/share/asura/session/grub" ]; then
+	mkdir -p "$TARGET_DIR/etc/grub.d"
+	cp "$TARGET_DIR/usr/share/asura/session/grub"/* "$TARGET_DIR/etc/grub.d/" 2>/dev/null || true
+	chmod +x "$TARGET_DIR/etc/grub.d"/40_asura_snapshots 2>/dev/null || true
+fi
+
 if [ "$IS_UEFI" -eq 1 ]; then
 	if [ -d /sys/firmware/efi/efivars ]; then
 		mkdir -p "$TARGET_DIR/sys/firmware/efi/efivars"
@@ -907,12 +915,6 @@ else
 	chroot "$TARGET_DIR" grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
-# Install the Asura snapshot GRUB snippet so /.snapshots entries are generated
-if [ -d "$TARGET_DIR/usr/share/asura/session/grub" ]; then
-    mkdir -p "$TARGET_DIR/etc/grub.d"
-    cp "$TARGET_DIR/usr/share/asura/session/grub"/* "$TARGET_DIR/etc/grub.d/" 2>/dev/null || true
-    chmod +x "$TARGET_DIR/etc/grub.d"/40_asura_snapshots 2>/dev/null || true
-fi
 
 printf "${GREEN}✓ Bootloader successfully installed.${RESET}\n"
 

@@ -41,8 +41,10 @@ func TestCaptureNeverWritesAnIdentifier(t *testing.T) {
 		if err != nil || !info.IsDir() {
 			continue
 		}
-		// testdata/fuzz holds fuzzing corpus files, not a machine.
-		if filepath.Base(fixture) == "fuzz" {
+		// testdata/fuzz holds fuzzing corpus files, not a machine; __pycache__
+		// is what running testdata/gen.py leaves behind, and a hidden
+		// directory is never a fixture.
+		if base := filepath.Base(fixture); base == "fuzz" || base == "__pycache__" || strings.HasPrefix(base, ".") {
 			continue
 		}
 

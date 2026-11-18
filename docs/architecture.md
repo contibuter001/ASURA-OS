@@ -464,11 +464,7 @@ was once the package that builds Quickshell; it now belongs to the shell's Go da
 runs, and every other `asura-shell <verb>` (`lock`, `hub open`, `reload`, `icons`) is a
 client that sends one line to it. The shell's own configuration is `/usr/share/asura/shell/`,
 read by `quickshell -p /usr/share/asura/shell` from the runit service. So `asura-shell`
-serves the shell's state and Quickshell is the engine that draws it. The manifest's
-`asura_built:` key exists so the departure from its own rule is visible in one place rather
-than implied by a comment, and `system/verify-packages.py` checks it in the inverse
-direction: an `asura_built:` entry that turns up in the archive is a warning, because
-rebuilding a package the base layer now maintains is exactly the fork the rule prevents.
+serves the shell's state and Quickshell is the engine that draws it. The Ubuntu-era manifest's `asura_built:` key no longer exists: the Void manifest (`system/packages-void.yaml`) lists only repository packages, and `system/verify-packages.py` checks every one of them resolves in the configured XBPS repositories.
 
 The wire protocol the daemon speaks keeps the name `asura-shell/1`, after the shell it
 serves rather than after the process that implements it. A protocol name that changed with

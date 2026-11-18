@@ -6,7 +6,7 @@ hostmakedepends="go"
 depends="seatd turnstile"
 short_desc="Asura OS control plane, session daemons, and apm package manager"
 maintainer="Asura OS Project <dev@asuraos.dev>"
-license="MIT"
+license="GPL-3.0-only"
 homepage="https://asuraos.dev"
 
 do_build() {

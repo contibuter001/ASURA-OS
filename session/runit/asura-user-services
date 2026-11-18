@@ -81,6 +81,21 @@ start_services() {
 			XDG_SESSION_TYPE WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_RUNTIME_DIR LIBGL_ALWAYS_SOFTWARE ASURA_IS_VM 2>/dev/null || true
 	fi
 
+	# One supervisor per service directory. turnstile's runit backend already
+	# runs `runsvdir -P ~/.config/service` for the user's login, and this
+	# script runs again at every session start: a second runsvdir over the
+	# same directory fights the first for each service's supervise/lock and
+	# restarts services in a loop. Start one only when nothing supervises the
+	# directory yet.
+	if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE" 2>/dev/null)" 2>/dev/null; then
+		echo "asura-user-services: runsvdir already running (pid $(cat "$PID_FILE"))"
+		return 0
+	fi
+	if pgrep -u "$(id -u)" -f "runsvdir -P $USER_SERVICE_DIR" >/dev/null 2>&1; then
+		echo "asura-user-services: $USER_SERVICE_DIR is already supervised (turnstile)"
+		return 0
+	fi
+
 	# Method 1: If runsvdir is available, run it over ~/.config/service
 	if command -v runsvdir >/dev/null 2>&1; then
 		echo "asura-user-services: starting runsvdir over $USER_SERVICE_DIR"

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"asura/desktop/internal/overlay"
 )
@@ -20,6 +21,7 @@ func asuraRollback(args []string) int {
 		configMode = set.Bool("config", false, "revert config overlay to previous revision")
 		systemMode = set.Bool("system", false, "list or restore Btrfs root snapshots")
 		listMode   = set.Bool("list", false, "list available revisions and snapshots")
+		force      = set.Bool("force", false, "restore even when the snapshot has no modules for the installed kernel")
 	)
 	positional, err := parseFlags(set, args)
 	if err != nil {
@@ -32,6 +34,7 @@ func asuraRollback(args []string) int {
 		return exitFail
 	}
 
+	rollbackForce = *force
 	if *listMode {
 		return listRollbackTargets(paths)
 	}
@@ -100,53 +103,117 @@ func rollbackSystem(target string) int {
 		return exitFail
 	}
 
-	fmt.Printf("==> Restoring system snapshot: %s\n", filepath.Base(snapPath))
+	name := filepath.Base(snapPath)
+	fmt.Printf("==> Restoring system snapshot: %s\n", name)
 
-	sudo := "sudo"
-	if os.Geteuid() == 0 {
-		sudo = ""
-	}
-
-	// Create a writable subvolume for the rollback
-	restoreTarget := "/@_restored_" + filepath.Base(snapPath)
-	var snapCmd *exec.Cmd
-	if sudo != "" {
-		snapCmd = exec.Command(sudo, "btrfs", "subvolume", "snapshot", snapPath, restoreTarget)
-	} else {
-		snapCmd = exec.Command("btrfs", "subvolume", "snapshot", snapPath, restoreTarget)
-	}
-	if out, err := snapCmd.CombinedOutput(); err != nil {
-		// If already exists or error, continue with warning
-		fmt.Fprintf(os.Stderr, "notice: btrfs snapshot clone: %s (%v)\n", strings.TrimSpace(string(out)), err)
-	}
-
-	// Update GRUB entries
-	fmt.Println("==> Updating GRUB bootloader menu...")
-	var grubCmd *exec.Cmd
-	if sudo != "" {
-		grubCmd = exec.Command(sudo, "grub-mkconfig", "-o", "/boot/grub/grub.cfg")
-	} else {
-		grubCmd = exec.Command("grub-mkconfig", "-o", "/boot/grub/grub.cfg")
-	}
-	if out, err := grubCmd.CombinedOutput(); err != nil {
-		fmt.Fprintf(os.Stderr, "warning: grub-mkconfig failed: %s (%v)\n", strings.TrimSpace(string(out)), err)
-	} else {
-		fmt.Println("GRUB boot menu updated.")
-	}
-
-	// Select the snapshot entry for the next boot (GRUB_DEFAULT=saved).
-	if _, err := exec.LookPath("grub-reboot"); err == nil {
-		entry := "Asura OS (snapshot " + filepath.Base(snapPath) + ")"
-		grubReboot := exec.Command("grub-reboot", entry)
-		if out, err := grubReboot.CombinedOutput(); err != nil {
-			fmt.Fprintf(os.Stderr, "notice: grub-reboot: %s (%v)\n", strings.TrimSpace(string(out)), err)
-		} else {
-			fmt.Printf("selected for next boot: %s\n", entry)
+	// The snapshot must carry modules for the kernel GRUB boots. /boot is its
+	// own partition and is not rolled back, so a root from before a kernel
+	// update would boot that kernel with no modules for it.
+	if kernel := runningKernel(); kernel != "" && !rollbackForce {
+		if _, err := os.Stat(filepath.Join(snapPath, "usr", "lib", "modules", kernel)); err != nil {
+			fmt.Fprintf(os.Stderr, "asura rollback: %s has no modules for the installed kernel %s (/boot is not rolled back),\n"+
+				"so the restored system would boot without them. Install a kernel the snapshot has, or pass --force.\n", name, kernel)
+			return exitFail
 		}
 	}
 
-	fmt.Println("\nRollback complete. Reboot to activate restored system state.")
+	device, err := rootDevice()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "asura rollback:", err)
+		return exitFail
+	}
+	top, err := os.MkdirTemp("", "asura-rollback-")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "asura rollback:", err)
+		return exitFail
+	}
+	defer os.Remove(top)
+
+	stamp := time.Now().UTC().Format("20060102T150405Z")
+	steps, aside := systemRollbackPlan(device, top, name, stamp)
+	for i, step := range steps {
+		if err := runPrivileged(step...); err != nil {
+			fmt.Fprintf(os.Stderr, "asura rollback: %s: %v\n", strings.Join(step, " "), err)
+			if i == 4 {
+				// @ was moved aside and no new @ was made: put it back, or
+				// the next boot finds no root.
+				fmt.Fprintln(os.Stderr, "asura rollback: putting the current root back as @")
+				_ = runPrivileged("mv", filepath.Join(top, aside), filepath.Join(top, "@"))
+			}
+			if i >= 2 && i < 5 { // the top-level volume is mounted
+				_ = runPrivileged("umount", top)
+			}
+			fmt.Fprintln(os.Stderr, "asura rollback: nothing was changed")
+			return exitFail
+		}
+	}
+
+	fmt.Println("==> Updating GRUB bootloader menu...")
+	if err := runPrivileged("grub-mkconfig", "-o", "/boot/grub/grub.cfg"); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: grub-mkconfig failed: %v\n", err)
+	}
+
+	fmt.Printf("\nRollback prepared: @ is now a writable copy of %s.\n", name)
+	fmt.Printf("The current root is kept as %s; it stays in use until you reboot.\n", aside)
+	fmt.Println("Reboot to start the restored system. Once it works, the old root can be deleted:")
+	fmt.Printf("  sudo mount -o subvolid=5 %s /mnt && sudo btrfs subvolume delete /mnt/%s && sudo umount /mnt\n", device, aside)
 	return exitOK
+}
+
+// rollbackForce skips the kernel-modules check.
+var rollbackForce bool
+
+// systemRollbackPlan is the restore, as commands, for the layout the installer
+// makes: top-level subvolumes @ (/, subvol=@ in fstab and GRUB), @home and
+// @snapshots (/.snapshots). The current @ is renamed aside and a writable
+// snapshot of @snapshots/NAME becomes @, so the next boot, which mounts @,
+// starts the restored system; nothing in fstab or GRUB changes. It returns the
+// steps and the name the current root is kept under.
+func systemRollbackPlan(device, top, name, stamp string) ([][]string, string) {
+	aside := "@pre-rollback-" + stamp
+	return [][]string{
+		{"mkdir", "-p", top},
+		{"mount", "-o", "subvolid=5", device, top},
+		{"test", "-d", filepath.Join(top, "@snapshots", name)},
+		{"mv", filepath.Join(top, "@"), filepath.Join(top, aside)},
+		{"btrfs", "subvolume", "snapshot", filepath.Join(top, "@snapshots", name), filepath.Join(top, "@")},
+		{"umount", top},
+	}, aside
+}
+
+// runPrivileged runs a command as root, through sudo when not root already.
+func runPrivileged(args ...string) error {
+	if os.Geteuid() != 0 {
+		args = append([]string{"sudo"}, args...)
+	}
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Stdout, cmd.Stderr, cmd.Stdin = os.Stdout, os.Stderr, os.Stdin
+	return cmd.Run()
+}
+
+// rootDevice is the block device / is mounted from ("/dev/sda2[/@]" -> "/dev/sda2").
+func rootDevice() (string, error) {
+	out, err := exec.Command("findmnt", "-no", "SOURCE", "/").Output()
+	if err != nil {
+		return "", fmt.Errorf("findmnt /: %w", err)
+	}
+	dev := strings.TrimSpace(string(out))
+	if i := strings.Index(dev, "["); i > 0 {
+		dev = dev[:i]
+	}
+	if !strings.HasPrefix(dev, "/dev/") {
+		return "", fmt.Errorf("/ is mounted from %q, not a block device", dev)
+	}
+	return dev, nil
+}
+
+// runningKernel is the installed kernel's release, the one GRUB boots.
+func runningKernel() string {
+	out, err := exec.Command("uname", "-r").Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
 
 // listRollbackTargets prints both config revisions and system snapshots.
