@@ -415,7 +415,8 @@ func isUserConfig(relative string) bool {
 	}
 	if parts[0] == "hyprland" && len(parts) == 2 {
 		switch parts[1] {
-		case "monitors-auto.conf", "monitors-user.conf", "settings.conf", "rebinds.conf", "asura.conf", "user.conf":
+		case "monitors-auto.conf", "monitors-user.conf", "settings.conf", "rebinds.conf", "asura.conf", "user.conf",
+			"shell.conf", "vm-perf.conf":
 			return true
 		}
 	}
