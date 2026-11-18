@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -90,6 +91,7 @@ func asuraUpdate(args []string) int {
 					fmt.Fprintf(os.Stderr, "asura update: btrfs snapshot: %v\n", err)
 				} else if snap != "" {
 					fmt.Printf("created system Btrfs snapshot: %s\n", snap)
+					pruneBtrfsSnapshots("/.snapshots", keepUpdateSnapshots)
 				}
 			}
 			return nil
@@ -383,6 +385,53 @@ func isBtrfsRoot() bool {
 }
 
 // createBtrfsSnapshot creates an atomic read-only snapshot of root in /.snapshots/.
+// keepUpdateSnapshots is how many pre-update Btrfs snapshots an update keeps.
+const keepUpdateSnapshots = 5
+
+// oldUpdateSnapshots names the pre-update snapshots beyond the newest keep.
+// Their names end in a sortable timestamp; snapshots made any other way (by
+// hand, or a rollback's kept root) are never selected.
+func oldUpdateSnapshots(names []string, keep int) []string {
+	var updates []string
+	for _, name := range names {
+		if strings.HasPrefix(name, "pre-update-") {
+			updates = append(updates, name)
+		}
+	}
+	sort.Strings(updates)
+	if len(updates) <= keep {
+		return nil
+	}
+	return updates[:len(updates)-keep]
+}
+
+// pruneBtrfsSnapshots deletes the pre-update snapshots beyond the newest keep.
+// Each one pins every file the updates since have replaced, so they grow
+// without limit when nothing removes them.
+func pruneBtrfsSnapshots(dir string, keep int) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	var names []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			names = append(names, entry.Name())
+		}
+	}
+	for _, name := range oldUpdateSnapshots(names, keep) {
+		args := []string{"btrfs", "subvolume", "delete", filepath.Join(dir, name)}
+		if os.Geteuid() != 0 {
+			args = append([]string{"sudo"}, args...)
+		}
+		if out, err := exec.Command(args[0], args[1:]...).CombinedOutput(); err != nil {
+			fmt.Fprintf(os.Stderr, "asura update: removing old snapshot %s: %v (%s)\n", name, err, strings.TrimSpace(string(out)))
+			continue
+		}
+		fmt.Printf("removed old system snapshot: %s\n", name)
+	}
+}
+
 func createBtrfsSnapshot() (string, error) {
 	if !isBtrfsRoot() {
 		return "", nil

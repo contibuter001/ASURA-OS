@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -110,6 +111,11 @@ func recordRevision(paths Paths) (Revision, error) {
 	}
 
 	if err := writeRevision(paths, revision); err != nil {
+		return Revision{}, err
+	}
+	// Each revision is a full copy of the base (tens of MB); without a limit
+	// every update added one for good.
+	if err := pruneRevisions(paths, KeepRevisions); err != nil {
 		return Revision{}, err
 	}
 	return revision, nil
@@ -358,4 +364,43 @@ func StatusOf(paths Paths) (Status, error) {
 		}
 	}
 	return status, nil
+}
+
+// KeepRevisions is how many preserved revisions an update keeps. A variable so
+// a test that counts every revision can lift it.
+var KeepRevisions = 3
+
+// pruneRevisions removes all but the newest keep revisions. Revision IDs are
+// UTC timestamps, so their names sort by age. The current revision and the
+// one it points back to (what `asura rollback` restores) are always kept.
+func pruneRevisions(paths Paths, keep int) error {
+	dir := filepath.Join(paths.State, revisionsDir)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	var names []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			names = append(names, entry.Name())
+		}
+	}
+	sort.Strings(names)
+	protected := map[string]bool{}
+	if current, err := readRevision(paths); err == nil {
+		protected[current.ID] = true
+		protected[current.Previous] = true
+	}
+	for i, name := range names {
+		if i >= len(names)-keep || protected[name] {
+			continue
+		}
+		if err := os.RemoveAll(filepath.Join(dir, name)); err != nil {
+			return fmt.Errorf("update: removing old revision %s: %w", name, err)
+		}
+	}
+	return nil
 }
