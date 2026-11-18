@@ -99,9 +99,6 @@ func TestPluginAuditRules(t *testing.T) {
 
 		{"outside-write-pos", "outside-write", false, map[string]string{"bin/x.sh": "#!/bin/sh\necho hi > ~/.config/x\n"}, "", true},
 		{"outside-write-neg", "outside-write", false, map[string]string{"bin/x.sh": "#!/bin/sh\necho hi > \"$stateDir/x\"\n"}, "", false},
-
-		{"removed-name-pos", "removed-name", false, map[string]string{"content/W.qml": "command: [\"ryoku-shell\", \"x\"]\n"}, "", true},
-		{"removed-name-neg", "removed-name", false, map[string]string{"content/W.qml": "command: [\"asura-shell\", \"x\"]\n"}, "", false},
 	}
 
 	for _, c := range cases {
@@ -124,7 +121,7 @@ func TestPluginAuditRules(t *testing.T) {
 // imports legacy PluginKit is told the import to use instead.
 func TestPluginAuditNamesTheKitRename(t *testing.T) {
 	res := pluginTestAudit(t, map[string]string{
-		"content/W.qml": "import Ryoku.PluginKit\nimport Ryoku.PluginKit.Singletons\nItem {}\n",
+		"content/W.qml": "import Legacy.PluginKit\nimport Legacy.PluginKit.Singletons\nItem {}\n",
 	}, "")
 	if len(res.Blocking) != 2 {
 		t.Fatalf("want 2 blocking findings, got %+v", res)

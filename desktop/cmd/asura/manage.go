@@ -193,9 +193,6 @@ func reportSessionChecks(root string, paths overlay.Paths, fix bool) int {
 	if hubCode := reportHub(root); hubCode != exitOK {
 		code = hubCode
 	}
-	if configCode := reportConfig(paths, fix); configCode != exitOK {
-		code = configCode
-	}
 	if commandsCode := reportCommands(root); commandsCode != exitOK {
 		code = commandsCode
 	}
@@ -219,28 +216,6 @@ func reportSessionChecks(root string, paths overlay.Paths, fix bool) int {
 	}
 	reportDeps(root, runner.Exec(10*time.Second))
 	return code
-}
-
-// reportConfig names what the user's own config carries that Asura has since
-// renamed, and with --fix renames it. See reconcile.go.
-//
-// A value left to be renamed is not a failure: the next `asura update` renames
-// it too, and a doctor that exited non-zero over it would train people to stop
-// reading the exit code.
-func reportConfig(paths overlay.Paths, fix bool) int {
-	fmt.Println()
-	fmt.Println("Config")
-	msg, err := reconcileShellConfig(filepath.Join(paths.Config, "shell.json"), fix)
-	switch {
-	case err != nil:
-		fmt.Printf("  unreadable        %v\n", err)
-		return exitFail
-	case msg == "":
-		fmt.Println("  shell.json        nothing renamed since it was written")
-	default:
-		fmt.Printf("  %s\n", msg)
-	}
-	return exitOK
 }
 
 // reportHub checks the claim that every setting has a Hub page and every page

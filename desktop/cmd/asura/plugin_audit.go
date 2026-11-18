@@ -23,9 +23,8 @@ import (
 // R1..R11 in docs/plugins.md and in the scaffold's AGENTS.md.
 //
 // What differs from upstream audit is the names: the shell's internal namespace
-// is qs.* here (so any import of it but the kit is internal, and a plugin that
-// still imports legacy kit is told the fix), and names Asura renamed are
-// reported as removed-name warnings.
+// is qs.* here, so any import of it but the kit is internal, and a plugin that
+// imports the kit under another module name is told the import to use.
 
 // pluginFinding is one audit result. Line is 1-based, or 0 for a whole-file
 // finding (symlink, binary, large-tree).
@@ -69,7 +68,7 @@ var (
 	pluginEscalationRe   = regexp.MustCompile(`\b(sudo|doas|su)\b`)
 	pluginPipeShellRe    = regexp.MustCompile(`(?:curl|wget)[^|\n]*\|\s*(?:sh|bash|zsh)|eval\s+"\$\(curl`)
 	pluginImportShellRe  = regexp.MustCompile(`^\s*import\s+shell\.`)
-	pluginImportKitRe    = regexp.MustCompile(`^\s*import\s+((?:Ryoku|qs)(?:\.[A-Za-z]+)*)`)
+	pluginImportKitRe    = regexp.MustCompile(`^\s*import\s+(qs(?:\.[A-Za-z]+)*|[A-Z][A-Za-z]*\.PluginKit(?:\.Singletons)?)\b`)
 	pluginImportRelRe    = regexp.MustCompile(`^\s*import\s+"(\.\./[^"]*)"`)
 	pluginSecretRe       = regexp.MustCompile(`(?:sk|ghp|gho|xox[abp])-[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY`)
 	pluginCmdArrayRe     = regexp.MustCompile(`command\s*:\s*\[\s*([^,\]\n]+)`)
@@ -79,10 +78,6 @@ var (
 	pluginShcInlineRe    = regexp.MustCompile(`\b(?:sh|bash)\s+-c\b(.*)`)
 	pluginOutsideWriteRe = regexp.MustCompile(`~/\.config/|\$HOME/\.`)
 	pluginCmdPunctRe     = regexp.MustCompile(`["'\[\](),+]`)
-	// Legacy names Asura changed: prior commands, directories, and
-	// environment. Code that still uses one loads and then fails quietly, so it
-	// warns rather than blocks.
-	pluginRemovedRe = regexp.MustCompile(`\bryoku(?:-[a-z-]+)?\b|\bryostore\b|\b(?:RYOKU|RYOSTORE)_[A-Z_]+\b`)
 )
 
 // pluginAuditManifest is the manifest data the audit reasons about: what the
@@ -255,9 +250,6 @@ func pluginAuditFile(p string, content []byte, am pluginAuditManifest, add func(
 		if pluginOutsideWriteRe.MatchString(code) {
 			add("outside-write", p, line, "writes outside the plugin state dir (R8)")
 		}
-		if match := pluginRemovedRe.FindString(code); match != "" {
-			add("removed-name", p, line, fmt.Sprintf("%q is a retired name; here it is asura (asura-*, ASURA_*, ~/.config/asura): see docs/plugins.md", match))
-		}
 	}
 }
 
@@ -272,8 +264,11 @@ func pluginAuditImport(p string, line int, code string, add func(rule, p string,
 	if match := pluginImportKitRe.FindStringSubmatch(code); match != nil {
 		switch module := match[1]; {
 		case module == "qs.PluginKit" || module == "qs.PluginKit.Singletons":
-		case module == "Ryoku.PluginKit" || module == "Ryoku.PluginKit.Singletons":
-			add("internal-import", p, line, fmt.Sprintf("%s was renamed: use `import %s` (R4)", module, strings.Replace(module, "Ryoku.", "qs.", 1)))
+		case !strings.HasPrefix(module, "qs."):
+			// The kit under another module name (a plugin written before the
+			// kit's rename): the import to use is the same path under qs.
+			fixed := "qs." + module[strings.Index(module, ".")+1:]
+			add("internal-import", p, line, fmt.Sprintf("%s was renamed: use `import %s` (R4)", module, fixed))
 		default:
 			add("internal-import", p, line, fmt.Sprintf("imports shell internals (%s); only qs.PluginKit is allowed (R4)", module))
 		}
