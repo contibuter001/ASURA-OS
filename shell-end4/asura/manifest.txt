@@ -484,7 +484,6 @@ c4b8d721f38d4ed1dbcd89eea2b2abda2cbd3de3 modules/ii/background/widgets/clock/min
 ef626700e966e7f14cc39f67ff0f7310db690c4c modules/ii/background/widgets/weather/WeatherWidget.qml
 b4f1c69cfbc438251710fa9327e71777944e7fb6 modules/ii/bar/ActiveWindow.qml
 67e730677858ce5347548b3729a9a5d93178ba9e modules/ii/bar/Bar.qml
-3bec75890e3bd3680db0460332b604466a81bc10 modules/ii/bar/BarContent.qml
 35769e4050fc2e008d490043d09564d0a2f03f1a modules/ii/bar/BarGroup.qml
 176f3a0650e7260c24169691499f56869e296e27 modules/ii/bar/BatteryIndicator.qml
 26eda569e2688bc4cbf3741445328b09493968d4 modules/ii/bar/BatteryPopup.qml
@@ -495,8 +494,6 @@ a6ca214aa1a57c4a29505a144af0dc9fc3336d8f modules/ii/bar/HyprlandXkbIndicator.qml
 6c73ca72eb87f35d40430ae77304c77ffac92f37 modules/ii/bar/LeftSidebarButton.qml
 63295d8d6ab398219f13a949b01b94d6f40e5b9a modules/ii/bar/Media.qml
 baf735152478ee131e1101ef1963cbcce095b928 modules/ii/bar/NotificationUnreadCount.qml
-7c626a55f5a18c19760b09c4df6724d02396b097 modules/ii/bar/Resource.qml
-2d9e936acbdc42c763aacb12b5248dce295d767d modules/ii/bar/Resources.qml
 40ed7275628dac0f8876dacfde9751edba707f54 modules/ii/bar/ResourcesPopup.qml
 e63d64d67cefd7548f3d729b1ec707046e567e8e modules/ii/bar/ScrollHint.qml
 650d770b6304caa070e0d261ca1c7988fecf9936 modules/ii/bar/StyledPopup.qml
@@ -507,7 +504,6 @@ de8ac579e06eb56db2e2bbf32e73e311de908863 modules/ii/bar/StyledPopupValueRow.qml
 03c734b9d9f8498bbda77f2c041423bf65ac0e58 modules/ii/bar/SysTrayMenu.qml
 59f3325c4648e9fcf1c5961d8f1ff0dd5022a2c1 modules/ii/bar/SysTrayMenuEntry.qml
 615ed6539e964b8a2229b410bd63e5cddbec285b modules/ii/bar/UtilButtons.qml
-f1e3331a17c741da9c356f82686bda4d898ab6f3 modules/ii/bar/Workspaces.qml T
 e82f41daba347ce03498237eb83c71302e387487 modules/ii/bar/weather/WeatherBar.qml
 e75dda32fca6a00c97722dadff9a23d7a6d135d8 modules/ii/bar/weather/WeatherCard.qml
 5b00b45905effe14855a0aee8c84b7fbc990a04c modules/ii/bar/weather/WeatherPopup.qml
@@ -517,7 +513,6 @@ e75dda32fca6a00c97722dadff9a23d7a6d135d8 modules/ii/bar/weather/WeatherCard.qml
 6262ed77ae24e9c7c6c2169c67d1f0a382c19ea5 modules/ii/cheatsheet/CheatsheetPeriodicTable.qml
 e05b76a9c31bb5c5db803bf22cab55cdfd71c10c modules/ii/cheatsheet/ElementTile.qml
 45d69cc9998387206084db1e97c2577ccaf3274c modules/ii/cheatsheet/periodic_table.js
-c611155f836f0f82f016bff18cbba30320d8b02a modules/ii/dock/Dock.qml
 95640d9a41e9a6a5b33093647025d39756cd16c4 modules/ii/dock/DockAppButton.qml
 82ed76cf9b4f31cfc27329a826f7380310606ca1 modules/ii/dock/DockApps.qml
 4decdaeaad9ab3d8e5928d8f6a352b16c9ff50c1 modules/ii/dock/DockButton.qml
@@ -668,7 +663,6 @@ adf1e1b1a1508a9450af2b2721de180ba7fbff70 modules/settings/About.qml
 680421f031c1185d37c1db6913750d1f0346276d modules/settings/BackgroundConfig.qml
 bfe4c256e3544987cd346dd4af96c9c1adc69404 modules/settings/BarConfig.qml
 6b83f9cf979e4df7e9ff047874827e6ca795034a modules/settings/GeneralConfig.qml
-de544ed826ec07f19e433ed3636d94c0ea2bec41 modules/settings/InterfaceConfig.qml
 75d956a884e15ee141e58d8a7eda9060bc1152aa modules/settings/QuickConfig.qml
 aec8dc98aa762fb432c28a78e803db1f956edb8f modules/settings/ServicesConfig.qml
 299635be944932bd8d1e96a700a79841f822f98a modules/waffle/README.md

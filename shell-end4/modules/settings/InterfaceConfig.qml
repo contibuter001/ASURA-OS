@@ -1,3 +1,5 @@
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): end-4's interface
+// settings without the dock's hover-to-reveal and pin switches.
 import QtQuick
 import QtQuick.Layouts
 import qs.services
@@ -112,25 +114,9 @@ ContentPage {
             }
         }
 
-        ConfigRow {
-            uniform: true
-            ConfigSwitch {
-                buttonIcon: "highlight_mouse_cursor"
-                text: Translation.tr("Hover to reveal")
-                checked: Config.options.dock.hoverToReveal
-                onCheckedChanged: {
-                    Config.options.dock.hoverToReveal = checked;
-                }
-            }
-            ConfigSwitch {
-                buttonIcon: "keep"
-                text: Translation.tr("Pinned on startup")
-                checked: Config.options.dock.pinnedOnStartup
-                onCheckedChanged: {
-                    Config.options.dock.pinnedOnStartup = checked;
-                }
-            }
-        }
+        // ASURA: the dock is an island that is always shown
+        // (modules/ii/dock/Dock.qml), so end-4's "Hover to reveal" and
+        // "Pinned on startup" switches are removed.
         ConfigSwitch {
             buttonIcon: "colors"
             text: Translation.tr("Tint app icons")

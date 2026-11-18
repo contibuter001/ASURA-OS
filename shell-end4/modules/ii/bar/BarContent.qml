@@ -9,6 +9,11 @@ import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
 
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): the bar's layout.
+// Left: the workspaces (no active window title).
+// Centre: the clock and date, alone. Right, from the end: the resources, the
+// left sidebar button, the status indicators (right sidebar), battery, util
+// buttons, media, the tray, weather. Only the buttons open the sidebars.
 Item { // Bar content region
     id: root
 
@@ -62,10 +67,9 @@ Item { // Bar content region
         onScrollDown: Brightness.decreaseBrightness()
         onScrollUp: Brightness.increaseBrightness()
         onMovedAway: GlobalStates.osdBrightnessOpen = false
-        onPressed: event => {
-            if (event.button === Qt.LeftButton)
-                GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
-        }
+        // No click action: the sidebar buttons open the sidebars. A click here
+        // used to toggle too, so a click on the button toggled twice and the
+        // sidebar opened and closed at once.
 
         // Visual content
         ScrollHint {
@@ -82,19 +86,31 @@ Item { // Bar content region
             anchors.fill: parent
             spacing: 0
 
-            LeftSidebarButton { // Left sidebar button
-                id: leftSidebarButton
+            BarGroup { // Workspaces, at the start of the bar
+                id: workspacesGroup
                 Layout.alignment: Qt.AlignVCenter
-                Layout.leftMargin: Appearance.rounding.screenRounding
-                colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
+                Layout.leftMargin: 8
+                padding: workspacesWidget.widgetPadding
+
+                Workspaces {
+                    id: workspacesWidget
+                    Layout.fillHeight: true
+                    MouseArea {
+                        // Right-click to toggle overview
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+
+                        onPressed: event => {
+                            if (event.button === Qt.RightButton) {
+                                GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
+                            }
+                        }
+                    }
+                }
             }
 
-            ActiveWindow {
-                Layout.leftMargin: 10 + (leftSidebarButton.visible ? 0 : Appearance.rounding.screenRounding)
-                Layout.rightMargin: Appearance.rounding.screenRounding
+            Item {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                visible: root.useShortenedForm === 0
             }
         }
     }
@@ -108,59 +124,13 @@ Item { // Bar content region
         }
         spacing: 4
 
-        BarGroup {
-            id: leftCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
-
-            Resources {
-                alwaysShowAllResources: root.useShortenedForm === 2
-                Layout.fillWidth: root.useShortenedForm === 2
-            }
-
-            Media {
-                visible: root.useShortenedForm < 2
-                Layout.fillWidth: true
-            }
-        }
-
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
-        }
-
-        BarGroup {
-            id: middleCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            padding: workspacesWidget.widgetPadding
-
-            Workspaces {
-                id: workspacesWidget
-                Layout.fillHeight: true
-                MouseArea {
-                    // Right-click to toggle overview
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
-
-                    onPressed: event => {
-                        if (event.button === Qt.RightButton) {
-                            GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
-                        }
-                    }
-                }
-            }
-        }
-
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
-        }
-
         MouseArea {
             id: rightCenterGroup
             anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
+            implicitWidth: rightCenterGroupContent.implicitWidth
             implicitHeight: rightCenterGroupContent.implicitHeight
 
-            onPressed: {
+            onClicked: {
                 GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
             }
 
@@ -174,15 +144,6 @@ Item { // Bar content region
                     Layout.fillWidth: true
                 }
 
-                UtilButtons {
-                    visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                BatteryIndicator {
-                    visible: (root.useShortenedForm < 2 && Battery.available)
-                    Layout.alignment: Qt.AlignVCenter
-                }
             }
         }
     }
@@ -202,11 +163,8 @@ Item { // Bar content region
         onScrollDown: Audio.decrementVolume();
         onScrollUp: Audio.incrementVolume();
         onMovedAway: GlobalStates.osdVolumeOpen = false;
-        onPressed: event => {
-            if (event.button === Qt.LeftButton) {
-                GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-            }
-        }
+        // No click action: the right sidebar button opens the sidebar (see the
+        // left side).
 
         // Visual content
         ScrollHint {
@@ -223,6 +181,38 @@ Item { // Bar content region
             anchors.fill: parent
             spacing: 5
             layoutDirection: Qt.RightToLeft
+
+            BarGroup { // Resources, at the end of the bar
+                Layout.alignment: Qt.AlignVCenter
+                Layout.rightMargin: 6
+                Resources {
+                    alwaysShowAllResources: root.useShortenedForm === 2
+                }
+            }
+
+            RippleButton { // Left sidebar (assistant, translator), second from the end
+                id: leftSidebarButton
+                Layout.alignment: Qt.AlignVCenter
+                implicitWidth: 30
+                implicitHeight: 30
+                buttonRadius: Appearance.rounding.small
+                colBackground: ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
+                colBackgroundHover: Appearance.colors.colLayer1Hover
+                colRipple: Appearance.colors.colLayer1Active
+                colBackgroundToggled: Appearance.colors.colSecondaryContainer
+                colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
+                colRippleToggled: Appearance.colors.colSecondaryContainerActive
+                toggled: GlobalStates.sidebarLeftOpen
+                onClicked: GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen
+
+                contentItem: MaterialSymbol {
+                    anchors.centerIn: parent
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "widgets"
+                    iconSize: Appearance.font.pixelSize.larger
+                    color: leftSidebarButton.toggled ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer0
+                }
+            }
 
             RippleButton { // Right sidebar button
                 id: rightSidebarButton
@@ -248,7 +238,7 @@ Item { // Bar content region
                     animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
                 }
 
-                onPressed: {
+                onClicked: {
                     GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
                 }
 
@@ -315,6 +305,22 @@ Item { // Bar content region
                         color: rightSidebarButton.colText
                     }
                 }
+            }
+
+            BatteryIndicator {
+                visible: (root.useShortenedForm < 2 && Battery.available)
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            UtilButtons {
+                visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            Media {
+                visible: root.useShortenedForm < 2
+                Layout.fillHeight: true
+                Layout.maximumWidth: 260
             }
 
             SysTray {
