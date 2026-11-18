@@ -30,7 +30,7 @@ Item {
     // ── First login on this desktop ─────────────────────────────────────────
     // Once end-4's config has loaded: seed matugen and a palette from the
     // user's ASURA wallpaper (asura/first-run.sh, which never overwrites), and
-    // turn the dock on and pin it, with ASURA's apps (end-4 ships it off and
+    // put the bar down the left edge and pin the dock with ASURA's apps (end-4 ships it off and
     // hidden). The dock is set once per user,
     // remembered by a marker, so a user who turns it off keeps it off.
     readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/asura"
@@ -49,12 +49,14 @@ Item {
     Component.onCompleted: bridge.firstRun()
     Process {
         id: dockMarker
-        command: ["sh", "-c", "m=\"$1/end4-dock-pinned\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
+        command: ["sh", "-c", "m=\"$1/end4-layout-1\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
         onExited: (code) => {
             if (code !== 0)
                 return;
             // end-4 pins KDE's Dolphin and kitty, which ASURA does not ship,
             // and hides the dock until the pointer reaches the bottom edge.
+            // end-4's vertical bar down the left edge, as in its showcase.
+            Config.options.bar.vertical = true;
             Config.options.dock.enable = true;
             Config.options.dock.pinnedOnStartup = true;
             Config.options.dock.pinnedApps = ["com.mitchellh.ghostty", "thunar", "firefox", "asura-store"];
