@@ -39,14 +39,13 @@ Item {
                 font.capitalization: Font.AllUppercase
             }
             StyledText {
-                // Fixed width, so the bar does not shift as numbers change.
+                // Fixed width and a monospace font, so the bar does not shift as numbers change.
                 Layout.preferredWidth: widest.width
                 horizontalAlignment: Text.AlignRight
                 text: `${Math.round(root.percentage * 100)}%`
                 color: root.warning ? Appearance.colors.colError : Appearance.colors.colOnLayer1
                 font.pixelSize: Appearance.font.pixelSize.small
                 font.family: Appearance.font.family.monospace
-                font.features: { "tnum": 1 }
                 TextMetrics {
                     id: widest
                     text: "100%"

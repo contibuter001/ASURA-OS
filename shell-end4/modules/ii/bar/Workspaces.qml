@@ -24,6 +24,8 @@ ButtonMouseArea {
     readonly property int activeId: root.monitor?.activeWorkspace?.id ?? 1
     property bool vertical: Config.options.bar.vertical
     readonly property real barThickness: vertical ? Appearance.sizes.verticalBarWidth : Appearance.sizes.barHeight
+    // BarContent pads its group with this (end-4 reads it but never defined it).
+    property real widgetPadding: 4
     property real workspaceButtonWidth: 26
     property real iconSize: workspaceButtonWidth * 0.69
 
@@ -45,7 +47,8 @@ ButtonMouseArea {
     implicitWidth: vertical ? barThickness : row.implicitWidth
     implicitHeight: vertical ? row.implicitHeight : barThickness
 
-    acceptedButtons: Qt.LeftButton
+    // Clicks belong to each workspace's own MouseArea; this one takes the wheel.
+    acceptedButtons: Qt.NoButton
     hoverEnabled: true
     onWheel: event => {
         if (event.angleDelta.y < 0)
