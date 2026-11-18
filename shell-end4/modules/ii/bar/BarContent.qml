@@ -10,9 +10,10 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 
 // ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): the bar's layout.
-// Left: the left sidebar button and the workspaces (no active window title).
+// Left: the workspaces (no active window title).
 // Centre: the clock and date, alone. Right, from the end: the resources, the
-// status indicators (right sidebar), media, the tray, weather.
+// left sidebar button, the status indicators (right sidebar), battery, util
+// buttons, media, the tray, weather. Only the buttons open the sidebars.
 Item { // Bar content region
     id: root
 
@@ -66,10 +67,9 @@ Item { // Bar content region
         onScrollDown: Brightness.decreaseBrightness()
         onScrollUp: Brightness.increaseBrightness()
         onMovedAway: GlobalStates.osdBrightnessOpen = false
-        onPressed: event => {
-            if (event.button === Qt.LeftButton)
-                GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
-        }
+        // No click action: the sidebar buttons open the sidebars. A click here
+        // used to toggle too, so a click on the button toggled twice and the
+        // sidebar opened and closed at once.
 
         // Visual content
         ScrollHint {
@@ -86,17 +86,10 @@ Item { // Bar content region
             anchors.fill: parent
             spacing: 0
 
-            LeftSidebarButton { // Left sidebar button
-                id: leftSidebarButton
-                Layout.alignment: Qt.AlignVCenter
-                Layout.leftMargin: Appearance.rounding.screenRounding
-                colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
-            }
-
             BarGroup { // Workspaces, at the start of the bar
                 id: workspacesGroup
                 Layout.alignment: Qt.AlignVCenter
-                Layout.leftMargin: 6
+                Layout.leftMargin: 8
                 padding: workspacesWidget.widgetPadding
 
                 Workspaces {
@@ -137,7 +130,7 @@ Item { // Bar content region
             implicitWidth: rightCenterGroupContent.implicitWidth
             implicitHeight: rightCenterGroupContent.implicitHeight
 
-            onPressed: {
+            onClicked: {
                 GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
             }
 
@@ -170,11 +163,8 @@ Item { // Bar content region
         onScrollDown: Audio.decrementVolume();
         onScrollUp: Audio.incrementVolume();
         onMovedAway: GlobalStates.osdVolumeOpen = false;
-        onPressed: event => {
-            if (event.button === Qt.LeftButton) {
-                GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-            }
-        }
+        // No click action: the right sidebar button opens the sidebar (see the
+        // left side).
 
         // Visual content
         ScrollHint {
@@ -197,6 +187,30 @@ Item { // Bar content region
                 Layout.rightMargin: 6
                 Resources {
                     alwaysShowAllResources: root.useShortenedForm === 2
+                }
+            }
+
+            RippleButton { // Left sidebar (assistant, translator), second from the end
+                id: leftSidebarButton
+                Layout.alignment: Qt.AlignVCenter
+                implicitWidth: 30
+                implicitHeight: 30
+                buttonRadius: Appearance.rounding.small
+                colBackground: ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
+                colBackgroundHover: Appearance.colors.colLayer1Hover
+                colRipple: Appearance.colors.colLayer1Active
+                colBackgroundToggled: Appearance.colors.colSecondaryContainer
+                colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
+                colRippleToggled: Appearance.colors.colSecondaryContainerActive
+                toggled: GlobalStates.sidebarLeftOpen
+                onClicked: GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen
+
+                contentItem: MaterialSymbol {
+                    anchors.centerIn: parent
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "widgets"
+                    iconSize: Appearance.font.pixelSize.larger
+                    color: leftSidebarButton.toggled ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer0
                 }
             }
 
@@ -224,7 +238,7 @@ Item { // Bar content region
                     animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
                 }
 
-                onPressed: {
+                onClicked: {
                     GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
                 }
 
