@@ -497,7 +497,6 @@ to a warning for the run. **Warning** rules are printed but do not block.
 | `undeclared-host` | no | an `https?://host` literal not in `capabilities.network` (R7) |
 | `dynamic-shell` | no | `sh` / `bash -c` whose argument is not a single string literal (R9) |
 | `outside-write` | no | a write outside `stateDir`, cache, or a temp dir (R8) |
-| `removed-name` | no | a prior-project name ASURA changed: `<prior>-*` commands, `~/.config/<prior>`, `<PRIOR>_*` (see below) |
 | `large-tree` | no | a tree larger than 20 MB |
 
 The audit is a safety net, not a sandbox: a plugin runs unsandboxed inside the

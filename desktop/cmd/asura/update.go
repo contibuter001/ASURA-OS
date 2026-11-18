@@ -161,13 +161,6 @@ func asuraUpdate(args []string) int {
 	fmt.Printf("config materialized; %d user edit(s), %d stale, %d missing\n",
 		status.Edits, status.Stale, status.Missing)
 
-	// Step 4b: Reconcile shell config and trigger live reload
-	if msg, err := reconcileShellConfig(filepath.Join(paths.Config, "shell.json"), true); err != nil {
-		fmt.Fprintln(os.Stderr, "asura update:", err)
-	} else if msg != "" {
-		fmt.Println(msg)
-	}
-
 	if !*dryRun {
 		// The running desktop picks up what was just installed: services
 		// re-synced, Hyprland reloaded, the shell and daemons restarted. No
