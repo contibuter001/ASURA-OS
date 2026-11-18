@@ -60,6 +60,7 @@ func reloadMain(args []string, out, errOut io.Writer, run runner.Func) int {
 	shellPath := filepath.Join(svcDir, reloadShellService)
 	daemonPath := filepath.Join(svcDir, reloadDaemonService)
 
+	clearShellCrashCount()
 	if _, err := run("sv", "restart", shellPath); err != nil {
 		fmt.Fprintf(errOut, "shell:   not reloaded: %s\n", runner.Reason(err))
 		code = exitFail

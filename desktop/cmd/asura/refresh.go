@@ -121,6 +121,11 @@ func refreshMain(out, errOut io.Writer, run runner.Func) int {
 
 	// 3. The shell. sv restart, and when the session has no runsvdir (or sv
 	// times out), end the process: the session's supervisor starts it again.
+	// The shell's run script falls back to ASURA's own shell when end-4 exits
+	// within 15 s three times in a row. A restart asked for here is not a
+	// crash: clear that count first, or a refresh soon after login (or two
+	// in a row) would drop the user to the other desktop.
+	clearShellCrashCount()
 	shellPath := filepath.Join(svcDir, reloadShellService)
 	if _, err := run("sv", "restart", shellPath); err == nil {
 		fmt.Fprintln(out, "shell:      restarted")
@@ -275,4 +280,17 @@ func hyprlandEnv() string {
 		return ""
 	}
 	return "HYPRLAND_INSTANCE_SIGNATURE=" + best
+}
+
+// clearShellCrashCount removes the end-4 quick-exit count the quickshell run
+// script keeps (system/runit/user-services/quickshell/run).
+func clearShellCrashCount() {
+	dir := os.Getenv("XDG_STATE_HOME")
+	if dir == "" {
+		home, _ := os.UserHomeDir()
+		dir = filepath.Join(home, ".local", "state")
+	}
+	for _, f := range []string{"end4-quick-exits", "end4-last-start"} {
+		_ = os.Remove(filepath.Join(dir, "asura", f))
+	}
 }
