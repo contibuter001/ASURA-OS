@@ -121,7 +121,7 @@ func TestPluginAuditRules(t *testing.T) {
 }
 
 // TestPluginAuditNamesTheKitRename pins the porting message: a plugin that
-// imports Ryoku.PluginKit is told the import to use instead.
+// imports legacy PluginKit is told the import to use instead.
 func TestPluginAuditNamesTheKitRename(t *testing.T) {
 	res := pluginTestAudit(t, map[string]string{
 		"content/W.qml": "import Ryoku.PluginKit\nimport Ryoku.PluginKit.Singletons\nItem {}\n",

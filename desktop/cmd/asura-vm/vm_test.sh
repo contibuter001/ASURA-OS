@@ -33,7 +33,7 @@ echo "$caps" | jq -e '(.kvm | not) or .kvmDevice' >/dev/null || fail "usable /de
 [ "$(run list | jq -c .)" = "[]" ] || fail "list of an empty library"
 
 # 3. quickemu sources the conf as shell, so every key it holds must be a valid
-#    shell name. Porting 'ryovm_os' with a blanket rename once made it 'asura-vm_os'.
+#    shell name. Legacy migration validation test.
 : >"$work/disc.iso"
 run import probe "$work/disc.iso" linux ubuntu >/dev/null
 conf=$work/vm/probe.conf

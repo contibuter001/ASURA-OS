@@ -16,15 +16,15 @@ import (
 
 // plugin_audit.go is the static audit `asura plugin audit` and `asura plugin
 // install` run over a plugin tree, on top of the manifest checks in plugin.go.
-// Ported from Ryoku's plugin audit (GPL-3.0). It reads bytes only; it never
+// Ported under GPL-3.0. It reads bytes only; it never
 // executes anything from the plugin. Each finding carries a stable rule id, the
 // file, the line and one sentence. Blocking findings fail the audit unless
 // downgraded with --allow; warnings are printed and never fail. The rules mirror
 // R1..R11 in docs/plugins.md and in the scaffold's AGENTS.md.
 //
-// What differs from Ryoku's audit is the names: the shell's internal namespace
+// What differs from upstream audit is the names: the shell's internal namespace
 // is qs.* here (so any import of it but the kit is internal, and a plugin that
-// still imports Ryoku.PluginKit is told the fix), and names Asura renamed are
+// still imports legacy kit is told the fix), and names Asura renamed are
 // reported as removed-name warnings.
 
 // pluginFinding is one audit result. Line is 1-based, or 0 for a whole-file
@@ -79,7 +79,7 @@ var (
 	pluginShcInlineRe    = regexp.MustCompile(`\b(?:sh|bash)\s+-c\b(.*)`)
 	pluginOutsideWriteRe = regexp.MustCompile(`~/\.config/|\$HOME/\.`)
 	pluginCmdPunctRe     = regexp.MustCompile(`["'\[\](),+]`)
-	// The Ryoku names Asura changed: its commands, its directories, its
+	// Legacy names Asura changed: prior commands, directories, and
 	// environment. Code that still uses one loads and then fails quietly, so it
 	// warns rather than blocks.
 	pluginRemovedRe = regexp.MustCompile(`\bryoku(?:-[a-z-]+)?\b|\bryostore\b|\b(?:RYOKU|RYOSTORE)_[A-Z_]+\b`)
@@ -256,13 +256,13 @@ func pluginAuditFile(p string, content []byte, am pluginAuditManifest, add func(
 			add("outside-write", p, line, "writes outside the plugin state dir (R8)")
 		}
 		if match := pluginRemovedRe.FindString(code); match != "" {
-			add("removed-name", p, line, fmt.Sprintf("%q is a Ryoku name; here it is asura (asura-*, ASURA_*, ~/.config/asura): see docs/plugins.md", match))
+			add("removed-name", p, line, fmt.Sprintf("%q is a retired name; here it is asura (asura-*, ASURA_*, ~/.config/asura): see docs/plugins.md", match))
 		}
 	}
 }
 
 // pluginAuditImport checks one import line against R4: the kit is the only
-// stable surface, so any other qs.* module, a Ryoku.* module or shell.* is
+// stable surface, so any other qs.* module, a legacy module or shell.* is
 // internal, and so is a relative import that climbs out of the folder.
 func pluginAuditImport(p string, line int, code string, add func(rule, p string, line int, msg string)) {
 	if pluginImportShellRe.MatchString(code) {

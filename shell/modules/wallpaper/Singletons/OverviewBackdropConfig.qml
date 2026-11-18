@@ -14,7 +14,7 @@ Singleton {
     id: root
 
     readonly property string configPath: {
-        const override = Quickshell.env("ASURA_WALLPAPER_WALL_CONFIG") || Quickshell.env("RYOGAMI_WALL_CONFIG");
+        const override = Quickshell.env("ASURA_WALLPAPER_WALL_CONFIG");
         if (override && override.length > 0)
             return override + "/config.json";
         const base = Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config");

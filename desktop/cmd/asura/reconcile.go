@@ -8,8 +8,8 @@ import (
 
 // The one value Asura renamed that a user's shell.json can still carry.
 //
-// FrameBars.js accepts the frame style "slate-frame" or "asura-frame". Ryoku
-// called the second "ryoku-frame", and a shell.json brought across from a Ryoku
+// FrameBars.js accepts the frame style "slate-frame" or "asura-frame". A prior
+// setup called the second "ryoku-frame", and a shell.json brought across from a legacy
 // machine still says so; the shell then ignores it and falls back to the
 // default, so the style the user picked is lost without a word. The keys
 // themselves did not change, only this value, so this is the whole migration.

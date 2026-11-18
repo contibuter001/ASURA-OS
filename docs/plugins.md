@@ -534,7 +534,7 @@ each one with the fix:
 | `import <prior>.PluginKit.Singletons` | `import qs.PluginKit.Singletons` |
 | `<prior>-shell`, `<prior>-plugins-place`, `<prior>` | `asura-shell`, `asura-plugins-place`, `asura` |
 | `~/.config/<prior>`, `~/.local/share/<prior>`, `$XDG_STATE_HOME/<prior>/plugins/<id>` | the same paths with `asura` |
-| `<PRIOR>_*`, `RYOSTORE_PLUGINS_DIR` | `ASURA_*`, `ASURA_PLUGINS_DIR` |
+| `<PRIOR>_*`, `<PRIOR_STORE>_PLUGINS_DIR` | `ASURA_*`, `ASURA_PLUGINS_DIR` |
 
 The kit keeps every token name it had (`Theme.verm`, `Theme.flameInk` ...) so the
 plugin still loads, but the values are greys: the design system has no accent
