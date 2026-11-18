@@ -221,6 +221,9 @@ fi
 # asura update compares it with the branch: nothing new, nothing rebuilt.
 if commit=$(git -c safe.directory='*' -C "$REPO" rev-parse HEAD 2>/dev/null); then
 	printf '%s\n' "$commit" >"$ROOT/usr/share/asura/applied-commit"
+	# And where it came from: asura update follows that checkout next time
+	# instead of searching for one.
+	printf '%s\n' "$REPO" >"$ROOT/usr/share/asura/applied-source"
 fi
 
 # ── Make the system notice ──────────────────────────────────────────────────

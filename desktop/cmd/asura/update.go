@@ -41,7 +41,8 @@ func asuraUpdate(args []string) int {
 		system     = set.Bool("system", false, "force update of all system packages (XBPS)")
 		asuraOnly  = set.Bool("asura-only", false, "only update ASURA packages and desktop components")
 		check      = set.Bool("check", false, "only report whether a newer ASURA is available")
-		force      = set.Bool("force", false, "reapply ASURA even when it is already the latest commit")
+		force      = set.Bool("force", false, "take the tip of the branch without checking CI, and reapply even when already applied")
+		wait       = set.Bool("wait", false, "wait for CI still running on the newest commit instead of taking the last one that passed")
 	)
 	if err := set.Parse(args); err != nil {
 		return exitUsage
@@ -63,6 +64,7 @@ func asuraUpdate(args []string) int {
 	}
 
 	updateForce = *force
+	updateWait = *wait
 	if *check {
 		b := targetBranch
 		if b == "" {
@@ -472,6 +474,9 @@ const defaultGitRepoURL = "https://github.com/mohitjoer/ASURA-OS.git"
 // applied to this system, so an update knows whether there is anything new.
 var appliedCommitFile = "/usr/share/asura/applied-commit"
 
+// appliedSourceFile records the checkout that commit was applied from.
+var appliedSourceFile = "/usr/share/asura/applied-source"
+
 // updateForce reapplies the checkout even when it is the applied commit.
 var updateForce bool
 
@@ -499,59 +504,73 @@ func isUpdateCache(repoDir string) bool {
 		repoDir == "/var/cache/asura/source"
 }
 
-// syncRepo brings the checkout to the newest commit of branch and returns it.
-func syncRepo(repoDir, branch string) (string, error) {
-	fetch := repoGit(repoDir, "fetch", "--quiet", "origin", branch)
-	fetch.Stdout, fetch.Stderr = os.Stdout, os.Stderr
-	if err := fetch.Run(); err != nil {
-		return "", fmt.Errorf("git fetch (is the network up?): %w", err)
+// followBranch fetches branch and picks the commit to apply: the newest one
+// that passed CI (the tip with --force). It returns the target, or "" when
+// there is nothing safe to take, with the reason printed.
+func followBranch(repoDir, branch string) (string, error) {
+	ref, err := fetchChannel(repoDir, branch)
+	if err != nil {
+		return "", err
 	}
-	if isUpdateCache(repoDir) {
-		// The update cache follows the branch exactly, even after a force-push.
-		for _, args := range [][]string{
-			{"checkout", "--quiet", "-B", branch, "FETCH_HEAD"},
-			{"reset", "--quiet", "--hard", "FETCH_HEAD"},
-		} {
-			cmd := repoGit(repoDir, args...)
-			cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-			if err := cmd.Run(); err != nil {
-				return "", fmt.Errorf("git %s: %w", args[0], err)
-			}
-		}
-	} else {
-		checkout := repoGit(repoDir, "checkout", "--quiet", branch)
-		checkout.Stdout, checkout.Stderr = os.Stdout, os.Stderr
-		_ = checkout.Run()
-		pull := repoGit(repoDir, "merge", "--ff-only", "--quiet", "FETCH_HEAD")
-		pull.Stdout, pull.Stderr = os.Stdout, os.Stderr
-		if err := pull.Run(); err != nil {
-			return "", fmt.Errorf("%s has local changes that do not fast-forward to origin/%s; commit or stash them, or delete it to let asura update clone its own copy: %w", repoDir, branch, err)
-		}
+	if updateForce {
+		fmt.Println("    --force: taking the tip of " + branch + " without checking CI")
+		return gitOut(repoDir, "rev-parse", ref), nil
 	}
-	head := gitOut(repoDir, "rev-parse", "HEAD")
-	if head == "" {
-		return "", fmt.Errorf("git rev-parse HEAD failed in %s", repoDir)
+	repo, ok := githubRepoOf(repoDir)
+	if !ok {
+		fmt.Println("    origin is not on GitHub, so its CI cannot be read; taking the tip of " + branch)
+		return gitOut(repoDir, "rev-parse", ref), nil
 	}
-	return head, nil
+	target, note, err := gatedTarget(repoDir, repo, ref)
+	if err != nil {
+		// Without the gate nothing may be taken: an unchecked tip is exactly
+		// what the gate keeps off machines.
+		fmt.Printf("    could not read CI results from GitHub (%v)\n", err)
+		fmt.Println("    keeping the installed ASURA; `asura update --force` takes the tip unchecked")
+		return "", nil
+	}
+	if note != "" {
+		fmt.Println("    " + note)
+	}
+	if target == "" {
+		fmt.Println("    keeping the installed ASURA")
+	}
+	return target, nil
 }
 
-// pullGitUpdates brings ASURA to the newest commit of branch: the checkout is
-// synced, and when that commit is not the one applied to this system already,
-// what changed is listed and the checkout is applied. An update with nothing
-// new does no work (--force reapplies).
+// pullGitUpdates brings ASURA to the newest commit of branch that passed CI:
+// the checkout is synced to it and, unless that is the applied commit (or
+// older than it), what changed is listed and the checkout is applied.
 func pullGitUpdates(branch string, root string) error {
 	repoDir, err := findOrCloneRepo(branch)
 	if err != nil {
 		return fmt.Errorf("locating Asura repository: %w", err)
 	}
 	fmt.Printf("    source: %s (%s)\n", repoDir, branch)
-	head, err := syncRepo(repoDir, branch)
-	if err != nil {
+	target, err := followBranch(repoDir, branch)
+	if err != nil || target == "" {
 		return err
 	}
 	applied := appliedCommit(root)
-	if applied == head && !updateForce {
-		fmt.Printf("    ASURA is already at the latest commit %s\n", short(head))
+	if applied != "" && !updateForce && gitOut(repoDir, "cat-file", "-t", applied) == "commit" {
+		if gitOut(repoDir, "rev-parse", target) == gitOut(repoDir, "rev-parse", applied) {
+			fmt.Printf("    ASURA is already at the latest checked commit %s\n", short(applied))
+			return nil
+		}
+		if isAncestorIn(repoDir, target, applied) {
+			fmt.Printf("    the installed ASURA (%s) is newer than %s; nothing was applied\n", short(applied), short(target))
+			return nil
+		}
+	}
+	head, note, err := syncToTarget(repoDir, branch, target)
+	if err != nil {
+		return err
+	}
+	if note != "" {
+		fmt.Println("    " + note)
+	}
+	if head == applied && !updateForce {
+		fmt.Printf("    ASURA is already at %s\n", short(head))
 		return nil
 	}
 	if applied != "" && applied != head {
@@ -566,33 +585,34 @@ func pullGitUpdates(branch string, root string) error {
 	return applyRepo(repoDir, root)
 }
 
-// checkForUpdate reports whether branch has a commit newer than the applied
-// one, fetching but changing nothing.
+// checkForUpdate reports whether branch has a commit that passed CI and is
+// newer than the applied one, fetching but changing nothing.
 func checkForUpdate(branch, root string) int {
 	repoDir, err := findOrCloneRepo(branch)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "asura update --check:", err)
 		return exitFail
 	}
-	fetch := repoGit(repoDir, "fetch", "--quiet", "origin", branch)
-	fetch.Stderr = os.Stderr
-	if err := fetch.Run(); err != nil {
-		fmt.Fprintln(os.Stderr, "asura update --check: git fetch:", err)
+	target, err := followBranch(repoDir, branch)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "asura update --check:", err)
 		return exitFail
 	}
-	latest := gitOut(repoDir, "rev-parse", "FETCH_HEAD")
+	if target == "" {
+		return exitFail
+	}
 	applied := appliedCommit(root)
 	switch {
-	case latest == "":
-		fmt.Fprintln(os.Stderr, "asura update --check: could not read the latest commit")
-		return exitFail
-	case applied == latest:
-		fmt.Printf("up to date: %s (%s)\n", short(latest), branch)
+	case applied == target:
+		fmt.Printf("up to date: %s (%s)\n", short(target), branch)
+		return exitOK
+	case applied != "" && gitOut(repoDir, "cat-file", "-t", applied) == "commit" && isAncestorIn(repoDir, target, applied):
+		fmt.Printf("up to date: %s is newer than the last checked commit %s (%s)\n", short(applied), short(target), branch)
 		return exitOK
 	default:
-		fmt.Printf("update available: %s -> %s (%s)\n", orUnknown(short(applied)), short(latest), branch)
+		fmt.Printf("update available: %s -> %s (%s)\n", orUnknown(short(applied)), short(target), branch)
 		if applied != "" {
-			if log := gitOut(repoDir, "log", "--oneline", "--no-decorate", "-n", "25", applied+".."+latest); log != "" {
+			if log := gitOut(repoDir, "log", "--oneline", "--no-decorate", "-n", "25", applied+".."+target); log != "" {
 				fmt.Println(log)
 			}
 		}
@@ -646,6 +666,13 @@ func findOrCloneRepo(branch string) (string, error) {
 	// 1. Check ASURA_SRC_DIR environment variable override
 	if env := os.Getenv("ASURA_SRC_DIR"); env != "" && isAsuraRepo(env) {
 		return env, nil
+	}
+
+	// 1b. The checkout this system was last applied from (apply-repo records it).
+	if b, err := os.ReadFile(appliedSourceFile); err == nil {
+		if p := strings.TrimSpace(string(b)); p != "" && isAsuraRepo(p) && canWriteRepo(p) {
+			return p, nil
+		}
 	}
 
 	// 2. Check current directory or git root

@@ -62,12 +62,21 @@ it also updates all base system packages (XBPS) and creates a Btrfs snapshot.
   --system         update all system packages (XBPS) even when unprivileged
   --asura-only     only update ASURA packages and components (skip XBPS)
   --check          only report whether a newer ASURA is available (exit 3 if so)
-  --force          reapply ASURA even when it is already the latest commit
+  --force          take the tip of the branch without checking CI, and reapply
+                   even when it is already the applied commit
+  --wait           wait for CI still running on the newest commit instead of
+                   taking the last one that passed
 
 Order: system packages (as root), then ASURA from its branch (dev-unstable by
-default: the checkout is synced, what changed is listed, and it is applied by
-installation/apply-repo.sh), Flatpaks, and a refresh of the running desktop.
-Nothing new on the branch means nothing is rebuilt.
+default), Flatpaks, and a refresh of the running desktop.
+
+ASURA follows the branch safely: the fetch is bounded and never prompts (offline,
+the copy fetched before is used); the target is the newest commit whose GitHub
+checks all passed, not the tip; a target older than the applied commit is never
+applied; the update's own clone resets to the target, while a developer's
+checkout is only fast-forwarded and keeps local work. What changed is listed and
+the checkout is applied by installation/apply-repo.sh, which records the commit
+and the checkout it came from. Nothing new means nothing is rebuilt.
 `
 
 const rollbackUsage = `Usage: asura rollback [flags] [snapshot-name]
