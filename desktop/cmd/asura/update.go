@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"asura/desktop/internal/overlay"
@@ -97,7 +98,9 @@ func asuraUpdate(args []string) int {
 				// If a local source repo exists, pull and sync updates
 				if repo, err := findOrCloneRepo("dev-unstable"); err == nil && repo != "" {
 					fmt.Printf("==> Updating ASURA components from local repository (%s)...\n", repo)
-					_ = pullGitUpdates("dev-unstable", *root)
+					if err := pullGitUpdates("dev-unstable", *root); err != nil {
+						fmt.Fprintf(os.Stderr, "asura update: the repository was not updated: %v\n", err)
+					}
 				}
 			}
 
@@ -423,6 +426,7 @@ func findOrCloneRepo(branch string) (string, error) {
 		filepath.Join(home, "code", "ASURA-OS"),
 		filepath.Join(home, "code", "asura", "ASURA-OS"),
 		filepath.Join(home, "ASURA-OS"),
+		filepath.Join(home, ".cache", "asura", "source"),
 		"/usr/src/asura",
 		"/usr/share/asura",
 		"/var/cache/asura/source",
@@ -435,8 +439,11 @@ func findOrCloneRepo(branch string) (string, error) {
 			filepath.Join(userHome, "ASURA-OS"),
 		}, candidates...)
 	}
+	// A checkout this user cannot write (a root-owned clone left by an
+	// earlier `sudo asura update`) cannot be pulled into: skip it, and clone
+	// a copy of the user's own below.
 	for _, c := range candidates {
-		if isAsuraRepo(c) {
+		if isAsuraRepo(c) && canWriteRepo(c) {
 			return c, nil
 		}
 	}
@@ -461,6 +468,11 @@ func findOrCloneRepo(branch string) (string, error) {
 	}
 
 	return cacheDir, nil
+}
+
+// canWriteRepo reports whether git can update the checkout at path.
+func canWriteRepo(path string) bool {
+	return syscall.Access(filepath.Join(path, ".git"), 2 /* W_OK */) == nil
 }
 
 func isAsuraRepo(path string) bool {
