@@ -62,16 +62,49 @@ Singleton {
         );
     }
 
+    // ASURA: the grab is armed a moment after something opens, once its
+    // window is on screen. Armed in the same instant the window was made
+    // visible, Hyprland 0.49 can clear the grab at once, and end-4 then closed
+    // the panel it had just opened (the sidebars, the wallpaper picker). A
+    // grab that is still cleared within its first moments is re-armed rather
+    // than taken as a click outside. Every clear is logged with its timing.
+    property bool armed: false
+    property double armedAt: 0
+    readonly property bool wanted: root.dismissable.length > 0
+    onWantedChanged: {
+        if (root.wanted) {
+            armTimer.restart();
+        } else {
+            armTimer.stop();
+            root.armed = false;
+        }
+    }
+    Timer {
+        id: armTimer
+        interval: 250
+        onTriggered: {
+            if (!root.wanted)
+                return;
+            root.armedAt = Date.now();
+            root.armed = true;
+        }
+    }
+
     HyprlandFocusGrab {
         id: grab
-        // ASURA: the persistent windows (the bar, the on-screen keyboard) are
-        // always in the grab. end-4 left them out until the opened sidebar had
-        // keyboard focus, so in that moment a click or pointer event on the
-        // bar counted as outside the grab and closed the sidebar it had just
-        // opened (on ASURA's Hyprland 0.49, every time).
+        // The persistent windows (the bar, the on-screen keyboard) are always
+        // in the grab, so the window list does not change when focus arrives.
         windows: [...root.dismissable, ...root.persistent]
-        active: root.dismissable.length > 0
+        active: root.armed && root.wanted
         onCleared: () => {
+            const after = Date.now() - root.armedAt;
+            if (root.wanted && after < 600) {
+                console.log("[GlobalFocusGrab] cleared " + after + " ms after arming; re-arming");
+                root.armed = false;
+                armTimer.restart();
+                return;
+            }
+            console.log("[GlobalFocusGrab] cleared " + after + " ms after arming; dismissing");
             root.dismiss();
         }
     }
