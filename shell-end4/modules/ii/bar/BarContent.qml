@@ -67,9 +67,7 @@ Item { // Bar content region
         onScrollDown: Brightness.decreaseBrightness()
         onScrollUp: Brightness.increaseBrightness()
         onMovedAway: GlobalStates.osdBrightnessOpen = false
-        // No click action: the sidebar buttons open the sidebars. A click here
-        // used to toggle too, so a click on the button toggled twice and the
-        // sidebar opened and closed at once.
+        // No click action: only the sidebar buttons open the sidebars.
 
         // Visual content
         ScrollHint {
@@ -163,8 +161,7 @@ Item { // Bar content region
         onScrollDown: Audio.decrementVolume();
         onScrollUp: Audio.incrementVolume();
         onMovedAway: GlobalStates.osdVolumeOpen = false;
-        // No click action: the right sidebar button opens the sidebar (see the
-        // left side).
+        // No click action: only the right sidebar button opens the sidebar.
 
         // Visual content
         ScrollHint {
