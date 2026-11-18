@@ -360,33 +360,39 @@ func pullGitUpdates(branch string, root string) error {
 		return fmt.Errorf("git pull: %w", err)
 	}
 
-	// Update base files in /usr/share/asura/
-	baseDir := filepath.Join(root, "/usr/share/asura")
-	if _, err := os.Stat(baseDir); err == nil {
-		fmt.Println("==> Syncing updated code into /usr/share/asura/...")
-		for _, sub := range []string{"shell", "hyprland", "apps", "session"} {
-			src := filepath.Join(repoDir, sub)
-			dst := filepath.Join(baseDir, sub)
-			_ = sudoCopyDir(src, dst)
-		}
-		// Also sync helpers
-		helperSrc := filepath.Join(repoDir, "system", "helpers", "asura-gpu")
-		if _, err := os.Stat(helperSrc); err == nil {
-			dstHelper := filepath.Join(root, "/usr/bin/asura-gpu")
-			sudo := "sudo"
-			if os.Geteuid() == 0 {
-				sudo = ""
-			}
-			if sudo != "" {
-				_ = exec.Command(sudo, "cp", helperSrc, dstHelper).Run()
-				_ = exec.Command(sudo, "chmod", "755", dstHelper).Run()
-			} else {
-				_ = exec.Command("cp", helperSrc, dstHelper).Run()
-				_ = exec.Command("chmod", "755", dstHelper).Run()
-			}
-		}
-	}
+	// Apply the pulled checkout to this system: everything the ISO installs
+	// from the repository (both desktop shells, Hyprland, the session, runit
+	// services, helpers, schemas, system configuration), the Go tools rebuilt
+	// from it, and any package new in the manifest. installation/apply-repo.sh
+	// is that list, kept equal to the ISO build by its test.
+	return applyRepo(repoDir, root)
+}
 
+// applyRepoArgs is the command that applies repoDir to root. A package var so
+// the update tests can see what would run without running it.
+var applyRepoArgs = func(repoDir, root string) []string {
+	args := []string{"sh", filepath.Join(repoDir, "installation", "apply-repo.sh"), repoDir}
+	if root != "" && root != "/" {
+		args = append(args, root)
+	}
+	if os.Geteuid() != 0 {
+		args = append([]string{"sudo"}, args...)
+	}
+	return args
+}
+
+func applyRepo(repoDir, root string) error {
+	script := filepath.Join(repoDir, "installation", "apply-repo.sh")
+	if _, err := os.Stat(script); err != nil {
+		return fmt.Errorf("%s is missing; the checkout is older than this asura", script)
+	}
+	args := applyRepoArgs(repoDir, root)
+	fmt.Println("==> Applying the updated repository to this system...")
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Stdout, cmd.Stderr, cmd.Stdin = os.Stdout, os.Stderr, os.Stdin
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("apply-repo: %w", err)
+	}
 	return nil
 }
 
@@ -461,29 +467,4 @@ func isAsuraRepo(path string) bool {
 		return true
 	}
 	return false
-}
-
-func sudoCopyDir(src, dst string) error {
-	if _, err := os.Stat(src); err != nil {
-		return nil
-	}
-	sudo := "sudo"
-	if os.Geteuid() == 0 {
-		sudo = ""
-	}
-	var mkdirCmd *exec.Cmd
-	if sudo != "" {
-		mkdirCmd = exec.Command(sudo, "mkdir", "-p", dst)
-	} else {
-		mkdirCmd = exec.Command("mkdir", "-p", dst)
-	}
-	_ = mkdirCmd.Run()
-
-	var cpCmd *exec.Cmd
-	if sudo != "" {
-		cpCmd = exec.Command(sudo, "cp", "-a", src+"/.", dst+"/")
-	} else {
-		cpCmd = exec.Command("cp", "-a", src+"/.", dst+"/")
-	}
-	return cpCmd.Run()
 }

@@ -95,6 +95,9 @@ desktop:
     # syntax highlighting its sidebar uses.
     - kf6-kirigami
     - kf6-syntax-highlighting
+    # end-4's switchwall.sh turns the wallpaper into the desktop's palette
+    # with matugen (templates: shell-end4/matugen).
+    - matugen
     # Core utilities
     - dconf
     - glib

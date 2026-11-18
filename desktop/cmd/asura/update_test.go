@@ -63,3 +63,27 @@ func TestAsuraUpdateDryRunUnprivileged(t *testing.T) {
 		t.Fatalf("asura update unprivileged dry-run returned %d, want %d", code, exitOK)
 	}
 }
+
+func TestApplyRepoArgs(t *testing.T) {
+	args := applyRepoArgs("/src/asura", "/")
+	want := filepath.Join("/src/asura", "installation", "apply-repo.sh")
+	if os.Geteuid() != 0 {
+		if args[0] != "sudo" {
+			t.Fatalf("not root: want sudo first, got %v", args)
+		}
+		args = args[1:]
+	}
+	if len(args) != 3 || args[0] != "sh" || args[1] != want || args[2] != "/src/asura" {
+		t.Fatalf("root /: got %v", args)
+	}
+	args = applyRepoArgs("/src/asura", "/mnt/target")
+	if args[len(args)-1] != "/mnt/target" {
+		t.Fatalf("a --root tree must be passed on: got %v", args)
+	}
+}
+
+func TestApplyRepoRefusesOldCheckout(t *testing.T) {
+	if err := applyRepo(t.TempDir(), "/"); err == nil {
+		t.Fatal("a checkout without installation/apply-repo.sh must be an error, not a silent no-op")
+	}
+}

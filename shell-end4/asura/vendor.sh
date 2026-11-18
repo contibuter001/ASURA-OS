@@ -24,6 +24,12 @@ UPSTREAM_PATH="dots/.config/quickshell/ii"
 # modules/common/widgets/shapes; it is vendored here at the commit end-4 pins,
 # without its LICENSE (Apache-2.0, kept as asura/LICENSE.apache-2.0 because
 # every file named LICENSE must be the root's GPL text), README or examples.
+# end-4's matugen templates (dots/.config/matugen) turn a wallpaper into the
+# desktop's palette. They are vendored at matugen/; the config.toml there is
+# ASURA's overlay, which keeps the templates ASURA can use.
+MATUGEN_PATH="dots/.config/matugen"
+MATUGEN_DEST="matugen"
+
 SHAPES_URL="https://github.com/end-4/rounded-polygon-qmljs.git"
 SHAPES_DEST="modules/common/widgets/shapes"
 
@@ -32,6 +38,7 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # reach this shell exactly as they reach ASURA's own.
 OVERLAYS="
 shell.qml
+matugen/config.toml
 "
 
 log() { printf '%s\n' "$*" >&2; }
@@ -57,10 +64,13 @@ fetch() {
 cmd_sync() {
 	fetch
 	list=$(mktemp)
-	git -C "$CACHE" ls-tree -r --format='%(objectmode) %(objectname) %(path)' "$COMMIT" "$UPSTREAM_PATH" |
+	git -C "$CACHE" ls-tree -r --format='%(objectmode) %(objectname) %(path)' "$COMMIT" "$UPSTREAM_PATH" "$MATUGEN_PATH" |
 	while read -r mode blob path; do
 		[ "$mode" = 160000 ] && continue
-		rel=${path#"$UPSTREAM_PATH"/}
+		case "$path" in
+			"$MATUGEN_PATH"/*) rel="$MATUGEN_DEST/${path#"$MATUGEN_PATH"/}" ;;
+			*) rel=${path#"$UPSTREAM_PATH"/} ;;
+		esac
 		is_overlay "$rel" && continue
 		mkdir -p "$TREE/$(dirname "$rel")"
 		git -C "$CACHE" cat-file blob "$blob" >"$TREE/$rel"

@@ -311,7 +311,7 @@ rule is what makes rollback possible.
 
 | Command | Does |
 |---|---|
-| `asura update` | snapshot `~/.config` to git, update xbps packages, re-materialize base, repaint |
+| `asura update` | snapshot `~/.config` to git, pull `dev-unstable` and apply it with `installation/apply-repo.sh` (everything the ISO installs from the repo, the Go tools rebuilt, packages new in the manifest), update xbps packages, re-materialize base, repaint |
 | `asura rollback` | re-materialize the previous revision |
 | `asura materialize <path>` | re-lay the base file, clobbering shipped content |
 | `asura reset <path>` | drop one overlay file back to the base |

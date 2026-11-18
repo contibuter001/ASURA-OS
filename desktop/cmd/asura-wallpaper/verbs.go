@@ -47,6 +47,9 @@ func (d *daemon) wallpaperVerb(line string) string {
 		}
 		return "ok"
 	case "random":
+		if end4Desktop() {
+			return callEnd4("wallpaperSelector", "random")
+		}
 		if pick := d.pickRandom(nil, false); pick != "" {
 			if err := d.applyWallpaper(typeOf(pick), pick, "set", outputs, nil, nil); err != nil {
 				return "err wallpaper: " + err.Error()
@@ -69,6 +72,9 @@ func (d *daemon) wallpaperVerb(line string) string {
 		d.restoreOutputs()
 		return "ok"
 	case "ui":
+		if end4Desktop() {
+			return callEnd4("wallpaperSelector", "toggle")
+		}
 		// Resident picker: flip its surface over the event hub; a dead or
 		// not-yet-started instance cold-launches already visible instead.
 		if d.ui.ensure() {

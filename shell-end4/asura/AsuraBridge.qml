@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import qs
+import qs.modules.common
 import qs.modules.common.functions
 
 // The ASURA bridge. ASURA's keybindings (session/hyprland/binds.conf) do not
@@ -24,6 +25,34 @@ Item {
 
     function callSelf(target: string, fn: string): void {
         Quickshell.execDetached(["quickshell", "ipc", "--path", bridge.configPath, "call", target, fn]);
+    }
+
+    // ── First login on this desktop ─────────────────────────────────────────
+    // Once end-4's config has loaded: seed matugen and a palette from the
+    // user's ASURA wallpaper (asura/first-run.sh, which never overwrites), and
+    // turn the dock on, which end-4 ships off. The dock is set once per user,
+    // remembered by a marker, so a user who turns it off keeps it off.
+    readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/asura"
+    property bool firstRunDone: false
+    function firstRun(): void {
+        if (bridge.firstRunDone || !Config.ready)
+            return;
+        bridge.firstRunDone = true;
+        Quickshell.execDetached(["sh", bridge.configPath + "/asura/first-run.sh"]);
+        dockMarker.running = true;
+    }
+    Connections {
+        target: Config
+        function onReadyChanged(): void { bridge.firstRun(); }
+    }
+    Component.onCompleted: bridge.firstRun()
+    Process {
+        id: dockMarker
+        command: ["sh", "-c", "m=\"$1/end4-dock-seeded\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
+        onExited: (code) => {
+            if (code === 0)
+                Config.options.dock.enable = true;
+        }
     }
 
     IpcHandler {

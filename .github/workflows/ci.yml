@@ -230,6 +230,9 @@ jobs:
       - name: ISO builder test
         run: |
           sh installation/build-iso-void_test.sh
+      - name: apply-repo mirrors the ISO build
+        run: |
+          sh installation/apply-repo_test.sh
 
   # ==========================================================================
   # PART 7: Contract tests
