@@ -21,6 +21,9 @@ func main() {
 	}
 
 	switch args[0] {
+	case "-h", "--help", "help":
+		usage()
+		return
 	case "keybinds":
 		b, err := json.Marshal(keybinds())
 		if err != nil {

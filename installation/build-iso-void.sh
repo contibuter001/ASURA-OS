@@ -479,13 +479,17 @@ if [ -d "$REPO_ROOT/session/sddm" ]; then
 fi
 cp -r "$REPO_ROOT/shell"/* "$INCLUDE_DIR/usr/share/asura/shell/"
 # end-4's desktop, the default shell (org.asura.shell desktop-shell = end4).
-# Its own scripts (shell-end4/asura) are build tooling and stay out of the image.
+# Its own scripts (vendor.sh, hyprlang.py, manifest.txt) are build tooling and stay out of the image.
 mkdir -p "$INCLUDE_DIR/usr/share/asura/shell-end4"
 cp -r "$REPO_ROOT/shell-end4"/* "$INCLUDE_DIR/usr/share/asura/shell-end4/"
 rm -f "$INCLUDE_DIR/usr/share/asura/shell-end4/asura/vendor.sh" \
 	"$INCLUDE_DIR/usr/share/asura/shell-end4/asura/hyprlang.py" \
 	"$INCLUDE_DIR/usr/share/asura/shell-end4/asura/manifest.txt"
 cp -r "$REPO_ROOT/system/runit/user-services"/* "$INCLUDE_DIR/usr/share/asura/runit/services/"
+# The commit this image is built from: asura update compares it with the
+# branch, so a fresh install knows whether there is anything newer.
+git -c safe.directory='*' -C "$REPO_ROOT" rev-parse HEAD >"$INCLUDE_DIR/usr/share/asura/applied-commit" 2>/dev/null ||
+	rm -f "$INCLUDE_DIR/usr/share/asura/applied-commit"
 
 # Ensure XBPS tools are available (if running on a non-Void host, fetch xbps-static)
 if ! command -v xbps-rindex >/dev/null 2>&1 || ! command -v xbps-install >/dev/null 2>&1; then

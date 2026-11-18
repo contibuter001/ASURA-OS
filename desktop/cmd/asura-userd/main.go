@@ -62,6 +62,16 @@ type UserDaemon struct {
 }
 
 func main() {
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "-h", "--help", "help":
+			fmt.Println("Usage: asura-userd\n\nASURA's per-user settings daemon, run by the session's runit service\n(~/.config/service/asura-userd). It listens on $XDG_RUNTIME_DIR/asura-user.sock.\nIt takes no arguments.")
+			return
+		default:
+			fmt.Fprintf(os.Stderr, "asura-userd: takes no arguments (got %q); --help explains\n", os.Args[1])
+			os.Exit(2)
+		}
+	}
 	userSocket := getUserSocketPath()
 	d := &UserDaemon{
 		userSocket: userSocket,

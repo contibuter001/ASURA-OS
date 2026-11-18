@@ -61,6 +61,13 @@ it also updates all base system packages (XBPS) and creates a Btrfs snapshot.
   --channel NAME   update channel (stable, unstable)
   --system         update all system packages (XBPS) even when unprivileged
   --asura-only     only update ASURA packages and components (skip XBPS)
+  --check          only report whether a newer ASURA is available (exit 3 if so)
+  --force          reapply ASURA even when it is already the latest commit
+
+Order: system packages (as root), then ASURA from its branch (dev-unstable by
+default: the checkout is synced, what changed is listed, and it is applied by
+installation/apply-repo.sh), Flatpaks, and a refresh of the running desktop.
+Nothing new on the branch means nothing is rebuilt.
 `
 
 const rollbackUsage = `Usage: asura rollback [flags] [snapshot-name]

@@ -18,6 +18,10 @@ func unmarshalStrict(body string, into interface{}) error {
 
 func main() {
 	args := os.Args[1:]
+	if len(args) == 1 && (args[0] == "-h" || args[0] == "--help") {
+		fmt.Println("usage: asura-wallpaper [daemon | wallpaper <mode> ... | depth <set|clear> ...]")
+		return
+	}
 	if len(args) == 0 || args[0] == "daemon" {
 		if err := runDaemon(); err != nil {
 			fmt.Fprintln(os.Stderr, "asura-wallpaper:", err)
