@@ -70,7 +70,7 @@ Item {
     }
     Process {
         id: dockMarker
-        command: ["sh", "-c", "m=\"$1/end4-layout-3\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
+        command: ["sh", "-c", "m=\"$1/end4-layout-4\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
         onExited: (code) => {
             if (code !== 0)
                 return;
@@ -85,6 +85,9 @@ Item {
             Config.options.background.widgets.clock.style = "digital";
             Config.options.background.widgets.clock.styleLocked = "digital";
             Config.options.dock.enable = true;
+            // Apps in their own colours (end-4 tints them; Settings still
+            // offers "Tint app icons").
+            Config.options.dock.monochromeIcons = false;
             Config.options.dock.pinnedApps = ["com.mitchellh.ghostty", "thunar", "firefox", "asura-store"];
         }
     }
