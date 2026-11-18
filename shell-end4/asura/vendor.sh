@@ -48,6 +48,8 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # BarGroup.qml gives the bar's groups a small fixed radius.
 # services/GlobalFocusGrab.qml keeps the bar in the focus grab, so a sidebar
 # opened from the bar is not closed by the grab at once.
+# panelFamilies/IllogicalImpulseFamily.qml loads end-4's panels without the
+# left sidebar (AI chat, anime).
 OVERLAYS="
 shell.qml
 matugen/config.toml
@@ -61,6 +63,7 @@ modules/ii/bar/BatteryIndicator.qml
 modules/ii/bar/BarGroup.qml
 modules/settings/InterfaceConfig.qml
 services/GlobalFocusGrab.qml
+panelFamilies/IllogicalImpulseFamily.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }

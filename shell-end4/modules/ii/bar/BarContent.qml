@@ -13,7 +13,7 @@ import qs.modules.common.functions
 // Left: the workspaces, then media while a player has a track (no active
 // window title).
 // Centre: the clock and date, alone. Right, from the end: the battery, the
-// resources, the left sidebar button, the status indicators (right sidebar),
+// resources, the status indicators (they open the control menu),
 // the tray, weather. end-4's util buttons (screen snip, keyboard, brightness)
 // are not on the bar. Only the buttons open the sidebars.
 Item { // Bar content region
@@ -66,20 +66,10 @@ Item { // Bar content region
         implicitWidth: leftSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
-        onScrollDown: Brightness.decreaseBrightness()
-        onScrollUp: Brightness.increaseBrightness()
-        onMovedAway: GlobalStates.osdBrightnessOpen = false
-        // No click action: only the sidebar buttons open the sidebars.
+        // No scroll or click action: volume and brightness are sliders in the
+        // control menu (the right sidebar), and only its button opens it.
 
         // Visual content
-        ScrollHint {
-            reveal: barLeftSideMouseArea.hovered
-            icon: Hyprsunset.gamma === 100 ? "light_mode" : "wb_twilight"
-            tooltipText: Translation.tr("Scroll to change brightness")
-            side: "left"
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
-        }
 
         RowLayout {
             id: leftSectionRowLayout
@@ -170,20 +160,10 @@ Item { // Bar content region
         implicitWidth: rightSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
-        onScrollDown: Audio.decrementVolume();
-        onScrollUp: Audio.incrementVolume();
-        onMovedAway: GlobalStates.osdVolumeOpen = false;
-        // No click action: only the right sidebar button opens the sidebar.
+        // No scroll or click action: volume and brightness are sliders in the
+        // control menu (the right sidebar), and only its button opens it.
 
         // Visual content
-        ScrollHint {
-            reveal: barRightSideMouseArea.hovered
-            icon: "volume_up"
-            tooltipText: Translation.tr("Scroll to change volume")
-            side: "right"
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-        }
 
         RowLayout {
             id: rightSectionRowLayout
@@ -202,30 +182,6 @@ Item { // Bar content region
                 Layout.rightMargin: 6
                 Resources {
                     alwaysShowAllResources: root.useShortenedForm === 2
-                }
-            }
-
-            RippleButton { // Left sidebar (assistant, translator), second from the end
-                id: leftSidebarButton
-                Layout.alignment: Qt.AlignVCenter
-                implicitWidth: 30
-                implicitHeight: 30
-                buttonRadius: Appearance.rounding.small
-                colBackground: ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
-                colBackgroundHover: Appearance.colors.colLayer1Hover
-                colRipple: Appearance.colors.colLayer1Active
-                colBackgroundToggled: Appearance.colors.colSecondaryContainer
-                colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
-                colRippleToggled: Appearance.colors.colSecondaryContainerActive
-                toggled: GlobalStates.sidebarLeftOpen
-                onClicked: GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen
-
-                contentItem: MaterialSymbol {
-                    anchors.centerIn: parent
-                    horizontalAlignment: Text.AlignHCenter
-                    text: "widgets"
-                    iconSize: Appearance.font.pixelSize.larger
-                    color: leftSidebarButton.toggled ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer0
                 }
             }
 

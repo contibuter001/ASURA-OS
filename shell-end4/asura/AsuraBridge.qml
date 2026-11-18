@@ -46,7 +46,12 @@ Item {
         target: Config
         function onReadyChanged(): void { bridge.firstRun(); }
     }
-    Component.onCompleted: bridge.firstRun()
+    Component.onCompleted: {
+        // A slim bar, like Ubuntu's and Omarchy's: end-4's is 40 px. Every
+        // bar size end-4 derives (barHeight, the reserved zone) follows it.
+        Appearance.sizes.baseBarHeight = 30;
+        bridge.firstRun();
+    }
 
     // end-4's own rounding stays as end-4 sets it. Appearance.rounding is not
     // only corner radii: end-4 also uses those values as margins and padding,
@@ -56,7 +61,7 @@ Item {
     // own bar widgets, which set their own radii.
     Process {
         id: dockMarker
-        command: ["sh", "-c", "m=\"$1/end4-layout-4\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
+        command: ["sh", "-c", "m=\"$1/end4-layout-5\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
         onExited: (code) => {
             if (code !== 0)
                 return;
@@ -70,6 +75,15 @@ Item {
             Config.options.appearance.fakeScreenRounding = 0;
             Config.options.background.widgets.clock.style = "digital";
             Config.options.background.widgets.clock.styleLocked = "digital";
+            // A plain bar: no boxes behind its groups.
+            Config.options.bar.borderless = true;
+            // Volume and brightness are sliders in the control menu (the right
+            // sidebar), not scrolling on the bar's corners.
+            Config.options.sidebar.quickSliders.enable = true;
+            // The left sidebar (AI chat, anime) is not part of ASURA
+            // (panelFamilies/IllogicalImpulseFamily.qml); its features are off.
+            Config.options.policies.ai = 0;
+            Config.options.policies.weeb = 0;
             Config.options.dock.enable = true;
             // Apps in their own colours (end-4 tints them; Settings still
             // offers "Tint app icons").
