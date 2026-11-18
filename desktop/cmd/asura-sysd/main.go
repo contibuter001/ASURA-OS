@@ -65,6 +65,8 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("power profile set to %s\n", os.Args[2])
+	case "-h", "--help", "help":
+		printUsage()
 	case "version", "-v", "--version":
 		fmt.Printf("asura-sysd %s\n", version)
 	default:

@@ -50,23 +50,7 @@ func settingsCatalogue(root string) (*settings.Catalogue, error) {
 
 func asuraConfig(args []string) int {
 	if len(args) == 0 {
-		fmt.Fprint(os.Stderr, `asura config — read and write Asura's settings
-
-Usage:
-  asura config list [--page SLUG]
-  asura config get SCHEMA KEY
-  asura config set SCHEMA KEY VALUE
-  asura config reset SCHEMA KEY
-  asura config pages
-  asura config export    the page registry as JSON, for the Hub window
-  asura config values    every setting as JSON, for the shell
-
-asura apps               the applications on this machine, as JSON, for the
-                          shell's launcher
-
-Every setting has a Hub page and every page has a command; "asura config
-pages" prints the mapping.
-`)
+		fmt.Fprint(os.Stderr, configUsage)
 		return exitUsage
 	}
 
@@ -316,3 +300,21 @@ func configPages() int {
 	fmt.Println("Every setting has a page and every page has a command.")
 	return exitOK
 }
+
+const configUsage = `asura config — read and write Asura's settings
+
+Usage:
+  asura config list [--page SLUG]
+  asura config get SCHEMA KEY
+  asura config set SCHEMA KEY VALUE
+  asura config reset SCHEMA KEY
+  asura config pages
+  asura config export    the page registry as JSON, for the Hub window
+  asura config values    every setting as JSON, for the shell
+
+asura apps               the applications on this machine, as JSON, for the
+                          shell's launcher
+
+Every setting has a Hub page and every page has a command; "asura config
+pages" prints the mapping.
+`

@@ -39,6 +39,8 @@ func asuraUpdate(args []string) int {
 		channel    = set.String("channel", "", "channel to update from (stable, unstable, dev-unstable)")
 		system     = set.Bool("system", false, "force update of all system packages (XBPS)")
 		asuraOnly  = set.Bool("asura-only", false, "only update ASURA packages and desktop components")
+		check      = set.Bool("check", false, "only report whether a newer ASURA is available")
+		force      = set.Bool("force", false, "reapply ASURA even when it is already the latest commit")
 	)
 	if err := set.Parse(args); err != nil {
 		return exitUsage
@@ -57,6 +59,15 @@ func asuraUpdate(args []string) int {
 				targetBranch = "dev-unstable"
 			}
 		}
+	}
+
+	updateForce = *force
+	if *check {
+		b := targetBranch
+		if b == "" {
+			b = "dev-unstable"
+		}
+		return checkForUpdate(b, *root)
 	}
 
 	paths, err := overlayPaths(*root)
@@ -89,21 +100,26 @@ func asuraUpdate(args []string) int {
 	var fetch func() error
 	if !*dryRun {
 		fetch = func() error {
-			// Step: the ASURA code from its branch (dev-unstable unless the
-			// channel or a flag names another), applied to this system.
+			// System packages first, so ASURA is built and applied against the
+			// libraries it will run with (only as root or with --system).
+			if updateSystemPkgs {
+				fmt.Println("==> Step 1/4: Updating system packages (XBPS)...")
+				if err := voidFetch(); err != nil {
+					fmt.Fprintf(os.Stderr, "asura update: system packages: %v\n", err)
+				}
+			} else {
+				fmt.Println("==> Step 1/4: System packages: skipped (sudo asura update, or --system, updates them)")
+			}
+			// Then ASURA, from its branch (dev-unstable unless the channel or
+			// a flag names another).
 			b := targetBranch
 			if b == "" {
 				b = "dev-unstable"
 			}
-			fmt.Printf("==> Step 1/4: Updating ASURA from the '%s' branch...\n", b)
+			fmt.Printf("==> Step 2/4: Updating ASURA to the latest '%s'...\n", b)
 			if err := pullGitUpdates(b, *root); err != nil {
 				asuraErr = err
 				fmt.Fprintf(os.Stderr, "asura update: ASURA was not updated: %v\n", err)
-			}
-
-			// Full system package update via XBPS (only when root or --system)
-			if updateSystemPkgs {
-				return voidFetch()
 			}
 			return nil
 		}
@@ -167,12 +183,14 @@ func asuraUpdate(args []string) int {
 		fmt.Fprintln(os.Stderr, "==> The desktop was refreshed, but runs the code it had before. `asura doctor` checks the system.")
 		return exitFail
 	}
-	if !updateSystemPkgs {
+	if !updateSystemPkgs && !*asuraOnly {
 		fmt.Println("\n--------------------------------------------------------------------------------")
 		fmt.Println("==> ASURA packages and desktop components are up to date.")
 		fmt.Println("==> Recommendation: To update all base system packages (XBPS) and OS, run:")
 		fmt.Println("    sudo asura update")
 		fmt.Println("--------------------------------------------------------------------------------")
+	} else if *asuraOnly {
+		fmt.Println("\n==> ASURA update complete.")
 	} else {
 		fmt.Println("\n==> Full system and ASURA update complete.")
 	}
@@ -184,7 +202,6 @@ func asuraUpdate(args []string) int {
 // It first attempts to route through the privileged asura-sysd socket.
 // If the daemon is not active, it falls back to direct xbps-install.
 func voidFetch() error {
-	fmt.Println("==> Step 2/4: Updating system packages (XBPS)...")
 
 	// Try sysd socket first
 	if err := runSysdPkgUpdate(); err == nil {
@@ -343,7 +360,7 @@ func updateFlatpaks() {
 	if _, err := exec.LookPath("flatpak"); err != nil {
 		return
 	}
-	fmt.Println("==> Step 3/4: Updating installed Flatpak applications & runtimes...")
+	fmt.Println("==> Step 3/4: Updating Flatpak applications...")
 	cmd := exec.Command("flatpak", "update", "-y")
 	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 	_ = cmd.Run()
@@ -409,37 +426,150 @@ func createBtrfsSnapshot() (string, error) {
 
 const defaultGitRepoURL = "https://github.com/mohitjoer/ASURA-OS.git"
 
-// pullGitUpdates fetches the latest changes from the specified branch and updates base files.
+// appliedCommitFile records the commit installation/apply-repo.sh last
+// applied to this system, so an update knows whether there is anything new.
+var appliedCommitFile = "/usr/share/asura/applied-commit"
+
+// updateForce reapplies the checkout even when it is the applied commit.
+var updateForce bool
+
+func appliedCommit(root string) string {
+	b, err := os.ReadFile(filepath.Join(root, appliedCommitFile))
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(b))
+}
+
+func gitOut(repoDir string, args ...string) string {
+	out, err := repoGit(repoDir, args...).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
+}
+
+// isUpdateCache: a checkout asura update cloned for itself, which it may reset
+// to the branch. A developer's checkout is only ever fast-forwarded, so local
+// work in it is never lost.
+func isUpdateCache(repoDir string) bool {
+	return strings.HasSuffix(repoDir, filepath.Join(".cache", "asura", "source")) ||
+		repoDir == "/var/cache/asura/source"
+}
+
+// syncRepo brings the checkout to the newest commit of branch and returns it.
+func syncRepo(repoDir, branch string) (string, error) {
+	fetch := repoGit(repoDir, "fetch", "--quiet", "origin", branch)
+	fetch.Stdout, fetch.Stderr = os.Stdout, os.Stderr
+	if err := fetch.Run(); err != nil {
+		return "", fmt.Errorf("git fetch (is the network up?): %w", err)
+	}
+	if isUpdateCache(repoDir) {
+		// The update cache follows the branch exactly, even after a force-push.
+		for _, args := range [][]string{
+			{"checkout", "--quiet", "-B", branch, "FETCH_HEAD"},
+			{"reset", "--quiet", "--hard", "FETCH_HEAD"},
+		} {
+			cmd := repoGit(repoDir, args...)
+			cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
+			if err := cmd.Run(); err != nil {
+				return "", fmt.Errorf("git %s: %w", args[0], err)
+			}
+		}
+	} else {
+		checkout := repoGit(repoDir, "checkout", "--quiet", branch)
+		checkout.Stdout, checkout.Stderr = os.Stdout, os.Stderr
+		_ = checkout.Run()
+		pull := repoGit(repoDir, "merge", "--ff-only", "--quiet", "FETCH_HEAD")
+		pull.Stdout, pull.Stderr = os.Stdout, os.Stderr
+		if err := pull.Run(); err != nil {
+			return "", fmt.Errorf("%s has local changes that do not fast-forward to origin/%s; commit or stash them, or delete it to let asura update clone its own copy: %w", repoDir, branch, err)
+		}
+	}
+	head := gitOut(repoDir, "rev-parse", "HEAD")
+	if head == "" {
+		return "", fmt.Errorf("git rev-parse HEAD failed in %s", repoDir)
+	}
+	return head, nil
+}
+
+// pullGitUpdates brings ASURA to the newest commit of branch: the checkout is
+// synced, and when that commit is not the one applied to this system already,
+// what changed is listed and the checkout is applied. An update with nothing
+// new does no work (--force reapplies).
 func pullGitUpdates(branch string, root string) error {
 	repoDir, err := findOrCloneRepo(branch)
 	if err != nil {
 		return fmt.Errorf("locating Asura repository: %w", err)
 	}
-
-	fmt.Printf("==> Pulling latest changes from branch '%s' in %s...\n", branch, repoDir)
-
-	fetchCmd := repoGit(repoDir, "fetch", "origin", branch)
-	fetchCmd.Stdout, fetchCmd.Stderr = os.Stdout, os.Stderr
-	if err := fetchCmd.Run(); err != nil {
-		return fmt.Errorf("git fetch: %w", err)
+	fmt.Printf("    source: %s (%s)\n", repoDir, branch)
+	head, err := syncRepo(repoDir, branch)
+	if err != nil {
+		return err
 	}
-
-	checkoutCmd := repoGit(repoDir, "checkout", branch)
-	checkoutCmd.Stdout, checkoutCmd.Stderr = os.Stdout, os.Stderr
-	_ = checkoutCmd.Run()
-
-	pullCmd := repoGit(repoDir, "pull", "--ff-only", "origin", branch)
-	pullCmd.Stdout, pullCmd.Stderr = os.Stdout, os.Stderr
-	if err := pullCmd.Run(); err != nil {
-		return fmt.Errorf("git pull: %w", err)
+	applied := appliedCommit(root)
+	if applied == head && !updateForce {
+		fmt.Printf("    ASURA is already at the latest commit %s\n", short(head))
+		return nil
 	}
-
-	// Apply the pulled checkout to this system: everything the ISO installs
-	// from the repository (both desktop shells, Hyprland, the session, runit
-	// services, helpers, schemas, system configuration), the Go tools rebuilt
-	// from it, and any package new in the manifest. installation/apply-repo.sh
-	// is that list, kept equal to the ISO build by its test.
+	if applied != "" && applied != head {
+		if log := gitOut(repoDir, "log", "--oneline", "--no-decorate", "-n", "25", applied+".."+head); log != "" {
+			fmt.Printf("    new since %s:\n", short(applied))
+			for _, l := range strings.Split(log, "\n") {
+				fmt.Println("      " + l)
+			}
+		}
+	}
+	fmt.Printf("    applying %s\n", short(head))
 	return applyRepo(repoDir, root)
+}
+
+// checkForUpdate reports whether branch has a commit newer than the applied
+// one, fetching but changing nothing.
+func checkForUpdate(branch, root string) int {
+	repoDir, err := findOrCloneRepo(branch)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "asura update --check:", err)
+		return exitFail
+	}
+	fetch := repoGit(repoDir, "fetch", "--quiet", "origin", branch)
+	fetch.Stderr = os.Stderr
+	if err := fetch.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "asura update --check: git fetch:", err)
+		return exitFail
+	}
+	latest := gitOut(repoDir, "rev-parse", "FETCH_HEAD")
+	applied := appliedCommit(root)
+	switch {
+	case latest == "":
+		fmt.Fprintln(os.Stderr, "asura update --check: could not read the latest commit")
+		return exitFail
+	case applied == latest:
+		fmt.Printf("up to date: %s (%s)\n", short(latest), branch)
+		return exitOK
+	default:
+		fmt.Printf("update available: %s -> %s (%s)\n", orUnknown(short(applied)), short(latest), branch)
+		if applied != "" {
+			if log := gitOut(repoDir, "log", "--oneline", "--no-decorate", "-n", "25", applied+".."+latest); log != "" {
+				fmt.Println(log)
+			}
+		}
+		return exitNoMatch
+	}
+}
+
+func short(sha string) string {
+	if len(sha) > 8 {
+		return sha[:8]
+	}
+	return sha
+}
+
+func orUnknown(s string) string {
+	if s == "" {
+		return "unknown"
+	}
+	return s
 }
 
 // applyRepoArgs is the command that applies repoDir to root. A package var so

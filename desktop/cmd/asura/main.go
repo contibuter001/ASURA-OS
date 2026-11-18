@@ -75,6 +75,15 @@ func run(args []string) int {
 		return runVersion(nil)
 	}
 
+	// `asura <command> --help` prints that command's usage and succeeds, the
+	// same for every command, whether or not it parses flags of its own.
+	if len(args) == 2 && (args[1] == "-h" || args[1] == "--help" || args[1] == "help") {
+		if text, ok := helpText[args[0]]; ok {
+			fmt.Print(text)
+			return exitOK
+		}
+	}
+
 	command, known := commands[args[0]]
 	if !known {
 		if extra, registered := extraCommands[args[0]]; registered {
@@ -95,7 +104,7 @@ Usage:
 
 Commands:
   hardware      read this machine, and the profile database
-  update        snapshot, fetch packages, re-materialize
+  update        pull ASURA, update packages, refresh the desktop
   rollback      re-materialize the previous revision
   materialize   re-lay the base, clobbering shipped content
   reset PATH    drop one user edit back to the base
@@ -104,18 +113,72 @@ Commands:
   binds         the keybinding catalogue, as JSON, for the cheat sheet
   ipc           call the running shell's IPC surface, as the keybinds do
   theme         take the desktop's colours from one image
-  doctor        report drift between base and overlay
+  doctor        check this machine: config drift, services, session, desktop
   status        revision, paths, and how much drift
   state         live desktop state as JSON, for the sidebar
   windows       switchable windows, most recently focused first
   version       print the version
 `, version)
 	printExtraUsage(w)
-	fmt.Fprint(w, "\nRun \"asura <command>\" with no arguments for that command's own usage.\n")
+	fmt.Fprint(w, "\nRun \"asura <command> --help\" for that command's own usage.\n")
 }
 
-func runVersion(_ []string) int {
-	fmt.Println(version)
+// helpText is each command's usage, for `asura <command> --help`. A command
+// that is missing here still answers --help itself.
+var helpText = map[string]string{
+	"hardware":    "Usage: asura hardware report|match|lint-profiles|capture [flags]\n",
+	"update":      updateUsage,
+	"rollback":    rollbackUsage,
+	"materialize": materializeUsage,
+	"reset":       resetUsage,
+	"config":      configUsage,
+	"apps":        "Usage: asura apps\n       asura apps defaults [--check]\n\nPrints the applications on this machine as JSON, for the launcher.\n",
+	"binds":       bindsUsage,
+	"ipc":         ipcUsage,
+	"theme":       themeUsage,
+	"doctor":      doctorUsage,
+	"status":      statusUsage,
+	"state":       "Usage: asura state\n\nPrints the live desktop state as JSON, for the sidebar.\n",
+	"windows":     "Usage: asura windows\n\nPrints the switchable windows as JSON, most recently focused first.\n",
+	"version":     "Usage: asura version [--commit | -v]\n\n  (none)    the edition, e.g. 0.1-pre-alpha\n  --commit  the dev-unstable commit applied to this system\n  -v        both\n",
+	"brightness":  brightnessUsage,
+	"channel":     channelUsage,
+	"gpu":         gpuUsage,
+	"greeter":     greeterUsage,
+	"icons":       iconsUsage,
+	"install":     installUsage,
+	"menu":        menuUsage,
+	"pkg":         pkgUsage,
+	"plugin":      pluginUsageText,
+	"power":       powerUsage,
+	"refresh":     refreshUsage,
+	"reload":      reloadUsage,
+	"role":        roleUsage,
+	"wm":          wmUsage,
+}
+
+// runVersion prints the edition (the line the shell's About page and the Hub
+// parse, unchanged) or, with --commit, the dev-unstable commit applied to this
+// system, which is what "the latest version" means for an update; -v prints
+// both.
+func runVersion(args []string) int {
+	commit := appliedCommit("")
+	switch {
+	case len(args) == 0:
+		fmt.Println(version)
+	case args[0] == "--commit":
+		if commit == "" {
+			fmt.Fprintln(os.Stderr, "asura version: no applied commit recorded; asura update records one")
+			return exitFail
+		}
+		fmt.Println(commit)
+	case args[0] == "-v" || args[0] == "--verbose":
+		fmt.Printf("asura %s\n", version)
+		fmt.Printf("commit %s\n", orUnknown(commit))
+	default:
+		fmt.Fprint(os.Stderr, helpText["version"])
+		return exitUsage
+	}
 	return exitOK
 }
 

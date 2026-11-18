@@ -189,6 +189,12 @@ if [ "$PACKAGES" -eq 1 ] && [ "$ROOT" = "" ] && command -v xbps-query >/dev/null
 	fi
 fi
 
+# ── Which commit this system now runs ───────────────────────────────────────
+# asura update compares it with the branch: nothing new, nothing rebuilt.
+if commit=$(git -c safe.directory='*' -C "$REPO" rev-parse HEAD 2>/dev/null); then
+	printf '%s\n' "$commit" >"$ROOT/usr/share/asura/applied-commit"
+fi
+
 # ── Make the system notice ──────────────────────────────────────────────────
 if [ "$ROOT" = "" ]; then
 	command -v glib-compile-schemas >/dev/null 2>&1 && glib-compile-schemas /usr/share/glib-2.0/schemas
