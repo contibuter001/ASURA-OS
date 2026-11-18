@@ -46,10 +46,31 @@ Item {
         target: Config
         function onReadyChanged(): void { bridge.firstRun(); }
     }
-    Component.onCompleted: bridge.firstRun()
+    Component.onCompleted: {
+        bridge.squareCorners();
+        bridge.firstRun();
+    }
+
+    // ASURA's look is square, like Omarchy's: every radius end-4 draws comes
+    // from Appearance.rounding, so zeroing it here squares the bar, panels,
+    // buttons and popups without editing a vendored file. Windows are squared
+    // in asura/hyprland.conf.
+    function squareCorners(): void {
+        const r = Appearance.rounding;
+        r.unsharpen = 0;
+        r.unsharpenmore = 0;
+        r.verysmall = 0;
+        r.small = 0;
+        r.normal = 0;
+        r.large = 0;
+        r.verylarge = 0;
+        r.full = 0;
+        r.screenRounding = 0;
+        r.windowRounding = 0;
+    }
     Process {
         id: dockMarker
-        command: ["sh", "-c", "m=\"$1/end4-layout-2\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
+        command: ["sh", "-c", "m=\"$1/end4-layout-3\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]
         onExited: (code) => {
             if (code !== 0)
                 return;
@@ -58,6 +79,12 @@ Item {
             // The bar stays on top. Undoes the vertical bar an earlier
             // build set (end4-layout-1); a user's own choice comes later.
             Config.options.bar.vertical = false;
+            // ASURA's square look (as Omarchy): a plain rectangular bar, no
+            // rounded screen corners, the digital desktop clock.
+            Config.options.bar.cornerStyle = 2;
+            Config.options.appearance.fakeScreenRounding = 0;
+            Config.options.background.widgets.clock.style = "digital";
+            Config.options.background.widgets.clock.styleLocked = "digital";
             Config.options.dock.enable = true;
             Config.options.dock.pinnedOnStartup = true;
             Config.options.dock.pinnedApps = ["com.mitchellh.ghostty", "thunar", "firefox", "asura-store"];
