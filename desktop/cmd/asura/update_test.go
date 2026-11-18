@@ -103,3 +103,15 @@ func TestParseBrokenShlibs(t *testing.T) {
 		t.Errorf("libs = %v", libs)
 	}
 }
+
+func TestOldUpdateSnapshots(t *testing.T) {
+	names := []string{"pre-update-20261101-100000", "manual-backup", "pre-update-20261103-100000",
+		"pre-update-20261102-100000", "pre-update-20261105-100000", "pre-update-20261104-100000"}
+	got := oldUpdateSnapshots(names, 3)
+	if strings.Join(got, " ") != "pre-update-20261101-100000 pre-update-20261102-100000" {
+		t.Errorf("old = %v", got)
+	}
+	if got := oldUpdateSnapshots(names, 10); len(got) != 0 {
+		t.Errorf("nothing beyond the limit, got %v", got)
+	}
+}
