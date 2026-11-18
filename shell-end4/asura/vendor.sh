@@ -40,11 +40,17 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # shown, no pin or overview buttons (and modules/settings/InterfaceConfig.qml
 # without the switches for them). modules/ii/bar/Workspaces.qml shows only the
 # workspaces that exist (the active one and those with windows), no empty slots.
+# modules/ii/bar/BarContent.qml lays the bar out ASURA's way (workspaces at the
+# start, the clock alone in the centre, resources at the end, no window title),
+# and Resources.qml/Resource.qml are the labelled CPU/RAM/SWAP readouts.
 OVERLAYS="
 shell.qml
 matugen/config.toml
 modules/ii/dock/Dock.qml
 modules/ii/bar/Workspaces.qml
+modules/ii/bar/BarContent.qml
+modules/ii/bar/Resources.qml
+modules/ii/bar/Resource.qml
 modules/settings/InterfaceConfig.qml
 "
 

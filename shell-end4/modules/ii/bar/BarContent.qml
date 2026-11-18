@@ -9,6 +9,10 @@ import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
 
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): the bar's layout.
+// Left: the left sidebar button and the workspaces (no active window title).
+// Centre: the clock and date, alone. Right, from the end: the resources, the
+// status indicators (right sidebar), media, the tray, weather.
 Item { // Bar content region
     id: root
 
@@ -89,12 +93,31 @@ Item { // Bar content region
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
             }
 
-            ActiveWindow {
-                Layout.leftMargin: 10 + (leftSidebarButton.visible ? 0 : Appearance.rounding.screenRounding)
-                Layout.rightMargin: Appearance.rounding.screenRounding
+            BarGroup { // Workspaces, at the start of the bar
+                id: workspacesGroup
+                Layout.alignment: Qt.AlignVCenter
+                Layout.leftMargin: 6
+                padding: workspacesWidget.widgetPadding
+
+                Workspaces {
+                    id: workspacesWidget
+                    Layout.fillHeight: true
+                    MouseArea {
+                        // Right-click to toggle overview
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+
+                        onPressed: event => {
+                            if (event.button === Qt.RightButton) {
+                                GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Item {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                visible: root.useShortenedForm === 0
             }
         }
     }
@@ -108,56 +131,10 @@ Item { // Bar content region
         }
         spacing: 4
 
-        BarGroup {
-            id: leftCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
-
-            Resources {
-                alwaysShowAllResources: root.useShortenedForm === 2
-                Layout.fillWidth: root.useShortenedForm === 2
-            }
-
-            Media {
-                visible: root.useShortenedForm < 2
-                Layout.fillWidth: true
-            }
-        }
-
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
-        }
-
-        BarGroup {
-            id: middleCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            padding: workspacesWidget.widgetPadding
-
-            Workspaces {
-                id: workspacesWidget
-                Layout.fillHeight: true
-                MouseArea {
-                    // Right-click to toggle overview
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
-
-                    onPressed: event => {
-                        if (event.button === Qt.RightButton) {
-                            GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
-                        }
-                    }
-                }
-            }
-        }
-
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
-        }
-
         MouseArea {
             id: rightCenterGroup
             anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
+            implicitWidth: rightCenterGroupContent.implicitWidth
             implicitHeight: rightCenterGroupContent.implicitHeight
 
             onPressed: {
@@ -174,15 +151,6 @@ Item { // Bar content region
                     Layout.fillWidth: true
                 }
 
-                UtilButtons {
-                    visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                BatteryIndicator {
-                    visible: (root.useShortenedForm < 2 && Battery.available)
-                    Layout.alignment: Qt.AlignVCenter
-                }
             }
         }
     }
@@ -223,6 +191,14 @@ Item { // Bar content region
             anchors.fill: parent
             spacing: 5
             layoutDirection: Qt.RightToLeft
+
+            BarGroup { // Resources, at the end of the bar
+                Layout.alignment: Qt.AlignVCenter
+                Layout.rightMargin: 6
+                Resources {
+                    alwaysShowAllResources: root.useShortenedForm === 2
+                }
+            }
 
             RippleButton { // Right sidebar button
                 id: rightSidebarButton
@@ -315,6 +291,22 @@ Item { // Bar content region
                         color: rightSidebarButton.colText
                     }
                 }
+            }
+
+            BatteryIndicator {
+                visible: (root.useShortenedForm < 2 && Battery.available)
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            UtilButtons {
+                visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            Media {
+                visible: root.useShortenedForm < 2
+                Layout.fillHeight: true
+                Layout.maximumWidth: 260
             }
 
             SysTray {

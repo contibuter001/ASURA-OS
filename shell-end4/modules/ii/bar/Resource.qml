@@ -3,90 +3,71 @@ import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Layouts
 
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): one resource readout,
+// in the professional style of the ASURA bar: a short label ("CPU"), the
+// percentage in tabular figures, and a thin usage bar under them that turns
+// the error colour past the warning threshold. Same properties as end-4's
+// (iconName, percentage, warningThreshold, shown), so the vertical bar keeps
+// working; `label` names the readout, falling back to iconName.
 Item {
     id: root
     required property string iconName
     required property double percentage
+    property string label: ""
     property int warningThreshold: 100
     property bool shown: true
-    clip: true
-    visible: width > 0 && height > 0
-    implicitWidth: resourceRowLayout.x < 0 ? 0 : resourceRowLayout.implicitWidth
+    readonly property bool warning: percentage * 100 >= warningThreshold
+    readonly property color accent: warning ? Appearance.colors.colError : Appearance.colors.colPrimary
+
+    visible: shown
+    implicitWidth: shown ? content.implicitWidth : 0
     implicitHeight: Appearance.sizes.barHeight
-    property bool warning: percentage * 100 >= warningThreshold
 
-    RowLayout {
-        id: resourceRowLayout
+    ColumnLayout {
+        id: content
+        anchors.centerIn: parent
         spacing: 2
-        x: shown ? 0 : -resourceRowLayout.width
-        anchors {
-            verticalCenter: parent.verticalCenter
-        }
 
-        ClippedFilledCircularProgress {
-            id: resourceCircProg
-            Layout.alignment: Qt.AlignVCenter
-            lineWidth: Appearance.rounding.unsharpen
-            value: percentage
-            implicitSize: 20
-            colPrimary: root.warning ? Appearance.colors.colError : Appearance.colors.colOnSecondaryContainer
-            accountForLightBleeding: !root.warning
-            enableAnimation: false
-
-            Item {
-                anchors.centerIn: parent
-                width: resourceCircProg.implicitSize
-                height: resourceCircProg.implicitSize
-                
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    font.weight: Font.DemiBold
-                    fill: 1
-                    text: iconName
-                    iconSize: Appearance.font.pixelSize.normal
-                    color: Appearance.m3colors.m3onSecondaryContainer
+        RowLayout {
+            spacing: 5
+            StyledText {
+                text: root.label !== "" ? root.label : root.iconName
+                color: Appearance.colors.colOnLayer1Inactive
+                font.pixelSize: Appearance.font.pixelSize.smallest
+                font.weight: Font.DemiBold
+                font.letterSpacing: 0.8
+                font.capitalization: Font.AllUppercase
+            }
+            StyledText {
+                // Fixed width, so the bar does not shift as numbers change.
+                Layout.preferredWidth: widest.width
+                horizontalAlignment: Text.AlignRight
+                text: `${Math.round(root.percentage * 100)}%`
+                color: root.warning ? Appearance.colors.colError : Appearance.colors.colOnLayer1
+                font.pixelSize: Appearance.font.pixelSize.small
+                font.family: Appearance.font.family.monospace
+                font.features: { "tnum": 1 }
+                TextMetrics {
+                    id: widest
+                    text: "100%"
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.family: Appearance.font.family.monospace
                 }
             }
         }
 
-        Item {
-            Layout.alignment: Qt.AlignVCenter
-            implicitWidth: fullPercentageTextMetrics.width
-            implicitHeight: percentageText.implicitHeight
-
-            TextMetrics {
-                id: fullPercentageTextMetrics
-                text: "100"
-                font.pixelSize: Appearance.font.pixelSize.small
+        Rectangle { // usage bar
+            Layout.fillWidth: true
+            implicitHeight: 2
+            color: Appearance.colors.colLayer1Hover
+            Rectangle {
+                width: parent.width * Math.max(0, Math.min(1, root.percentage))
+                height: parent.height
+                color: root.accent
+                Behavior on width {
+                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                }
             }
-
-            StyledText {
-                id: percentageText
-                anchors.centerIn: parent
-                color: Appearance.colors.colOnLayer1
-                font.pixelSize: Appearance.font.pixelSize.small
-                text: `${Math.round(percentage * 100).toString()}`
-            }
-        }
-
-        Behavior on x {
-            animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
-        }
-    }
-
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.NoButton
-        enabled: resourceRowLayout.x >= 0 && root.width > 0 && root.visible
-    }
-
-    Behavior on implicitWidth {
-        NumberAnimation {
-            duration: Appearance.animation.elementMove.duration
-            easing.type: Appearance.animation.elementMove.type
-            easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
         }
     }
 }
