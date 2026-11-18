@@ -10,10 +10,12 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 
 // ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): the bar's layout.
-// Left: the workspaces (no active window title).
-// Centre: the clock and date, alone. Right, from the end: the resources, the
-// left sidebar button, the status indicators (right sidebar), battery, util
-// buttons, media, the tray, weather. Only the buttons open the sidebars.
+// Left: the workspaces, then media while a player has a track (no active
+// window title).
+// Centre: the clock and date, alone. Right, from the end: the battery, the
+// resources, the left sidebar button, the status indicators (right sidebar),
+// the tray, weather. end-4's util buttons (screen snip, keyboard, brightness)
+// are not on the bar. Only the buttons open the sidebars.
 Item { // Bar content region
     id: root
 
@@ -67,9 +69,7 @@ Item { // Bar content region
         onScrollDown: Brightness.decreaseBrightness()
         onScrollUp: Brightness.increaseBrightness()
         onMovedAway: GlobalStates.osdBrightnessOpen = false
-        // No click action: the sidebar buttons open the sidebars. A click here
-        // used to toggle too, so a click on the button toggled twice and the
-        // sidebar opened and closed at once.
+        // No click action: only the sidebar buttons open the sidebars.
 
         // Visual content
         ScrollHint {
@@ -107,6 +107,16 @@ Item { // Bar content region
                         }
                     }
                 }
+            }
+
+            // Media, second from the start, only while a player has a track
+            // (playing or paused); nothing at all otherwise.
+            Media {
+                visible: root.useShortenedForm < 2 && !!MprisController.activePlayer
+                    && (MprisController.activePlayer.trackTitle ?? "") !== ""
+                Layout.leftMargin: 6
+                Layout.fillHeight: true
+                Layout.maximumWidth: 260
             }
 
             Item {
@@ -163,8 +173,7 @@ Item { // Bar content region
         onScrollDown: Audio.decrementVolume();
         onScrollUp: Audio.incrementVolume();
         onMovedAway: GlobalStates.osdVolumeOpen = false;
-        // No click action: the right sidebar button opens the sidebar (see the
-        // left side).
+        // No click action: only the right sidebar button opens the sidebar.
 
         // Visual content
         ScrollHint {
@@ -181,6 +190,12 @@ Item { // Bar content region
             anchors.fill: parent
             spacing: 5
             layoutDirection: Qt.RightToLeft
+
+            BatteryIndicator { // The battery, at the very end of the bar
+                visible: Battery.available
+                Layout.alignment: Qt.AlignVCenter
+                Layout.rightMargin: 10
+            }
 
             BarGroup { // Resources, at the end of the bar
                 Layout.alignment: Qt.AlignVCenter
@@ -305,22 +320,6 @@ Item { // Bar content region
                         color: rightSidebarButton.colText
                     }
                 }
-            }
-
-            BatteryIndicator {
-                visible: (root.useShortenedForm < 2 && Battery.available)
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            UtilButtons {
-                visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            Media {
-                visible: root.useShortenedForm < 2
-                Layout.fillHeight: true
-                Layout.maximumWidth: 260
             }
 
             SysTray {

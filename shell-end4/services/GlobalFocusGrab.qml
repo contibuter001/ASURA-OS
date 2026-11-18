@@ -1,4 +1,6 @@
 pragma Singleton
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): the bar always stays in
+// the focus grab, so opening a sidebar from it does not close it again.
 pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
@@ -62,7 +64,12 @@ Singleton {
 
     HyprlandFocusGrab {
         id: grab
-        windows: root.dismissable.every(w => !w?.focusable) || root.dismissable.some(w => hasActive(w?.contentItem)) ? [...root.dismissable, ...root.persistent] : [...root.dismissable]
+        // ASURA: the persistent windows (the bar, the on-screen keyboard) are
+        // always in the grab. end-4 left them out until the opened sidebar had
+        // keyboard focus, so in that moment a click or pointer event on the
+        // bar counted as outside the grab and closed the sidebar it had just
+        // opened (on ASURA's Hyprland 0.49, every time).
+        windows: [...root.dismissable, ...root.persistent]
         active: root.dismissable.length > 0
         onCleared: () => {
             root.dismiss();
