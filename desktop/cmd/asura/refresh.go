@@ -121,10 +121,9 @@ func refreshMain(out, errOut io.Writer, run runner.Func) int {
 
 	// 3. The shell. sv restart, and when the session has no runsvdir (or sv
 	// times out), end the process: the session's supervisor starts it again.
-	// The shell's run script falls back to ASURA's own shell when end-4 exits
+	// The shell's run script pauses before restarting end-4 when it exits
 	// within 15 s three times in a row. A restart asked for here is not a
-	// crash: clear that count first, or a refresh soon after login (or two
-	// in a row) would drop the user to the other desktop.
+	// crash: clear that count first, so a refresh is never delayed.
 	clearShellCrashCount()
 	shellPath := filepath.Join(svcDir, reloadShellService)
 	if _, err := run("sv", "restart", shellPath); err == nil {

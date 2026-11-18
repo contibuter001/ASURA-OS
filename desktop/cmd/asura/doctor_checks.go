@@ -603,7 +603,7 @@ func reportHardwarePower(root string, fix bool) int {
 // reportDesktopShell checks the desktop shell the session will start: which
 // one org.asura.shell desktop-shell picks, that its tree is installed, and,
 // for end-4, what its look depends on (matugen, a generated palette, the
-// compositor look) and whether the crash fallback has replaced it.
+// compositor look) and whether it is crashing in a loop.
 func reportDesktopShell(root string, run runner.Func) int {
 	fmt.Println()
 	fmt.Println("Desktop shell")
@@ -625,7 +625,7 @@ func reportDesktopShell(root string, run runner.Func) int {
 	fmt.Printf("  %-18s %s (org.asura.shell desktop-shell)\n", "chosen", choice)
 	if _, err := os.Stat(filepath.Join(root, dir, "shell.qml")); err != nil {
 		problems++
-		fmt.Printf("  %-18s %s/shell.qml is missing; the session falls back to ASURA's shell\n", "installed", dir)
+		fmt.Printf("  %-18s %s/shell.qml is missing; the desktop cannot start (asura update --force)\n", "installed", dir)
 	} else {
 		fmt.Printf("  %-18s %s\n", "installed", dir)
 	}
@@ -674,7 +674,7 @@ func reportDesktopShell(root string, run runner.Func) int {
 	if b, err := os.ReadFile(filepath.Join(state, "asura", "end4-quick-exits")); err == nil {
 		if n, _ := strconv.Atoi(strings.TrimSpace(string(b))); n >= 3 {
 			problems++
-			fmt.Printf("  %-18s end-4 kept exiting, so this session runs ASURA's shell; see %s\n", "fallback",
+			fmt.Printf("  %-18s end-4 keeps exiting and restarting; see %s\n", "crash loop",
 				filepath.Join(state, "asura", "quickshell.log"))
 			fmt.Printf("  %-18s after fixing it: rm %s/asura/end4-*; sv restart ~/.config/service/quickshell\n", "", state)
 		}

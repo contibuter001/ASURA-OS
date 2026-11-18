@@ -14,8 +14,8 @@ gsettings set org.asura.shell desktop-shell end4    # end-4's desktop
 ```
 
 Then log out and back in. The setting is also on the Hub's Desktop & Dock page. If the end-4
-desktop exits within 15 seconds three times in a row, the session falls back to ASURA's shell
-and `~/.local/state/asura/quickshell.log` says why.
+desktop exits within 15 seconds three times in a row, it is restarted after a pause (never
+replaced by ASURA's shell) and `~/.local/state/asura/quickshell.log` says why.
 
 ## Keyboard shortcuts
 
@@ -56,8 +56,7 @@ the file becomes ASURA's) or in end-4's own settings, which it keeps in
 ## Polkit
 
 The session has one polkit agent. In this desktop it is end-4's (`modules/ii/polkit`), and
-`asurad` does not register its own (`system/runit/user-services/asurad/run`). After a crash
-fallback to ASURA's shell, the daemon's agent is off until the next login.
+`asurad` does not register its own (`system/runit/user-services/asurad/run`).
 
 ## Fonts
 
