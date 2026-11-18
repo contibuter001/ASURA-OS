@@ -35,10 +35,13 @@ SHAPES_DEST="modules/common/widgets/shapes"
 
 # ASURA's files at upstream's paths. shell.qml is upstream's entry point with
 # the ASURA bridge (asura/AsuraBridge.qml) added, so the desktop's keybindings
-# reach this shell exactly as they reach ASURA's own.
+# reach this shell exactly as they reach ASURA's own. modules/ii/dock/Dock.qml
+# is ASURA's island dock: only the apps, floating above the edge, no pin or
+# overview buttons.
 OVERLAYS="
 shell.qml
 matugen/config.toml
+modules/ii/dock/Dock.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }
