@@ -41,7 +41,7 @@ type importRule struct {
 // rawLine is a non-ingestable Hyprland line bound for user.conf. Conf is the
 // line with its variables resolved and its section path flattened, so it loads
 // on its own; the config language is the same one the line came from, which is
-// why Ryoku's translation into a Lua API is gone.
+// why upstream's translation into a Lua API is gone.
 type rawLine struct {
 	Kind string // monitor|env|exec|setting|raw
 	Raw  string

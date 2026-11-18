@@ -11,7 +11,7 @@ import (
 )
 
 // asura-hubd lock manages installed qylock skins behind Asura Settings. Picking
-// one swaps the in-session lock preference plus the SDDM greeter theme. Ryostore
+// one swaps the in-session lock preference plus the SDDM greeter theme. Asura Store
 // owns upstream browsing and install-only downloads; Hub owns activation.
 //
 //	asura-hubd lock list                  installed skins + active one, as JSON
@@ -197,14 +197,14 @@ func entryIsDir(parent string, e os.DirEntry) bool {
 	return err == nil && info.IsDir()
 }
 
-// lockReceiptsDir: where RyoStore records installed lockscreen products, one
+// lockReceiptsDir: where Asura Store records installed lockscreen products, one
 // JSON receipt per product. Resolved from the Hub's XDG_STATE_HOME, matching the
 // store's storeStateDir() (stateHome/asura/store/<category>).
 func lockReceiptsDir() string {
 	return filepath.Join(xdgHome("XDG_STATE_HOME", ".local/state"), "asura", "store", "lockscreens")
 }
 
-// lockReceipt is the slice of a RyoStore receipt the Hub needs to locate an
+// lockReceipt is the slice of a Asura Store receipt the Hub needs to locate an
 // installed lockscreen: the destination under the data dir and the files laid
 // down, so the one that is Main.qml pins the slug.
 type lockReceipt struct {
@@ -277,7 +277,7 @@ func receiptLockSlug(receiptPath string) string {
 func lockSkinFor(dir, slug string) LockSkin {
 	s := lockSkinMeta(dir, slug)
 	s.Installed = true
-	// Shipped skins carry preview.gif at the skin root; a RyoStore download lands
+	// Shipped skins carry preview.gif at the skin root; a Asura Store download lands
 	// it under assets/ (its product manifest maps the preview to assets/preview.gif),
 	// so a downloaded theme showed no preview until we look there too.
 	for _, rel := range [][]string{{"preview.gif"}, {"assets", "preview.gif"}} {

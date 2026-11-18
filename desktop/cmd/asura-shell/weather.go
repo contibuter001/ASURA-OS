@@ -30,7 +30,7 @@ import (
 // is the first daily entry's sunrise/sunset.
 //
 // Divergence from the reference (recorded): the reference default location is the
-// null island (Coordinates 0,0), and Ryoku fell back to an IP lookup whenever no
+// null island (Coordinates 0,0), and upstream fell back to an IP lookup whenever no
 // location was set. Asura makes no request nobody asked for: with no location
 // the topic says so (status "noLocation") and nothing is fetched. The IP lookup
 // happens only for the explicit choice "auto"; a place name or coordinates behave

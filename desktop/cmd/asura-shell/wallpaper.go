@@ -86,7 +86,7 @@ func (d *daemon) wallFrame() wallpaperFrame {
 	return f
 }
 
-// depthPublish hands a finished cutout to asura-wallpaper. Ryogami validates the source
+// depthPublish hands a finished cutout to asura-wallpaper. asura-wallpaper validates the source
 // is still the one on screen (a switch mid-generation drops the stale cut) and
 // republishes the wallpaper frame with the depth fields set. The revision is
 // the cutout's mtime, so a regenerated file at the same path still busts the

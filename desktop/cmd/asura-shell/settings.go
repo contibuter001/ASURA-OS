@@ -537,7 +537,7 @@ func (w *wallpaperSettings) normalize(v *validator) {
 	// Clamp the transcode caps so a hand-edited value never runs unbounded.
 	v.rangeI("wallpaper.video_transcode_fps", &w.VideoTranscodeFps, 1, 120)
 	v.rangeI("wallpaper.video_transcode_width", &w.VideoTranscodeWidth, 640, 7680)
-	// wallpaper.transition_preset is Ryogami's now: it reads the key from
+	// wallpaper.transition_preset is asura-wallpaper now: it reads the key from
 	// shell.json per-apply and falls back to random on an unknown name, so
 	// asura-shell keeps the key but no longer duplicates the preset name list.
 }

@@ -768,7 +768,7 @@ func (d *daemon) connectSleepGuard() (_ *connectedSleepGuard, err error) {
 
 	sigs := make(chan *dbus.Signal, 16)
 	conn.Signal(sigs)
-	// Ryoku holds a "block" inhibitor here, which makes logind refuse any
+	// upstream holds a "block" inhibitor here, which makes logind refuse any
 	// suspend that does not go through its own daemon. Asura's lid, power key
 	// and idle daemon call logind directly, so the hard block would stop the
 	// laptop sleeping at all: it is a second delay lock instead, released with the

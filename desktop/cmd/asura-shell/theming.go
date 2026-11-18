@@ -14,12 +14,12 @@ import (
 	"asura/desktop/internal/wm"
 )
 
-// theming.go is what asura-shell keeps of the old wallpaper file after Ryogami
+// theming.go is what asura-shell keeps of the old wallpaper file after asura-wallpaper
 // took ownership of the wallpaper (apply, the topic, transitions, depth) and the
 // dynamic wallpaper->palette pipeline: the named-theme palette worker, plus the
 // few wallpaper-adjacent helpers the surviving readers (walltone, the matugen
 // preview CLI) still need. The wallpaper render backend itself lives in the
-// Ryogami daemon now.
+// asura-wallpaper daemon now.
 
 func findHubBin() string {
 	if p, err := exec.LookPath("asura-hubd"); err == nil {

@@ -28,7 +28,7 @@ import (
 // "asura icons" prints the whole index as one JSON object and needs no daemon.
 // The shell asks the daemon's "asura-shell icons" first and falls back to this
 // one, so icons resolve whether or not the daemon is up. The index and the
-// lookup order are ported from Ryoku's ryoku-shell icons (GPL-3.0).
+// lookup order are ported from upstream icons (GPL-3.0).
 
 func init() {
 	register("icons", "the icon index the shell draws from, as JSON", asuraIcons)

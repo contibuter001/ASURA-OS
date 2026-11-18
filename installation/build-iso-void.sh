@@ -615,10 +615,6 @@ echo "build-iso-void: building Asura Go binaries..."
 	if [ -z "$STORE_SRC" ]; then
 		if [ -d "$REPO_ROOT/../asura-store" ]; then
 			STORE_SRC="$REPO_ROOT/../asura-store"
-		elif [ -d "/home/mohit/code/asura-store" ]; then
-			STORE_SRC="/home/mohit/code/asura-store"
-		elif [ -d "/home/mohit/code/asura/asura-store" ]; then
-			STORE_SRC="/home/mohit/code/asura/asura-store"
 		fi
 	fi
 	if [ -n "$STORE_SRC" ] && [ -d "$STORE_SRC/cmd/asura-store" ]; then
@@ -638,10 +634,6 @@ echo "build-iso-void: building Asura Go binaries..."
 	if [ -z "$SYSMON_SRC" ]; then
 		if [ -d "$REPO_ROOT/../asura-sysmon" ]; then
 			SYSMON_SRC="$REPO_ROOT/../asura-sysmon"
-		elif [ -d "/home/mohit/code/asura-sysmon" ]; then
-			SYSMON_SRC="/home/mohit/code/asura-sysmon"
-		elif [ -d "/home/mohit/code/asura/asura-sysmon" ]; then
-			SYSMON_SRC="/home/mohit/code/asura/asura-sysmon"
 		fi
 	fi
 	if [ -n "$SYSMON_SRC" ] && [ -d "$SYSMON_SRC/cmd/asura-sysmon" ]; then

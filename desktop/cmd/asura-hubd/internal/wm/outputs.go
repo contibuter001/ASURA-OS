@@ -16,7 +16,7 @@ import (
 // lines, so the layout outlives a reload and a login without a second generated
 // file for the session configuration to source.
 //
-// Ryoku handed this to a bash engine (ryoku-monitor) that also autoscales from
+// upstream handed this to a bash engine (asura-monitor) that also autoscales from
 // DPI. The scale snapping is kept here, because it is what stops Hyprland's
 // "Invalid scale" overlay: Hyprland only accepts a scale that is a 1/120 multiple
 // and divides the mode's pixel size into whole logical pixels.

@@ -129,9 +129,9 @@ If a service fails or exits:
 ## Repository Implementation Files
 
 - **Bridge Implementation**:
-  - [`system/helpers/systemctl`](file:///home/mohit/code/ASURA-OS/system/helpers/systemctl)
-  - [`system/helpers/journalctl`](file:///home/mohit/code/ASURA-OS/system/helpers/journalctl)
+  - `system/helpers/systemctl`
+  - `system/helpers/journalctl`
 - **Automated Tests**:
-  - [`system/helpers/tools/tests/systemctl-bridge_test.sh`](file:///home/mohit/code/ASURA-OS/system/helpers/tools/tests/systemctl-bridge_test.sh)
+  - `system/helpers/tools/tests/systemctl-bridge_test.sh`
 - **ISO Deployment**:
-  - Staged in [`installation/build-iso-void.sh`](file:///home/mohit/code/ASURA-OS/installation/build-iso-void.sh) to `/usr/bin/systemctl` and `/usr/bin/journalctl`.
+  - Staged in `installation/build-iso-void.sh` to `/usr/bin/systemctl` and `/usr/bin/journalctl`.

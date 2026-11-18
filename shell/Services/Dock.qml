@@ -55,7 +55,7 @@ Singleton {
         }
     }
 
-    // Every first-party Quickshell app (the Hub, Ryostore, Ryoport) reaches the
+    // Every first-party Quickshell app (the Hub, Asura Store, Asura VM) reaches the
     // compositor as class org.quickshell: Quickshell owns the Wayland app id
     // and offers no way to set one per config. The title is the only thing
     // that tells them apart, so it maps to the desktop entry id the dock

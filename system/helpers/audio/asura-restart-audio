@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Restart the PipeWire stack, and recover a stuck USB audio device, when sound
 # does not come back: a pipewire upgrade leaves stale daemons behind, or a device
-# hangs the graph. Ported from omarchy-restart-audio.
+# hangs the graph.
 set -u
 
 restart_services() {

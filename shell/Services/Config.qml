@@ -50,8 +50,7 @@ Singleton {
 
     // dock: the first-class app dock surface (modules/dock). A top-level store,
     // not a bar-style key, because the dock is now style-agnostic -- neither qsbar
-    // nor Sumi owns it. On by default (Ryoku ships it off; Asura's brief wants
-    // it visible on a fresh desktop); Hub -> Bar Studio -> Dock turns it off.
+    // nor Sumi owns it. On by default; Hub -> Bar Studio -> Dock turns it off.
     // Read and written through the services Dock singleton so every consumer goes
     // through one place.
     property alias dock: adapter.dock

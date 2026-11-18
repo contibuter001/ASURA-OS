@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-// usertheme.go projects RyoStore-installed colour schemes into the daemon's
-// static-theme world. RyoStore installs a scheme (install-only) under
+// usertheme.go projects Asura Store-installed colour schemes into the daemon's
+// static-theme world. Asura Store installs a scheme (install-only) under
 // userThemeDir()/<id>/ as a Noctalia-format scheme.json ({dark?, light?} of
 // mPrimary/.../mSurface roles) plus a meta.json ({label, provider}). Here the
 // chosen Noctalia block is converted into the 34-role catalog palette every
@@ -22,7 +22,7 @@ import (
 // every app. themePalettes (themes_gen.go) stays the built-in source of truth;
 // the library only adds names and never shadows a built-in id.
 
-// userThemeDir is the install root RyoStore writes to and this reads.
+// userThemeDir is the install root Asura Store writes to and this reads.
 func userThemeDir() string {
 	return filepath.Join(matugenDataHome(), "asura", "themes")
 }
@@ -54,7 +54,7 @@ type noctaliaScheme struct {
 }
 
 // userThemeMeta is the on-disk meta.json: the display label and the provider the
-// scheme came from (the RyoStore subtab that offered it).
+// scheme came from (the Asura Store subtab that offered it).
 type userThemeMeta struct {
 	Label    string `json:"label"`
 	Provider string `json:"provider"`

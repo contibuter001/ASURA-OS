@@ -13,7 +13,7 @@ import (
 //
 // A rebind is the one place this backend has to know what a shipped bind does,
 // because Hyprland has no "move this bind to another chord": it is an unbind of
-// the old chord and a bind of the new one with the same dispatcher. Ryoku's Lua
+// the old chord and a bind of the new one with the same dispatcher. upstream's Lua
 // bound every shipped key through a K(chord) lookup that consulted a generated
 // table, so it never had to; hyprlang has no such hook. The dispatcher is read
 // from the packaged hyprland.conf, the file that says what the keys do, and

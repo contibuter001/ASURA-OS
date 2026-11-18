@@ -15,7 +15,7 @@ import (
 // plugin_new.go is `asura plugin new`: it scaffolds a plugin folder from the
 // embedded template, generates a manifest for the chosen host, git-inits the
 // folder and commits it as the author, then prints the next steps. Ported from
-// Ryoku's plugin scaffold (GPL-3.0). The template is a complete, working demo (a
+// upstream's plugin scaffold (GPL-3.0). The template is a complete, working demo (a
 // ticking counter, a mark, a panel with a button) that passes `asura plugin
 // audit` with no findings, and a test keeps it that way.
 

@@ -15,7 +15,7 @@ import (
 )
 
 // `asura wm` is the front door to the compositor seam (internal/wm) for what
-// is not the daemon. Ported from ryoku/cli/wm.go, minus the verbs nothing calls
+// is not the daemon. Ported from upstream wm.go, minus the verbs nothing calls
 // here: the switching and config-path verbs belong to a second compositor
 // Asura does not have, and `state` has no caller yet.
 //

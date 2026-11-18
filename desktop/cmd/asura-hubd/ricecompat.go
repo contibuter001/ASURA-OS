@@ -7,7 +7,7 @@ import (
 
 // riceCompat compares the major/minor version a rice was created with against
 // the running Asura version. Patch and prerelease suffixes do not change the
-// rice schema compatibility boundary. Ported from Ryoku's ryostore/compat.
+// rice schema compatibility boundary. Ported from upstream's ryostore/compat.
 func riceCompat(createdWith, running string) string {
 	createdMajor, createdMinor, createdOK := majorMinor(createdWith)
 	runningMajor, runningMinor, runningOK := majorMinor(running)

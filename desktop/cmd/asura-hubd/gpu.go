@@ -5,7 +5,7 @@ package main
 //
 // mux, apply, hook and vm are the GPU-passthrough stack and the ASUS MUX helper.
 // Both need tooling Asura does not ship (Looking Glass, a boot-config writer,
-// the ryoku-gpu-mux helper), so they answer "unavailable" instead of erroring.
+// the gpu-mux helper), so they answer "unavailable" instead of erroring.
 
 import (
 	"fmt"

@@ -471,7 +471,7 @@ func route(cmd string) (config, target, fn string, ok bool) {
 	return "", "", "", false
 }
 
-// unavailable names the verbs kept from Ryoku's CLI that this desktop has no
+// unavailable names the verbs kept from upstream's CLI that this desktop has no
 // backend for, with the reason, so a caller gets a clear error and not "unknown
 // command".
 var unavailable = map[string]string{
@@ -878,7 +878,7 @@ func shellReady() bool {
 	return err == nil && strings.TrimSpace(string(out)) == "true"
 }
 
-// status reports the shell unit in the form Ryoku's status printed for its
+// status reports the shell unit in the form upstream's status printed for its
 // supervised components.
 func (d *daemon) status() string {
 	state := "stopped"

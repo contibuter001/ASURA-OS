@@ -33,7 +33,7 @@ import (
 // knob save retints exactly as a wallpaper change does. There is no second knob
 // source and no second renderer.
 //
-// Ryoku shells out to the matugen binary twice; matugen is not in Ubuntu's
+// upstream shells out to the matugen binary twice; matugen is not in Ubuntu's
 // archive, so both passes are `asura theme` here:
 //
 //  1. Scheme generation: `asura theme generate --image <img> --mode <m>

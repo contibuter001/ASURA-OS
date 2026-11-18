@@ -109,7 +109,6 @@
   "Normal": "Normal",
   "O": "O",
   "OkShell": "OkShell",
-  "Omarchy": "Omarchy",
   "OpenAI Codex": "OpenAI Codex",
   "OpenCode": "OpenCode",
   "P1": "P1",
@@ -131,10 +130,8 @@
   "RYOPORT": "RYOPORT",
   "RYOPORT · PASS": "RYOPORT · PASS",
   "RYOPORT-HARBOUR-": "RYOPORT-HARBOUR-",
-  "RYOSTORE": "RYOSTORE",
   "Reactor": "Reactor",
   "Ricelin": "Ricelin",
-  "Ryostore": "Ryostore",
   "S": "S",
   "SAVE": "GUARDAR",
   "SPICE": "SPICE",
@@ -295,5 +292,7 @@
   "· TAB": "· TAB",
   "ΛVΛLON": "ΛVΛLON",
   "⏎  ENTER": "⏎  ENTER",
-  "❯ fastfetch": "❯ fastfetch"
+  "❯ fastfetch": "❯ fastfetch",
+  "ASURA STORE": "ASURA STORE",
+  "Asura Store": "Asura Store"
 }

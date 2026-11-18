@@ -1,4 +1,3 @@
-// Ported from Ryoku's ryovm helpers (GPL-3.0).
 // asura-vm-ssh: the remote (SSH/VPS) data plane for the asura-vm hub. It is a small,
 // dependency-free CLI invoked as subcommands by the QML front end; it wraps the
 // system OpenSSH tools (ssh, ssh -G, ssh-add, ssh-keygen, ssh-copy-id) plus an

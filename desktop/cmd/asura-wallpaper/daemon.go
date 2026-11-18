@@ -165,7 +165,7 @@ func runDaemon() error {
 			switch want, applied := d.restoreOutputs(); {
 			case want == 0:
 				// Nothing was ever recorded (a fresh install, or a box cut over
-				// from awww without setting one through Ryogami). Paint a shipped
+				// from awww without setting one through the wallpaper daemon). Paint a shipped
 				// default so the desktop lands on a wallpaper instead of the empty
 				// grey frame; "init" persists it, so the next login restores it.
 				d.applyDefaultWallpaper()

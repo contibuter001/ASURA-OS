@@ -320,7 +320,7 @@ Item {
                         Btn {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
-                            text: I18n.tr("OPEN RYOSTORE")
+                            text: I18n.tr("OPEN ASURA STORE")
                             onAct: {
                                 Quickshell.execDetached(["asura-store", "open", "plugins"])
                                 if (page.cc) page.cc.close()

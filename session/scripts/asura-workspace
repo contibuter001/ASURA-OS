@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Desktop-relative workspace navigation, and the single source of truth for the
-# "desktop" concept the Asura overview shows. Ported from Ryoku's ryoku-workspace.
+# "desktop" concept the Asura overview shows.
 #
 # A desktop is a block of PER workspace ids: desktop d owns ids
 # [d*PER+1 .. d*PER+PER]. The current desktop is DERIVED from the focused

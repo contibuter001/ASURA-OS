@@ -12,7 +12,7 @@ import (
 // it could not express; with preview it pushes the state to the running
 // compositor instead and writes nothing.
 //
-// Ported from Ryoku's Hyprland provider (GPL-3.0).
+// Ported from upstream's Hyprland provider (GPL-3.0).
 
 // ApplyReport is what an apply returns. Unhonored names every setting the
 // running compositor cannot express, so the Hub can mark it, doctor can report

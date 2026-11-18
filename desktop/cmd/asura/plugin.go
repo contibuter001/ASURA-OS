@@ -15,13 +15,13 @@ import (
 
 // plugin.go is `asura plugin`: scaffold a shell plugin, audit one, install it
 // from a git repo or a folder, list what is installed, turn one on or off, and
-// remove it. Ported from Ryoku's plugin CLI (GPL-3.0). Install stages a copy,
+// remove it. Ported from upstream's plugin CLI (GPL-3.0). Install stages a copy,
 // validates the manifest (relative entry points, a known host set, no symlinks,
 // an id that is not a reserved built-in widget), audits it, and copies it into
 // ~/.local/share/asura/plugins/<id>. It never executes anything from the
 // plugin.
 //
-// Ryoku installs through its store's receipt transaction. Asura's plugin
+// upstream installs through its store's receipt transaction. Asura's plugin
 // folder is the install (the ownership table in agents/agents.md gives the
 // directory to "the plugin's own manifest"), so there is no receipt to write and
 // none for discover.sh to demand. Placement (on or off, which host, settings)

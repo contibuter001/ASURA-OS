@@ -1,4 +1,3 @@
-// Ported from Ryoku's ryovm helpers (GPL-3.0).
 // asura-vm-mon: live control of a running quickemu VM through the sockets quickemu
 // already creates -- the HMP text monitor and, when the guest runs
 // qemu-guest-agent, the QGA JSON socket. No QEMU flag injection, no engine

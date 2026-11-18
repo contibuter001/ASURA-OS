@@ -124,8 +124,6 @@ The session is not a system service. It is a set of user-level runit services su
 `~/.config/service/asura-user-services` via the user runit supervisor):
 
 - `asura-userd` (`system/runit/user-services/asura-userd/run`)
-- `asura-agent` (`system/runit/user-services/asura-agent/run`) — opt-in, off until the user
-  switches it on in Settings
 - `asurad` (`system/runit/user-services/asurad/run`) — shell state daemon
 - `asura-wallpaper` (`system/runit/user-services/asura-wallpaper/run`) — wallpaper daemon
 - `quickshell` (`system/runit/user-services/quickshell/run`) — the shell

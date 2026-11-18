@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// The compositor-plugin subsystem, cut down from Ryoku's. Ryoku built plugins
+// The compositor-plugin subsystem, cut down from upstream's. upstream built plugins
 // from git on the user's machine against the exact compositor build and tracked
 // when a copy went stale. Ubuntu packages the plugins it supports
 // (hyprland-plugin-*), each pinned to the compositor ABI by a package dependency,
@@ -18,7 +18,7 @@ import (
 // what is installed and loaded, the config is written for what is installed, and
 // the verbs that built or removed a copy say so instead of pretending.
 //
-// Plugins Ryoku built itself (hyprglass, imgborders, dynamic cursors, key
+// Plugins upstream built itself (hyprglass, imgborders, dynamic cursors, key
 // sounds) have no Ubuntu package. They stay in the store so a rice that names
 // them still imports, and unhonored() reports each one that is switched on.
 
@@ -49,7 +49,7 @@ var unpackagedPlugins = map[string]string{
 	"dynamicCursors": "The dynamic cursors plugin has no Ubuntu package.",
 	"imgborders":     "The image borders plugin has no Ubuntu package.",
 	"hyprglass":      "The glass plugin has no Ubuntu package.",
-	"keysounds":      "The key sounds plugin is Ryoku's own and Asura does not build it.",
+	"keysounds":      "The key sounds plugin is upstream's own and Asura does not build it.",
 }
 
 func bundledByID(id string) (bundledPlugin, bool) {

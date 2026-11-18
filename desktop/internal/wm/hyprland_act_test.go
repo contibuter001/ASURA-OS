@@ -154,7 +154,7 @@ func TestActEmitsHyprlangDialect(t *testing.T) {
 	}
 }
 
-// No emitted command may be the Lua dialect; this is the regression Ryoku's
+// No emitted command may be the Lua dialect; this is the regression upstream's
 // provider would reintroduce if a case were copied across unconverted.
 func TestActNeverEmitsLua(t *testing.T) {
 	log := stubHyprctl(t, nil)

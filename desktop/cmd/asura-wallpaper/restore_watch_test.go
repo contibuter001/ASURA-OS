@@ -114,10 +114,10 @@ func TestRestoreNoChoiceIsNotPending(t *testing.T) {
 	}
 }
 
-// A box upgraded across the Ryogami split has the pre-split state file but an
+// A box upgraded across the the wallpaper daemon split has the pre-split state file but an
 // empty outputs.json; the daemon seeds outputs.json from it once so the
 // wallpaper survives the upgrade, and never overwrites a choice already set
-// through Ryogami.
+// through the wallpaper daemon.
 func TestMigrateLegacyOutputs(t *testing.T) {
 	d, cache := restoreDaemon(t)
 	pic := filepath.Join(t.TempDir(), "old.png")
@@ -139,7 +139,7 @@ func TestMigrateLegacyOutputs(t *testing.T) {
 		t.Fatalf("migrated wallpaper path = %q, want %q", got, pic)
 	}
 
-	// A real Ryogami choice already present is never clobbered by the seed.
+	// A real the wallpaper daemon choice already present is never clobbered by the seed.
 	newer := filepath.Join(t.TempDir(), "new.png")
 	writeE2EPNG(t, newer)
 	if err := os.WriteFile(filepath.Join(cache, "outputs.json"),

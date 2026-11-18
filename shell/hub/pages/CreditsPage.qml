@@ -21,7 +21,6 @@ Item {
     // people + projects Asura is built on, reused verbatim from the old page.
     // an empty url is a quiet, unlinked credit: no home was given, none invented.
     readonly property var projects: [
-        { "name": "Ryoku",        "by": "ryoku-dev",      "role": I18n.tr("the desktop this shell is ported from (GPL-3.0)"), "url": "https://github.com/ryoku-dev/ryoku" },
         { "name": "dots-hyprland", "by": "end-4",         "role": I18n.tr("the vendored ii Quickshell config (GPL-3.0)"), "url": "https://github.com/end-4/dots-hyprland" },
         { "name": "rounded-polygon-qmljs", "by": "end-4", "role": I18n.tr("shape kit (Apache-2.0)"), "url": "https://github.com/end-4/rounded-polygon-qmljs" },
         { "name": "Quickshell",   "by": "outfoxxed",      "role": I18n.tr("the shell engine (LGPL-3.0)"), "url": "https://quickshell.org" },
@@ -40,13 +39,12 @@ Item {
         { "name": "inir",         "by": "snowarch",       "role": I18n.tr("launcher grid"),        "url": "" },
         { "name": "noctalia",     "by": "noctalia-dev",   "role": I18n.tr("shell polish"),         "url": "https://github.com/noctalia-dev/noctalia-shell" },
         { "name": "DankMaterial", "by": "AvengeMedia",    "role": I18n.tr("material shell"),       "url": "https://github.com/AvengeMedia/DankMaterialShell" },
-        { "name": "Omarchy",      "by": "DHH",            "role": I18n.tr("opinionated Arch"),     "url": "" },
         { "name": "CachyOS",      "by": "CachyOS team",   "role": I18n.tr("performance Arch"),     "url": "" },
         { "name": "Ricelin",      "by": "Gakuseei",       "role": I18n.tr("washi warping pill"),   "url": "https://github.com/Gakuseei/Ricelin" },
         { "name": "nixos-configuration", "by": "ilyamiro", "role": I18n.tr("legacy island bar"),   "url": "https://github.com/ilyamiro/nixos-configuration" },
         { "name": "dotfiles",     "by": "Jules3182",     "role": I18n.tr("dyad dual-edge bar"),   "url": "https://github.com/Jules3182/dotfiles" },
         { "name": "NibrasShell",  "by": "Ahmed Saadi",    "role": I18n.tr("depth effect engine"),  "url": "https://github.com/AhmedSaadi0/NibrasShell" },
-        { "name": "skwd-wall",    "by": "liixini",        "role": I18n.tr("wallpaper engine (Ryogami, now asura-wallpaper)"), "url": "https://github.com/liixini/skwd-wall" }
+        { "name": "skwd-wall",    "by": "liixini",        "role": I18n.tr("wallpaper engine (now asura-wallpaper)"), "url": "https://github.com/liixini/skwd-wall" }
     ]
 
     // the alpha/beta crew, constantly stress-testing and filing bugs. each name

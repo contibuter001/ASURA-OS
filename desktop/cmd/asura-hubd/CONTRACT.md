@@ -1,8 +1,6 @@
 # asura-hubd contract
 
-Every verb and shape that differs from Ryoku's `ryoku-hub`, or is dropped. Anything not listed
-here is Ryoku's, unchanged. W08/W09 read this; verbs a page calls but this list does not mention
-exist as in Ryoku.
+Every verb and shape supported by `asura-hubd`. W08/W09 read this.
 
 ## Dropped or unavailable
 
@@ -26,7 +24,7 @@ reason, not an empty state.
   no `package`/`available`/`reclaim`: W08 hides the compositor switch.
 - `desktop plugins rebuild|add|remove`: exit 1. Plugins are the packaged `hyprland-plugin-*`.
 - `lock apply-greeter`: dropped (Asura leaves the SDDM configuration alone). `lock list|set`
-  keep Ryoku's qylock-skin shape but nothing on Asura reads the preference (hyprlock locks);
+  keep upstream's qylock-skin shape but nothing on Asura reads the preference (hyprlock locks);
   W10 should not offer it.
 
 ## Shapes that differ
@@ -46,9 +44,9 @@ reason, not an empty state.
 - `desktop caps` (`wm list`) `generatedFiles` lists the live files and their `user_edits` copies.
 - `desktop anim-preset [name]` ids: `asura` (default, writes nothing), dusky, bounce, fade, fast,
   mechanical, minimal, rage, slowmotion, air, hallucination, exaggerated, disable. Setting one
-  regenerates `settings.conf`. `ryoku` is now `asura`.
+  regenerates `settings.conf`. The namespace is `asura`.
 - `desktop defaults`: borders `#e6e6e6`/`#3a3a3a`, cursor `Adwaita`; the `DYNAMIC` cursor
-  resolves to `Adwaita` (no recolouring package). The numeric defaults are Ryoku's: they must
+  resolves to `Adwaita` (no recolouring package). The numeric defaults are upstream's: they must
   match the packaged `hyprland.conf`, since only values that differ from them are written.
   The other brand fallbacks are monochrome too: fastfetch accent `230;230;230`, lighting `#E6E6E6`.
 - `rice apply` sends the shell look to the daemon (`settings.patch`, one call per top-level key)
@@ -60,7 +58,7 @@ reason, not an empty state.
   `user_edits` copy) as a `# >>> asura-import` block of native hyprlang, checked with
   `Hyprland --verify-config`. A bind Hyprland would reject is kept as a comment and listed in
   `unresolved`. Conflicts are checked against the catalogue.
-- `desktop matugen set` persists knobs only (as in Ryoku). `desktop scheme|theme-apps|gtk-theme|
+- `desktop matugen set` persists knobs only (as in upstream). `desktop scheme|theme-apps|gtk-theme|
   gnome-accent|asura-theme` render app templates through `runMatugen()`, which still execs
   `matugen -c CFG json CARRIER`; W04 must provide that argv or name the replacement.
 

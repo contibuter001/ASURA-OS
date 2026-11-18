@@ -47,7 +47,7 @@ Item {
         function onReadyChanged(): void { bridge.firstRun(); }
     }
     Component.onCompleted: {
-        // A slim bar, like Ubuntu's and Omarchy's: end-4's is 40 px. Every
+        // A slim bar, like Ubuntu's and GNOME's: end-4's is 40 px. Every
         // bar size end-4 derives (barHeight, the reserved zone) follows it.
         Appearance.sizes.baseBarHeight = 30;
         bridge.firstRun();
@@ -69,7 +69,7 @@ Item {
             // The bar stays on top. Undoes the vertical bar an earlier
             // build set (end4-layout-1); a user's own choice comes later.
             Config.options.bar.vertical = false;
-            // ASURA's square look (as Omarchy): a plain rectangular bar, no
+            // ASURA's square look: a plain rectangular bar, no
             // rounded screen corners, the digital desktop clock.
             Config.options.bar.cornerStyle = 2;
             Config.options.appearance.fakeScreenRounding = 0;

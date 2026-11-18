@@ -11,7 +11,7 @@ import (
 )
 
 // The bind legend's vocabulary. The shipped catalogue is session/binds.json, the
-// one list the cheat sheet, `asura doctor` and this backend all read; Ryoku
+// one list the cheat sheet, `asura doctor` and this backend all read; upstream
 // compiled the same list into its seam, which here would be a second copy of a
 // file that already exists. What stays in code is the chord algebra: how a
 // catalogue chord is spelled, normalised, expanded into a family and shown.

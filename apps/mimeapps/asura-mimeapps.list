@@ -1,4 +1,4 @@
-# Adapted from Ryoku's apps/mimeapps.list (GPL-3.0).
+# ASURA OS default applications (GPL-3.0)
 [Default Applications]
 text/plain=dev.zed.Zed.desktop
 text/markdown=dev.zed.Zed.desktop

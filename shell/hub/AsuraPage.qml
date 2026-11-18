@@ -4,7 +4,7 @@ pragma ComponentBehavior: Bound
 // (org.asura.shell, org.asura.desktop), drawn from the page registry that
 // `asura config export` writes, and changed only through `asura config set`.
 //
-// This is the Hub as it was before Ryoku's was ported in, kept as the one extra
+// This is the Hub's Asura group, kept as the dedicated
 // page because the rule in docs/architecture.md still holds: every setting that
 // has a command also has a page. The pages are not listed here. A page added to
 // the registry in Go (desktop/internal/hub) shows up below with nothing in this

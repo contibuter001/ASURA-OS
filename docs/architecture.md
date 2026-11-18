@@ -1068,7 +1068,7 @@ drop-in in `/etc/sddm.conf.d/` — because a shipped file is never edited in pla
   <img src="../public/asura-logo.svg" alt="ASURA OS" width="150">
 </p>
 
-*Ten* is heaven, the highest point of the sky. A asura is that same point. The
+*Ten* is heaven, the highest point of the sky. An asura is that same point. The
 mark and the name say one thing, and they say it about the architecture as much as about the
 project: this is the top of the stack, and it sits above everything it is built on.
 

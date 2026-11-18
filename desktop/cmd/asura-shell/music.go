@@ -43,7 +43,7 @@ const (
 	// A cover under this size is a placeholder or an error page, not art.
 	musMinArtBytes = 2048
 	musMaxArtBytes = 12 << 20
-	musUserAgent   = "ryoku-shell (https://github.com/ryoku-arch)"
+	musUserAgent   = "asura-shell (https://github.com/ASURA-OS/ASURA-OS)"
 )
 
 // Track sources, resolved from the player's bus name and page URL. The frame

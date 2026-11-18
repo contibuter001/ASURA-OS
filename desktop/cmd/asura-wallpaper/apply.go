@@ -201,7 +201,7 @@ func frameAudio(outputs []string, mute map[string]bool, volume map[string]int) w
 
 // wallStatePath is the legacy ~/.local/state/asura-wallpaper file: the absolute
 // path of the current default (broadcast) wallpaper, newline-terminated.
-// Ryogami owns wallpaper apply now, but rice capture, the overview backdrop, the
+// the wallpaper daemon owns wallpaper apply now, but rice capture, the overview backdrop, the
 // Super+W on-air dot, and the shell's palette bridge still read this file to
 // learn what is on screen. The old Go/C backend wrote it on every apply; when
 // asura-wallpaper took the wallpaper over the write was dropped, so those readers saw a
@@ -241,7 +241,7 @@ func syncWallState(state map[string]map[string]interface{}) {
 	_ = os.WriteFile(filepath.Join(dir, "asura-wallpaper"), []byte(defaultWallpaperFrom(state)+"\n"), 0o644)
 }
 
-// legacyWallStatePath: the shell's own choice from before Ryogami owned the
+// legacyWallStatePath: the shell's own choice from before the wallpaper daemon owned the
 // wallpaper. Nothing writes it now.
 func legacyWallStatePath() string { return filepath.Join(stateHome(), "asura-wallpaper.json") }
 
@@ -446,7 +446,7 @@ func (d *daemon) restoreOutputs() (want, applied int) {
 // defaultWallpaper is the fallback the startup restore paints when nothing is
 // recorded: the first static image in the configured wallpaper directory, in
 // name order so the choice is deterministic. A box that never set a wallpaper
-// through Ryogami (a fresh install, or one cut over from awww) would otherwise
+// through the wallpaper daemon (a fresh install, or one cut over from awww) would otherwise
 // sit on the empty grey frame. Videos and animated formats (typeOf "video",
 // e.g. .gif) are skipped so the fallback never lands on the live player, which
 // the box may not be able to decode on every GPU.

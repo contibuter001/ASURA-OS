@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Ported from Ryoku's ryovm engine (GPL-3.0).
 # Engine for asura-vm: the data plane behind the asura-vm app. A thin, JSON-speaking
 # wrapper around quickemu + quickget (the QEMU front-end that auto-downloads
 # ~1000 OSes and runs them with tuned defaults), so the QML never shells out to

@@ -9,8 +9,8 @@ import (
 // hyprlang generators consume, and the desktop.json codec that splits it across
 // the desktop.* (neutral intent) and wm.hyprland.* (exclusives) namespaces.
 //
-// Ported from Ryoku's Hyprland provider (GPL-3.0); the generators emit hyprlang
-// for Hyprland 0.53 where Ryoku emitted Lua for a newer compositor.
+// Ported from upstream's Hyprland provider (GPL-3.0); the generators emit hyprlang
+// for Hyprland 0.53 where upstream emitted Lua for a newer compositor.
 
 // Appearance: general / decoration / animations keywords.
 type Appearance struct {
@@ -254,7 +254,7 @@ type Hyprscrolling struct {
 	FollowFocus bool    `json:"followFocus"`
 }
 
-// Keysounds is the key-click plugin. It is Ryoku's own C++ plugin and Asura does
+// Keysounds is the key-click plugin. It is upstream's own C++ plugin and Asura does
 // not build it, so the block is kept only so a store written elsewhere round-trips.
 type Keysounds struct {
 	Enabled bool    `json:"enabled"`

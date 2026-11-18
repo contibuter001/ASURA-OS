@@ -130,7 +130,7 @@ func TestRunLockRejectsMovedStoreCommands(t *testing.T) {
 	}
 }
 
-// writeLockReceipt drops a minimal RyoStore lockscreen receipt: the fields
+// writeLockReceipt drops a minimal Asura Store lockscreen receipt: the fields
 // receiptLockSlug reads (destination + file destinations), matching the on-disk
 // shape asura-store writes.
 func writeLockReceipt(t *testing.T, receiptsDir, id, destination string, fileDests ...string) {

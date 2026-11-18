@@ -24,8 +24,8 @@ R3  Id. Lowercase `[a-z0-9][a-z0-9-]*`, unique, not a built-in widget id.
 R4  Imports. Only `QtQuick*`, `Quickshell*`, `qs.PluginKit`,
 `qs.PluginKit.Singletons`, and files inside the plugin folder. Never any other
 `qs.*` module, `shell.*`, or a relative import that climbs out of the folder.
-A plugin written for Ryoku imports `Ryoku.PluginKit`: change it to
-`qs.PluginKit` (and `Ryoku.PluginKit.Singletons` to `qs.PluginKit.Singletons`).
+A plugin with legacy imports (e.g. `*.PluginKit`): change it to
+`qs.PluginKit` (and `*.PluginKit.Singletons` to `qs.PluginKit.Singletons`).
 
 R5  Settings. Declared in `metadata.settings` (types the bar renders: toggle,
 choice, multi, int, text); read through `pluginApi.pluginSettings` behind a

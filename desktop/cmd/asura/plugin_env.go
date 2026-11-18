@@ -13,7 +13,7 @@ import (
 )
 
 // The plugin tool's surroundings: where plugins live, how output is coloured,
-// how an external helper is found. Ported from Ryoku's CLI (GPL-3.0), where
+// how an external helper is found. Ported from upstream's CLI (GPL-3.0), where
 // these were the internal/sys helpers; here they sit beside the command that
 // uses them because nothing else in this tool wants them, and every name carries
 // a "plugin" prefix because this is package main and the other subcommands

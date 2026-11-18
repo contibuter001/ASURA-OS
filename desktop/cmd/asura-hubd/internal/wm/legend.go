@@ -14,7 +14,7 @@ import (
 // unhonored when the session does not have it bound), then any live bind the
 // catalogue does not know, then the user's own custom binds from the store.
 //
-// Ported from Ryoku's legend (GPL-3.0). Ryoku parsed its Lua bind modules to
+// Ported from upstream's legend (GPL-3.0). upstream parsed its Lua bind modules to
 // learn what was bound; Asura asks the compositor, which cannot drift from the
 // config it actually loaded.
 

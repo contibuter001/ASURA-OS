@@ -1,7 +1,7 @@
-# asura-shell: where it differs from Ryoku's `ryoku-shell`
+# asura-shell contract
 
-Everything not listed is Ryoku's, unchanged: the framing (`subscribe <topic>`, `call <method> <json>`, one
-JSON line per frame/reply), every topic frame, every control call, every verb. `go test` pins the QML side:
+The framing (`subscribe <topic>`, `call <method> <json>`, one
+JSON line per frame/reply), topic frames, control calls, and verbs. `go test` pins the QML side:
 `qmlcontract_test.go` fails if the shell's QML subscribes to, calls or spawns anything the daemon lacks.
 
 - Socket `$XDG_RUNTIME_DIR/asura-shell.sock` (mode 0700) plus `.lock`; unit `asurad.service`
@@ -23,13 +23,12 @@ JSON line per frame/reply), every topic frame, every control call, every verb. `
 - Lock: `lock` starts `hyprlock -c ~/.config/asura/hyprland/hyprlock.conf` (else the packaged
   `/usr/share/asura/hyprland/hyprlock.conf`), once; `lock status` is `locked` while a hyprlock of this user
   lives. There is no proof marker, no token, no qylock.
-- Sleep guard: two logind *delay* inhibitors (Ryoku held a hard *block*, which would stop `systemctl suspend`,
-  the lid and hypridle from suspending at all). On `PrepareForSleep(true)` it locks, then releases both.
+- Sleep guard: two logind *delay* inhibitors. On `PrepareForSleep(true)` it locks, then releases both.
   `suspend`, `suspend transaction <token>`, `suspend-cancel`, `sleep-ready` are kept.
 - Not available, answered `err <verb>: not available on Asura: <why>`: `unlock-prepare`, `lock-quiesce`,
   `state`, `lock session <id>`; `browser-host` (no extension) exits 1 with the same message. Dropped with no
   verb: the boot guard marker, stray-shell reaping, the QML import-path export.
-- `voice` needs `voxtype` (not in the archive): without it the pill shows its "off" note, as in Ryoku.
+- `voice` needs `voxtype` (not in the archive): without it the pill shows its "off" note.
 - Palette: `asura theme generate --image I --mode dark|light --scheme S --contrast C --lightness-dark D
   --lightness-light L --source-color-index N --prefer P --json` (matugen-shaped JSON on stdout); templates:
   `asura theme render --config CFG --palette CARRIER`. The default scheme is `scheme-monochrome`. Template

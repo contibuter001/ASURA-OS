@@ -165,7 +165,7 @@ func TestLockStartsHyprlockOnce(t *testing.T) {
 	}
 }
 
-// The verbs kept from Ryoku's CLI that have no backend here say so by name.
+// The verbs kept from upstream's CLI that have no backend here say so by name.
 func TestUnavailableVerbsSayWhy(t *testing.T) {
 	d := &daemon{}
 	for _, verb := range []string{"unlock-prepare", "lock-quiesce", "state launcher 1"} {

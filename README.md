@@ -10,7 +10,7 @@
 
 **untouchable · dominating**
 
-*Ten* is heaven, the highest point of the sky. A asura is that same point. The
+*Ten* is heaven, the highest point of the sky. An asura is that same point. The
 mark and the name say one thing, and they say it about the architecture as much as the
 project: this is the top of the stack, and it sits above everything it is built on.
 
@@ -148,8 +148,6 @@ hardware profile for your specific machine, and an updater that can roll back.
 | Software Store | [Asura Store](https://github.com/ASURA-OS/asura-store) — Graphical showroom window & Go data plane (`asura-store`), multi-provider XBPS/plugin/theme catalogue |
 | Resource Monitor | [Asura Resource Monitor](https://github.com/ASURA-OS/asura-sysmon) — Real-time telemetry, process manager & task manager (`asura-sysmon`) |
 | Agent layer | resident OS agent with a local knowledge vault |
-
-The desktop shell is inspired by ryoku.
 
 ### Why Void Linux is the base layer
 

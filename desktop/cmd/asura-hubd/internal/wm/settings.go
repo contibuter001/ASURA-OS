@@ -15,9 +15,9 @@ import (
 // diffs against the packaged defaults, window / layer / app rules, gestures,
 // the start hook, and the full-option form the live preview pushes.
 //
-// Ported from Ryoku's settings.lua generator (GPL-3.0). The same decisions
+// Ported from upstream's settings.lua generator (GPL-3.0). The same decisions
 // carry over (write only what diverges, so an untouched setting falls through
-// to the packaged value); the output is hyprlang for Hyprland 0.53, where Ryoku
+// to the packaged value); the output is hyprlang for Hyprland 0.53, where upstream
 // wrote Lua for a newer one. Anything Hyprland 0.53 has no option for is not
 // emitted and is reported by unhonored() instead of writing a line the
 // compositor would reject, which would put an error banner on every login.

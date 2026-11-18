@@ -30,7 +30,7 @@ decision has somewhere to be written down.
   adoption path, the detection subsystem and the session chain, all decided before any of them
   is written as code
 - [x] `system/hardware/` — support tiers, the profile schema and an annotated example profile
-- [x] `system/kernel/fleet.yaml` and `system/packages.yaml` — the pinned kernel fleet and the
+- [x] `system/kernel/fleet.yaml` and `system/packages-void.yaml` — the pinned kernel fleet and the
   reviewed package manifest, GNOME exclusions included
 
 ## M2 — The `asura` control tool
