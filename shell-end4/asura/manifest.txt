@@ -507,7 +507,6 @@ de8ac579e06eb56db2e2bbf32e73e311de908863 modules/ii/bar/StyledPopupValueRow.qml
 03c734b9d9f8498bbda77f2c041423bf65ac0e58 modules/ii/bar/SysTrayMenu.qml
 59f3325c4648e9fcf1c5961d8f1ff0dd5022a2c1 modules/ii/bar/SysTrayMenuEntry.qml
 615ed6539e964b8a2229b410bd63e5cddbec285b modules/ii/bar/UtilButtons.qml
-f1e3331a17c741da9c356f82686bda4d898ab6f3 modules/ii/bar/Workspaces.qml T
 e82f41daba347ce03498237eb83c71302e387487 modules/ii/bar/weather/WeatherBar.qml
 e75dda32fca6a00c97722dadff9a23d7a6d135d8 modules/ii/bar/weather/WeatherCard.qml
 5b00b45905effe14855a0aee8c84b7fbc990a04c modules/ii/bar/weather/WeatherPopup.qml
@@ -667,7 +666,6 @@ adf1e1b1a1508a9450af2b2721de180ba7fbff70 modules/settings/About.qml
 680421f031c1185d37c1db6913750d1f0346276d modules/settings/BackgroundConfig.qml
 bfe4c256e3544987cd346dd4af96c9c1adc69404 modules/settings/BarConfig.qml
 6b83f9cf979e4df7e9ff047874827e6ca795034a modules/settings/GeneralConfig.qml
-de544ed826ec07f19e433ed3636d94c0ea2bec41 modules/settings/InterfaceConfig.qml
 75d956a884e15ee141e58d8a7eda9060bc1152aa modules/settings/QuickConfig.qml
 aec8dc98aa762fb432c28a78e803db1f956edb8f modules/settings/ServicesConfig.qml
 299635be944932bd8d1e96a700a79841f822f98a modules/waffle/README.md

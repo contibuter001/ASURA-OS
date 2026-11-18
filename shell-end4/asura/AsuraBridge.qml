@@ -74,8 +74,7 @@ Item {
         onExited: (code) => {
             if (code !== 0)
                 return;
-            // end-4 pins KDE's Dolphin and kitty, which ASURA does not ship,
-            // and hides the dock until the pointer reaches the bottom edge.
+            // end-4 pins KDE's Dolphin and kitty, which ASURA does not ship.
             // The bar stays on top. Undoes the vertical bar an earlier
             // build set (end4-layout-1); a user's own choice comes later.
             Config.options.bar.vertical = false;
@@ -86,7 +85,6 @@ Item {
             Config.options.background.widgets.clock.style = "digital";
             Config.options.background.widgets.clock.styleLocked = "digital";
             Config.options.dock.enable = true;
-            Config.options.dock.pinnedOnStartup = true;
             Config.options.dock.pinnedApps = ["com.mitchellh.ghostty", "thunar", "firefox", "asura-store"];
         }
     }
