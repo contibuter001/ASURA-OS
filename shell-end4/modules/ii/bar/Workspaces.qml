@@ -14,8 +14,8 @@ import Quickshell.Widgets
 // windows, in order. end-4's widget draws a fixed row of slots
 // (bar.workspaces.shown, 10) and marks the empty ones with dots; Hyprland
 // itself keeps no empty workspace but the active one, so its list is exactly
-// what to show. Each workspace shows its main window's icon, or its number
-// when it has none; the active one is filled. Left click switches, the wheel
+// what to show. Each workspace shows its main window's icon, or a dot when it
+// has none; the active one is underlined. Left click switches, the wheel
 // steps through workspaces, right click opens the overview (BarContent).
 ButtonMouseArea {
     id: root
@@ -77,9 +77,8 @@ ButtonMouseArea {
                 implicitWidth: root.workspaceButtonWidth
                 implicitHeight: root.workspaceButtonWidth
                 radius: Appearance.rounding.small
-                color: ws.active ? Appearance.colors.colPrimary
-                    : ws.hovered ? Appearance.colors.colLayer1Hover
-                    : "transparent"
+                // No fill for the active one: it is underlined. Hover tints.
+                color: ws.hovered ? Appearance.colors.colLayer1Hover : "transparent"
                 Behavior on color {
                     animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
                 }
@@ -89,13 +88,27 @@ ButtonMouseArea {
                     visible: !!ws.mainWindow && (Config.options?.bar.workspaces.showAppIcons ?? true)
                     implicitSize: root.iconSize
                     source: Quickshell.iconPath(AppSearch.guessIcon(ws.mainWindow?.class), "image-missing")
+                    opacity: ws.active ? 1 : 0.7
                 }
-                StyledText {
+                Rectangle { // a workspace with no window: a dot, not its number
                     anchors.centerIn: parent
                     visible: !ws.mainWindow || !(Config.options?.bar.workspaces.showAppIcons ?? true)
-                    text: Config.options?.bar.workspaces.numberMap[ws.modelData - 1] || ws.modelData
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    color: ws.active ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer1
+                    width: 6
+                    height: 6
+                    radius: 3
+                    color: ws.active ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer1Inactive
+                }
+                Rectangle { // the active workspace's underline
+                    anchors {
+                        bottom: parent.bottom
+                        horizontalCenter: parent.horizontalCenter
+                    }
+                    width: ws.active ? parent.width - 6 : 0
+                    height: 2
+                    color: Appearance.colors.colPrimary
+                    Behavior on width {
+                        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                    }
                 }
 
                 MouseArea {
