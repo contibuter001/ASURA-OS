@@ -176,6 +176,34 @@ if [ "$BUILD" -eq 1 ]; then
 	fi
 fi
 
+# ── Repair the package database (images built before this fix) ──────────────
+# The ISO registered its prebuilt Hyprland packages under "name-version_rev"
+# keys instead of their names, so xbps did not know they were installed and
+# every update tried to fetch them again. Re-key them by name.
+pkgdb="$ROOT/var/db/xbps/pkgdb-0.38.plist"
+if [ -f "$pkgdb" ] && command -v python3 >/dev/null 2>&1; then
+	python3 - "$pkgdb" <<'PY' || log "could not check the package database"
+import os, plistlib, sys
+path = sys.argv[1]
+with open(path, "rb") as f:
+    db = plistlib.load(f)
+fixed = []
+for key in list(db):
+    value = db[key]
+    if key.startswith("_") or not isinstance(value, dict):
+        continue
+    name = value.get("pkgname")
+    if name and key != name and key == value.get("pkgver") and name not in db:
+        db[name] = db.pop(key)
+        fixed.append(name)
+if fixed:
+    with open(path + ".asura-new", "wb") as f:
+        plistlib.dump(db, f)
+    os.replace(path + ".asura-new", path)
+    print("apply-repo: registered under their names in the package database: " + " ".join(fixed))
+PY
+fi
+
 # ── Packages new in the manifest ────────────────────────────────────────────
 if [ "$PACKAGES" -eq 1 ] && [ "$ROOT" = "" ] && command -v xbps-query >/dev/null 2>&1; then
 	missing=""

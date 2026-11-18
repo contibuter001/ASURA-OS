@@ -1240,7 +1240,11 @@ for fname in os.listdir(hypr_cache):
                         r = r.replace("libjxl_threads.so.0.11", "libjxl_threads.so.0.12")
                         fixed.append(r)
                     pkg_props["shlib-requires"] = fixed
-                pkgdb[pkgver] = pkg_props
+                # pkgdb is keyed by package NAME (xbps-query hyprland,
+                # xbps-install -Su); a pkgver key leaves the package unknown
+                # to xbps, which then tries to install it from the repository.
+                pkgname = pkg_props.get("pkgname") or pkgver.rsplit("-", 1)[0]
+                pkgdb[pkgname] = pkg_props
                 if files_file:
                     dest_files = os.path.join(rootfs, f"var/db/xbps/{pkgver}-files.plist")
                     with open(dest_files, "wb") as out_f:
