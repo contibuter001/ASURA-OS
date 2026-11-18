@@ -77,4 +77,13 @@ if grep -q "testpassphrase123" "$OUT_ENCRYPT"; then
 	exit 1
 fi
 
+# The snapshot GRUB snippet is installed before the first grub-mkconfig, so
+# the installed system's first grub.cfg already carries it.
+snippet_line=$(grep -n '40_asura_snapshots' "$REPO_ROOT/installation/asura-installer.sh" | head -n1 | cut -d: -f1)
+mkconfig_line=$(grep -n 'grub-mkconfig -o' "$REPO_ROOT/installation/asura-installer.sh" | head -n1 | cut -d: -f1)
+if [ -z "$snippet_line" ] || [ -z "$mkconfig_line" ] || [ "$snippet_line" -gt "$mkconfig_line" ]; then
+	echo "asura-installer_test: 40_asura_snapshots is not installed before grub-mkconfig" >&2
+	exit 1
+fi
+
 echo "asura-installer_test: ok"

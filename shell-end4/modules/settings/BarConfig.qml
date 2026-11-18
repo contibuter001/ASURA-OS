@@ -1,3 +1,5 @@
+// ASURA overlay (shell-end4/asura/vendor.sh OVERLAYS): end-4's bar settings
+// without the utility buttons and the workspace options ASURA's bar ignores.
 import QtQuick
 import QtQuick.Layouts
 import qs.services
@@ -164,79 +166,8 @@ ContentPage {
         }
     }
 
-    ContentSection {
-        icon: "widgets"
-        title: Translation.tr("Utility buttons")
-
-        ConfigRow {
-            uniform: true
-            ConfigSwitch {
-                buttonIcon: "content_cut"
-                text: Translation.tr("Screen snip")
-                checked: Config.options.bar.utilButtons.showScreenSnip
-                onCheckedChanged: {
-                    Config.options.bar.utilButtons.showScreenSnip = checked;
-                }
-            }
-            ConfigSwitch {
-                buttonIcon: "colorize"
-                text: Translation.tr("Color picker")
-                checked: Config.options.bar.utilButtons.showColorPicker
-                onCheckedChanged: {
-                    Config.options.bar.utilButtons.showColorPicker = checked;
-                }
-            }
-        }
-        ConfigRow {
-            uniform: true
-            ConfigSwitch {
-                buttonIcon: "keyboard"
-                text: Translation.tr("Keyboard toggle")
-                checked: Config.options.bar.utilButtons.showKeyboardToggle
-                onCheckedChanged: {
-                    Config.options.bar.utilButtons.showKeyboardToggle = checked;
-                }
-            }
-            ConfigSwitch {
-                buttonIcon: "mic"
-                text: Translation.tr("Mic toggle")
-                checked: Config.options.bar.utilButtons.showMicToggle
-                onCheckedChanged: {
-                    Config.options.bar.utilButtons.showMicToggle = checked;
-                }
-            }
-        }
-        ConfigRow {
-            uniform: true
-            ConfigSwitch {
-                buttonIcon: "dark_mode"
-                text: Translation.tr("Dark/Light toggle")
-                checked: Config.options.bar.utilButtons.showDarkModeToggle
-                onCheckedChanged: {
-                    Config.options.bar.utilButtons.showDarkModeToggle = checked;
-                }
-            }
-            ConfigSwitch {
-                buttonIcon: "speed"
-                text: Translation.tr("Performance Profile toggle")
-                checked: Config.options.bar.utilButtons.showPerformanceProfileToggle
-                onCheckedChanged: {
-                    Config.options.bar.utilButtons.showPerformanceProfileToggle = checked;
-                }
-            }
-        }
-        ConfigRow {
-            uniform: true
-            ConfigSwitch {
-                buttonIcon: "videocam"
-                text: Translation.tr("Record")
-                checked: Config.options.bar.utilButtons.showScreenRecord
-                onCheckedChanged: {
-                    Config.options.bar.utilButtons.showScreenRecord = checked;
-                }
-            }
-        }
-    }
+    // ASURA: no "Utility buttons" section; the bar carries none
+    // (modules/ii/bar/BarContent.qml).
 
     ContentSection {
         icon: "cloud"
@@ -255,82 +186,16 @@ ContentPage {
         icon: "workspaces"
         title: Translation.tr("Workspaces")
 
-        ConfigSwitch {
-            buttonIcon: "counter_1"
-            text: Translation.tr('Always show numbers')
-            checked: Config.options.bar.workspaces.alwaysShowNumbers
-            onCheckedChanged: {
-                Config.options.bar.workspaces.alwaysShowNumbers = checked;
-            }
-        }
-
+        // ASURA's workspaces (modules/ii/bar/Workspaces.qml) show only the
+        // workspaces that exist, each with its app's icon or a dot, the
+        // active one underlined; end-4's number, count and delay options do
+        // not apply to it.
         ConfigSwitch {
             buttonIcon: "award_star"
             text: Translation.tr('Show app icons')
             checked: Config.options.bar.workspaces.showAppIcons
             onCheckedChanged: {
                 Config.options.bar.workspaces.showAppIcons = checked;
-            }
-        }
-
-        ConfigSwitch {
-            buttonIcon: "colors"
-            text: Translation.tr('Tint app icons')
-            checked: Config.options.bar.workspaces.monochromeIcons
-            onCheckedChanged: {
-                Config.options.bar.workspaces.monochromeIcons = checked;
-            }
-        }
-
-        ConfigSpinBox {
-            icon: "view_column"
-            text: Translation.tr("Workspaces shown")
-            value: Config.options.bar.workspaces.shown
-            from: 1
-            to: 30
-            stepSize: 1
-            onValueChanged: {
-                Config.options.bar.workspaces.shown = value;
-            }
-        }
-
-        ConfigSpinBox {
-            icon: "touch_long"
-            text: Translation.tr("Number show delay when pressing Super (ms)")
-            value: Config.options.bar.workspaces.showNumberDelay
-            from: 0
-            to: 1000
-            stepSize: 50
-            onValueChanged: {
-                Config.options.bar.workspaces.showNumberDelay = value;
-            }
-        }
-
-        ContentSubsection {
-            title: Translation.tr("Number style")
-
-            ConfigSelectionArray {
-                currentValue: JSON.stringify(Config.options.bar.workspaces.numberMap)
-                onSelected: newValue => {
-                    Config.options.bar.workspaces.numberMap = JSON.parse(newValue)
-                }
-                options: [
-                    {
-                        displayName: Translation.tr("Normal"),
-                        icon: "timer_10",
-                        value: '[]'
-                    },
-                    {
-                        displayName: Translation.tr("Han chars"),
-                        icon: "square_dot",
-                        value: '["一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"]'
-                    },
-                    {
-                        displayName: Translation.tr("Roman"),
-                        icon: "account_balance",
-                        value: '["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX"]'
-                    }
-                ]
             }
         }
     }

@@ -85,7 +85,7 @@ xbps-create \
 	-n "asura-daemon-${VERSION}_1" \
 	-s "Asura OS control plane, session daemons, and system integration" \
 	-m "Asura OS Project <dev@asuraos.dev>" \
-	-l "MIT" \
+	-l "GPL-3.0-only" \
 	-H "https://asuraos.dev" \
 	-D "hyprland quickshell seatd turnstile ghostty papirus-icon-theme font-awesome" \
 	"$STAGE"

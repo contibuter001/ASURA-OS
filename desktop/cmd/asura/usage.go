@@ -81,6 +81,14 @@ Modes:
 
 Flags:
   --root DIR           operate on a tree under this directory
+  --force              (--system) restore even when the snapshot has no modules
+                       for the installed kernel
+
+A system restore renames the current root subvolume (@) aside as
+@pre-rollback-<time>, makes a writable copy of @snapshots/<name> the new @,
+and takes effect at the next reboot; fstab and GRUB already mount @. The old
+root is kept until you delete it. /boot is its own partition and is not
+rolled back.
 `
 
 const materializeUsage = `Usage: asura materialize [flags]

@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -46,5 +47,37 @@ func TestIsBtrfsSnapshotHelper(t *testing.T) {
 	}
 	if !isBtrfsSnapshot(snap) {
 		t.Errorf("isBtrfsSnapshot after mkdir reported false")
+	}
+}
+
+// The restore for the installer's layout: @ aside, a writable snapshot of
+// @snapshots/NAME as @, on the top-level volume mounted by subvolid=5. Nothing
+// is done inside the running root (the old code snapshotted into /@_restored_*,
+// nested in @, and never used it).
+func TestSystemRollbackPlan(t *testing.T) {
+	steps, aside := systemRollbackPlan("/dev/sda2", "/tmp/top", "pre-update-1", "20261118T000000Z")
+	if aside != "@pre-rollback-20261118T000000Z" {
+		t.Fatalf("aside = %q", aside)
+	}
+	want := []string{
+		"mkdir -p /tmp/top",
+		"mount -o subvolid=5 /dev/sda2 /tmp/top",
+		"test -d /tmp/top/@snapshots/pre-update-1",
+		"mv /tmp/top/@ /tmp/top/@pre-rollback-20261118T000000Z",
+		"btrfs subvolume snapshot /tmp/top/@snapshots/pre-update-1 /tmp/top/@",
+		"umount /tmp/top",
+	}
+	if len(steps) != len(want) {
+		t.Fatalf("%d steps, want %d: %v", len(steps), len(want), steps)
+	}
+	for i, step := range steps {
+		if got := strings.Join(step, " "); got != want[i] {
+			t.Errorf("step %d = %q, want %q", i, got, want[i])
+		}
+	}
+	for _, step := range steps {
+		if strings.Contains(strings.Join(step, " "), "-r ") {
+			t.Error("the new @ must be writable: no read-only snapshot")
+		}
 	}
 }

@@ -38,8 +38,10 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # reach this shell exactly as they reach ASURA's own. modules/ii/dock/Dock.qml
 # is ASURA's island dock: only the apps, floating above the edge, always
 # shown, no pin or overview buttons, no window-count marks under its icons
-# (DockAppButton.qml); modules/settings/InterfaceConfig.qml is end-4's settings
-# without the switches for them. modules/ii/bar/Workspaces.qml shows only the
+# (DockAppButton.qml), auto-hiding by default. The Settings pages
+# (modules/settings/{Interface,General,Services,Bar}Config.qml) offer what ASURA's
+# desktop uses: the dock's Auto-hide switch, no AI/anime/translator options (the
+# left sidebar is not loaded), no utility buttons, no unused workspace options. modules/ii/bar/Workspaces.qml shows only the
 # workspaces that exist (the active one and those with windows), no empty slots.
 # modules/ii/bar/BarContent.qml lays the bar out ASURA's way (workspaces at the
 # start, the clock alone in the centre, resources at the end, no window title),
@@ -49,7 +51,9 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # services/GlobalFocusGrab.qml keeps the bar in the focus grab, so a sidebar
 # opened from the bar is not closed by the grab at once.
 # panelFamilies/IllogicalImpulseFamily.qml loads end-4's panels without the
-# left sidebar (AI chat, anime).
+# left sidebar (AI chat, anime). welcome.qml, modules/settings/About.qml and
+# modules/common/widgets/LightDarkPreferenceButton.qml show the ASURA desktop
+# and links instead of upstream's previews and third-party links.
 OVERLAYS="
 shell.qml
 matugen/config.toml
@@ -62,8 +66,14 @@ modules/ii/bar/Resource.qml
 modules/ii/bar/BatteryIndicator.qml
 modules/ii/bar/BarGroup.qml
 modules/settings/InterfaceConfig.qml
+modules/settings/GeneralConfig.qml
+modules/settings/ServicesConfig.qml
+modules/settings/BarConfig.qml
 services/GlobalFocusGrab.qml
 panelFamilies/IllogicalImpulseFamily.qml
+welcome.qml
+modules/settings/About.qml
+modules/common/widgets/LightDarkPreferenceButton.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }
