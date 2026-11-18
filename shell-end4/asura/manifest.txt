@@ -484,7 +484,6 @@ c4b8d721f38d4ed1dbcd89eea2b2abda2cbd3de3 modules/ii/background/widgets/clock/min
 ef626700e966e7f14cc39f67ff0f7310db690c4c modules/ii/background/widgets/weather/WeatherWidget.qml
 b4f1c69cfbc438251710fa9327e71777944e7fb6 modules/ii/bar/ActiveWindow.qml
 67e730677858ce5347548b3729a9a5d93178ba9e modules/ii/bar/Bar.qml
-35769e4050fc2e008d490043d09564d0a2f03f1a modules/ii/bar/BarGroup.qml
 26eda569e2688bc4cbf3741445328b09493968d4 modules/ii/bar/BatteryPopup.qml
 bd80a6c4231d559503a82c3aaad1f70c1c9d92d3 modules/ii/bar/CircleUtilButton.qml
 1d4b9f8659cc3a1957b7cdcf5a83e6ac33f21588 modules/ii/bar/ClockWidget.qml

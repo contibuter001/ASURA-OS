@@ -46,28 +46,14 @@ Item {
         target: Config
         function onReadyChanged(): void { bridge.firstRun(); }
     }
-    Component.onCompleted: {
-        bridge.squareCorners();
-        bridge.firstRun();
-    }
+    Component.onCompleted: bridge.firstRun()
 
-    // ASURA's look is square, like Omarchy's: every radius end-4 draws comes
-    // from Appearance.rounding, so zeroing it here squares the bar, panels,
-    // buttons and popups without editing a vendored file. Windows are squared
-    // in asura/hyprland.conf.
-    function squareCorners(): void {
-        const r = Appearance.rounding;
-        r.unsharpen = 0;
-        r.unsharpenmore = 0;
-        r.verysmall = 0;
-        r.small = 0;
-        r.normal = 0;
-        r.large = 0;
-        r.verylarge = 0;
-        r.full = 0;
-        r.screenRounding = 0;
-        r.windowRounding = 0;
-    }
+    // end-4's own rounding stays as end-4 sets it. Appearance.rounding is not
+    // only corner radii: end-4 also uses those values as margins and padding,
+    // and rounding.full as "a circle", so zeroing them (as an earlier ASURA
+    // build did) collapsed its sidebars' layouts. ASURA's square parts are the
+    // windows (asura/hyprland.conf), the plain bar, no screen corners, and its
+    // own bar widgets, which set their own radii.
     Process {
         id: dockMarker
         command: ["sh", "-c", "m=\"$1/end4-layout-4\"; [ -e \"$m\" ] && exit 1; mkdir -p \"$1\" && touch \"$m\"", "sh", bridge.stateDir]

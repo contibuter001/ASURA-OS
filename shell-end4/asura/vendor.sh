@@ -44,7 +44,8 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # modules/ii/bar/BarContent.qml lays the bar out ASURA's way (workspaces at the
 # start, the clock alone in the centre, resources at the end, no window title),
 # and Resources.qml/Resource.qml are the labelled CPU/RAM/SWAP readouts;
-# BatteryIndicator.qml is the battery in the same style, at the bar's end.
+# BatteryIndicator.qml is the battery in the same style, at the bar's end;
+# BarGroup.qml gives the bar's groups a small fixed radius.
 # services/GlobalFocusGrab.qml keeps the bar in the focus grab, so a sidebar
 # opened from the bar is not closed by the grab at once.
 OVERLAYS="
@@ -57,6 +58,7 @@ modules/ii/bar/BarContent.qml
 modules/ii/bar/Resources.qml
 modules/ii/bar/Resource.qml
 modules/ii/bar/BatteryIndicator.qml
+modules/ii/bar/BarGroup.qml
 modules/settings/InterfaceConfig.qml
 services/GlobalFocusGrab.qml
 "
