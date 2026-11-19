@@ -21,6 +21,10 @@ mkdir -m 700 "$t/run"
 env -i PATH="$PATH" LANG=C.UTF-8 HOME="$t" XDG_RUNTIME_DIR="$t/run" XDG_CONFIG_HOME="$t/c" XDG_CACHE_HOME="$t/k" \
     XDG_STATE_HOME="$t/s" XDG_DATA_HOME="$t/d" QT_QPA_PLATFORM=offscreen \
     timeout -k 2 10 quickshell -p "$tree" >"$t/log" 2>&1 || true
-bad=$(grep -E 'is not installed|is not a type|unresolvable import|ReferenceError' "$t/log" | sort -u | head -20)
+# A type that fails to compile (a property the element does not have, a syntax
+# error) makes every type that uses it "unavailable" and the whole config fails
+# to load: the end-4 desktop's "Quickshell: Reload failed" was one wrong
+# property name in one file.
+bad=$(grep -E 'is not installed|is not a type|unresolvable import|ReferenceError|Failed to load configuration|Type [A-Za-z_.]+ unavailable|non-existent property|Cannot assign to|Syntax ?Error|Expected token' "$t/log" | sort -u | head -20)
 [ -z "$bad" ] || { echo "$bad"; echo "load: $tree does not resolve"; exit 1; }
 echo "load: ok, $tree resolves"

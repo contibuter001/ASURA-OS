@@ -212,6 +212,33 @@ jobs:
           PY
 
   # ==========================================================================
+  # PART 5b: The end-4 desktop loads (Void, Quickshell)
+  # ==========================================================================
+  # The default desktop is QML; a wrong property name in one file makes the
+  # whole config fail to load ("Quickshell: Reload failed") and nothing else in
+  # CI compiles QML. This loads shell-end4/ with the Quickshell and Qt modules
+  # the OS ships (system/packages-void.yaml), offscreen, and fails on any type
+  # that does not compile or resolve. asura update only takes commits that pass.
+  end4-load:
+    name: Shell — end-4 desktop loads (Quickshell)
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    container: ghcr.io/void-linux/void-glibc-full:latest
+    steps:
+      - name: Install Quickshell and the Qt modules from Void's repositories
+        shell: sh
+        run: |
+          xbps-install -Syu xbps
+          xbps-install -Syu
+          xbps-install -y bash git quickshell qt6-base qt6-declarative qt6-svg qt6-multimedia \
+            qt6-wayland qt6-imageformats qt6-qt5compat qt6-position qt6-shadertools \
+            kf6-kirigami kf6-syntax-highlighting
+      - uses: actions/checkout@v5
+      - name: shell-end4 loads
+        shell: sh
+        run: sh tests/contract/load.sh shell-end4
+
+  # ==========================================================================
   # PART 6: Release scripts syntax check
   # ==========================================================================
   release-scripts:
