@@ -6,18 +6,49 @@ import QtQuick.Layouts
 
 StyledPopup {
     id: root
-    
+
     ColumnLayout {
         id: columnLayout
         anchors.centerIn: parent
-        spacing: 4
+        spacing: 6
+        Layout.minimumWidth: 210
 
-        // Header
+        // Header with battery icon, title, and current percentage badge
         StyledPopupHeaderRow {
-            icon: "battery_android_full"
+            id: headerRow
+            icon: Battery.isCharging ? "battery_charging_full" : (Battery.percentage > 0.8 ? "battery_android_full" : (Battery.percentage > 0.2 ? "battery_android_medium" : "battery_android_low"))
             label: Translation.tr("Battery")
+            badge: `${Math.round(Battery.percentage * 100)}%`
+            badgeColor: (Battery.percentage <= 0.2 && !Battery.isCharging) ? Appearance.colors.colError : Appearance.colors.colPrimary
         }
 
+        // Modern horizontal progress bar
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: 6
+            radius: 3
+            color: Appearance.colors.colLayer1
+
+            Rectangle {
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: parent.width * Math.max(0, Math.min(1, Battery.percentage))
+                radius: 3
+                color: (Battery.percentage <= 0.2 && !Battery.isCharging) ? Appearance.colors.colError : Appearance.colors.colPrimary
+            }
+        }
+
+        // Divider
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: 1
+            color: Appearance.colors.colLayer0Border
+            Layout.topMargin: 2
+            Layout.bottomMargin: 2
+        }
+
+        // Time to full / empty
         StyledPopupValueRow {
             visible: {
                 let timeValue = Battery.isCharging ? Battery.timeToFull : Battery.timeToEmpty;
@@ -42,8 +73,9 @@ StyledPopup {
             }
         }
 
+        // State / Power consumption
         StyledPopupValueRow {
-            visible:  !(Battery.chargeState != 4 && Battery.energyRate == 0)
+            visible: !(Battery.chargeState != 4 && Battery.energyRate == 0)
             icon: "bolt"
             label: {
                 if (Battery.chargeState == 4) {
@@ -63,6 +95,7 @@ StyledPopup {
             }
         }
 
+        // Health
         StyledPopupValueRow {
             icon: "heart_check"
             label: Translation.tr("Health:")

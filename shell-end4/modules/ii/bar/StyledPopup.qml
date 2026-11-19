@@ -18,6 +18,7 @@ LazyLoader {
     component: PanelWindow {
         id: popupWindow
         color: "transparent"
+        screen: root.hoverTarget?.QsWindow?.window?.screen ?? root.QsWindow?.window?.screen ?? null
 
         anchors.left: !Config.options.bar.vertical || (Config.options.bar.vertical && !Config.options.bar.bottom)
         anchors.right: Config.options.bar.vertical && Config.options.bar.bottom
@@ -35,21 +36,43 @@ LazyLoader {
         exclusiveZone: 0
         margins {
             left: {
-                if (!Config.options.bar.vertical) return root.QsWindow?.mapFromItem(
-                    root.hoverTarget, 
-                    (root.hoverTarget.width - popupBackground.implicitWidth) / 2, 0
-                ).x;
-                return Appearance.sizes.verticalBarWidth
+                if (!Config.options.bar.vertical) {
+                    let win = root.hoverTarget?.QsWindow ?? root.QsWindow;
+                    let targetScreen = win?.window?.screen ?? popupWindow.screen;
+                    let screenWidth = targetScreen?.width ?? 1920;
+                    let targetX = (root.hoverTarget && win) ? win.mapFromItem(
+                        root.hoverTarget, 
+                        root.hoverTarget.width / 2, 0
+                    ).x : 0;
+                    let idealLeft = targetX - (popupWindow.implicitWidth / 2);
+                    let edgeMargin = 12;
+                    let minLeft = edgeMargin;
+                    let maxLeft = screenWidth - popupWindow.implicitWidth - edgeMargin;
+                    if (maxLeft < minLeft) return minLeft;
+                    return Math.max(minLeft, Math.min(idealLeft, maxLeft));
+                }
+                return Appearance.sizes.verticalBarWidth + 4;
             }
             top: {
-                if (!Config.options.bar.vertical) return Appearance.sizes.barHeight;
-                return root.QsWindow?.mapFromItem(
+                if (!Config.options.bar.vertical) {
+                    return Appearance.sizes.barHeight + 4;
+                }
+                let win = root.hoverTarget?.QsWindow ?? root.QsWindow;
+                let targetScreen = win?.window?.screen ?? popupWindow.screen;
+                let screenHeight = targetScreen?.height ?? 1080;
+                let targetY = (root.hoverTarget && win) ? win.mapFromItem(
                     root.hoverTarget, 
-                    (root.hoverTarget.height - popupBackground.implicitHeight) / 2, 0
-                ).y;
+                    0, root.hoverTarget.height / 2
+                ).y : 0;
+                let idealTop = targetY - (popupWindow.implicitHeight / 2);
+                let edgeMargin = 12;
+                let minTop = edgeMargin;
+                let maxTop = screenHeight - popupWindow.implicitHeight - edgeMargin;
+                if (maxTop < minTop) return minTop;
+                return Math.max(minTop, Math.min(idealTop, maxTop));
             }
-            right: Appearance.sizes.verticalBarWidth
-            bottom: Appearance.sizes.barHeight
+            right: Appearance.sizes.verticalBarWidth + 4
+            bottom: Appearance.sizes.barHeight + 4
         }
         WlrLayershell.namespace: "quickshell:popup"
         WlrLayershell.layer: WlrLayer.Overlay
@@ -60,7 +83,7 @@ LazyLoader {
 
         Rectangle {
             id: popupBackground
-            readonly property real margin: 10
+            readonly property real margin: 12
             anchors {
                 fill: parent
                 leftMargin: Appearance.sizes.elevationMargin + root.popupBackgroundMargin * (!popupWindow.anchors.left)
@@ -70,8 +93,8 @@ LazyLoader {
             }
             implicitWidth: root.contentItem.implicitWidth + margin * 2
             implicitHeight: root.contentItem.implicitHeight + margin * 2
-            color: Appearance.m3colors.m3surfaceContainer
-            radius: Appearance.rounding.small
+            color: Appearance.colors.colLayer0
+            radius: Appearance.rounding.windowRounding
             children: [root.contentItem]
 
             border.width: 1

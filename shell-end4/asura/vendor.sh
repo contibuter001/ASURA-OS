@@ -81,6 +81,11 @@ modules/ii/verticalBar/VerticalClockWidget.qml
 modules/ii/overview/Overview.qml
 modules/ii/overview/SearchBar.qml
 modules/ii/overview/SearchWidget.qml
+modules/ii/bar/StyledPopup.qml
+modules/ii/bar/StyledPopupHeaderRow.qml
+modules/ii/bar/StyledPopupValueRow.qml
+modules/ii/bar/BatteryPopup.qml
+modules/ii/bar/ResourcesPopup.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }

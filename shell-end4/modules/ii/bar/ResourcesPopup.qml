@@ -7,15 +7,15 @@ import QtQuick.Layouts
 StyledPopup {
     id: root
 
-    // Helper function to format KB to GB
     function formatKB(kb) {
         return (kb / (1024 * 1024)).toFixed(1) + " GB";
     }
 
     Row {
         anchors.centerIn: parent
-        spacing: 12
+        spacing: 16
 
+        // RAM Column
         Column {
             anchors.top: parent.top
             spacing: 8
@@ -23,6 +23,7 @@ StyledPopup {
             StyledPopupHeaderRow {
                 icon: "memory"
                 label: "RAM"
+                badge: ResourceUsage.memoryTotal > 0 ? `${Math.round((ResourceUsage.memoryUsed / ResourceUsage.memoryTotal) * 100)}%` : ""
             }
             Column {
                 spacing: 4
@@ -44,6 +45,16 @@ StyledPopup {
             }
         }
 
+        // Divider
+        Rectangle {
+            visible: ResourceUsage.swapTotal > 0
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            implicitWidth: 1
+            color: Appearance.colors.colLayer0Border
+        }
+
+        // Swap Column
         Column {
             visible: ResourceUsage.swapTotal > 0
             anchors.top: parent.top
@@ -52,6 +63,7 @@ StyledPopup {
             StyledPopupHeaderRow {
                 icon: "swap_horiz"
                 label: "Swap"
+                badge: ResourceUsage.swapTotal > 0 ? `${Math.round((ResourceUsage.swapUsed / ResourceUsage.swapTotal) * 100)}%` : ""
             }
             Column {
                 spacing: 4
@@ -73,6 +85,15 @@ StyledPopup {
             }
         }
 
+        // Divider
+        Rectangle {
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            implicitWidth: 1
+            color: Appearance.colors.colLayer0Border
+        }
+
+        // CPU Column
         Column {
             anchors.top: parent.top
             spacing: 8
@@ -80,6 +101,7 @@ StyledPopup {
             StyledPopupHeaderRow {
                 icon: "planner_review"
                 label: "CPU"
+                badge: `${Math.round(ResourceUsage.cpuUsage * 100)}%`
             }
             Column {
                 spacing: 4

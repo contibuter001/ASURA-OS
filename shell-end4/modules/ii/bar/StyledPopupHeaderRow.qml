@@ -7,15 +7,30 @@ Row {
     id: root
     required property var icon
     required property var label
-    spacing: 5
+    property string badge: ""
+    property color badgeColor: Appearance.colors.colPrimary
+    spacing: 8
 
-    MaterialSymbol {
+    Item {
         anchors.verticalCenter: parent.verticalCenter
-        fill: 0
-        font.weight: Font.DemiBold
-        text: root.icon
-        iconSize: Appearance.font.pixelSize.large
-        color: Appearance.colors.colOnSurfaceVariant
+        implicitWidth: 26
+        implicitHeight: 26
+
+        Rectangle {
+            anchors.fill: parent
+            radius: Appearance.rounding.verysmall
+            color: Appearance.colors.colPrimaryContainerActive
+            opacity: 0.7
+        }
+
+        MaterialSymbol {
+            anchors.centerIn: parent
+            fill: 0
+            font.weight: Font.DemiBold
+            text: root.icon
+            iconSize: 18
+            color: Appearance.colors.colPrimary
+        }
     }
 
     StyledText {
@@ -25,6 +40,28 @@ Row {
             weight: Font.DemiBold
             pixelSize: Appearance.font.pixelSize.normal
         }
-        color: Appearance.colors.colOnSurfaceVariant
+        color: Appearance.colors.colOnLayer0
+    }
+
+    Rectangle {
+        visible: root.badge !== ""
+        anchors.verticalCenter: parent.verticalCenter
+        implicitWidth: badgeText.implicitWidth + 10
+        implicitHeight: 20
+        radius: Appearance.rounding.verysmall
+        color: Appearance.colors.colLayer1
+        border.width: 1
+        border.color: Appearance.colors.colLayer0Border
+
+        StyledText {
+            id: badgeText
+            anchors.centerIn: parent
+            text: root.badge
+            font {
+                pixelSize: Appearance.font.pixelSize.smallest
+                weight: Font.DemiBold
+            }
+            color: root.badgeColor
+        }
     }
 }
