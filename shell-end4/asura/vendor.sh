@@ -78,6 +78,7 @@ GlobalStates.qml
 modules/ii/bar/ClockWidget.qml
 modules/ii/sidebarRight/SidebarRightContent.qml
 modules/ii/verticalBar/VerticalClockWidget.qml
+modules/ii/overview/Overview.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }

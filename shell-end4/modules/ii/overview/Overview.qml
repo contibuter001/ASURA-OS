@@ -68,14 +68,14 @@ Scope {
             searchWidget.focusFirstItem();
         }
 
-        Column {
+        Item {
             id: columnLayout
             visible: GlobalStates.overviewOpen
-            anchors {
-                horizontalCenter: parent.horizontalCenter
-                top: parent.top
-            }
-            spacing: -8
+            anchors.centerIn: parent
+            implicitWidth: searchWidget.implicitWidth
+            implicitHeight: searchWidget.implicitHeight
+            width: implicitWidth
+            height: implicitHeight
 
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Escape) {
@@ -85,19 +85,9 @@ Scope {
 
             SearchWidget {
                 id: searchWidget
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.centerIn: parent
                 Synchronizer on searchingText {
                     property alias source: panelWindow.searchingText
-                }
-            }
-
-            Loader {
-                id: overviewLoader
-                anchors.horizontalCenter: parent.horizontalCenter
-                active: GlobalStates.overviewOpen && (Config?.options.overview.enable ?? true)
-                visible: (panelWindow.searchingText == "")
-                sourceComponent: OverviewWidget {
-                    screen: panelWindow.screen
                 }
             }
         }
