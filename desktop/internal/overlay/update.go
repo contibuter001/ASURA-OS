@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -111,6 +112,12 @@ func recordRevision(paths Paths) (Revision, error) {
 	}
 
 	if err := writeRevision(paths, revision); err != nil {
+		return Revision{}, err
+	}
+	// Run as root (sudo asura update) the state directory is still the
+	// user's: hand what was just written to its owner, or the user's own
+	// update can never remove it.
+	if err := giveToStateOwner(paths.State, preserved, filepath.Join(paths.State, revisionsDir)); err != nil {
 		return Revision{}, err
 	}
 	// Each revision is a full copy of the base (tens of MB); without a limit
@@ -398,9 +405,47 @@ func pruneRevisions(paths Paths, keep int) error {
 		if i >= len(names)-keep || protected[name] {
 			continue
 		}
-		if err := os.RemoveAll(filepath.Join(dir, name)); err != nil {
-			return fmt.Errorf("update: removing old revision %s: %w", name, err)
+		// Removing an old revision is housekeeping: one that cannot go (made
+		// by an earlier `sudo asura update`, so root's) is left, never a
+		// reason to fail the update.
+		target := filepath.Join(dir, name)
+		if err := os.RemoveAll(target); err != nil {
+			fmt.Fprintf(os.Stderr, "asura update: could not remove the old revision %s (%v); remove it with: sudo rm -r %s\n", name, err, target)
 		}
+	}
+	return nil
+}
+
+// giveToStateOwner chowns the given paths (recursively) to the owner of the
+// state directory when running as root and that owner is not root. Anything
+// else is a no-op.
+func giveToStateOwner(state string, paths ...string) error {
+	if os.Geteuid() != 0 {
+		return nil
+	}
+	info, err := os.Stat(state)
+	if err != nil {
+		return nil
+	}
+	st, ok := info.Sys().(*syscall.Stat_t)
+	if !ok || st.Uid == 0 {
+		return nil
+	}
+	uid, gid := int(st.Uid), int(st.Gid)
+	for _, root := range paths {
+		err := filepath.Walk(root, func(path string, _ os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			return os.Lchown(path, uid, gid)
+		})
+		if err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("update: giving %s to its owner: %w", root, err)
+		}
+	}
+	// The current-revision pointer sits at the state root.
+	for _, entry := range []string{revisionFile} {
+		_ = os.Lchown(filepath.Join(state, entry), uid, gid)
 	}
 	return nil
 }
