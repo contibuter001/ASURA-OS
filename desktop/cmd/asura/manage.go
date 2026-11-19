@@ -214,6 +214,9 @@ func reportSessionChecks(root string, paths overlay.Paths, fix bool) int {
 	if hwCode := reportHardwarePower(root, fix); hwCode != exitOK {
 		code = hwCode
 	}
+	if migCode := reportMigrationState(root); migCode != exitOK {
+		code = migCode
+	}
 	reportDeps(root, runner.Exec(10*time.Second))
 	return code
 }
