@@ -93,6 +93,7 @@ Scope {
                     horizontalCenter: parent.horizontalCenter
                 }
                 implicitWidth: dockRow.implicitWidth + root.islandPadding * 2
+                width: implicitWidth
 
                 // Slides off the bottom edge while hidden.
                 opacity: dockRoot.reveal ? 1 : 0

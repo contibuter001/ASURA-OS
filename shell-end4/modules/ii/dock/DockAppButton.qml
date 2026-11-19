@@ -17,10 +17,102 @@ DockButton {
     property real iconSize: 35
     property real countDotWidth: 10
     property real countDotHeight: 4
-    property bool appIsActive: appToplevel.toplevels.find(t => (t.activated == true)) !== undefined
+    property bool appIsActive: appToplevel?.toplevels ? (appToplevel.toplevels.find(t => (t.activated == true)) !== undefined) : false
 
-    readonly property bool isSeparator: appToplevel.appId === "SEPARATOR"
-    property var desktopEntry: DesktopEntries.heuristicLookup(appToplevel.appId)
+    readonly property bool isSeparator: appToplevel?.appId === "SEPARATOR"
+    property var desktopEntry: resolveDesktopEntry()
+
+    function resolveDesktopEntry() {
+        if (root.isSeparator || !appToplevel?.appId) return null;
+        let id = appToplevel.appId;
+        let entry = DesktopEntries.byId(id) || DesktopEntries.heuristicLookup(id);
+        if (entry) return entry;
+
+        let idLower = id.toLowerCase();
+        // File manager fallback (e.g. thunar on systems with nautilus/dolphin/pcmanfm)
+        if (idLower.includes("thunar") || idLower.includes("file") || idLower.includes("fm") || idLower.includes("nautilus")) {
+            for (let name of ["thunar", "org.gnome.Nautilus", "nautilus", "org.kde.dolphin", "pcmanfm"]) {
+                let e = DesktopEntries.byId(name) || DesktopEntries.heuristicLookup(name);
+                if (e) return e;
+            }
+        }
+        // Browser fallback (e.g. firefox on systems with brave/chrome)
+        if (idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
+            for (let name of ["firefox", "brave-browser", "google-chrome", "chromium", "com.brave.Browser", "com.google.Chrome"]) {
+                let e = DesktopEntries.byId(name) || DesktopEntries.heuristicLookup(name);
+                if (e) return e;
+            }
+        }
+        // Terminal fallback
+        if (idLower.includes("ghostty") || idLower.includes("term") || idLower.includes("terminal")) {
+            for (let name of ["com.mitchellh.ghostty", "ghostty", "kitty", "foot", "org.gnome.Ptyxis", "alacritty"]) {
+                let e = DesktopEntries.byId(name) || DesktopEntries.heuristicLookup(name);
+                if (e) return e;
+            }
+        }
+
+        // Search by substring in DesktopEntries
+        if (DesktopEntries?.applications?.values) {
+            for (let app of DesktopEntries.applications.values) {
+                let appIdLower = (app.id ?? "").toLowerCase();
+                let appNameLower = (app.name ?? "").toLowerCase();
+                if (appIdLower === idLower || appIdLower.includes(idLower) || appNameLower.includes(idLower)) {
+                    return app;
+                }
+            }
+        }
+        return null;
+    }
+
+    function launchApp() {
+        if (root.desktopEntry) {
+            try {
+                root.desktopEntry.execute();
+                return;
+            } catch (e) {
+                console.warn("Failed to execute desktopEntry:", e);
+            }
+        }
+
+        let idLower = (appToplevel?.appId ?? "").toLowerCase();
+
+        // Direct executable / system fallbacks
+        if (idLower === "asura-store") {
+            const storePaths = [
+                "asura-store",
+                "/usr/local/bin/asura-store",
+                "/usr/bin/asura-store",
+                Directories.home + "/.local/bin/asura-store",
+                Directories.home + "/code/asura/asura-store/bin/asura-store"
+            ];
+            for (let p of storePaths) {
+                try {
+                    Quickshell.execDetached([p, "open", "discover"]);
+                    return;
+                } catch (_) {}
+            }
+        }
+
+        if (idLower.includes("thunar") || idLower.includes("file") || idLower.includes("fm") || idLower.includes("nautilus")) {
+            Quickshell.execDetached(["xdg-open", Directories.home]);
+            return;
+        }
+
+        if (idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
+            Quickshell.execDetached(["xdg-open", "https://"]);
+            return;
+        }
+
+        if (idLower.includes("ghostty") || idLower.includes("term")) {
+            Quickshell.execDetached(["ghostty"]);
+            return;
+        }
+
+        if (appToplevel?.appId) {
+            Quickshell.execDetached([appToplevel.appId]);
+        }
+    }
+
     enabled: !isSeparator
     implicitWidth: isSeparator ? 1 : implicitHeight - topInset - bottomInset
 
@@ -28,7 +120,7 @@ DockButton {
         target: DesktopEntries
 
         function onApplicationsChanged() {
-            root.desktopEntry = DesktopEntries.heuristicLookup(appToplevel.appId);
+            root.desktopEntry = root.resolveDesktopEntry();
         }
     }
 
@@ -44,7 +136,7 @@ DockButton {
 
     Loader {
         anchors.fill: parent
-        active: appToplevel.toplevels.length > 0
+        active: appToplevel?.toplevels ? appToplevel.toplevels.length > 0 : false
         sourceComponent: MouseArea {
             id: mouseArea
             anchors.fill: parent
@@ -64,8 +156,8 @@ DockButton {
     }
 
     onClicked: {
-        if (appToplevel.toplevels.length === 0) {
-            root.desktopEntry?.execute();
+        if (!appToplevel?.toplevels || appToplevel.toplevels.length === 0) {
+            root.launchApp();
             return;
         }
         lastFocused = (lastFocused + 1) % appToplevel.toplevels.length
@@ -73,11 +165,13 @@ DockButton {
     }
 
     middleClickAction: () => {
-        root.desktopEntry?.execute();
+        root.launchApp();
     }
 
     altAction: () => {
-        TaskbarApps.togglePin(appToplevel.appId);
+        if (appToplevel?.appId) {
+            TaskbarApps.togglePin(appToplevel.appId);
+        }
     }
 
     contentItem: Loader {
@@ -94,7 +188,12 @@ DockButton {
                 }
                 active: !root.isSeparator
                 sourceComponent: IconImage {
-                    source: Quickshell.iconPath(AppSearch.guessIcon(appToplevel.appId), "image-missing")
+                    source: {
+                        if (root.desktopEntry && root.desktopEntry.icon) {
+                            return Quickshell.iconPath(root.desktopEntry.icon, "image-missing");
+                        }
+                        return Quickshell.iconPath(AppSearch.guessIcon(appToplevel?.appId ?? ""), "image-missing");
+                    }
                     implicitSize: root.iconSize
                 }
             }
