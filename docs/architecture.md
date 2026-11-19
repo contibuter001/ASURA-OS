@@ -313,6 +313,7 @@ rule is what makes rollback possible.
 |---|---|
 | `asura update` | snapshot `~/.config` to git, pull `dev-unstable` and apply it with `installation/apply-repo.sh` (everything the ISO installs from the repo, the Go tools rebuilt, packages new in the manifest), update xbps packages, re-materialize base, repaint |
 | `asura refresh` | apply installed changes to the running session: re-sync user services, `hyprctl reload`, restart the shell and ASURA's daemons (the last step of `asura update`) |
+| `asura migrate` | run the one-time fixes (`migrations/`) this machine and user have not run yet; `asura update` runs it after applying ASURA (see `docs/migrations.md`) |
 | `asura rollback` | re-materialize the previous revision |
 | `asura materialize <path>` | re-lay the base file, clobbering shipped content |
 | `asura reset <path>` | drop one overlay file back to the base |
