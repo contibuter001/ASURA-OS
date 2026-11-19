@@ -9,6 +9,14 @@ export XDG_CURRENT_DESKTOP=Asura
 export XDG_SESSION_DESKTOP=asura
 export DESKTOP_SESSION=asura
 export GDK_BACKEND=wayland
+# What a Wayland session's apps expect, for anything the shell starts itself:
+# this runs under a runit supervisor that can start before the compositor,
+# with none of the session's environment.
+export XDG_SESSION_TYPE=wayland
+export MOZ_ENABLE_WAYLAND=1
+if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] && [ -S "$RUNTIME_DIR/bus" ]; then
+	export DBUS_SESSION_BUS_ADDRESS="unix:path=$RUNTIME_DIR/bus"
+fi
 
 # Resolve WAYLAND_DISPLAY from runtime socket if empty or invalid
 for _ in $(seq 1 50); do
