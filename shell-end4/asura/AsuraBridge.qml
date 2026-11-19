@@ -102,6 +102,9 @@ Item {
         // quick settings and notifications are its right sidebar.
         function togglePopover(name: string): void {
             switch (name) {
+            case "calendar":
+                GlobalStates.calendarOpen = !GlobalStates.calendarOpen;
+                break;
             case "quick":
             case "sidebar":
                 GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;

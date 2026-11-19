@@ -129,9 +129,10 @@ Item { // Bar content region
             anchors.verticalCenter: parent.verticalCenter
             implicitWidth: rightCenterGroupContent.implicitWidth
             implicitHeight: rightCenterGroupContent.implicitHeight
+            cursorShape: Qt.PointingHandCursor
 
             onClicked: {
-                GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
+                GlobalStates.calendarOpen = !GlobalStates.calendarOpen;
             }
 
             BarGroup {

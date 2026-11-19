@@ -36,14 +36,4 @@ Item {
             text: DateTime.longDate
         }
     }
-
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        hoverEnabled: !Config.options.bar.tooltips.clickToShow
-
-        ClockWidgetPopup {
-            hoverTarget: mouseArea
-        }
-    }
 }

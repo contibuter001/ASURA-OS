@@ -10,6 +10,7 @@ pragma ComponentBehavior: Bound
 Singleton {
     id: root
     property bool barOpen: true
+    property bool calendarOpen: false
     property bool crosshairOpen: false
     property bool sidebarLeftOpen: false
     property bool sidebarRightOpen: false
@@ -33,8 +34,15 @@ Singleton {
 
     onSidebarRightOpenChanged: {
         if (GlobalStates.sidebarRightOpen) {
+            GlobalStates.calendarOpen = false;
             Notifications.timeoutAll();
             Notifications.markAllRead();
+        }
+    }
+
+    onCalendarOpenChanged: {
+        if (GlobalStates.calendarOpen) {
+            GlobalStates.sidebarRightOpen = false;
         }
     }
 

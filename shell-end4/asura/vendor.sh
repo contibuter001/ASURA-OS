@@ -74,6 +74,10 @@ panelFamilies/IllogicalImpulseFamily.qml
 welcome.qml
 modules/settings/About.qml
 modules/common/widgets/LightDarkPreferenceButton.qml
+GlobalStates.qml
+modules/ii/bar/ClockWidget.qml
+modules/ii/sidebarRight/SidebarRightContent.qml
+modules/ii/verticalBar/VerticalClockWidget.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }
