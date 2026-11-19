@@ -79,27 +79,94 @@ DockButton {
     }
 
     function launchApp() {
-        const entry = root.desktopEntry;
-        const command = entry && entry.command ? Array.from(entry.command) : [];
-        if (command.length > 0) {
-            root.hyprExec(entry.runInTerminal ? ["ghostty", "-e"].concat(command) : command);
-            return;
-        }
-        if (entry) {
-            console.log("[dock] launching", entry.id, "with execute(): it has no parsed command");
-            entry.execute();
+        const idLower = (appToplevel?.appId ?? "").toLowerCase();
+
+        // Standard desktop roles: launch via asura-app so the user's default app
+        // is honored with proper environment, working directory, and terminal wrapping.
+        if (idLower.includes("ghostty") || idLower.includes("terminal") || idLower.includes("term")) {
+            try {
+                Quickshell.execDetached(["asura-app", "terminal"]);
+                return;
+            } catch (_) {}
+            try {
+                Quickshell.execDetached(["ghostty"]);
+                return;
+            } catch (_) {}
+            root.hyprExec(["asura-app", "terminal"]);
             return;
         }
 
-        // No desktop entry: what the pinned id plainly names.
-        const idLower = (appToplevel?.appId ?? "").toLowerCase();
-        if (idLower === "asura-store") {
+        if (idLower.includes("thunar") || idLower.includes("nautilus") || idLower.includes("file") || idLower.includes("fm")) {
+            try {
+                Quickshell.execDetached(["asura-app", "files"]);
+                return;
+            } catch (_) {}
+            try {
+                Quickshell.execDetached(["thunar"]);
+                return;
+            } catch (_) {}
+            root.hyprExec(["asura-app", "files"]);
+            return;
+        }
+
+        if (idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
+            try {
+                Quickshell.execDetached(["asura-app", "browser"]);
+                return;
+            } catch (_) {}
+            try {
+                Quickshell.execDetached(["firefox"]);
+                return;
+            } catch (_) {}
+            root.hyprExec(["asura-app", "browser"]);
+            return;
+        }
+
+        if (idLower === "asura-store" || idLower.includes("store")) {
+            const storePaths = [
+                "asura-store",
+                "/usr/local/bin/asura-store",
+                "/usr/bin/asura-store",
+                (Directories.home ?? "") + "/.local/bin/asura-store"
+            ];
+            for (let p of storePaths) {
+                try {
+                    Quickshell.execDetached([p, "open", "discover"]);
+                    return;
+                } catch (_) {}
+            }
             root.hyprExec(["asura-store", "open", "discover"]);
-        } else if (idLower.includes("thunar") || idLower.includes("nautilus")) {
-            root.hyprExec(["xdg-open", Directories.home]);
-        } else if (idLower.includes("ghostty") || idLower.includes("term")) {
-            root.hyprExec(["ghostty"]);
-        } else if (appToplevel?.appId) {
+            return;
+        }
+
+        // Generic apps: try desktop entry first
+        const entry = root.desktopEntry || root.resolveDesktopEntry();
+        if (entry) {
+            try {
+                entry.execute();
+                return;
+            } catch (e) {
+                console.warn("[dock] entry.execute() failed:", e);
+            }
+
+            const command = entry.command ? Array.from(entry.command) : [];
+            if (command.length > 0) {
+                const fullCmd = entry.runInTerminal ? ["asura-app", "terminal", "--"].concat(command) : command;
+                try {
+                    Quickshell.execDetached(fullCmd);
+                    return;
+                } catch (_) {}
+                root.hyprExec(fullCmd);
+                return;
+            }
+        }
+
+        // Fallback: direct execution
+        if (appToplevel?.appId) {
+            try {
+                Quickshell.execDetached([appToplevel.appId]);
+                return;
+            } catch (_) {}
             root.hyprExec([appToplevel.appId]);
         } else {
             console.warn("[dock] nothing to launch: the button has no app id");
