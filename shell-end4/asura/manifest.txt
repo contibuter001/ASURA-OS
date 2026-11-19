@@ -545,9 +545,7 @@ e52c226b1dfa5a8693d094fdb92311c9dd902b92 modules/ii/overlay/notes/NotesContent.q
 9a93e80b53f732991fb82106520e78522f713d39 modules/ii/overlay/volumeMixer/VolumeMixer.qml
 71b3ad6b9ae505ee32efcd531d6fe10077be768e modules/ii/overview/OverviewWidget.qml T
 0032bf0610bd6d408528b8a48c686d099b01adf2 modules/ii/overview/OverviewWindow.qml
-56a7f05746ee751cad741e23c0be939aae1296a5 modules/ii/overview/SearchBar.qml
 42649b9a312173ea9bd048a4970b9cad1efaefa6 modules/ii/overview/SearchItem.qml
-c99b930c11a2cfb782677935bbfe0b6323500c08 modules/ii/overview/SearchWidget.qml
 50f04f675c76a2aab040dd94fa3888ec44065420 modules/ii/polkit/Polkit.qml
 7dfd045dbc80136a35a4db35aa280ef2ee1499b5 modules/ii/polkit/PolkitContent.qml
 c0f823fbe7031d15b29477595409df659730deb5 modules/ii/regionSelector/CircleSelectionDetails.qml

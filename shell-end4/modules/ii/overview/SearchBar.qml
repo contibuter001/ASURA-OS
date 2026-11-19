@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import qs
 import qs.services
@@ -10,10 +11,13 @@ import qs.modules.common.functions
 
 RowLayout {
     id: root
-    spacing: 6
+    spacing: 12
     property bool animateWidth: false
     property alias searchInput: searchInput
     property string searchingText
+
+    signal accepted()
+    signal navigateDown()
 
     function forceFocus() {
         searchInput.forceActiveFocus();
@@ -31,63 +35,79 @@ RowLayout {
         if (root.searchingText.startsWith(Config.options.search.prefix.webSearch)) return SearchBar.SearchPrefixType.WebSearch;
         return SearchBar.SearchPrefixType.DefaultSearch;
     }
-    
-    MaterialShapeWrappedMaterialSymbol {
-        id: searchIcon
-        Layout.alignment: Qt.AlignVCenter
-        iconSize: Appearance.font.pixelSize.huge
-        shape: switch(root.searchPrefixType) {
-            case SearchBar.SearchPrefixType.Action: return MaterialShape.Shape.Pill;
-            case SearchBar.SearchPrefixType.App: return MaterialShape.Shape.Clover4Leaf;
-            case SearchBar.SearchPrefixType.Clipboard: return MaterialShape.Shape.Gem;
-            case SearchBar.SearchPrefixType.Emojis: return MaterialShape.Shape.Sunny;
-            case SearchBar.SearchPrefixType.Math: return MaterialShape.Shape.PuffyDiamond;
-            case SearchBar.SearchPrefixType.ShellCommand: return MaterialShape.Shape.PixelCircle;
-            case SearchBar.SearchPrefixType.WebSearch: return MaterialShape.Shape.SoftBurst;
-            default: return MaterialShape.Shape.Cookie7Sided;
-        }
-        text: switch (root.searchPrefixType) {
-            case SearchBar.SearchPrefixType.Action: return "settings_suggest";
-            case SearchBar.SearchPrefixType.App: return "apps";
-            case SearchBar.SearchPrefixType.Clipboard: return "content_paste_search";
-            case SearchBar.SearchPrefixType.Emojis: return "add_reaction";
-            case SearchBar.SearchPrefixType.Math: return "calculate";
-            case SearchBar.SearchPrefixType.ShellCommand: return "terminal";
-            case SearchBar.SearchPrefixType.WebSearch: return "travel_explore";
-            case SearchBar.SearchPrefixType.DefaultSearch: return "search";
-            default: return "search";
-        }
-    }
-    ToolbarTextField { // Search box
-        id: searchInput
-        Layout.topMargin: 4
-        Layout.bottomMargin: 4
-        implicitHeight: 40
-        focus: GlobalStates.overviewOpen
-        font.pixelSize: Appearance.font.pixelSize.small
-        placeholderText: Translation.tr("Search, calculate or run")
-        implicitWidth: root.searchingText == "" ? Appearance.sizes.searchWidthCollapsed : Appearance.sizes.searchWidth
 
-        Behavior on implicitWidth {
-            id: searchWidthBehavior
-            enabled: root.animateWidth
-            NumberAnimation {
-                duration: 300
-                easing.type: Appearance.animation.elementMove.type
-                easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
+    implicitHeight: 52
+    Layout.fillWidth: true
+    Layout.preferredHeight: 52
+    Layout.leftMargin: 16
+    Layout.rightMargin: 16
+
+    Item {
+        id: iconContainer
+        Layout.alignment: Qt.AlignVCenter
+        implicitWidth: 28
+        implicitHeight: 28
+
+        MaterialSymbol {
+            anchors.centerIn: parent
+            iconSize: 22
+            color: root.searchPrefixType !== SearchBar.SearchPrefixType.DefaultSearch
+                ? Appearance.colors.colPrimary
+                : Appearance.colors.colSubtext
+            text: switch (root.searchPrefixType) {
+                case SearchBar.SearchPrefixType.Action: return "settings_suggest";
+                case SearchBar.SearchPrefixType.App: return "apps";
+                case SearchBar.SearchPrefixType.Clipboard: return "content_paste_search";
+                case SearchBar.SearchPrefixType.Emojis: return "add_reaction";
+                case SearchBar.SearchPrefixType.Math: return "calculate";
+                case SearchBar.SearchPrefixType.ShellCommand: return "terminal";
+                case SearchBar.SearchPrefixType.WebSearch: return "travel_explore";
+                case SearchBar.SearchPrefixType.DefaultSearch: return "search";
+                default: return "search";
             }
         }
+    }
+
+    TextField {
+        id: searchInput
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        Layout.alignment: Qt.AlignVCenter
+        focus: GlobalStates.overviewOpen
+
+        font {
+            family: Appearance.font.family.main
+            pixelSize: Appearance.font.pixelSize.larger
+            hintingPreference: Font.PreferFullHinting
+            variableAxes: Appearance.font.variableAxes.main
+        }
+        color: Appearance.colors.colOnLayer0
+        placeholderTextColor: Appearance.colors.colSubtext
+        placeholderText: switch (root.searchPrefixType) {
+            case SearchBar.SearchPrefixType.Action: return Translation.tr("Search actions...");
+            case SearchBar.SearchPrefixType.App: return Translation.tr("Search applications...");
+            case SearchBar.SearchPrefixType.Clipboard: return Translation.tr("Search clipboard history...");
+            case SearchBar.SearchPrefixType.Emojis: return Translation.tr("Search emojis...");
+            case SearchBar.SearchPrefixType.Math: return Translation.tr("Calculate expression...");
+            case SearchBar.SearchPrefixType.ShellCommand: return Translation.tr("Run shell command...");
+            case SearchBar.SearchPrefixType.WebSearch: return Translation.tr("Search the web...");
+            default: return Translation.tr("Search apps, files, or run commands...");
+        }
+        selectedTextColor: Appearance.colors.colOnSecondaryContainer
+        selectionColor: Appearance.colors.colSecondaryContainer
+        renderType: Text.NativeRendering
+        verticalAlignment: TextInput.AlignVCenter
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomMargin: 0
+
+        background: null
 
         onTextChanged: LauncherSearch.query = text
 
         onAccepted: {
-            if (appResults.count > 0) {
-                // Get the first visible delegate and trigger its click
-                let firstItem = appResults.itemAtIndex(0);
-                if (firstItem && firstItem.clicked) {
-                    firstItem.clicked();
-                }
-            }
+            root.accepted();
         }
 
         Keys.onPressed: event => {
@@ -97,63 +117,58 @@ RowLayout {
                 LauncherSearch.query = tabbedText;
                 searchInput.text = tabbedText;
                 event.accepted = true;
+            } else if (event.key === Qt.Key_Down) {
+                root.navigateDown();
+                event.accepted = true;
             }
         }
     }
 
-    IconToolbarButton {
-        Layout.topMargin: 4
-        Layout.bottomMargin: 4
+    RippleButton {
+        id: clearButton
+        visible: root.searchingText !== ""
+        Layout.alignment: Qt.AlignVCenter
+        implicitWidth: 28
+        implicitHeight: 28
+        buttonRadius: 14
+        colBackground: hovered ? Appearance.colors.colLayer1Hover : "transparent"
+        colBackgroundHover: Appearance.colors.colLayer1Hover
+        colRipple: Appearance.colors.colLayer1Active
+
+        PointingHandInteraction {}
+
+        MaterialSymbol {
+            anchors.centerIn: parent
+            iconSize: 16
+            color: clearButton.hovered ? Appearance.colors.colOnLayer0 : Appearance.colors.colSubtext
+            text: "close"
+        }
+
         onClicked: {
-            GlobalStates.overviewOpen = false;
-            Quickshell.execDetached(["qs", "-p", Quickshell.shellPath(""), "ipc", "call", "region", "search"]);
-        }
-        text: "image_search"
-        StyledToolTip {
-            text: Translation.tr("Google Lens")
+            searchInput.text = "";
+            LauncherSearch.query = "";
+            searchInput.forceActiveFocus();
         }
     }
 
-    IconToolbarButton {
-        id: songRecButton
-        Layout.topMargin: 4
-        Layout.bottomMargin: 4
-        Layout.rightMargin: 4
-        toggled: SongRec.running
-        onClicked: SongRec.toggleRunning()
-        text: "music_cast"
+    Rectangle {
+        id: escBadge
+        visible: root.searchingText === ""
+        Layout.alignment: Qt.AlignVCenter
+        implicitWidth: escText.implicitWidth + 14
+        implicitHeight: 22
+        radius: 6
+        color: Appearance.colors.colLayer1
+        border.width: 1
+        border.color: Appearance.colors.colLayer0Border
 
-        StyledToolTip {
-            text: Translation.tr("Recognize music")
-        }
-
-        colText: toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSurfaceVariant
-        background: MaterialShape {
-            RotationAnimation on rotation {
-                running: songRecButton.toggled
-                duration: 12000
-                easing.type: Easing.Linear
-                loops: Animation.Infinite
-                from: 0
-                to: 360
-            }
-            shape: {
-                if (songRecButton.down) {
-                    return songRecButton.toggled ? MaterialShape.Shape.Circle : MaterialShape.Shape.Square
-                } else {
-                    return songRecButton.toggled ? MaterialShape.Shape.SoftBurst : MaterialShape.Shape.Circle
-                }
-            }
-            color: {
-                if (songRecButton.toggled) {
-                    return songRecButton.hovered ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
-                } else {
-                    return songRecButton.hovered ? Appearance.colors.colSurfaceContainerHigh : ColorUtils.transparentize(Appearance.colors.colSurfaceContainerHigh)
-                }
-            }
-            Behavior on color {
-                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-            }
+        StyledText {
+            id: escText
+            anchors.centerIn: parent
+            text: "ESC"
+            font.pixelSize: Appearance.font.pixelSize.smallest
+            font.weight: Font.DemiBold
+            color: Appearance.colors.colSubtext
         }
     }
 }

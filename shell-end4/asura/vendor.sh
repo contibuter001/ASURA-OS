@@ -79,6 +79,8 @@ modules/ii/bar/ClockWidget.qml
 modules/ii/sidebarRight/SidebarRightContent.qml
 modules/ii/verticalBar/VerticalClockWidget.qml
 modules/ii/overview/Overview.qml
+modules/ii/overview/SearchBar.qml
+modules/ii/overview/SearchWidget.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }
