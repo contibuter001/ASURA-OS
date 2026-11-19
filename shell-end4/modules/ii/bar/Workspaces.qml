@@ -29,15 +29,18 @@ ButtonMouseArea {
     property real workspaceButtonWidth: 26
     property real iconSize: workspaceButtonWidth * 0.69
 
-    // The workspaces on this monitor: every regular one Hyprland has, plus the
-    // active one, by id.
+    // The workspaces on this monitor: every regular one Hyprland has with windows,
+    // plus the active one (at most one empty workspace is shown).
     readonly property var shownIds: {
         const monitorId = root.monitor?.id;
-        const ids = HyprlandData.workspaces
-            .filter(ws => ws.id > 0 && (monitorId === undefined || ws.monitorID === monitorId))
+        const withWindows = HyprlandData.workspaces
+            .filter(ws => ws.id > 0 && (monitorId === undefined || ws.monitorID === monitorId) && ws.windows > 0)
             .map(ws => ws.id);
-        if (root.activeId > 0 && !ids.includes(root.activeId))
+
+        let ids = [...withWindows];
+        if (root.activeId > 0 && !ids.includes(root.activeId)) {
             ids.push(root.activeId);
+        }
         return ids.sort((a, b) => a - b);
     }
 
@@ -64,6 +67,48 @@ ButtonMouseArea {
         rowSpacing: 2
         columnSpacing: 2
 
+        // ASURA Logo Button
+        Rectangle {
+            id: asuraLogoBtn
+            implicitWidth: root.workspaceButtonWidth + 2
+            implicitHeight: root.workspaceButtonWidth
+            radius: 4
+            color: logoMouse.containsMouse ? Appearance.colors.colLayer1Hover : "transparent"
+            Behavior on color {
+                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            }
+
+            Image {
+                anchors.centerIn: parent
+                width: 18
+                height: 18
+                source: Appearance.m3colors.darkmode 
+                    ? Quickshell.shellPath("assets/icons/asura-logo.svg") 
+                    : Quickshell.shellPath("assets/icons/asura-logo-dark.svg")
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+            }
+
+            MouseArea {
+                id: logoMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: event => {
+                    if (event.button === Qt.RightButton) {
+                        Quickshell.execDetached(["asura-shell", "hub", "open"]);
+                    } else {
+                        GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
+                    }
+                }
+            }
+
+            StyledToolTip {
+                text: Translation.tr("ASURA Menu (Super)")
+            }
+        }
+
         Repeater {
             model: root.shownIds
 
@@ -76,9 +121,9 @@ ButtonMouseArea {
 
                 implicitWidth: root.workspaceButtonWidth
                 implicitHeight: root.workspaceButtonWidth
-                radius: 3
+                radius: 4
                 // No fill for the active one: it is underlined. Hover tints.
-                color: ws.hovered ? Appearance.colors.colLayer1Hover : "transparent"
+                color: ws.active ? Appearance.colors.colSecondaryContainer : (ws.hovered ? Appearance.colors.colLayer1Hover : "transparent")
                 Behavior on color {
                     animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
                 }
@@ -88,15 +133,15 @@ ButtonMouseArea {
                     visible: !!ws.mainWindow && (Config.options?.bar.workspaces.showAppIcons ?? true)
                     implicitSize: root.iconSize
                     source: Quickshell.iconPath(AppSearch.guessIcon(ws.mainWindow?.class), "image-missing")
-                    opacity: ws.active ? 1 : 0.7
+                    opacity: ws.active ? 1 : 0.75
                 }
-                Rectangle { // a workspace with no window: a dot, not its number
+                StyledText {
                     anchors.centerIn: parent
                     visible: !ws.mainWindow || !(Config.options?.bar.workspaces.showAppIcons ?? true)
-                    width: 6
-                    height: 6
-                    radius: 3
-                    color: ws.active ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer1Inactive
+                    text: `${ws.modelData}`
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.weight: ws.active ? Font.Bold : Font.DemiBold
+                    color: ws.active ? Appearance.colors.colPrimary : (ws.hovered ? Appearance.colors.colOnLayer1 : Appearance.colors.colSubtext)
                 }
                 Rectangle { // the active workspace's underline
                     anchors {
@@ -119,6 +164,48 @@ ButtonMouseArea {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: Hyprland.dispatch(`workspace ${ws.modelData}`)
                 }
+
+                StyledToolTip {
+                    text: ws.mainWindow ? `${ws.modelData}: ${ws.mainWindow.title || ws.mainWindow.class}` : Translation.tr("Workspace %1").arg(ws.modelData)
+                }
+            }
+        }
+
+        // Add tab (+) button
+        Rectangle {
+            id: addTabButton
+            implicitWidth: root.workspaceButtonWidth
+            implicitHeight: root.workspaceButtonWidth
+            radius: 4
+            color: addTabMouse.containsMouse ? Appearance.colors.colLayer1Hover : "transparent"
+            Behavior on color {
+                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            }
+
+            MaterialSymbol {
+                anchors.centerIn: parent
+                text: "add"
+                iconSize: 16
+                color: addTabMouse.containsMouse ? Appearance.colors.colOnLayer1 : Appearance.colors.colSubtext
+            }
+
+            MouseArea {
+                id: addTabMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton
+                onClicked: {
+                    let maxId = 0;
+                    for (let id of root.shownIds) {
+                        if (id > maxId) maxId = id;
+                    }
+                    Hyprland.dispatch(`workspace ${maxId + 1}`);
+                }
+            }
+
+            StyledToolTip {
+                text: Translation.tr("New workspace")
             }
         }
     }
