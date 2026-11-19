@@ -3,38 +3,27 @@ import QtQuick.Layouts
 import qs.modules.common
 import qs.modules.common.widgets
 
-Row {
+// A popup's header: its icon and title on the left and, when there is one, the
+// headline value (a battery's percentage) right-aligned, the way the value rows
+// below it align theirs.
+RowLayout {
     id: root
     required property var icon
     required property var label
     property string badge: ""
-    property color badgeColor: Appearance.colors.colPrimary
+    property color badgeColor: Appearance.colors.colOnLayer0
     spacing: 8
 
-    Item {
-        anchors.verticalCenter: parent.verticalCenter
-        implicitWidth: 26
-        implicitHeight: 26
-
-        Rectangle {
-            anchors.fill: parent
-            radius: Appearance.rounding.verysmall
-            color: Appearance.colors.colPrimaryContainerActive
-            opacity: 0.7
-        }
-
-        MaterialSymbol {
-            anchors.centerIn: parent
-            fill: 0
-            font.weight: Font.DemiBold
-            text: root.icon
-            iconSize: 18
-            color: Appearance.colors.colPrimary
-        }
+    MaterialSymbol {
+        Layout.alignment: Qt.AlignVCenter
+        fill: 1
+        text: root.icon
+        iconSize: Appearance.font.pixelSize.larger
+        color: Appearance.colors.colPrimary
     }
 
     StyledText {
-        anchors.verticalCenter: parent.verticalCenter
+        Layout.alignment: Qt.AlignVCenter
         text: root.label
         font {
             weight: Font.DemiBold
@@ -43,25 +32,19 @@ Row {
         color: Appearance.colors.colOnLayer0
     }
 
-    Rectangle {
-        visible: root.badge !== ""
-        anchors.verticalCenter: parent.verticalCenter
-        implicitWidth: badgeText.implicitWidth + 10
-        implicitHeight: 20
-        radius: Appearance.rounding.verysmall
-        color: Appearance.colors.colLayer1
-        border.width: 1
-        border.color: Appearance.colors.colLayer0Border
+    Item {
+        Layout.fillWidth: true
+        implicitWidth: 16
+    }
 
-        StyledText {
-            id: badgeText
-            anchors.centerIn: parent
-            text: root.badge
-            font {
-                pixelSize: Appearance.font.pixelSize.smallest
-                weight: Font.DemiBold
-            }
-            color: root.badgeColor
+    StyledText {
+        visible: root.badge !== ""
+        Layout.alignment: Qt.AlignVCenter
+        text: root.badge
+        font {
+            weight: Font.DemiBold
+            pixelSize: Appearance.font.pixelSize.normal
         }
+        color: root.badgeColor
     }
 }

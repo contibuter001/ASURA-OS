@@ -16,17 +16,22 @@ StyledPopup {
         // Header with battery icon, title, and current percentage badge
         StyledPopupHeaderRow {
             id: headerRow
-            icon: Battery.isCharging ? "battery_charging_full" : (Battery.percentage > 0.8 ? "battery_android_full" : (Battery.percentage > 0.2 ? "battery_android_medium" : "battery_android_low"))
+            Layout.fillWidth: true
+            Layout.minimumWidth: 220
+            // Material Symbols names that exist: end-4's own battery levels
+            // (battery_android_0..6, _full), and bolt while charging. A name the
+            // font lacks is drawn as its text, over the title.
+            icon: Battery.isCharging ? "bolt" : Icons.getBatteryIcon(Math.round(Battery.percentage * 100))
             label: Translation.tr("Battery")
             badge: `${Math.round(Battery.percentage * 100)}%`
-            badgeColor: (Battery.percentage <= 0.2 && !Battery.isCharging) ? Appearance.colors.colError : Appearance.colors.colPrimary
+            badgeColor: (Battery.percentage <= 0.2 && !Battery.isCharging) ? Appearance.colors.colError : Appearance.colors.colOnLayer0
         }
 
-        // Modern horizontal progress bar
+        // The charge, as a thin bar
         Rectangle {
             Layout.fillWidth: true
-            implicitHeight: 6
-            radius: 3
+            implicitHeight: 4
+            radius: 2
             color: Appearance.colors.colLayer1
 
             Rectangle {
@@ -34,7 +39,7 @@ StyledPopup {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 width: parent.width * Math.max(0, Math.min(1, Battery.percentage))
-                radius: 3
+                radius: 2
                 color: (Battery.percentage <= 0.2 && !Battery.isCharging) ? Appearance.colors.colError : Appearance.colors.colPrimary
             }
         }
