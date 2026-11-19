@@ -7,6 +7,7 @@ import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Widgets
 
 DockButton {
@@ -64,52 +65,44 @@ DockButton {
         return null;
     }
 
+    // Apps start through Hyprland's exec, so they get the compositor's full
+    // session environment (Wayland display, D-Bus, XDG_*): the shell itself
+    // runs under a runit supervisor started before the compositor, and an app
+    // it spawned directly could miss what a Wayland client needs.
+    function shellQuote(arg) {
+        return "'" + String(arg).replace(/'/g, "'\\''") + "'";
+    }
+    function hyprExec(argv) {
+        const line = argv.map(root.shellQuote).join(" ");
+        console.log("[dock] launching:", line);
+        Hyprland.dispatch("exec " + line);
+    }
+
     function launchApp() {
-        if (root.desktopEntry) {
-            try {
-                root.desktopEntry.execute();
-                return;
-            } catch (e) {
-                console.warn("Failed to execute desktopEntry:", e);
-            }
+        const entry = root.desktopEntry;
+        const command = entry && entry.command ? Array.from(entry.command) : [];
+        if (command.length > 0) {
+            root.hyprExec(entry.runInTerminal ? ["ghostty", "-e"].concat(command) : command);
+            return;
+        }
+        if (entry) {
+            console.log("[dock] launching", entry.id, "with execute(): it has no parsed command");
+            entry.execute();
+            return;
         }
 
-        let idLower = (appToplevel?.appId ?? "").toLowerCase();
-
-        // Direct executable / system fallbacks
+        // No desktop entry: what the pinned id plainly names.
+        const idLower = (appToplevel?.appId ?? "").toLowerCase();
         if (idLower === "asura-store") {
-            const storePaths = [
-                "asura-store",
-                "/usr/local/bin/asura-store",
-                "/usr/bin/asura-store",
-                Directories.home + "/.local/bin/asura-store",
-                Directories.home + "/code/asura/asura-store/bin/asura-store"
-            ];
-            for (let p of storePaths) {
-                try {
-                    Quickshell.execDetached([p, "open", "discover"]);
-                    return;
-                } catch (_) {}
-            }
-        }
-
-        if (idLower.includes("thunar") || idLower.includes("file") || idLower.includes("fm") || idLower.includes("nautilus")) {
-            Quickshell.execDetached(["xdg-open", Directories.home]);
-            return;
-        }
-
-        if (idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
-            Quickshell.execDetached(["xdg-open", "https://"]);
-            return;
-        }
-
-        if (idLower.includes("ghostty") || idLower.includes("term")) {
-            Quickshell.execDetached(["ghostty"]);
-            return;
-        }
-
-        if (appToplevel?.appId) {
-            Quickshell.execDetached([appToplevel.appId]);
+            root.hyprExec(["asura-store", "open", "discover"]);
+        } else if (idLower.includes("thunar") || idLower.includes("nautilus")) {
+            root.hyprExec(["xdg-open", Directories.home]);
+        } else if (idLower.includes("ghostty") || idLower.includes("term")) {
+            root.hyprExec(["ghostty"]);
+        } else if (appToplevel?.appId) {
+            root.hyprExec([appToplevel.appId]);
+        } else {
+            console.warn("[dock] nothing to launch: the button has no app id");
         }
     }
 
