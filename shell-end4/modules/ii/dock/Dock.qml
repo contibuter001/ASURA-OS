@@ -120,9 +120,9 @@ Scope {
                     anchors.fill: parent
                     anchors.topMargin: Appearance.sizes.elevationMargin
                     anchors.bottomMargin: Appearance.sizes.hyprlandGapsOut + root.islandLift
-                    color: Appearance.colors.colLayer0
+                    color: Qt.rgba(Appearance.colors.colLayer0.r, Appearance.colors.colLayer0.g, Appearance.colors.colLayer0.b, 0.78)
                     border.width: 1
-                    border.color: Appearance.colors.colLayer0Border
+                    border.color: Qt.rgba(Appearance.colors.colLayer0Border.r, Appearance.colors.colLayer0Border.g, Appearance.colors.colLayer0Border.b, 0.60)
                     radius: root.islandRadius
                 }
 
