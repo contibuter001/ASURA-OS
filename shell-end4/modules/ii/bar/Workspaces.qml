@@ -131,15 +131,22 @@ ButtonMouseArea {
                 }
 
                 IconImage {
+                    id: wsIcon
                     anchors.centerIn: parent
-                    visible: !!ws.mainWindow && (Config.options?.bar.workspaces.showAppIcons ?? true)
+                    visible: !!ws.mainWindow && (Config.options?.bar.workspaces.showAppIcons ?? true) && status === Image.Ready
                     implicitSize: root.iconSize
-                    source: Quickshell.iconPath(AppSearch.guessIcon(ws.mainWindow?.class), "image-missing")
+                    source: {
+                        if (!ws.mainWindow?.class) return "";
+                        const cls = ws.mainWindow.class;
+                        const icon = cls === "com.mitchellh.ghostty" || cls === "ghostty" ? "com.mitchellh.ghostty" : AppSearch.guessIcon(cls);
+                        const path = Quickshell.iconPath(icon);
+                        return path ? path : (Quickshell.iconPath("terminal") || "");
+                    }
                     opacity: ws.active ? 1 : 0.75
                 }
                 StyledText {
                     anchors.centerIn: parent
-                    visible: !ws.mainWindow || !(Config.options?.bar.workspaces.showAppIcons ?? true)
+                    visible: !wsIcon.visible
                     text: `${ws.modelData}`
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: ws.active ? Font.Bold : Font.DemiBold

@@ -73,8 +73,7 @@ Item {
             // rounded screen corners, the digital desktop clock.
             Config.options.bar.cornerStyle = 2;
             Config.options.appearance.fakeScreenRounding = 0;
-            Config.options.background.widgets.clock.style = "digital";
-            Config.options.background.widgets.clock.styleLocked = "digital";
+            Config.options.background.widgets.clock.enable = false;
             // A plain bar: no boxes behind its groups.
             Config.options.bar.borderless = true;
             // Volume and brightness are sliders in the control menu (the right
