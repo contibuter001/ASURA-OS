@@ -203,7 +203,7 @@ Singleton {
 
         JsonAdapter {
             id: adapter
-            property bool clockEnabled: false
+            property bool clockEnabled: true
             property string clockDesign: "zen"
             property bool clock24h: true
             property bool clockSeconds: false

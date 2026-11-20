@@ -41,7 +41,7 @@ Item {
 
     // Factory values mirror the wallpaper clock's canonical Config defaults.
     readonly property var factory: ({
-        "clockEnabled": false, "clockDesign": "zen", "clock24h": true, "clockSeconds": false,
+        "clockEnabled": true, "clockDesign": "zen", "clock24h": true, "clockSeconds": false,
         "clockScale": 1.0, "clockOpacity": 1.0, "clockRadius": 26, "clockAccent": "palette",
         "clockBg": "none", "clockAnchor": "top-left", "clockX": 72, "clockY": 64, "clockLocked": false,
         "dateShow": true, "dateDesign": "hud", "widgetFont": "",

@@ -91,6 +91,31 @@ Variants {
             animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
         }
 
+        // ASURA widgets persistence (reads widgets.json configured from Hub Settings > Widgets)
+        FileView {
+            id: asuraWidgetsFile
+            path: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/asura/widgets.json"
+            watchChanges: true
+            printErrors: false
+            onFileChanged: reload()
+
+            JsonAdapter {
+                id: asuraWidgetsAdapter
+                property bool clockEnabled: true
+                property string clockDesign: "zen"
+                property bool clock24h: true
+                property bool clockSeconds: false
+                property string clockAccent: "palette"
+                property real clockScale: 1.0
+                property string clockAnchor: "top-left"
+                property int clockX: 72
+                property int clockY: 64
+                property bool clockLocked: false
+                property bool dateShow: true
+                property string dateDesign: "hud"
+            }
+        }
+
         onWallpaperPathChanged: {
             bgRoot.updateZoomScale();
             // Clock position gets updated after zoom scale is updated
@@ -261,6 +286,203 @@ Variants {
                         scaledScreenWidth: bgRoot.screen.width
                         scaledScreenHeight: bgRoot.screen.height
                         wallpaperScale: 1
+                    }
+                }
+
+                // ASURA Desktop HUD Clock: Default Wallpaper Widget
+                FadeLoader {
+                    id: asuraClockLoader
+                    shown: asuraWidgetsAdapter.clockEnabled && (!GlobalStates.screenLocked || Config.options.lock.centerClock === false)
+                    sourceComponent: Item {
+                        id: clockWidget
+                        width: clockCol.implicitWidth
+                        height: clockCol.implicitHeight
+
+                        readonly property real s: Math.max(0.5, Math.min(2.0, asuraWidgetsAdapter.clockScale || 1.0))
+                        readonly property string anchor: asuraWidgetsAdapter.clockAnchor || "top-left"
+                        readonly property real marginX: 72
+                        readonly property real marginY: 64
+
+                        x: {
+                            if (anchor === "free") return Math.max(0, Math.min(asuraWidgetsAdapter.clockX, bgRoot.screen.width - width));
+                            if (anchor.indexOf("right") >= 0) return bgRoot.screen.width - width - marginX;
+                            if (anchor.indexOf("center") >= 0 || anchor === "top" || anchor === "bottom") return (bgRoot.screen.width - width) / 2;
+                            return marginX;
+                        }
+                        y: {
+                            if (anchor === "free") return Math.max(0, Math.min(asuraWidgetsAdapter.clockY, bgRoot.screen.height - height));
+                            if (anchor.indexOf("bottom") >= 0) return bgRoot.screen.height - height - marginY;
+                            if (anchor === "center" || anchor === "left" || anchor === "right") return (bgRoot.screen.height - height) / 2;
+                            return marginY;
+                        }
+
+                        property var now: new Date()
+                        Timer {
+                            interval: 1000
+                            running: true
+                            repeat: true
+                            triggeredOnStart: true
+                            onTriggered: clockWidget.now = new Date()
+                        }
+
+                        function pad2(n) { return (n < 10 ? "0" : "") + n; }
+                        readonly property int rawH: now.getHours()
+                        readonly property int mins: now.getMinutes()
+                        readonly property int secs: now.getSeconds()
+                        readonly property int h12: (rawH % 12) === 0 ? 12 : (rawH % 12)
+                        readonly property string hh: asuraWidgetsAdapter.clock24h ? pad2(rawH) : String(h12)
+                        readonly property string mm: pad2(mins)
+                        readonly property string ss: pad2(secs)
+                        readonly property string ampm: rawH < 12 ? "AM" : "PM"
+
+                        readonly property var weekdaysShort: ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+                        readonly property string dateStr: weekdaysShort[now.getDay()] + " " + now.getDate()
+
+                        readonly property color ink: bgRoot.colText || Appearance.colors.colOnLayer0
+                        readonly property color inkSoft: CF.ColorUtils.transparentize(ink, 0.25)
+                        readonly property color inkDim: CF.ColorUtils.transparentize(ink, 0.5)
+                        readonly property color accent: {
+                            if (asuraWidgetsAdapter.clockAccent === "brand") return "#F25623";
+                            if (asuraWidgetsAdapter.clockAccent === "mono") return ink;
+                            return Appearance.colors.colPrimary;
+                        }
+
+                        Column {
+                            id: clockCol
+                            spacing: Math.round(14 * clockWidget.s)
+
+                            // Zen Clock Face: 15 | 59
+                            Row {
+                                id: faceRow
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: Math.round(10 * clockWidget.s)
+
+                                Text {
+                                    text: clockWidget.hh
+                                    color: clockWidget.ink
+                                    font.family: Appearance.font.family.main
+                                    font.pixelSize: Math.round(56 * clockWidget.s)
+                                    font.weight: Font.Light
+                                    font.letterSpacing: -1
+                                }
+
+                                Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: Math.max(1, Math.round(2 * clockWidget.s))
+                                    height: Math.round(38 * clockWidget.s)
+                                    radius: 1
+                                    color: clockWidget.inkDim
+                                    opacity: 0.45
+                                }
+
+                                Text {
+                                    text: clockWidget.mm
+                                    color: clockWidget.ink
+                                    font.family: Appearance.font.family.main
+                                    font.pixelSize: Math.round(56 * clockWidget.s)
+                                    font.weight: Font.DemiBold
+                                    font.letterSpacing: -1
+                                }
+
+                                Column {
+                                    visible: asuraWidgetsAdapter.clockSeconds || !asuraWidgetsAdapter.clock24h
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 2
+                                    Text {
+                                        visible: asuraWidgetsAdapter.clockSeconds
+                                        text: clockWidget.ss
+                                        color: clockWidget.accent
+                                        font.family: Appearance.font.family.mono
+                                        font.pixelSize: Math.round(16 * clockWidget.s)
+                                        font.weight: Font.Medium
+                                    }
+                                    Text {
+                                        visible: !asuraWidgetsAdapter.clock24h
+                                        text: clockWidget.ampm
+                                        color: clockWidget.inkDim
+                                        font.family: Appearance.font.family.main
+                                        font.pixelSize: Math.round(13 * clockWidget.s)
+                                        font.weight: Font.DemiBold
+                                    }
+                                }
+                            }
+
+                            // HUD Date & Vitals Pill: [ FRI 20 | 94% | 12% CPU · 4.2G ]
+                            Rectangle {
+                                id: hudPill
+                                visible: asuraWidgetsAdapter.dateShow
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                implicitWidth: hudRow.implicitWidth + Math.round(20 * clockWidget.s)
+                                implicitHeight: hudRow.implicitHeight + Math.round(10 * clockWidget.s)
+                                radius: Math.round(8 * clockWidget.s)
+                                color: Qt.rgba(clockWidget.ink.r, clockWidget.ink.g, clockWidget.ink.b, 0.08)
+                                border.width: 1
+                                border.color: Qt.rgba(clockWidget.ink.r, clockWidget.ink.g, clockWidget.ink.b, 0.16)
+
+                                Row {
+                                    id: hudRow
+                                    anchors.centerIn: parent
+                                    spacing: Math.round(8 * clockWidget.s)
+
+                                    // Date
+                                    Text {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: clockWidget.dateStr
+                                        color: clockWidget.accent
+                                        font.family: Appearance.font.family.main
+                                        font.pixelSize: Math.round(12 * clockWidget.s)
+                                        font.weight: Font.DemiBold
+                                    }
+
+                                    // Divider
+                                    Rectangle {
+                                        width: 1
+                                        height: Math.round(12 * clockWidget.s)
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        color: clockWidget.inkDim
+                                        opacity: 0.35
+                                    }
+
+                                    // Battery / Power
+                                    Text {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: {
+                                            if (Battery.available) {
+                                                return (Battery.isCharging ? "\u26a1 " : "") + Math.round(Battery.percentage * 100) + "%";
+                                            }
+                                            return "AC";
+                                        }
+                                        color: clockWidget.ink
+                                        font.family: Appearance.font.family.mono
+                                        font.pixelSize: Math.round(12 * clockWidget.s)
+                                        font.weight: Font.Medium
+                                    }
+
+                                    // Divider
+                                    Rectangle {
+                                        width: 1
+                                        height: Math.round(12 * clockWidget.s)
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        color: clockWidget.inkDim
+                                        opacity: 0.35
+                                    }
+
+                                    // Hardware Vitals (CPU + RAM)
+                                    Text {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: {
+                                            const cpu = Math.round((ResourceUsage.cpuUsage || 0) * 100) + "% CPU";
+                                            const ram = ((ResourceUsage.memoryUsed || 0) / (1024 * 1024)).toFixed(1) + "G";
+                                            return cpu + " \u00b7 " + ram;
+                                        }
+                                        color: clockWidget.inkSoft
+                                        font.family: Appearance.font.family.mono
+                                        font.pixelSize: Math.round(12 * clockWidget.s)
+                                        font.weight: Font.Normal
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
