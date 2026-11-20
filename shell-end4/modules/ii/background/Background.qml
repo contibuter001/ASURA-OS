@@ -59,12 +59,12 @@ Variants {
         readonly property bool verticalParallax: (Config.options.background.parallax.autoVertical && wallpaperHeight > wallpaperWidth) || Config.options.background.parallax.vertical
         // Colors
         property bool shouldBlur: (GlobalStates.screenLocked && Config.options.lock.blur.enable)
-        property color dominantColor: Appearance.colors.colPrimary // Default, to be changed
-        property bool dominantColorIsDark: dominantColor.hslLightness < 0.5
+        property color dominantColor: (bgQuantizer.colors && bgQuantizer.colors.length > 0) ? bgQuantizer.colors[0] : (asuraColorsAdapter.primary ?? Appearance.colors.colPrimary)
+        property bool dominantColorIsDark: dominantColor.hslLightness < 0.55
         property color colText: {
             if (wallpaperSafetyTriggered)
-                return CF.ColorUtils.mix(Appearance.colors.colOnLayer0, Appearance.colors.colPrimary, 0.75);
-            return (GlobalStates.screenLocked && shouldBlur) ? Appearance.colors.colOnLayer0 : CF.ColorUtils.colorWithLightness(Appearance.colors.colPrimary, (dominantColorIsDark ? 0.8 : 0.12));
+                return CF.ColorUtils.mix(Appearance.colors.colOnLayer0, dominantColor, 0.75);
+            return (GlobalStates.screenLocked && shouldBlur) ? Appearance.colors.colOnLayer0 : CF.ColorUtils.colorWithLightness(dominantColor, (dominantColorIsDark ? 0.90 : 0.12));
         }
         Behavior on colText {
             animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
@@ -89,6 +89,29 @@ Variants {
         }
         Behavior on color {
             animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+        }
+
+        // Wallpaper color quantizer: samples dominant color directly from active wallpaper
+        ColorQuantizer {
+            id: bgQuantizer
+            source: Qt.resolvedUrl(bgRoot.wallpaperPath)
+            depth: 0 // 1 dominant color
+            rescaleSize: 16
+        }
+
+        // Cache colors file reader
+        FileView {
+            id: asuraColorsFile
+            path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/asura/colors.json"
+            watchChanges: true
+            printErrors: false
+            onFileChanged: reload()
+
+            JsonAdapter {
+                id: asuraColorsAdapter
+                property color primary: Appearance.colors.colPrimary
+                property color secondary: Appearance.colors.colSecondary
+            }
         }
 
         // ASURA widgets persistence (reads widgets.json configured from Hub Settings > Widgets)
@@ -338,13 +361,21 @@ Variants {
                         readonly property var weekdaysShort: ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
                         readonly property string dateStr: weekdaysShort[now.getDay()] + " " + now.getDate()
 
-                        readonly property color ink: bgRoot.colText || Appearance.colors.colOnLayer0
-                        readonly property color inkSoft: CF.ColorUtils.transparentize(ink, 0.25)
-                        readonly property color inkDim: CF.ColorUtils.transparentize(ink, 0.5)
+                        readonly property color wallAccent: {
+                            var p = (asuraColorsAdapter.primary && asuraColorsAdapter.primary != "#000000") ? asuraColorsAdapter.primary : bgRoot.dominantColor;
+                            var hue = p.hsvHue < 0 ? bgRoot.dominantColor.hsvHue : p.hsvHue;
+                            if (hue < 0) hue = 0.58; // clean cyan-blue fallback
+                            var sat = Math.max(0.45, Math.min(1.0, p.hsvSaturation * 1.35));
+                            var val = bgRoot.dominantColorIsDark ? 0.92 : 0.20;
+                            return Qt.hsva(hue, sat, val, 1.0);
+                        }
+                        readonly property color ink: bgRoot.colText || (bgRoot.dominantColorIsDark ? "#FFFFFF" : "#1A1A1A")
+                        readonly property color inkSoft: CF.ColorUtils.transparentize(ink, 0.20)
+                        readonly property color inkDim: CF.ColorUtils.transparentize(ink, 0.45)
                         readonly property color accent: {
                             if (asuraWidgetsAdapter.clockAccent === "brand") return "#F25623";
                             if (asuraWidgetsAdapter.clockAccent === "mono") return ink;
-                            return Appearance.colors.colPrimary;
+                            return wallAccent;
                         }
 
                         Column {
@@ -364,6 +395,8 @@ Variants {
                                     font.pixelSize: Math.round(56 * clockWidget.s)
                                     font.weight: Font.Light
                                     font.letterSpacing: -1
+                                    style: Text.Raised
+                                    styleColor: Qt.rgba(0, 0, 0, 0.45)
                                 }
 
                                 Rectangle {
@@ -371,17 +404,19 @@ Variants {
                                     width: Math.max(1, Math.round(2 * clockWidget.s))
                                     height: Math.round(38 * clockWidget.s)
                                     radius: 1
-                                    color: clockWidget.inkDim
-                                    opacity: 0.45
+                                    color: clockWidget.accent
+                                    opacity: 0.85
                                 }
 
                                 Text {
                                     text: clockWidget.mm
-                                    color: clockWidget.ink
+                                    color: clockWidget.accent
                                     font.family: Appearance.font.family.main
                                     font.pixelSize: Math.round(56 * clockWidget.s)
                                     font.weight: Font.DemiBold
                                     font.letterSpacing: -1
+                                    style: Text.Raised
+                                    styleColor: Qt.rgba(0, 0, 0, 0.45)
                                 }
 
                                 Column {
@@ -412,12 +447,12 @@ Variants {
                                 id: hudPill
                                 visible: asuraWidgetsAdapter.dateShow
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                implicitWidth: hudRow.implicitWidth + Math.round(20 * clockWidget.s)
+                                implicitWidth: hudRow.implicitWidth + Math.round(22 * clockWidget.s)
                                 implicitHeight: hudRow.implicitHeight + Math.round(10 * clockWidget.s)
                                 radius: Math.round(8 * clockWidget.s)
-                                color: Qt.rgba(clockWidget.ink.r, clockWidget.ink.g, clockWidget.ink.b, 0.08)
+                                color: bgRoot.dominantColorIsDark ? Qt.rgba(0.04, 0.06, 0.10, 0.55) : Qt.rgba(1, 1, 1, 0.65)
                                 border.width: 1
-                                border.color: Qt.rgba(clockWidget.ink.r, clockWidget.ink.g, clockWidget.ink.b, 0.16)
+                                border.color: Qt.rgba(clockWidget.accent.r, clockWidget.accent.g, clockWidget.accent.b, 0.35)
 
                                 Row {
                                     id: hudRow
@@ -432,6 +467,8 @@ Variants {
                                         font.family: Appearance.font.family.main
                                         font.pixelSize: Math.round(12 * clockWidget.s)
                                         font.weight: Font.DemiBold
+                                        style: Text.Raised
+                                        styleColor: Qt.rgba(0, 0, 0, 0.45)
                                     }
 
                                     // Divider
@@ -440,7 +477,7 @@ Variants {
                                         height: Math.round(12 * clockWidget.s)
                                         anchors.verticalCenter: parent.verticalCenter
                                         color: clockWidget.inkDim
-                                        opacity: 0.35
+                                        opacity: 0.45
                                     }
 
                                     // Battery / Power
@@ -456,6 +493,8 @@ Variants {
                                         font.family: Appearance.font.family.mono
                                         font.pixelSize: Math.round(12 * clockWidget.s)
                                         font.weight: Font.Medium
+                                        style: Text.Raised
+                                        styleColor: Qt.rgba(0, 0, 0, 0.45)
                                     }
 
                                     // Divider
@@ -464,7 +503,7 @@ Variants {
                                         height: Math.round(12 * clockWidget.s)
                                         anchors.verticalCenter: parent.verticalCenter
                                         color: clockWidget.inkDim
-                                        opacity: 0.35
+                                        opacity: 0.45
                                     }
 
                                     // Hardware Vitals (CPU + RAM)
@@ -479,6 +518,8 @@ Variants {
                                         font.family: Appearance.font.family.mono
                                         font.pixelSize: Math.round(12 * clockWidget.s)
                                         font.weight: Font.Normal
+                                        style: Text.Raised
+                                        styleColor: Qt.rgba(0, 0, 0, 0.45)
                                     }
                                 }
                             }
