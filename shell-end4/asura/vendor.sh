@@ -86,6 +86,9 @@ modules/ii/bar/StyledPopupHeaderRow.qml
 modules/ii/bar/StyledPopupValueRow.qml
 modules/ii/bar/BatteryPopup.qml
 modules/ii/bar/ResourcesPopup.qml
+modules/ii/background/Background.qml
+modules/settings/BackgroundConfig.qml
+modules/common/Config.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }

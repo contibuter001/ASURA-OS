@@ -3,14 +3,14 @@ package main
 import (
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
 // The end-4 desktop (org.asura.shell desktop-shell = end4) draws its own
-// background, wallpaper and palette, over this daemon's layer. A wallpaper
-// chosen here would land underneath it and nothing would seem to change, so
-// Super+W and Super+Shift+W (`wallpaper ui`, `wallpaper random`) open end-4's
-// own wallpaper selector instead. The keys stay the same.
+// background, wallpaper and palette, over this daemon's layer. When a wallpaper
+// is applied, applyEnd4Wallpaper forwards the image to end-4's switchwall.sh
+// so the background and Material 3 color palette stay synchronized.
 
 // end4ShellDir is where the end-4 desktop is installed.
 const end4ShellDir = "/usr/share/asura/shell-end4"
@@ -44,3 +44,18 @@ var callEnd4 = func(target, fn string) string {
 	}
 	return "ok"
 }
+
+// applyEnd4Wallpaper runs end-4's switchwall.sh script asynchronously so the
+// end-4 background and matugen color palette update to match the applied wallpaper.
+var applyEnd4Wallpaper = func(path string) {
+	if !end4Desktop() || path == "" {
+		return
+	}
+	script := filepath.Join(end4ShellDir, "scripts", "colors", "switchwall.sh")
+	if _, err := os.Stat(script); err != nil {
+		return
+	}
+	cmd := exec.Command(script, "--image", path)
+	_ = cmd.Start()
+}
+

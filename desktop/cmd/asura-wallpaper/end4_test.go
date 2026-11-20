@@ -26,3 +26,19 @@ func TestWallpaperKeysOpenEnd4InTheEnd4Desktop(t *testing.T) {
 		t.Fatalf("end-4 was called while not installed: %v", calls)
 	}
 }
+
+func TestApplyEnd4WallpaperCallsSwitchwall(t *testing.T) {
+	savedShell, savedApply := desktopShell, applyEnd4Wallpaper
+	defer func() { desktopShell, applyEnd4Wallpaper = savedShell, savedApply }()
+
+	var appliedPath string
+	applyEnd4Wallpaper = func(path string) {
+		appliedPath = path
+	}
+
+	desktopShell = func() string { return "end4" }
+	applyEnd4Wallpaper("/path/to/test.png")
+	if appliedPath != "/path/to/test.png" {
+		t.Fatalf("expected /path/to/test.png, got %q", appliedPath)
+	}
+}

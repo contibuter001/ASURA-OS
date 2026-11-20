@@ -134,6 +134,9 @@ func (d *daemon) applyWallpaper(wpType, path, mode string, outputs []string, mut
 	d.broadcast("asura-wallpaper.wall.applied", map[string]interface{}{
 		"type": wpType, "name": name, "path": path, "we_id": "", "key": key,
 	})
+	if end4Desktop() {
+		go applyEnd4Wallpaper(paint)
+	}
 	return nil
 }
 
