@@ -57,6 +57,7 @@ SHAPES_DEST="modules/common/widgets/shapes"
 OVERLAYS="
 shell.qml
 matugen/config.toml
+matugen/templates/colors.json
 modules/ii/dock/Dock.qml
 modules/ii/dock/DockAppButton.qml
 modules/ii/bar/Workspaces.qml

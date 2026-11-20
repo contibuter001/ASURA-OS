@@ -52,7 +52,7 @@ apply_ghostty() {
   [ -z "$json_file" ] && return 0
   command -v jq >/dev/null 2>&1 || return 0
 
-  # Sync to ~/.cache/asura/colors.json with Material roles + Scheme.qml aliases
+  # Sync to ~/.cache/asura/colors.json with Material roles + Scheme.qml aliases + camelCase aliases
   mkdir -p "$XDG_CACHE_HOME/asura"
   jq '. + {
     "color1": (.error // "#f7768e"),
@@ -60,7 +60,23 @@ apply_ghostty() {
     "color3": (.tertiary // "#e0af68"),
     "color4": (.secondary // "#7aa2f7"),
     "color5": (.primary_fixed // "#bb9af7"),
-    "color6": (.secondary_fixed // "#7dcfff")
+    "color6": (.secondary_fixed // "#7dcfff"),
+    "onSurface": (.on_surface // .onSurface),
+    "onSurfaceVariant": (.on_surface_variant // .onSurfaceVariant),
+    "surfaceContainerLow": (.surface_container_low // .surfaceContainerLow),
+    "surfaceContainer": (.surface_container // .surfaceContainer),
+    "surfaceContainerHigh": (.surface_container_high // .surfaceContainerHigh),
+    "surfaceContainerHighest": (.surface_container_highest // .surfaceContainerHighest),
+    "surfaceContainerLowest": (.surface_container_lowest // .surfaceContainerLowest),
+    "surfaceVariant": (.surface_variant // .surfaceVariant),
+    "surfaceTint": (.surface_tint // .surfaceTint),
+    "inverseSurface": (.inverse_surface // .inverseSurface),
+    "inverseOnSurface": (.inverse_on_surface // .inverseOnSurface),
+    "primaryContainer": (.primary_container // .primaryContainer),
+    "secondaryContainer": (.secondary_container // .secondaryContainer),
+    "tertiaryContainer": (.tertiary_container // .tertiaryContainer),
+    "errorContainer": (.error_container // .errorContainer),
+    "outlineVariant": (.outline_variant // .outlineVariant)
   }' "$json_file" > "$XDG_CACHE_HOME/asura/colors.json.tmp" 2>/dev/null && mv "$XDG_CACHE_HOME/asura/colors.json.tmp" "$XDG_CACHE_HOME/asura/colors.json"
 
   local bg fg cursor cur_text sel_bg sel_fg p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15
