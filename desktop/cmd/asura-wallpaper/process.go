@@ -37,6 +37,12 @@ func resolveShellQML() string {
 			return abs
 		}
 	}
+	if p := "shell/wallpaper-ui.qml"; fileExists(p) {
+		abs, err := filepath.Abs(p)
+		if err == nil {
+			return abs
+		}
+	}
 	return "/usr/share/asura/shell/wallpaper-ui.qml"
 }
 
