@@ -18,6 +18,18 @@ version_check = false
 input_path = '/usr/share/asura/shell-end4/matugen/templates/colors.json'
 output_path = '~/.local/state/quickshell/user/generated/colors.json'
 
+[templates.asuracolors]
+input_path = '/usr/share/asura/shell-end4/matugen/templates/colors.json'
+output_path = '~/.cache/asura/colors.json'
+
+[templates.ghostty]
+input_path = '/usr/share/asura/shell/matugen/templates/ghostty.conf'
+output_path = '~/.config/asura/apps/ghostty/colors'
+
+[templates.ghostty_user]
+input_path = '/usr/share/asura/shell/matugen/templates/ghostty.conf'
+output_path = '~/.config/ghostty/colors'
+
 [templates.wallpaper]
 input_path = '/usr/share/asura/shell-end4/matugen/templates/wallpaper.txt'
 output_path = '~/.local/state/quickshell/user/generated/wallpaper/path.txt'

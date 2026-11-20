@@ -303,11 +303,16 @@ switch() {
         [[ "$term_fg_boost" != "null" && -n "$term_fg_boost" ]] && generate_colors_material_args+=(--term_fg_boost "$term_fg_boost")
     fi
 
-    matugen "${matugen_args[@]}"
-    source "$(eval echo $ILLOGICAL_IMPULSE_VIRTUAL_ENV)/bin/activate"
-    python3 "$SCRIPT_DIR/generate_colors_material.py" "${generate_colors_material_args[@]}" \
-        > "$STATE_DIR"/user/generated/material_colors.scss
-    deactivate
+    if command -v matugen >/dev/null 2>&1; then
+        matugen "${matugen_args[@]}"
+    fi
+    local venv_path="$(eval echo "${ILLOGICAL_IMPULSE_VIRTUAL_ENV:-}")"
+    if [ -n "$venv_path" ] && [ -f "$venv_path/bin/activate" ]; then
+        source "$venv_path/bin/activate"
+        python3 "$SCRIPT_DIR/generate_colors_material.py" "${generate_colors_material_args[@]}" \
+            > "$STATE_DIR"/user/generated/material_colors.scss 2>/dev/null || true
+        deactivate 2>/dev/null || true
+    fi
     "$SCRIPT_DIR"/applycolor.sh
 
     # Pass screen width, height, and wallpaper path to post_process

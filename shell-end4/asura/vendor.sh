@@ -89,6 +89,8 @@ modules/ii/bar/ResourcesPopup.qml
 modules/ii/background/Background.qml
 modules/settings/BackgroundConfig.qml
 modules/common/Config.qml
+scripts/colors/applycolor.sh
+scripts/colors/switchwall.sh
 "
 
 log() { printf '%s\n' "$*" >&2; }

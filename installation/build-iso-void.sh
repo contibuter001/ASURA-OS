@@ -707,17 +707,17 @@ cat >"$INCLUDE_DIR/etc/skel/.config/fastfetch/config.jsonc" <<'EOF'
   "display": {
     "separator": " ── ",
     "color": {
-      "keys": "38;2;219;20;49"
+      "keys": "2"
     }
   },
   "modules": [
     {
-      "format": "\u001b[38;2;219;20;49m■\u001b[0m \u001b[1;38;2;240;240;240mASURA OS\u001b[0m",
+      "format": "\u001b[32m■\u001b[0m \u001b[1;37mASURA OS\u001b[0m",
       "type": "custom"
     },
     "break",
     {
-      "format": "\u001b[38;2;219;20;49m──\u001b[0m \u001b[1;38;2;240;240;240mSYSTEM\u001b[0m \u001b[38;2;80;80;80m──────────────────────────\u001b[0m",
+      "format": "\u001b[32m──\u001b[0m \u001b[1;37mSYSTEM\u001b[0m \u001b[38;5;240m──────────────────────────\u001b[0m",
       "type": "custom"
     },
     {
@@ -746,7 +746,7 @@ cat >"$INCLUDE_DIR/etc/skel/.config/fastfetch/config.jsonc" <<'EOF'
     },
     "break",
     {
-      "format": "\u001b[38;2;219;20;49m──\u001b[0m \u001b[1;38;2;240;240;240mHARDWARE\u001b[0m \u001b[38;2;80;80;80m────────────────────────\u001b[0m",
+      "format": "\u001b[32m──\u001b[0m \u001b[1;37mHARDWARE\u001b[0m \u001b[38;5;240m────────────────────────\u001b[0m",
       "type": "custom"
     },
     {
