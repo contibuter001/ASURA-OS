@@ -99,14 +99,20 @@ Item { // Bar content region
                 }
             }
 
-            // Media, second from the start, only while a player has a track
-            // (playing or paused); nothing at all otherwise.
-            Media {
-                visible: root.useShortenedForm < 2 && !!MprisController.activePlayer
-                    && (MprisController.activePlayer.trackTitle ?? "") !== ""
+            // Media, second from the start, while a player has a track or is playing
+            BarGroup {
+                id: mediaGroup
+                visible: !!MprisController.activePlayer && (
+                    MprisController.activePlayer.isPlaying ||
+                    (MprisController.activePlayer.trackTitle ?? "").trim() !== ""
+                )
+                Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: 6
-                Layout.fillHeight: true
-                Layout.maximumWidth: 260
+                padding: 4
+
+                Media {
+                    Layout.fillHeight: true
+                }
             }
 
             Item {

@@ -91,6 +91,8 @@ modules/settings/BackgroundConfig.qml
 modules/common/Config.qml
 scripts/colors/applycolor.sh
 scripts/colors/switchwall.sh
+modules/ii/bar/Media.qml
+services/MprisController.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }

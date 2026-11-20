@@ -15,39 +15,75 @@ import qs.modules.common
  * A service that provides easy access to the active Mpris player.
  */
 Singleton {
-	id: root;
-	property list<MprisPlayer> players: Mpris.players.values.filter(player => isRealPlayer(player));
-	property MprisPlayer trackedPlayer: null;
-	property MprisPlayer activePlayer: trackedPlayer ?? Mpris.players.values[0] ?? null;
-	signal trackChanged(reverse: bool);
+	id: root
 
-	property bool __reverse: false;
+	function pickActive(players, cur) {
+		var list = (players || []).filter(function(p) { return p && isRealPlayer(p); });
+		if (list.length === 0) return null;
+		var curOk = cur && list.indexOf(cur) !== -1;
+		if (curOk && cur.isPlaying) return cur;
+		for (var i = 0; i < list.length; i++) {
+			if (list[i].isPlaying || list[i].playbackState === MprisPlaybackState.Playing)
+				return list[i];
+		}
+		if (curOk && (cur.trackTitle ?? "").length > 0) return cur;
+		for (var j = 0; j < list.length; j++) {
+			if ((list[j].trackTitle ?? "").length > 0) return list[j];
+		}
+		return curOk ? cur : list[0];
+	}
 
-	property var activeTrack;
+	function repick() {
+		var next = pickActive(Mpris.players ? Mpris.players.values : [], root.trackedPlayer);
+		if (next !== root.trackedPlayer) {
+			root.trackedPlayer = next;
+		}
+	}
+
+	Timer {
+		interval: 1000
+		repeat: true
+		running: true
+		onTriggered: root.repick()
+	}
+
+	Component.onCompleted: root.repick()
+
+	property list<MprisPlayer> players: Mpris.players.values.filter(player => isRealPlayer(player))
+	property MprisPlayer trackedPlayer: null
+	property MprisPlayer activePlayer: trackedPlayer ?? pickActive(Mpris.players ? Mpris.players.values : [], null)
+	signal trackChanged(reverse: bool)
+
+	property bool __reverse: false
+
+	property var activeTrack
 
 	readonly property bool hasActivePlasmaIntegration: Mpris.players.values.some(
 		p => p.dbusName?.startsWith('org.mpris.MediaPlayer2.plasma-browser-integration')
 	)
-	function isRealPlayer(player) {
-        if (!Config.options.media.filterDuplicatePlayers) {
-            return true;
-        }
-        return (
-            // Remove native browser buses only if plasma-browser-integration is actually active on D-Bus
-            !(hasActivePlasmaIntegration && player.dbusName.startsWith('org.mpris.MediaPlayer2.firefox')) && !(hasActivePlasmaIntegration && player.dbusName.startsWith('org.mpris.MediaPlayer2.chromium')) &&
-            // playerctld just copies other buses and we don't need duplicates
-            !player.dbusName?.startsWith('org.mpris.MediaPlayer2.playerctld') &&
-            // Non-instance mpd bus
-            !(player.dbusName?.endsWith('.mpd') && !player.dbusName.endsWith('MediaPlayer2.mpd')));
-    }
 
-	// Original stuff from fox below
+	function isRealPlayer(player) {
+		if (!player) return false;
+		if (!Config.options.media.filterDuplicatePlayers) {
+			return true;
+		}
+		var name = String(player.dbusName || "");
+		return (
+			// Remove native browser buses only if plasma-browser-integration is actually active on D-Bus
+			!(hasActivePlasmaIntegration && (name.startsWith('org.mpris.MediaPlayer2.firefox') || name.startsWith('org.mpris.MediaPlayer2.chromium'))) &&
+			// playerctld just copies other buses and we don't need duplicates
+			!name.startsWith('org.mpris.MediaPlayer2.playerctld') &&
+			// Non-instance mpd bus
+			!(name.endsWith('.mpd') && !name.endsWith('MediaPlayer2.mpd'))
+		);
+	}
+
 	Instantiator {
-		model: Mpris.players;
+		model: Mpris.players
 
 		Connections {
-			required property MprisPlayer modelData;
-			target: modelData;
+			required property MprisPlayer modelData
+			target: modelData
 
 			Component.onCompleted: {
 				if (root.trackedPlayer == null || modelData.isPlaying) {
@@ -58,20 +94,20 @@ Singleton {
 			Component.onDestruction: {
 				if (root.trackedPlayer == null || !root.trackedPlayer.isPlaying) {
 					for (const player of Mpris.players.values) {
-						if (player.playbackState.isPlaying) {
+						if (player && (player.isPlaying || player.playbackState === MprisPlaybackState.Playing)) {
 							root.trackedPlayer = player;
 							break;
 						}
 					}
 
-					if (trackedPlayer == null && Mpris.players.values.length != 0) {
-						trackedPlayer = Mpris.players.values[0];
+					if (root.trackedPlayer == null && Mpris.players.values.length != 0) {
+						root.trackedPlayer = Mpris.players.values[0];
 					}
 				}
 			}
 
 			function onPlaybackStateChanged() {
-				if (root.trackedPlayer !== modelData) root.trackedPlayer = modelData;
+				if (modelData.isPlaying) root.trackedPlayer = modelData;
 			}
 		}
 	}
@@ -84,15 +120,10 @@ Singleton {
 		}
 
 		function onTrackArtUrlChanged() {
-			// console.log("arturl:", activePlayer.trackArtUrl)
-			// root.updateTrack();
-			if (root.activePlayer.uniqueId == root.activeTrack.uniqueId && root.activePlayer.trackArtUrl != root.activeTrack.artUrl) {
-				// cantata likes to send cover updates *BEFORE* updating the track info.
-				// as such, art url changes shouldn't be able to break the reverse animation
+			if (root.activePlayer && root.activeTrack && root.activePlayer.uniqueId == root.activeTrack.uniqueId && root.activePlayer.trackArtUrl != root.activeTrack.artUrl) {
 				const r = root.__reverse;
 				root.updateTrack();
 				root.__reverse = r;
-
 			}
 		}
 	}
@@ -100,7 +131,6 @@ Singleton {
 	onActivePlayerChanged: this.updateTrack();
 
 	function updateTrack() {
-		//console.log(`update: ${this.activePlayer?.trackTitle ?? ""} : ${this.activePlayer?.trackArtists}`)
 		this.activeTrack = {
 			uniqueId: this.activePlayer?.uniqueId ?? 0,
 			artUrl: this.activePlayer?.trackArtUrl ?? "",
@@ -154,16 +184,12 @@ Singleton {
 	}
 
 	function setActivePlayer(player: MprisPlayer) {
-		const targetPlayer = player ?? Mpris.players[0];
-		console.log(`[Mpris] Active player ${targetPlayer} << ${activePlayer}`)
-
+		const targetPlayer = player ?? (Mpris.players.values.length > 0 ? Mpris.players.values[0] : null);
 		if (targetPlayer && this.activePlayer) {
 			this.__reverse = Mpris.players.indexOf(targetPlayer) < Mpris.players.indexOf(this.activePlayer);
 		} else {
-			// always animate forward if going to null
 			this.__reverse = false;
 		}
-
 		this.trackedPlayer = targetPlayer;
 	}
 

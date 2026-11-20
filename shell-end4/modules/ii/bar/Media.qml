@@ -16,8 +16,8 @@ Item {
     readonly property string cleanedTitle: StringUtils.cleanMusicTitle(activePlayer?.trackTitle) || Translation.tr("No media")
 
     Layout.fillHeight: true
-    implicitWidth: rowLayout.implicitWidth + rowLayout.spacing * 2
-    implicitHeight: Appearance.sizes.barHeight
+    implicitWidth: rowLayout.implicitWidth + 8
+    implicitHeight: Appearance.sizes.baseBarHeight
 
     Timer {
         running: activePlayer?.playbackState == MprisPlaybackState.Playing
@@ -28,8 +28,10 @@ Item {
 
     MouseArea {
         anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
         acceptedButtons: Qt.MiddleButton | Qt.BackButton | Qt.ForwardButton | Qt.RightButton | Qt.LeftButton
         onPressed: (event) => {
+            if (!activePlayer) return;
             if (event.button === Qt.MiddleButton) {
                 activePlayer.togglePlaying();
             } else if (event.button === Qt.BackButton) {
@@ -37,22 +39,21 @@ Item {
             } else if (event.button === Qt.ForwardButton || event.button === Qt.RightButton) {
                 activePlayer.next();
             } else if (event.button === Qt.LeftButton) {
-                GlobalStates.mediaControlsOpen = !GlobalStates.mediaControlsOpen
+                GlobalStates.mediaControlsOpen = !GlobalStates.mediaControlsOpen;
             }
         }
     }
 
-    RowLayout { // Real content
+    RowLayout {
         id: rowLayout
-
-        spacing: 4
+        spacing: 6
         anchors.fill: parent
 
         ClippedFilledCircularProgress {
             id: mediaCircProg
             Layout.alignment: Qt.AlignVCenter
             lineWidth: Appearance.rounding.unsharpen
-            value: activePlayer?.position / activePlayer?.length
+            value: (activePlayer?.length > 0) ? (activePlayer.position / activePlayer.length) : (activePlayer?.isPlaying ? 0.5 : 0)
             implicitSize: 20
             colPrimary: Appearance.colors.colOnSecondaryContainer
             enableAnimation: false
@@ -73,17 +74,15 @@ Item {
         }
 
         StyledText {
-            visible: Config.options.bar.verbose
-            width: rowLayout.width - (CircularProgress.size + rowLayout.spacing * 2)
+            id: titleText
+            visible: Config.options.bar.verbose && (cleanedTitle !== Translation.tr("No media"))
             Layout.alignment: Qt.AlignVCenter
-            Layout.fillWidth: true // Ensures the text takes up available space
-            Layout.rightMargin: rowLayout.spacing
-            horizontalAlignment: Text.AlignHCenter
-            elide: Text.ElideRight // Truncates the text on the right
+            Layout.fillWidth: true
+            Layout.maximumWidth: 180
+            horizontalAlignment: Text.AlignLeft
+            elide: Text.ElideRight
             color: Appearance.colors.colOnLayer1
             text: `${cleanedTitle}${activePlayer?.trackArtist ? ' • ' + activePlayer.trackArtist : ''}`
         }
-
     }
-
 }
