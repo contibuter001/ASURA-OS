@@ -105,7 +105,6 @@ desktop:
     - jq
     - ImageMagick
     - librsvg
-    - hyprpicker
     - playerctl
     - cliphist
     - desktop-file-utils
