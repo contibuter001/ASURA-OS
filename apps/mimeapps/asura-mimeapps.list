@@ -31,5 +31,5 @@ audio/x-wav=mpv.desktop
 audio/ogg=mpv.desktop
 audio/mp4=mpv.desktop
 inode/directory=org.gnome.Nautilus.desktop
-x-scheme-handler/http=firefox.desktop;brave-browser.desktop;google-chrome.desktop;chromium.desktop
-x-scheme-handler/https=firefox.desktop;brave-browser.desktop;google-chrome.desktop;chromium.desktop
+x-scheme-handler/http=chromium.desktop;firefox.desktop;brave-browser.desktop;google-chrome.desktop
+x-scheme-handler/https=chromium.desktop;firefox.desktop;brave-browser.desktop;google-chrome.desktop

@@ -89,7 +89,7 @@ Item {
             // Apps in their own colours (end-4 tints them; Settings still
             // offers "Tint app icons").
             Config.options.dock.monochromeIcons = false;
-            Config.options.dock.pinnedApps = ["com.mitchellh.ghostty", "thunar", "firefox", "asura-store"];
+            Config.options.dock.pinnedApps = ["com.mitchellh.ghostty", "thunar", "chromium", "asura-store"];
         }
     }
 

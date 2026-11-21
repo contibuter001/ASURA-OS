@@ -147,7 +147,7 @@ session:
 
 applications:
   packages:
-    - firefox
+    - chromium
     - flatpak
     - Thunar
     - thunar-volman

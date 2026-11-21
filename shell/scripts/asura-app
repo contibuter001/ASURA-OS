@@ -90,7 +90,7 @@ default_browser() {
 		printf '%s' "$alt"
 		return 0
 	fi
-	first_of firefox chromium chromium-browser google-chrome-stable google-chrome \
+	first_of chromium firefox chromium-browser google-chrome-stable google-chrome \
 		brave-browser zen zen-browser vivaldi-stable librewolf epiphany
 }
 

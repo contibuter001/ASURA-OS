@@ -37,9 +37,9 @@ DockButton {
                 if (e) return e;
             }
         }
-        // Browser fallback (e.g. firefox on systems with brave/chrome)
-        if (idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
-            for (let name of ["firefox", "brave-browser", "google-chrome", "chromium", "com.brave.Browser", "com.google.Chrome"]) {
+        // Browser fallback (e.g. chromium on systems with brave/firefox)
+        if (idLower.includes("chromium") || idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
+            for (let name of ["chromium", "firefox", "brave-browser", "google-chrome", "com.brave.Browser", "com.google.Chrome"]) {
                 let e = DesktopEntries.byId(name) || DesktopEntries.heuristicLookup(name);
                 if (e) return e;
             }
@@ -109,13 +109,13 @@ DockButton {
             return;
         }
 
-        if (idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
+        if (idLower.includes("chromium") || idLower.includes("firefox") || idLower.includes("browser") || idLower.includes("web")) {
             try {
                 Quickshell.execDetached(["asura-app", "browser"]);
                 return;
             } catch (_) {}
             try {
-                Quickshell.execDetached(["firefox"]);
+                Quickshell.execDetached(["chromium"]);
                 return;
             } catch (_) {}
             root.hyprExec(["asura-app", "browser"]);
