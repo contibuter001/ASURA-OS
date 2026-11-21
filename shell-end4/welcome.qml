@@ -188,6 +188,108 @@ ApplicationWindow {
         }
     }
 
+    component ShortcutCard: Rectangle {
+        id: cardRoot
+        property string comboText: ""
+        property string titleText: ""
+        property string descText: ""
+        property var command: []
+
+        Layout.fillWidth: true
+        implicitHeight: 52
+        radius: 8
+        color: cardMouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
+        border.width: 1
+        border.color: cardMouse.containsMouse ? Appearance.m3colors.m3primary : Appearance.colors.colOutlineVariant
+
+        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on border.color { ColorAnimation { duration: 120 } }
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
+            spacing: 8
+
+            // Left Keycap
+            Rectangle {
+                width: 94
+                height: 26
+                radius: 4
+                color: Appearance.m3colors.m3surfaceContainerHigh
+                Layout.alignment: Qt.AlignVCenter
+
+                StyledText {
+                    anchors.centerIn: parent
+                    text: cardRoot.comboText
+                    font.pixelSize: 11
+                    font.weight: Font.Bold
+                    color: Appearance.colors.colOnLayer0
+                }
+            }
+
+            // Centered Text Block
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignVCenter
+                spacing: 2
+
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    text: cardRoot.titleText
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    color: Appearance.colors.colOnLayer0
+                }
+
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    text: cardRoot.descText
+                    font.pixelSize: 11
+                    color: Appearance.colors.colSubtext
+                    elide: Text.ElideRight
+                }
+            }
+
+            // Right Spacer balancing the keycap to guarantee exact card-center alignment
+            Item {
+                width: 94
+                height: 26
+                Layout.alignment: Qt.AlignVCenter
+
+                Rectangle {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 24
+                    height: 24
+                    radius: 12
+                    color: cardMouse.containsMouse ? Appearance.m3colors.m3primary : "transparent"
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "open_in_new"
+                        iconSize: 13
+                        color: cardMouse.containsMouse ? Appearance.m3colors.m3onPrimary : "transparent"
+                    }
+                }
+            }
+        }
+
+        MouseArea {
+            id: cardMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: (cardRoot.command && cardRoot.command.length > 0) ? Qt.PointingHandCursor : Qt.ArrowCursor
+            onClicked: {
+                if (cardRoot.command && cardRoot.command.length > 0) {
+                    root.runCmd(cardRoot.command);
+                }
+            }
+        }
+    }
+
     // Keyboard shortcuts to navigate
     Shortcut { sequence: "Right"; onActivated: root.advance() }
     Shortcut { sequence: "Left"; onActivated: root.back() }
@@ -970,236 +1072,60 @@ ApplicationWindow {
                             rowSpacing: 10
                             columnSpacing: 12
 
-                            // 1. Launcher
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k1Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Super + Space"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("App Launcher"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("Search apps and commands"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k1Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-shell", "launcher"]) }
+                            ShortcutCard {
+                                comboText: "Super + Space"
+                                titleText: Translation.tr("App Launcher")
+                                descText: Translation.tr("Search apps and commands")
+                                command: ["asura-shell", "launcher"]
                             }
 
-                            // 2. Terminal
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k2Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Super + Enter"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("Terminal"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("Ghostty shell window"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k2Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-app", "terminal"]) }
+                            ShortcutCard {
+                                comboText: "Super + Enter"
+                                titleText: Translation.tr("Terminal")
+                                descText: Translation.tr("Ghostty shell window")
+                                command: ["asura-app", "terminal"]
                             }
 
-                            // 3. Browser
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k3Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Super + B"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("Browser"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("Default Chromium web browser"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k3Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-app", "browser"]) }
+                            ShortcutCard {
+                                comboText: "Super + B"
+                                titleText: Translation.tr("Browser")
+                                descText: Translation.tr("Default Chromium web browser")
+                                command: ["asura-app", "browser"]
                             }
 
-                            // 4. Asura Settings
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k4Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Super + I"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("Asura Settings"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("System preferences & devices"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k4Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-shell", "hub", "open"]) }
+                            ShortcutCard {
+                                comboText: "Super + I"
+                                titleText: Translation.tr("Asura Settings")
+                                descText: Translation.tr("System preferences & devices")
+                                command: ["asura-shell", "hub", "open"]
                             }
 
-                            // 5. System Monitor
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k5Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Ctrl+Shift+Esc"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("System Monitor"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("btop task manager"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k5Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-app", "terminal", "--", "btop"]) }
+                            ShortcutCard {
+                                comboText: "Ctrl+Shift+Esc"
+                                titleText: Translation.tr("System Monitor")
+                                descText: Translation.tr("btop task manager")
+                                command: ["asura-app", "terminal", "--", "btop"]
                             }
 
-                            // 6. Quick Settings
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k6Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Super + Esc"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("Quick Controls"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("Audio, network, power menu"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k6Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-shell", "quicksettings"]) }
+                            ShortcutCard {
+                                comboText: "Super + Esc"
+                                titleText: Translation.tr("Quick Controls")
+                                descText: Translation.tr("Audio, network, power menu")
+                                command: ["asura-shell", "quicksettings"]
                             }
 
-                            // 7. Screen Snip
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k7Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Super+Shift+S"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("Screen Snip"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("Area screenshot to clipboard"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k7Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-cmd-snip"]) }
+                            ShortcutCard {
+                                comboText: "Super+Shift+S"
+                                titleText: Translation.tr("Screen Snip")
+                                descText: Translation.tr("Area screenshot to clipboard")
+                                command: ["asura-cmd-snip"]
                             }
 
-                            // 8. Lock Screen
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: k8Mouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 10
-                                    Rectangle {
-                                        width: 90
-                                        height: 26
-                                        radius: 4
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        StyledText { anchors.centerIn: parent; text: "Super + L"; font.pixelSize: 11; font.weight: Font.Bold }
-                                    }
-                                    ColumnLayout {
-                                        spacing: 1
-                                        StyledText { text: Translation.tr("Lock Session"); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer0 }
-                                        StyledText { text: Translation.tr("Lock the Wayland display"); font.pixelSize: 11; color: Appearance.colors.colSubtext }
-                                    }
-                                }
-                                MouseArea { id: k8Mouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.runCmd(["asura-shell", "lock"]) }
+                            ShortcutCard {
+                                comboText: "Super + L"
+                                titleText: Translation.tr("Lock Session")
+                                descText: Translation.tr("Lock the Wayland display")
+                                command: ["asura-shell", "lock"]
                             }
                         }
                     }
