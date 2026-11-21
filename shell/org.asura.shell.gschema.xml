@@ -43,7 +43,7 @@
     </key>
 
     <key name="wallpaper-path-dark" type="s">
-      <default>'file:///usr/share/asura/backgrounds/galaxy.png'</default>
+      <default>'file:///usr/share/asura/backgrounds/eva-berserk.jpg'</default>
       <summary>Dark-mode wallpaper</summary>
       <description>
         A URI, used when the colour scheme is prefer-dark. The default is the

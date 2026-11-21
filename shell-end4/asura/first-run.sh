@@ -30,7 +30,7 @@ fi
 # black one (ASURA's default galaxy) gives a grey desktop: unless the user chose
 # another wallpaper, end-4 starts on a colourful one of ASURA's.
 LOOK_MARK="$STATE/asura/end4-look-1"
-VIVID=/usr/share/asura/backgrounds/lost.jpg
+VIVID=/usr/share/asura/backgrounds/eva-berserk.jpg
 if [ ! -e "$LOOK_MARK" ] || [ ! -s "$STATE/quickshell/user/generated/colors.json" ]; then
 	if ! command -v matugen >/dev/null 2>&1; then
 		echo "matugen is not installed; end-4 keeps its default palette (sudo xbps-install -S matugen)"
