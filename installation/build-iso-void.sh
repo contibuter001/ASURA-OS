@@ -532,6 +532,7 @@ mkdir -p "$INCLUDE_DIR/usr/lib"
 ln -sf libdisplay-info.so.3 "$INCLUDE_DIR/usr/lib/libdisplay-info.so.2"
 ln -sf libjxl.so.0.12 "$INCLUDE_DIR/usr/lib/libjxl.so.0.11"
 ln -sf libjxl_threads.so.0.12 "$INCLUDE_DIR/usr/lib/libjxl_threads.so.0.11"
+ln -sf libhyprutils.so.6 "$INCLUDE_DIR/usr/lib/libhyprutils.so.10"
 # libsystemd compatibility symlinks redirecting to Void's native libelogind
 ln -sf libelogind.so.0 "$INCLUDE_DIR/usr/lib/libsystemd.so.0"
 ln -sf libelogind.so.0 "$INCLUDE_DIR/usr/lib/libsystemd.so"
@@ -1217,6 +1218,11 @@ for fname in os.listdir(hypr_cache):
                         r = r.replace("libjxl_threads.so.0.11", "libjxl_threads.so.0.12")
                         fixed.append(r)
                     pkg_props["shlib-requires"] = fixed
+                provides = pkg_props.get("shlib-provides")
+                if isinstance(provides, list) and "libhyprutils.so.6" in provides:
+                    if "libhyprutils.so.10" not in provides:
+                        provides.append("libhyprutils.so.10")
+                    pkg_props["shlib-provides"] = provides
                 # pkgdb is keyed by package NAME (xbps-query hyprland,
                 # xbps-install -Su); a pkgver key leaves the package unknown
                 # to xbps, which then tries to install it from the repository.
