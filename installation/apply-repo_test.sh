@@ -16,15 +16,13 @@ sh -n "$APPLY"
 
 # Sources apply-repo.sh does not need to name:
 # - mklive's boot splash data and build tooling: the live ISO's.
-# - ../asura-store, ../asura-sysmon: the ISO may build those two tools from
-#   their standalone repositories; apply-repo.sh builds them from ASURA's own
-#   copies (desktop/cmd/asura-store, asura-sysmon), which store-sync and
-#   sysmon-sync keep byte-identical.
+# - ../asura-store: the ISO may build that tool from
+#   its standalone repository; apply-repo.sh builds it from ASURA's own
+#   copy (desktop/cmd/asura-store), which store-sync keeps byte-identical.
 LIVE_ONLY="
 public/branding/boot-splash.png
 installation/binary-checksums.txt
 ../asura-store
-../asura-sysmon
 "
 
 fail=0

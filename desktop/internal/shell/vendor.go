@@ -82,7 +82,6 @@ var vendoredRoots = map[string]bool{
 	"store":        true,
 	"vm":           true,
 	"wallpaper-ui": true,
-	"sysmon":       true,
 }
 
 // overlayFiles are the files Asura supplies at upstream's paths.

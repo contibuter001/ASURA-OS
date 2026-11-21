@@ -69,7 +69,6 @@ put session/hyprland /usr/share/asura/hyprland
 put apps /usr/share/asura/apps
 put_as apps/mimeapps/asura-mimeapps.list /usr/share/applications/asura-mimeapps.list
 put shell/agent/skills /usr/share/asura/skills
-put shell/sysmon /usr/share/asura/sysmon
 put desktop/catalog /usr/share/asura/store/catalog
 put system/runit/user-services /usr/share/asura/runit/services
 
@@ -162,7 +161,7 @@ if [ "$BUILD" -eq 1 ]; then
 			cd "$REPO/desktop"
 			export GOWORK=off GOFLAGS=-buildvcs=false CGO_ENABLED=0
 			go build -o "$out/" ./cmd/asura ./cmd/asura-sysd ./cmd/asura-userd ./cmd/asura-hubd \
-				./cmd/asura-shell ./cmd/asura-wallpaper ./cmd/apm ./cmd/asura-store ./cmd/asura-sysmon
+				./cmd/asura-shell ./cmd/asura-wallpaper ./cmd/apm ./cmd/asura-store
 			go build -o "$out/asura-vm-mon" ./cmd/asura-vm/mon
 			go build -o "$out/asura-vm-ssh" ./cmd/asura-vm/remote
 		) && for b in "$out"/*; do

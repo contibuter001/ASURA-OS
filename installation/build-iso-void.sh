@@ -386,9 +386,9 @@ if [ -f "$REPO_ROOT/shell/assets/asura-installer.svg" ]; then
 	cp "$REPO_ROOT/shell/assets/asura-installer.svg" "$INCLUDE_DIR/usr/share/pixmaps/"
 fi
 
-# Asura Sysmon desktop entry
-if [ -f "$REPO_ROOT/session/applications/asura-sysmon.desktop" ]; then
-	cp "$REPO_ROOT/session/applications/asura-sysmon.desktop" "$INCLUDE_DIR/usr/share/applications/"
+# Resource monitor (btop) desktop entry
+if [ -f "$REPO_ROOT/session/applications/btop.desktop" ]; then
+	cp "$REPO_ROOT/session/applications/btop.desktop" "$INCLUDE_DIR/usr/share/applications/"
 fi
 # Install Zed code editor desktop entry on ISO
 cat > "$INCLUDE_DIR/usr/share/applications/dev.zed.Zed.desktop" <<'EOF'
@@ -629,24 +629,6 @@ echo "build-iso-void: building Asura Go binaries..."
 		CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-store" ./cmd/asura-store
 	fi
 
-	# Build Asura Resource Monitor (prioritizing standalone repository https://github.com/ASURA-OS/asura-sysmon)
-	SYSMON_SRC="${ASURA_SYSMON_SRC:-}"
-	if [ -z "$SYSMON_SRC" ]; then
-		if [ -d "$REPO_ROOT/../asura-sysmon" ]; then
-			SYSMON_SRC="$REPO_ROOT/../asura-sysmon"
-		fi
-	fi
-	if [ -n "$SYSMON_SRC" ] && [ -d "$SYSMON_SRC/cmd/asura-sysmon" ]; then
-		echo "build-iso-void: building asura-sysmon from standalone repo ($SYSMON_SRC)..."
-		( cd "$SYSMON_SRC/cmd/asura-sysmon" && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$INCLUDE_DIR/usr/bin/asura-sysmon" . )
-		mkdir -p "$INCLUDE_DIR/usr/share/asura/sysmon"
-		cp -r "$REPO_ROOT/shell/sysmon"/* "$INCLUDE_DIR/usr/share/asura/sysmon/" 2>/dev/null || true
-	else
-		echo "build-iso-void: building asura-sysmon from desktop tree..."
-		CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-sysmon" ./cmd/asura-sysmon
-		mkdir -p "$INCLUDE_DIR/usr/share/asura/sysmon"
-		cp -r "$REPO_ROOT/shell/sysmon"/* "$INCLUDE_DIR/usr/share/asura/sysmon/" 2>/dev/null || true
-	fi
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-vm-mon" ./cmd/asura-vm/mon
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-vm-ssh" ./cmd/asura-vm/remote
 	cp -f "$REPO_ROOT/desktop/cmd/asura-vm/asura-vmd" "$INCLUDE_DIR/usr/bin/asura-vmd"
@@ -672,6 +654,12 @@ cat >"$INCLUDE_DIR/etc/skel/.config/ghostty/config" <<'EOF'
 config-file = ?~/.config/asura/apps/ghostty/config
 working-directory = home
 EOF
+
+# Pre-seed btop configuration in skeleton
+mkdir -p "$INCLUDE_DIR/etc/skel/.config/btop"
+if [ -f "$REPO_ROOT/apps/btop/btop.conf" ]; then
+	cp "$REPO_ROOT/apps/btop/btop.conf" "$INCLUDE_DIR/etc/skel/.config/btop/btop.conf"
+fi
 
 # Pre-seed zsh configuration in skeleton
 cat >"$INCLUDE_DIR/etc/skel/.zshrc" <<'EOF'
@@ -963,9 +951,6 @@ if [ -f "$ROOTFS/etc/default/libc-locales" ]; then
 	sed -i 's/^#\(en_US.UTF-8 UTF-8\)/\1/' "$ROOTFS/etc/default/libc-locales"
 	chroot "$ROOTFS" xbps-reconfigure -f glibc-locales 2>/dev/null || true
 fi
-# Remove obsolete btop desktop entries
-rm -f "$ROOTFS/usr/share/applications/btop.desktop"
-rm -f "$ROOTFS/home/asura/Desktop/btop.desktop"
 
 # Enable core system runit services (Layer 1 seatd, Layer 3 scx-lavd, ananicy-cpp, zramen). Docker is opt-in: not enabled by default (podman is the default container tool).
 mkdir -p "$ROOTFS/etc/runit/runsvdir/default"

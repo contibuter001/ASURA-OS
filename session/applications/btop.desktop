@@ -2,11 +2,10 @@
 Name=Resource Monitor
 GenericName=System Monitor
 Comment=View live system telemetry, CPU, memory, disks, and active processes
-Exec=asura-sysmon
+Exec=asura-app terminal -- btop
 Icon=utilities-system-monitor
 Terminal=false
 Type=Application
 Categories=System;Monitor;
-Keywords=system;process;task;manager;cpu;ram;memory;kill;
+Keywords=system;process;task;manager;cpu;ram;memory;kill;btop;
 StartupNotify=true
-StartupWMClass=asura-sysmon

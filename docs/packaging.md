@@ -17,7 +17,6 @@ Package build instructions are stored as templates in `packaging/xbps/`:
 | `asura-shell.template` | Quickshell UI surfaces, theme tokens, widgets, icons, wallpapers, and Hub backend. |
 | `asura-installer.template` | Guided system installer script, desktop launcher, and partition utilities. |
 | `asura-store.template` | Software store CLI data plane (`asura-store`) and catalog manifests. |
-| `asura-sysmon.template` | System resource monitor daemon (`asura-sysmon`) and desktop entry. |
 
 ---
 
@@ -63,5 +62,5 @@ Updates and package installations use native XBPS commands:
 sudo xbps-install -Su
 
 # Install ASURA specific packages
-sudo xbps-install -S asura-desktop asura-shell asura-store asura-sysmon
+sudo xbps-install -S asura-desktop asura-shell asura-store
 ```
