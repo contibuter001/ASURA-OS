@@ -27,7 +27,7 @@ ApplicationWindow {
     readonly property var stepList: [
         { label: Translation.tr("Hello"), icon: "waving_hand" },
         { label: Translation.tr("Your Bar"), icon: "dock_to_bottom" },
-        { label: Translation.tr("Make It Yours"), icon: "palette" },
+        { label: Translation.tr("Apps & Dev"), icon: "apps" },
         { label: Translation.tr("Essentials"), icon: "keyboard" },
         { label: Translation.tr("Done"), icon: "check_circle" }
     ]
@@ -81,6 +81,111 @@ ApplicationWindow {
     function runCmd(argv) {
         if (!argv || argv.length === 0) return;
         Quickshell.execDetached(argv);
+    }
+
+    component AppToolCard: Rectangle {
+        id: cardRoot
+        property string iconName: "apps"
+        property string titleText: ""
+        property string badgeText: ""
+        property string descText: ""
+        property var command: []
+
+        Layout.fillWidth: true
+        implicitHeight: 46
+        radius: 8
+        color: cardMouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainerLowest
+        border.width: 1
+        border.color: cardMouse.containsMouse ? Appearance.m3colors.m3primary : Appearance.colors.colOutlineVariant
+
+        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on border.color { ColorAnimation { duration: 120 } }
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
+            spacing: 10
+
+            Rectangle {
+                width: 28
+                height: 28
+                radius: 6
+                color: Appearance.m3colors.m3surfaceContainerHigh
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: cardRoot.iconName
+                    iconSize: 16
+                    color: Appearance.m3colors.m3primary
+                }
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 1
+
+                RowLayout {
+                    spacing: 6
+                    StyledText {
+                        text: cardRoot.titleText
+                        font.weight: Font.DemiBold
+                        font.pixelSize: 13
+                        color: Appearance.colors.colOnLayer0
+                    }
+                    Rectangle {
+                        visible: cardRoot.badgeText.length > 0
+                        implicitWidth: badgeLabel.implicitWidth + 8
+                        implicitHeight: 16
+                        radius: 4
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+                        StyledText {
+                            id: badgeLabel
+                            anchors.centerIn: parent
+                            text: cardRoot.badgeText
+                            font.pixelSize: 9
+                            font.weight: Font.Bold
+                            color: Appearance.m3colors.m3primary
+                        }
+                    }
+                }
+
+                StyledText {
+                    text: cardRoot.descText
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    color: Appearance.colors.colSubtext
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                }
+            }
+
+            Rectangle {
+                visible: cardRoot.command && cardRoot.command.length > 0
+                width: 24
+                height: 24
+                radius: 12
+                color: cardMouse.containsMouse ? Appearance.m3colors.m3primary : "transparent"
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: "open_in_new"
+                    iconSize: 13
+                    color: cardMouse.containsMouse ? Appearance.m3colors.m3onPrimary : Appearance.colors.colSubtext
+                }
+            }
+        }
+
+        MouseArea {
+            id: cardMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: (cardRoot.command && cardRoot.command.length > 0) ? Qt.PointingHandCursor : Qt.ArrowCursor
+            onClicked: {
+                if (cardRoot.command && cardRoot.command.length > 0) {
+                    root.runCmd(cardRoot.command);
+                }
+            }
+        }
     }
 
     // Keyboard shortcuts to navigate
@@ -365,7 +470,7 @@ ApplicationWindow {
                             }
 
                             StyledText {
-                                text: Translation.tr("Your desktop is pre-configured and dressed. This guided tour sets up your bar position, appearance mode, and introduces essential shortcuts.")
+                                text: Translation.tr("Your desktop is pre-configured and dressed. This guided tour sets up your bar position, introduces bundled apps and developer tools, and covers essential shortcuts.")
                                 font.pixelSize: Appearance.font.pixelSize.medium
                                 color: Appearance.colors.colSubtext
                                 wrapMode: Text.WordWrap
@@ -422,7 +527,7 @@ ApplicationWindow {
                                         color: Appearance.m3colors.m3surfaceContainerHigh
                                         MaterialSymbol {
                                             anchors.centerIn: parent
-                                            text: "palette"
+                                            text: "apps"
                                             iconSize: 20
                                             color: Appearance.m3colors.m3primary
                                         }
@@ -430,12 +535,12 @@ ApplicationWindow {
                                     ColumnLayout {
                                         spacing: 2
                                         StyledText {
-                                            text: Translation.tr("Theme & Wallpapers")
+                                            text: Translation.tr("Apps & Dev Stack")
                                             font.weight: Font.DemiBold
                                             color: Appearance.colors.colOnLayer0
                                         }
                                         StyledText {
-                                            text: Translation.tr("Switch between dark and light themes with dynamic palette harmony.")
+                                            text: Translation.tr("Explore the pre-installed applications and developer environment.")
                                             font.pixelSize: Appearance.font.pixelSize.small
                                             color: Appearance.colors.colSubtext
                                         }
@@ -638,25 +743,25 @@ ApplicationWindow {
                 }
 
                 // ------------------------------------------
-                // PAGE 2: MAKE IT YOURS (THEME & WALLPAPER)
+                // PAGE 2: APPS & DEV STACK
                 // ------------------------------------------
                 Item {
-                    id: pageMake
+                    id: pageApps
 
                     ColumnLayout {
                         anchors.fill: parent
-                        spacing: 16
+                        spacing: 12
 
                         ColumnLayout {
                             spacing: 4
                             StyledText {
-                                text: Translation.tr("Make it yours")
+                                text: Translation.tr("Apps & Dev Stack")
                                 font.pixelSize: 24
                                 font.weight: Font.Bold
                                 color: Appearance.colors.colOnLayer0
                             }
                             StyledText {
-                                text: Translation.tr("Choose your appearance theme and system wallpaper. Colors update across apps and widgets.")
+                                text: Translation.tr("ASURA OS includes a complete desktop suite and modern developer environment out of the box.")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colSubtext
                             }
@@ -668,115 +773,160 @@ ApplicationWindow {
                             color: Appearance.colors.colOutlineVariant
                         }
 
-                        // Light / Dark Theme Mode
-                        ContentSubsection {
-                            title: Translation.tr("Appearance theme")
-
-                            ButtonGroup {
-                                Layout.alignment: Qt.AlignHCenter
-                                LightDarkPreferenceButton { dark: false }
-                                LightDarkPreferenceButton { dark: true }
-                            }
-                        }
-
-                        // Wallpaper & Language Row
+                        // Categories Grid (2 Columns)
                         RowLayout {
                             Layout.fillWidth: true
+                            Layout.fillHeight: true
                             spacing: 16
 
-                            // Wallpaper Picker Card
-                            Rectangle {
+                            // Column 1: Core Applications
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                implicitHeight: 110
-                                radius: Appearance.rounding.cardRounding
-                                color: Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
+                                Layout.fillHeight: true
+                                spacing: 8
 
                                 RowLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 16
-                                    spacing: 16
-
-                                    Rectangle {
-                                        width: 44
-                                        height: 44
-                                        radius: 22
-                                        color: Appearance.m3colors.m3surfaceContainerHigh
-                                        MaterialSymbol {
-                                            anchors.centerIn: parent
-                                            text: "wallpaper"
-                                            iconSize: 24
-                                            color: Appearance.m3colors.m3primary
-                                        }
-                                    }
-
-                                    ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 2
-                                        StyledText {
-                                            text: Translation.tr("Wallpaper gallery")
-                                            font.weight: Font.Bold
-                                            color: Appearance.colors.colOnLayer0
-                                        }
-                                        StyledText {
-                                            text: Translation.tr("Pick a wallpaper image from disk or browse presets.")
-                                            font.pixelSize: Appearance.font.pixelSize.smaller
-                                            color: Appearance.colors.colSubtext
-                                        }
-                                    }
-
-                                    RippleButtonWithIcon {
-                                        materialIcon: "folder_open"
-                                        mainText: Translation.tr("Choose Wallpaper")
-                                        onClicked: {
-                                            Quickshell.execDetached([`${Directories.wallpaperSwitchScriptPath}`]);
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Language Selector Card
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 110
-                                radius: Appearance.rounding.cardRounding
-                                color: Appearance.m3colors.m3surfaceContainerLowest
-                                border.width: 1
-                                border.color: Appearance.colors.colOutlineVariant
-
-                                ColumnLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 16
                                     spacing: 6
-
+                                    MaterialSymbol {
+                                        text: "apps"
+                                        iconSize: 16
+                                        color: Appearance.m3colors.m3primary
+                                    }
                                     StyledText {
-                                        text: Translation.tr("Interface Language")
+                                        text: Translation.tr("Core Applications")
                                         font.weight: Font.Bold
+                                        font.pixelSize: 13
                                         color: Appearance.colors.colOnLayer0
                                     }
+                                }
 
-                                    ConfigSelectionArray {
-                                        currentValue: Config.options.language.ui
-                                        onSelected: newValue => {
-                                            Config.options.language.ui = newValue;
-                                        }
-                                        options: [
-                                            { displayName: "Auto", value: "auto" },
-                                            { displayName: "en_US", value: "en_US" },
-                                            { displayName: "ja_JP", value: "ja_JP" },
-                                            { displayName: "zh_CN", value: "zh_CN" },
-                                            { displayName: "es_MX", value: "es_MX" },
-                                            { displayName: "de_DE", value: "de_DE" }
-                                        ]
+                                AppToolCard {
+                                    iconName: "travel_explore"
+                                    titleText: "Chromium"
+                                    badgeText: Translation.tr("Browser")
+                                    descText: Translation.tr("GPU-accelerated Wayland web browser")
+                                    command: ["asura-app", "browser"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "terminal"
+                                    titleText: "Ghostty"
+                                    badgeText: Translation.tr("Terminal")
+                                    descText: Translation.tr("Fast, GPU-accelerated modern terminal")
+                                    command: ["asura-app", "terminal"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "code"
+                                    titleText: "Zed Editor"
+                                    badgeText: Translation.tr("GUI Editor")
+                                    descText: Translation.tr("High-performance collaborative code editor")
+                                    command: ["asura-app", "editor"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "folder_open"
+                                    titleText: "Thunar"
+                                    badgeText: Translation.tr("Files")
+                                    descText: Translation.tr("Lightweight file manager with archive plugins")
+                                    command: ["asura-app", "files"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "shopping_bag"
+                                    titleText: "Asura Store"
+                                    badgeText: Translation.tr("Store")
+                                    descText: Translation.tr("Package manager, components & shell extensions")
+                                    command: ["asura-store"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "settings"
+                                    titleText: "Asura Settings"
+                                    badgeText: Translation.tr("Control")
+                                    descText: Translation.tr("System preferences, displays, audio & keybinds")
+                                    command: ["asura-shell", "hub", "open"]
+                                }
+
+                                Item { Layout.fillHeight: true }
+                            }
+
+                            // Column 2: Developer Tooling & CLI
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                spacing: 8
+
+                                RowLayout {
+                                    spacing: 6
+                                    MaterialSymbol {
+                                        text: "terminal"
+                                        iconSize: 16
+                                        color: Appearance.m3colors.m3primary
+                                    }
+                                    StyledText {
+                                        text: Translation.tr("Developer Stack & CLI")
+                                        font.weight: Font.Bold
+                                        font.pixelSize: 13
+                                        color: Appearance.colors.colOnLayer0
                                     }
                                 }
+
+                                AppToolCard {
+                                    iconName: "edit_note"
+                                    titleText: "Neovim"
+                                    badgeText: Translation.tr("CLI Editor")
+                                    descText: Translation.tr("Modal terminal editor with extensible LSP plugins")
+                                    command: ["asura-app", "terminal", "--", "nvim"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "speed"
+                                    titleText: "btop"
+                                    badgeText: Translation.tr("Monitor")
+                                    descText: Translation.tr("Modern resource monitor for CPU, GPU, RAM & nets")
+                                    command: ["asura-app", "terminal", "--", "btop"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "extension"
+                                    titleText: "Mise"
+                                    badgeText: Translation.tr("Runtimes")
+                                    descText: Translation.tr("Polyglot toolchain manager (Node, Python, Go, Rust)")
+                                    command: ["asura-app", "terminal", "--", "mise"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "deployed_code"
+                                    titleText: "Docker & Podman"
+                                    badgeText: Translation.tr("Containers")
+                                    descText: Translation.tr("OCI container engines & Docker Compose included")
+                                    command: ["asura-app", "terminal", "--", "podman", "version"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "terminal"
+                                    titleText: "Zsh + Starship"
+                                    badgeText: Translation.tr("Shell")
+                                    descText: Translation.tr("Fast prompt with syntax highlighting & autosuggest")
+                                    command: ["asura-app", "terminal"]
+                                }
+
+                                AppToolCard {
+                                    iconName: "search"
+                                    titleText: "Fastfetch & Atuin"
+                                    badgeText: Translation.tr("CLI Tools")
+                                    descText: Translation.tr("System specs overview and shell history search")
+                                    command: ["asura-app", "terminal", "--", "fastfetch"]
+                                }
+
+                                Item { Layout.fillHeight: true }
                             }
                         }
 
                         NoticeBox {
                             Layout.fillWidth: true
-                            text: Translation.tr("Change themes anytime later with /dark, /light, or /wallpaper in the application launcher.")
+                            text: Translation.tr("Click any card to launch it now. Open the app launcher anytime with <tt>Super+Space</tt>.")
                         }
                     }
                 }
