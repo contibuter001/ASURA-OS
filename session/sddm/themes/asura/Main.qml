@@ -87,8 +87,8 @@ Rectangle {
 
     Image {
         anchors.fill: parent
-        source: "file:///usr/share/asura/backgrounds/galaxy.png"
-        fillMode: Image.PreserveAspectCrop
+        source: "file:///usr/share/asura/backgrounds/eva-berserk.jpg"
+        fillMode: Image.Stretch
         asynchronous: true
     }
     Rectangle {

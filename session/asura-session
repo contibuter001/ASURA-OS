@@ -236,7 +236,7 @@ fi
 # never clobbers a user's choice (which replaces the symlink).
 USER_WALLPAPER_DIR="$HOME/.config/asura/current"
 USER_WALLPAPER_LINK="$USER_WALLPAPER_DIR/background"
-DEFAULT_WALLPAPER="/usr/share/asura/backgrounds/galaxy.png"
+DEFAULT_WALLPAPER="/usr/share/asura/backgrounds/eva-berserk.jpg"
 if [ ! -e "$USER_WALLPAPER_LINK" ]; then
     mkdir -p "$USER_WALLPAPER_DIR"
     ln -sf "$DEFAULT_WALLPAPER" "$USER_WALLPAPER_LINK"

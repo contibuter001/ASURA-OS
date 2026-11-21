@@ -40,7 +40,7 @@ Variants {
         StyledImage {
             anchors.fill: parent
             source: Config.options.background.wallpaperPath
-            fillMode: Image.PreserveAspectCrop
+            fillMode: Image.Stretch
         }
     }
 }

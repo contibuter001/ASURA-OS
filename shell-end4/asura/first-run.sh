@@ -29,7 +29,7 @@ fi
 # no palette exists. end-4 takes all its colours from the wallpaper, so a near-
 # black one (ASURA's default galaxy) gives a grey desktop: unless the user chose
 # another wallpaper, end-4 starts on a colourful one of ASURA's.
-LOOK_MARK="$STATE/asura/end4-look-1"
+LOOK_MARK="$STATE/asura/end4-look-2"
 VIVID=/usr/share/asura/backgrounds/eva-berserk.jpg
 if [ ! -e "$LOOK_MARK" ] || [ ! -s "$STATE/quickshell/user/generated/colors.json" ]; then
 	if ! command -v matugen >/dev/null 2>&1; then
@@ -37,7 +37,7 @@ if [ ! -e "$LOOK_MARK" ] || [ ! -s "$STATE/quickshell/user/generated/colors.json
 		exit 0
 	fi
 	wp=$(gsettings get org.asura.shell wallpaper-path 2>/dev/null | tr -d "'")
-	case "$wp" in ''|*/galaxy.png) wp=$VIVID ;; esac
+	case "$wp" in ''|*/galaxy.png|*/default_wallpaper.png) wp=$VIVID ;; esac
 	if [ ! -f "$wp" ]; then
 		for f in /usr/share/asura/backgrounds/*; do
 			[ -f "$f" ] && { wp=$f; break; }

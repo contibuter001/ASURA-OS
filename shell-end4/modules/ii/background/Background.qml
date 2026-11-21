@@ -47,7 +47,8 @@ Variants {
             const sensitiveNetwork = (CF.StringUtils.stringListContainsSubstring(Network.networkName.toLowerCase(), Config.options.workSafety.triggerCondition.networkNameKeywords));
             return enabled && sensitiveWallpaper && sensitiveNetwork;
         }
-        readonly property real parallaxRation: Config.options.background.parallax.workspaceZoom
+        readonly property bool parallaxActive: Config.options.background.parallax.enableWorkspace || Config.options.background.parallax.enableSidebar
+        readonly property real parallaxRation: parallaxActive ? Config.options.background.parallax.workspaceZoom : 1.0
         property real minSuitableScale: 1 // Some reasonable init, to be updated
         property real effectiveWallpaperScale: minSuitableScale * parallaxRation
         property int wallpaperWidth: modelData.width // Some reasonable init value, to be updated
@@ -213,6 +214,9 @@ Variants {
                 }
 
                 x: {
+                    if (!bgRoot.parallaxActive) {
+                        return 0;
+                    }
                     if (bgRoot.screen.width > width) {
                         // Center the picture
                         return (bgRoot.screen.width - width) / 2;
@@ -220,6 +224,9 @@ Variants {
                     return - bgRoot.parallaxTotalPixelsX * usedFractionX;
                 }
                 y: {
+                    if (!bgRoot.parallaxActive) {
+                        return 0;
+                    }
                     if (bgRoot.screen.height > height) {
                         // Center the picture
                         return (bgRoot.screen.height - height) / 2;
@@ -228,7 +235,7 @@ Variants {
                 }
 
                 source: bgRoot.wallpaperSafetyTriggered ? "" : bgRoot.wallpaperPath
-                fillMode: Image.PreserveAspectCrop
+                fillMode: bgRoot.parallaxActive ? Image.PreserveAspectCrop : Image.Stretch
                 Behavior on x {
                     NumberAnimation {
                         duration: 600
@@ -241,8 +248,8 @@ Variants {
                         easing.type: Easing.OutCubic
                     }
                 }
-                width: bgRoot.scaledWallpaperWidth
-                height: bgRoot.scaledWallpaperHeight
+                width: bgRoot.parallaxActive ? bgRoot.scaledWallpaperWidth : bgRoot.screen.width
+                height: bgRoot.parallaxActive ? bgRoot.scaledWallpaperHeight : bgRoot.screen.height
             }
 
             Loader {
