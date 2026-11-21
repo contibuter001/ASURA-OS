@@ -247,6 +247,9 @@ func parseSvStatus(out string) svState {
 		}
 		return svStopped
 	case strings.HasPrefix(first, "fail:"), strings.HasPrefix(first, "warning:"):
+		if strings.Contains(first, "permission denied") || strings.Contains(first, "access denied") {
+			return svUnknown
+		}
 		return svMissing
 	}
 	return svUnknown
@@ -264,7 +267,7 @@ func reportCoreServices(root string, fix bool) int {
 	problems := 0
 
 	enabled := func(svc string) bool {
-		for _, dir := range []string{"/var/service", "/etc/runit/runsvdir/default"} {
+		for _, dir := range []string{"/var/service", "/etc/runit/runsvdir/default", "/run/runit/runsvdir/current"} {
 			if _, err := os.Stat(filepath.Join(root, dir, svc)); err == nil {
 				return true
 			}
@@ -280,7 +283,7 @@ func reportCoreServices(root string, fix bool) int {
 		}
 		out, _ := exec.Command("sv", "status", "/var/service/"+svc).CombinedOutput()
 		st := parseSvStatus(string(out))
-		if st == svUnknown {
+		if st == svUnknown || (st == svMissing && os.Geteuid() != 0) {
 			if enabled(svc) {
 				return svRunning
 			}
