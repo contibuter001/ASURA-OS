@@ -58,4 +58,3 @@ var applyEnd4Wallpaper = func(path string) {
 	cmd := exec.Command(script, "--image", path)
 	_ = cmd.Start()
 }
-
