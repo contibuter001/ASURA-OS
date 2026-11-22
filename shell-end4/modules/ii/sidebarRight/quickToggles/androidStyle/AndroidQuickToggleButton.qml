@@ -73,66 +73,66 @@ GroupButton {
         else root.mainAction();
     }
 
-    contentItem: RowLayout {
-        id: contentItem
-        spacing: 6
-        anchors {
-            centerIn: root.expandedSize ? undefined : parent
-            fill: root.expandedSize ? parent : undefined
-            leftMargin: root.horizontalPadding
-            rightMargin: root.horizontalPadding
+    contentItem: Item {
+        anchors.fill: parent
+
+        // Single cell (size 1): cleanly centered icon
+        MaterialSymbol {
+            visible: !root.expandedSize
+            anchors.centerIn: parent
+            iconSize: 20
+            fill: root.toggled ? 1 : 0
+            color: root.colIcon
+            text: root.buttonIcon
         }
 
-        // Icon
-        MouseArea {
-            id: iconMouseArea
-            hoverEnabled: true
-            acceptedButtons: (root.expandedSize && root.altAction) ? Qt.LeftButton : Qt.NoButton
-            Layout.alignment: Qt.AlignVCenter
-            Layout.fillHeight: true
-            Layout.topMargin: root.verticalPadding
-            Layout.bottomMargin: root.verticalPadding
-            implicitHeight: iconBackground.implicitHeight
-            implicitWidth: iconBackground.implicitWidth
-            cursorShape: (root.expandedSize && root.altAction) ? Qt.PointingHandCursor : Qt.ArrowCursor
+        // Expanded cell (size > 1): RowLayout with icon, text, and chevron
+        RowLayout {
+            visible: root.expandedSize
+            anchors.fill: parent
+            anchors.leftMargin: root.horizontalPadding
+            anchors.rightMargin: root.horizontalPadding
+            spacing: 6
 
-            onClicked: root.mainAction()
+            // Icon with clickable circle for toggling
+            MouseArea {
+                id: iconMouseArea
+                visible: root.expandedSize
+                hoverEnabled: true
+                acceptedButtons: !!root.altAction ? Qt.LeftButton : Qt.NoButton
+                Layout.alignment: Qt.AlignVCenter
+                implicitHeight: 30
+                implicitWidth: 30
+                cursorShape: !!root.altAction ? Qt.PointingHandCursor : Qt.ArrowCursor
 
-            Rectangle {
-                id: iconBackground
-                anchors.fill: parent
-                implicitWidth: height
-                radius: height / 2
-                color: root.expandedSize
-                    ? (root.toggled
+                onClicked: root.mainAction()
+
+                Rectangle {
+                    id: iconBackground
+                    anchors.fill: parent
+                    radius: height / 2
+                    color: root.toggled
                         ? ColorUtils.transparentize(Appearance.colors.colOnPrimary, iconMouseArea.containsMouse ? 0.75 : 0.85)
-                        : ColorUtils.transparentize(Appearance.colors.colOnLayer2, iconMouseArea.containsMouse ? 0.85 : 0.92))
-                    : "transparent"
+                        : ColorUtils.transparentize(Appearance.colors.colOnLayer2, iconMouseArea.containsMouse ? 0.85 : 0.92)
 
-                Behavior on radius {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
-                }
-                Behavior on color {
-                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-                }
+                    Behavior on color {
+                        animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                    }
 
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    fill: root.toggled ? 1 : 0
-                    iconSize: root.expandedSize ? 18 : 20
-                    color: root.colIcon
-                    text: root.buttonIcon
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        fill: root.toggled ? 1 : 0
+                        iconSize: 18
+                        color: root.colIcon
+                        text: root.buttonIcon
+                    }
                 }
             }
-        }
 
-        // Text column for expanded size
-        Loader {
-            Layout.alignment: Qt.AlignVCenter
-            Layout.fillWidth: true
-            visible: root.expandedSize
-            active: visible
-            sourceComponent: Column {
+            // Text column
+            Column {
+                Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
                 spacing: 0
 
                 StyledText {
@@ -148,7 +148,7 @@ GroupButton {
                 }
 
                 StyledText {
-                    visible: root.statusText
+                    visible: root.statusText !== ""
                     anchors {
                         left: parent.left
                         right: parent.right
@@ -163,16 +163,17 @@ GroupButton {
                     text: root.statusText
                 }
             }
-        }
 
-        MaterialSymbol {
-            visible: root.expandedSize && !!root.altAction
-            Layout.alignment: Qt.AlignVCenter
-            Layout.rightMargin: 2
-            iconSize: 16
-            color: root.colText
-            opacity: 0.6
-            text: "chevron_right"
+            // Menu chevron
+            MaterialSymbol {
+                visible: !!root.altAction
+                Layout.alignment: Qt.AlignVCenter
+                Layout.rightMargin: 2
+                iconSize: 16
+                color: root.colText
+                opacity: 0.6
+                text: "chevron_right"
+            }
         }
     }
 
