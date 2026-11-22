@@ -109,7 +109,7 @@ cli_editor() {
 	for e in "${VISUAL:-}" "${EDITOR:-}"; do
 		[ -n "$e" ] && { printf '%s' "$e"; return 0; }
 	done
-	first_of sensible-editor nano vim vi
+	first_of nvim sensible-editor nano vim vi
 }
 
 fallback() {
@@ -118,22 +118,13 @@ fallback() {
 	browser) default_browser ;;
 	terminal) terminal_command ;;
 	editor)
-		if have zed; then
-			printf 'zed'
-			return 0
-		elif have zed-editor; then
-			printf 'zed-editor'
-			return 0
-		elif [ -x "$HOME/.local/bin/zed" ]; then
-			printf '%s' "$HOME/.local/bin/zed"
-			return 0
-		fi
+		have nvim && { printf '%s -e nvim' "$(terminal_command || echo ghostty)"; return 0; }
 		ed="$(cli_editor || true)"
 		term="$(terminal_command || true)"
 		if [ -n "$ed" ] && [ -n "$term" ]; then
 			printf '%s -e %s' "$term" "$ed"
 		else
-			first_of zed zed-editor code gnome-text-editor gedit kate mousepad || true
+			first_of nvim nano vim vi code gnome-text-editor gedit kate mousepad || true
 		fi
 		;;
 

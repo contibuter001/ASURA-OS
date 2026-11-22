@@ -932,10 +932,10 @@ ApplicationWindow {
                                 }
 
                                 AppToolCard {
-                                    iconName: "code"
-                                    titleText: "Zed Editor"
-                                    badgeText: Translation.tr("GUI Editor")
-                                    descText: Translation.tr("High-performance collaborative code editor")
+                                    iconName: "edit_note"
+                                    titleText: "Neovim"
+                                    badgeText: Translation.tr("Editor")
+                                    descText: Translation.tr("Extensible modal terminal code editor")
                                     command: ["asura-app", "editor"]
                                 }
 

@@ -216,7 +216,7 @@ if grep -Fq 'greetd' "$MANIFEST"; then
 fi
 grep -Fq 'zoxide' "$MANIFEST"
 grep -Fq 'fzf' "$MANIFEST"
-# Neovim is the terminal editor ($EDITOR); Zed is the graphical one (agent rule).
+# Neovim is the primary editor ($EDITOR / $VISUAL).
 grep -Eq '^[[:space:]]+- neovim$' "$MANIFEST"
 grep -Fq 'nvim' "$REPO_ROOT/apps/zsh/asura.zsh"
 grep -Fq 'zsh-autosuggestions' "$MANIFEST"
@@ -227,7 +227,7 @@ grep -Fq 'mise' "$MANIFEST"
 grep -Fq 'gcc' "$MANIFEST"
 grep -Fq 'make' "$MANIFEST"
 grep -Fq 'cmake' "$MANIFEST"
-grep -Fq 'zed --wait' "$REPO_ROOT/apps/zsh/asura.zsh"
+grep -Fq 'nvim' "$REPO_ROOT/session/hyprland/env.conf"
 
 # STAGE 5: Performance & Light Cleanup Verifications
 if grep -Fq 'xdg-desktop-portal-lxqt' "$MANIFEST"; then

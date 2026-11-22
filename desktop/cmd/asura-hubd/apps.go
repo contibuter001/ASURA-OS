@@ -43,8 +43,8 @@ var appRoleDefs = []struct {
 		{"Ghostty", "ghostty"}, {"Alacritty", "alacritty"}, {"Foot", "foot"},
 		{"WezTerm", "wezterm"}, {"Konsole", "konsole"},
 	}},
-	{"editor", "Editor", "zed", [][2]string{
-		{"Zed", "zed|zed-editor"}, {"Neovim", "ghostty -e nvim"}, {"Helix", "ghostty -e hx"}, {"Vim", "ghostty -e vim"},
+	{"editor", "Editor", "ghostty -e nvim", [][2]string{
+		{"Neovim", "ghostty -e nvim"}, {"Helix", "ghostty -e hx"}, {"Vim", "ghostty -e vim"},
 		{"VS Code", "code"}, {"VSCodium", "codium"}, {"Sublime Text", "subl"},
 	}},
 
@@ -100,7 +100,7 @@ func appRoles() []appRole {
 			}
 		}
 		if d.Role == "editor" {
-			if cmd, ok := resolveCandidate("zed|zed-editor"); ok {
+			if cmd, ok := resolveCandidate("ghostty -e nvim|nvim"); ok {
 				fallback = cmd
 			}
 		}

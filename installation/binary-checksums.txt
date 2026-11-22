@@ -1,8 +1,5 @@
 # Known SHA-256 checksums for external binary downloads pinned in build-iso-void.sh
 
-# Zed Editor (v1.27.0 - verified from GitHub Releases API asset sha256 digest)
-719f6bf649ea8d87961adbf728e178561bac3f598d72d7949558d1150cfc43dd  zed-linux-x86_64.tar.gz
-
 # OpenCode CLI (v2.2.6 - verified from official npm registry dist metadata)
 dfcd69f1d511ae10ed626768b41d84b8100cc4aa64cecb69da38ba7a29d33551  opencode-v2.2.6-linux-x64.tgz
 

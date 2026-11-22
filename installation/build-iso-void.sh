@@ -29,7 +29,6 @@ ISO_TITLE="Asura OS x86_64"
 export GOWORK=off
 
 # Pinned binary versions and checksum verification file
-ZED_VERSION="v1.27.0"
 OPENCODE_VERSION="2.2.6"
 CHECKSUMS_FILE="$REPO_ROOT/installation/binary-checksums.txt"
 
@@ -390,43 +389,21 @@ fi
 if [ -f "$REPO_ROOT/session/applications/btop.desktop" ]; then
 	cp "$REPO_ROOT/session/applications/btop.desktop" "$INCLUDE_DIR/usr/share/applications/"
 fi
-# Install Zed code editor desktop entry on ISO
-cat > "$INCLUDE_DIR/usr/share/applications/dev.zed.Zed.desktop" <<'EOF'
+# Install Neovim code editor desktop entry on ISO
+cat > "$INCLUDE_DIR/usr/share/applications/nvim.desktop" <<'EOF'
 [Desktop Entry]
-Name=Zed
-Comment=A high-performance, multiplayer code editor.
+Name=Neovim
 GenericName=Text Editor
-Exec=zed %F
-Icon=zed
+Comment=Edit text files in modern terminal
+Exec=ghostty --title="Neovim" -e nvim %F
+Icon=nvim
+Terminal=false
 Type=Application
-StartupNotify=true
-StartupWMClass=dev.zed.Zed
-Categories=TextEditor;Development;IDE;
-MimeType=text/plain;text/x-chdr;text/x-csrc;text/x-c++hdr;text/x-c++src;text/x-rust;text/x-python;text/x-go;application/json;application/xml;text/markdown;
-Keywords=Text;Editor;Development;
+Categories=Utility;TextEditor;Development;
+Keywords=Text;editor;code;nvim;vim;development;
+StartupNotify=false
+MimeType=text/plain;text/x-chdr;text/x-csrc;text/x-c++hdr;text/x-c++src;text/x-rust;text/x-python;text/x-go;text/x-shellscript;application/json;application/xml;text/markdown;text/x-lua;application/toml;application/x-yaml;text/yaml;
 EOF
-
-# Download and install official standalone Zed binary if not already cached
-ZED_CACHE="$BUILD_DIR/zed"
-mkdir -p "$ZED_CACHE"
-ZED_ARCHIVE="$ZED_CACHE/zed-linux-x86_64.tar.gz"
-if [ ! -f "$ZED_ARCHIVE" ]; then
-	echo "build-iso-void: downloading Zed editor $ZED_VERSION..."
-	curl -sSL -f -o "$ZED_ARCHIVE" "https://github.com/zed-industries/zed/releases/download/${ZED_VERSION}/zed-linux-x86_64.tar.gz" || {
-		echo "build-iso-void: failed to download Zed $ZED_VERSION" >&2
-		exit 1
-	}
-fi
-verify_checksum "$ZED_ARCHIVE"
-mkdir -p "$INCLUDE_DIR/usr/lib/zed" "$INCLUDE_DIR/usr/bin"
-tar -xzf "$ZED_ARCHIVE" --strip-components=1 -C "$INCLUDE_DIR/usr/lib/zed"
-if [ -x "$INCLUDE_DIR/usr/lib/zed/bin/zed" ]; then
-	ln -sf /usr/lib/zed/bin/zed "$INCLUDE_DIR/usr/bin/zed"
-	mkdir -p "$INCLUDE_DIR/usr/share/icons/hicolor"
-	if [ -d "$INCLUDE_DIR/usr/lib/zed/share/icons/hicolor" ]; then
-		cp -rn "$INCLUDE_DIR/usr/lib/zed/share/icons/hicolor"/* "$INCLUDE_DIR/usr/share/icons/hicolor/" 2>/dev/null || true
-	fi
-fi
 
 # Download and install official standalone OpenCode CLI (v2) binary if not already cached
 OPENCODE_CACHE="$BUILD_DIR/opencode"
