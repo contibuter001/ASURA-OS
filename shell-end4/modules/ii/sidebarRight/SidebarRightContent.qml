@@ -20,7 +20,7 @@ import qs.modules.ii.sidebarRight.wifiNetworks
 Item {
     id: root
     property int sidebarWidth: Appearance.sizes.sidebarWidth
-    property int sidebarPadding: 10
+    property int sidebarPadding: 8
     property string settingsQmlPath: Quickshell.shellPath("settings.qml")
     property bool showAudioOutputDialog: false
     property bool showAudioInputDialog: false
@@ -201,7 +201,7 @@ Item {
     }
 
     component SystemButtonRow: Item {
-        implicitHeight: Math.max(uptimeContainer.implicitHeight, systemButtonsRow.implicitHeight)
+        implicitHeight: 32
 
         Rectangle {
             id: uptimeContainer
@@ -212,25 +212,25 @@ Item {
             }
             color: Appearance.colors.colLayer1
             radius: height / 2
-            implicitWidth: uptimeRow.implicitWidth + 24
-            implicitHeight: uptimeRow.implicitHeight + 8
+            implicitWidth: uptimeRow.implicitWidth + 16
+            implicitHeight: 32
             
             Row {
                 id: uptimeRow
                 anchors.centerIn: parent
-                spacing: 8
+                spacing: 6
                 CustomIcon {
                     id: distroIcon
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 25
-                    height: 25
+                    width: 18
+                    height: 18
                     source: SystemInfo.distroIcon
                     colorize: true
                     color: Appearance.colors.colOnLayer0
                 }
                 StyledText {
                     anchors.verticalCenter: parent.verticalCenter
-                    font.pixelSize: Appearance.font.pixelSize.normal
+                    font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colOnLayer0
                     text: Translation.tr("Up %1").arg(DateTime.uptime)
                     textFormat: Text.MarkdownText
@@ -246,7 +246,8 @@ Item {
                 right: parent.right
             }
             color: Appearance.colors.colLayer1
-            padding: 4
+            padding: 2
+            implicitHeight: 32
 
             QuickToggleButton {
                 toggled: root.editMode

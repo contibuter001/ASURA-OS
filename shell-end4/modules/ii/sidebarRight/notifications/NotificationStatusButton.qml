@@ -8,9 +8,9 @@ GroupButton {
     property string buttonIcon: ""
     property string buttonText: ""
 
-    baseHeight: 36
-    baseWidth: content.implicitWidth + 46
-    clickedWidth: baseWidth + 6
+    baseHeight: 32
+    baseWidth: content.implicitWidth + 36
+    clickedWidth: baseWidth + 4
 
     buttonRadius: baseHeight / 2
     buttonRadiusPressed: Appearance.rounding.small
@@ -31,7 +31,7 @@ GroupButton {
             MaterialSymbol {
                 visible: buttonIcon !== ""
                 text: buttonIcon
-                iconSize: Appearance.font.pixelSize.huge
+                iconSize: Appearance.font.pixelSize.larger
                 color: button.colText
             }
             StyledText {

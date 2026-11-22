@@ -31,12 +31,33 @@ Item {
     }
 
     // Placeholder when list is empty
-    PagePlaceholder {
-        shown: Notifications.list.length === 0
-        icon: "notifications_active"
-        description: Translation.tr("Nothing")
-        shape: MaterialShape.Shape.Ghostish
-        descriptionHorizontalAlignment: Text.AlignHCenter
+    Item {
+        anchors.fill: parent
+        anchors.bottomMargin: statusRow.height + 10
+        visible: Notifications.list.length === 0
+        opacity: visible ? 1 : 0
+        Behavior on opacity {
+            animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+        }
+
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 6
+
+            MaterialSymbol {
+                Layout.alignment: Qt.AlignHCenter
+                iconSize: 32
+                color: Appearance.m3colors.m3outline
+                text: "notifications_none"
+            }
+
+            StyledText {
+                Layout.alignment: Qt.AlignHCenter
+                font.pixelSize: Appearance.font.pixelSize.small
+                color: Appearance.m3colors.m3outline
+                text: Translation.tr("No notifications")
+            }
+        }
     }
 
     ButtonGroup {

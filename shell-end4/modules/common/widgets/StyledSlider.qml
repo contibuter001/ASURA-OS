@@ -43,7 +43,7 @@ Slider {
         : trackWidth >= StyledSlider.Configuration.M ? 9
         : trackWidth >= StyledSlider.Configuration.S ? 6
         : height / 2
-    property real handleHeight: (configuration === StyledSlider.Configuration.Wavy) ? 24 : Math.max(33, trackWidth + 9)
+    property real handleHeight: (configuration === StyledSlider.Configuration.Wavy) ? 24 : Math.max(22, trackWidth + 6)
     property real handleWidth: root.pressed ? handlePressedWidth : handleDefaultWidth
     property real handleMargins: 4
     property real dividerMargins: 2

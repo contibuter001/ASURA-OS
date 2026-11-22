@@ -19,11 +19,12 @@ Rectangle {
     implicitHeight: contentItem.implicitHeight + root.verticalPadding * 2
     radius: Appearance.rounding.normal
     color: Appearance.colors.colLayer1
-    property real verticalPadding: 4
-    property real horizontalPadding: 12
+    property real verticalPadding: 6
+    property real horizontalPadding: 10
 
     Column {
         id: contentItem
+        spacing: 4
         anchors {
             fill: parent
             leftMargin: root.horizontalPadding
@@ -100,7 +101,8 @@ Rectangle {
         id: quickSlider
         required property string materialSymbol
         property string secondaryMaterialSymbol
-        configuration: StyledSlider.Configuration.M
+        configuration: StyledSlider.Configuration.S
+        implicitHeight: 26
         stopIndicatorValues: []
         dividerValues: secondaryMaterialSymbol.length > 0 ? [secondaryIcon.iconLocation] : []
         
@@ -110,9 +112,9 @@ Rectangle {
             anchors {
                 verticalCenter: quickSlider.verticalCenter
                 right: nearFull ? quickSlider.handle.right : quickSlider.right
-                rightMargin: nearFull ? 14 : 8
+                rightMargin: nearFull ? 12 : 8
             }
-            iconSize: 20
+            iconSize: 16
             color: nearFull ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
             text: quickSlider.materialSymbol
 
@@ -132,9 +134,9 @@ Rectangle {
             anchors {
                 verticalCenter: quickSlider.verticalCenter
                 right: nearIcon ? quickSlider.handle.right : quickSlider.right
-                rightMargin: nearIcon ? 14 : (1 - iconLocation) * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8
+                rightMargin: nearIcon ? 12 : (1 - iconLocation) * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8
             }
-            iconSize: 20
+            iconSize: 16
             color: quickSlider.value >= iconLocation - 0.1 ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
             text: secondaryMaterialSymbol
 

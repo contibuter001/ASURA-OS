@@ -55,16 +55,16 @@ GroupButton {
     }
 
     enabled: available || editMode
-    padding: 6
-    horizontalPadding: padding
-    verticalPadding: padding
+    padding: 4
+    horizontalPadding: 6
+    verticalPadding: 4
 
     colBackground: Appearance.colors.colLayer2
     colBackgroundToggled: (altAction && expandedSize) ? Appearance.colors.colLayer2 : Appearance.colors.colPrimary
     colBackgroundToggledHover: (altAction && expandedSize) ? Appearance.colors.colLayer2Hover : Appearance.colors.colPrimaryHover
     colBackgroundToggledActive: (altAction && expandedSize) ? Appearance.colors.colLayer2Active : Appearance.colors.colPrimaryActive
-    buttonRadius: toggled ? Appearance.rounding.large : height / 2
-    buttonRadiusPressed: Appearance.rounding.normal
+    buttonRadius: toggled ? Appearance.rounding.normal : height / 2
+    buttonRadiusPressed: Appearance.rounding.small
     property color colText: (toggled && !(altAction && expandedSize) && enabled) ? Appearance.colors.colOnPrimary : ColorUtils.transparentize(Appearance.colors.colOnLayer2, enabled ? 0 : 0.7)
     property color colIcon: expandedSize ? ((root.toggled) ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer3) : colText
 
@@ -119,7 +119,7 @@ GroupButton {
                 MaterialSymbol {
                     anchors.centerIn: parent
                     fill: root.toggled ? 1 : 0
-                    iconSize: root.expandedSize ? 22 : 24
+                    iconSize: root.expandedSize ? 18 : 20
                     color: root.colIcon
                     text: root.buttonIcon
                 }
@@ -153,7 +153,7 @@ GroupButton {
                         left: parent.left
                         right: parent.right
                     }
-                    font.pixelSize: Appearance.font.pixelSize.smallie
+                    font.pixelSize: Appearance.font.pixelSize.smaller
                     font.weight: 600
                     color: root.colText
                     elide: Text.ElideRight
@@ -167,8 +167,8 @@ GroupButton {
                         right: parent.right
                     }
                     font {
-                        pixelSize: Appearance.font.pixelSize.smaller
-                        weight: 100
+                        pixelSize: Appearance.font.pixelSize.smallest
+                        weight: 400
                     }
                     color: root.colText
                     elide: Text.ElideRight
