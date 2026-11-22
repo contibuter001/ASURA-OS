@@ -46,6 +46,15 @@ asura version --commit      # the commit this machine runs
 
 - `asura rollback` — the previous config revision (ASURA keeps the three newest
   in `~/.local/state/asura/revisions/`).
+- `asura snapshot` — list system snapshots: when, why (before an update, before
+  installing packages, by hand) and which ASURA each holds.
+  `asura snapshot create` takes one by hand.
 - `sudo asura rollback --system <snapshot>` — make a pre-update Btrfs snapshot
   the root at the next reboot (`asura rollback --system` lists them; the five
   newest pre-update snapshots are kept). The old root is kept until deleted.
+
+## Downloads are slow
+
+`asura mirror fastest` times the Void mirrors and uses the quickest;
+`asura mirror list` shows them, `asura mirror set NAME` picks one,
+`asura mirror reset` goes back to the default. Updates keep the choice.

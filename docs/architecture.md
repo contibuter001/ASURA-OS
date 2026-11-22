@@ -315,6 +315,9 @@ rule is what makes rollback possible.
 | `asura refresh` | apply installed changes to the running session: re-sync user services, `hyprctl reload`, restart the shell and ASURA's daemons (the last step of `asura update`) |
 | `asura migrate` | run the one-time fixes (`migrations/`) this machine and user have not run yet; `asura update` runs it after applying ASURA (see `docs/migrations.md`) |
 | `asura rollback` | re-materialize the previous revision |
+| `asura snapshot` | list system (Btrfs) snapshots with their date, reason and ASURA commit, or take one; taken automatically before system updates and before package installs (`asura-pkg-add`) |
+| `asura enable` / `disable` | switch an optional service (docker, bluetooth, printing, ssh, libvirt, tailscale) on or off: package, runit link, group |
+| `asura mirror` | choose the Void mirror (`list`, `fastest`, `set`, `reset`), written to `/etc/xbps.d/00-asura-mirror.conf`, which updates keep |
 | `asura materialize <path>` | re-lay the base file, clobbering shipped content |
 | `asura reset <path>` | drop one overlay file back to the base |
 | `asura doctor` | report drift between base and overlay |

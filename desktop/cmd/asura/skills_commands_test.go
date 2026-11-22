@@ -39,7 +39,9 @@ func TestSkillsNameRealCommands(t *testing.T) {
 				return true
 			}
 		}
-		return false
+		// Helpers apply-repo.sh installs to /usr/bin from system/helpers/*/.
+		helpers, _ := filepath.Glob(filepath.Join(repo, "system", "helpers", "*", name))
+		return len(helpers) > 0
 	}
 	for _, file := range files {
 		b, err := os.ReadFile(file)

@@ -32,6 +32,22 @@ sudo xbps-remove NAME             # remove
 
 `apm` is ASURA's shorthand for the same verbs (`apm install NAME`).
 
+## Optional services
+
+Docker, Bluetooth, printing, SSH, virtual machines (libvirt) and Tailscale are
+off until switched on; `asura enable NAME` installs the package if needed,
+starts the service (and at every boot), and adds the user to its group:
+
+```sh
+asura enable --list               # each one, on or off
+asura enable docker               # then log out and in for the docker group
+asura disable docker              # stop it; the package stays
+```
+
+Installing packages through ASURA's helper (`asura-pkg-add`) takes a system
+snapshot first, so a bad install can be undone with
+`sudo asura rollback --system NAME` (`asura snapshot` lists them).
+
 ## Afterwards
 
 A new app appears in the launcher at once. A theme or bar style may need

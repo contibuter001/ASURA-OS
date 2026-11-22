@@ -388,7 +388,6 @@ func isBtrfsRoot() bool {
 	return false
 }
 
-// createBtrfsSnapshot creates an atomic read-only snapshot of root in /.snapshots/.
 // keepUpdateSnapshots is how many pre-update Btrfs snapshots an update keeps.
 const keepUpdateSnapshots = 5
 
@@ -396,22 +395,28 @@ const keepUpdateSnapshots = 5
 // Their names end in a sortable timestamp; snapshots made any other way (by
 // hand, or a rollback's kept root) are never selected.
 func oldUpdateSnapshots(names []string, keep int) []string {
-	var updates []string
-	for _, name := range names {
-		if strings.HasPrefix(name, "pre-update-") {
-			updates = append(updates, name)
-		}
-	}
-	sort.Strings(updates)
-	if len(updates) <= keep {
-		return nil
-	}
-	return updates[:len(updates)-keep]
+	return oldSnapshots(names, snapshotPreUpdate, keep)
 }
 
-// pruneBtrfsSnapshots deletes the pre-update snapshots beyond the newest keep.
-// Each one pins every file the updates since have replaced, so they grow
-// without limit when nothing removes them.
+// oldSnapshots names the snapshots with prefix beyond the newest keep.
+func oldSnapshots(names []string, prefix string, keep int) []string {
+	var matching []string
+	for _, name := range names {
+		if strings.HasPrefix(name, prefix) {
+			matching = append(matching, name)
+		}
+	}
+	sort.Strings(matching)
+	if len(matching) <= keep {
+		return nil
+	}
+	return matching[:len(matching)-keep]
+}
+
+// pruneBtrfsSnapshots deletes, for each automatic kind (before an update,
+// before an install), the snapshots beyond the newest keep. Each one pins
+// every file changed since, so they grow without limit when nothing removes
+// them. Snapshots made by hand are never removed.
 func pruneBtrfsSnapshots(dir string, keep int) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -423,20 +428,30 @@ func pruneBtrfsSnapshots(dir string, keep int) {
 			names = append(names, entry.Name())
 		}
 	}
-	for _, name := range oldUpdateSnapshots(names, keep) {
-		args := []string{"btrfs", "subvolume", "delete", filepath.Join(dir, name)}
-		if os.Geteuid() != 0 {
-			args = append([]string{"sudo"}, args...)
+	for _, prefix := range []string{snapshotPreUpdate, snapshotPreInstall} {
+		for _, name := range oldSnapshots(names, prefix, keep) {
+			args := []string{"btrfs", "subvolume", "delete", filepath.Join(dir, name)}
+			if os.Geteuid() != 0 {
+				args = append([]string{"sudo"}, args...)
+			}
+			if out, err := exec.Command(args[0], args[1:]...).CombinedOutput(); err != nil {
+				fmt.Fprintf(os.Stderr, "asura: removing old snapshot %s: %v (%s)\n", name, err, strings.TrimSpace(string(out)))
+				continue
+			}
+			fmt.Printf("removed old system snapshot: %s\n", name)
 		}
-		if out, err := exec.Command(args[0], args[1:]...).CombinedOutput(); err != nil {
-			fmt.Fprintf(os.Stderr, "asura update: removing old snapshot %s: %v (%s)\n", name, err, strings.TrimSpace(string(out)))
-			continue
-		}
-		fmt.Printf("removed old system snapshot: %s\n", name)
 	}
 }
 
+// createBtrfsSnapshot snapshots root before an update.
 func createBtrfsSnapshot() (string, error) {
+	return createBtrfsSnapshotAs(snapshotPreUpdate)
+}
+
+// createBtrfsSnapshotAs makes a read-only snapshot of root in /.snapshots,
+// named prefix plus a sortable timestamp. It does nothing (and returns "")
+// when root is not Btrfs or btrfs-progs is missing.
+func createBtrfsSnapshotAs(prefix string) (string, error) {
 	if !isBtrfsRoot() {
 		return "", nil
 	}
@@ -446,7 +461,7 @@ func createBtrfsSnapshot() (string, error) {
 
 	snapDir := "/.snapshots"
 	timestamp := time.Now().Format("20060102-150405")
-	snapName := "pre-update-" + timestamp
+	snapName := prefix + timestamp
 	snapPath := filepath.Join(snapDir, snapName)
 
 	sudo := "sudo"
