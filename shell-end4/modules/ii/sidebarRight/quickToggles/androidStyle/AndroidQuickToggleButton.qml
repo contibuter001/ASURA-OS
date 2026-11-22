@@ -56,17 +56,17 @@ GroupButton {
 
     enabled: available || editMode
     padding: 4
-    horizontalPadding: 6
+    horizontalPadding: 8
     verticalPadding: 4
 
     colBackground: Appearance.colors.colLayer2
-    colBackgroundToggled: (altAction && expandedSize) ? Appearance.colors.colLayer2 : Appearance.colors.colPrimary
-    colBackgroundToggledHover: (altAction && expandedSize) ? Appearance.colors.colLayer2Hover : Appearance.colors.colPrimaryHover
-    colBackgroundToggledActive: (altAction && expandedSize) ? Appearance.colors.colLayer2Active : Appearance.colors.colPrimaryActive
-    buttonRadius: toggled ? Appearance.rounding.normal : height / 2
+    colBackgroundToggled: Appearance.colors.colPrimary
+    colBackgroundToggledHover: Appearance.colors.colPrimaryHover
+    colBackgroundToggledActive: Appearance.colors.colPrimaryActive
+    buttonRadius: Appearance.rounding.normal
     buttonRadiusPressed: Appearance.rounding.small
-    property color colText: (toggled && !(altAction && expandedSize) && enabled) ? Appearance.colors.colOnPrimary : ColorUtils.transparentize(Appearance.colors.colOnLayer2, enabled ? 0 : 0.7)
-    property color colIcon: expandedSize ? ((root.toggled) ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer3) : colText
+    property color colText: (root.toggled && enabled) ? Appearance.colors.colOnPrimary : ColorUtils.transparentize(Appearance.colors.colOnLayer2, enabled ? 0 : 0.7)
+    property color colIcon: colText
 
     onClicked: {
         if (root.expandedSize && root.altAction) root.altAction();
@@ -75,7 +75,7 @@ GroupButton {
 
     contentItem: RowLayout {
         id: contentItem
-        spacing: 4
+        spacing: 6
         anchors {
             centerIn: root.expandedSize ? undefined : parent
             fill: root.expandedSize ? parent : undefined
@@ -88,13 +88,13 @@ GroupButton {
             id: iconMouseArea
             hoverEnabled: true
             acceptedButtons: (root.expandedSize && root.altAction) ? Qt.LeftButton : Qt.NoButton
-            Layout.alignment: Qt.AlignHCenter
+            Layout.alignment: Qt.AlignVCenter
             Layout.fillHeight: true
             Layout.topMargin: root.verticalPadding
             Layout.bottomMargin: root.verticalPadding
             implicitHeight: iconBackground.implicitHeight
             implicitWidth: iconBackground.implicitWidth
-            cursorShape: Qt.PointingHandCursor
+            cursorShape: (root.expandedSize && root.altAction) ? Qt.PointingHandCursor : Qt.ArrowCursor
 
             onClicked: root.mainAction()
 
@@ -102,12 +102,12 @@ GroupButton {
                 id: iconBackground
                 anchors.fill: parent
                 implicitWidth: height
-                radius: root.radius - root.verticalPadding
-                color: {
-                    const baseColor = root.toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer3
-                    const transparentizeAmount = (root.altAction && root.expandedSize) ? 0 : 1
-                    return ColorUtils.transparentize(baseColor, transparentizeAmount)
-                }
+                radius: height / 2
+                color: root.expandedSize
+                    ? (root.toggled
+                        ? ColorUtils.transparentize(Appearance.colors.colOnPrimary, iconMouseArea.containsMouse ? 0.75 : 0.85)
+                        : ColorUtils.transparentize(Appearance.colors.colOnLayer2, iconMouseArea.containsMouse ? 0.85 : 0.92))
+                    : "transparent"
 
                 Behavior on radius {
                     animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
@@ -123,19 +123,6 @@ GroupButton {
                     color: root.colIcon
                     text: root.buttonIcon
                 }
-
-                // State layer
-                Loader {
-                    anchors.fill: parent
-                    active: (root.expandedSize && root.altAction)
-                    sourceComponent: Rectangle {
-                        radius: iconBackground.radius
-                        color: ColorUtils.transparentize(root.colIcon, iconMouseArea.containsPress ? 0.88 : iconMouseArea.containsMouse ? 0.95 : 1)
-                        Behavior on color {
-                            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-                        }
-                    }
-                }
             }
         }
 
@@ -146,7 +133,7 @@ GroupButton {
             visible: root.expandedSize
             active: visible
             sourceComponent: Column {
-                spacing: -2
+                spacing: 0
 
                 StyledText {
                     anchors {
@@ -171,10 +158,21 @@ GroupButton {
                         weight: 400
                     }
                     color: root.colText
+                    opacity: 0.8
                     elide: Text.ElideRight
                     text: root.statusText
                 }
             }
+        }
+
+        MaterialSymbol {
+            visible: root.expandedSize && !!root.altAction
+            Layout.alignment: Qt.AlignVCenter
+            Layout.rightMargin: 2
+            iconSize: 16
+            color: root.colText
+            opacity: 0.6
+            text: "chevron_right"
         }
     }
 
