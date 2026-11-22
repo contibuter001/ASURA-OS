@@ -101,6 +101,7 @@ for s in asura-hub asura-idle asura-pin asura-reload-cover asura-shot asura-vm a
 	put_bin "session/$s" "/usr/bin/$s"
 done
 for f in "$REPO"/session/scripts/* "$REPO"/shell/scripts/*; do
+	case "$f" in *.md) continue ;; esac
 	[ -f "$f" ] && put_bin "${f#"$REPO"/}" "/usr/bin/$(basename "$f")"
 done
 put session/applications /usr/share/applications

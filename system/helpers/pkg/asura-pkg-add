@@ -36,6 +36,11 @@ fi
 
 # Run as root
 trap '' PIPE HUP
+# A system snapshot first, so a bad install or removal can be rolled back
+# (asura rollback --system). Skipped quietly when / is not Btrfs.
+if command -v asura >/dev/null 2>&1; then
+    asura snapshot create --reason install >/dev/null 2>&1 || true
+fi
 if [ $remove -eq 1 ]; then
     exec xbps-remove -y "$@"
 else

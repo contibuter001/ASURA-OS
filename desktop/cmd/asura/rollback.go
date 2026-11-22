@@ -85,7 +85,7 @@ func rollbackSystem(target string) int {
 			return exitOK
 		}
 		for _, s := range snaps {
-			fmt.Printf("  • %s\n", s)
+			fmt.Println("  " + describeSnapshot("/.snapshots", s))
 		}
 		fmt.Println("\nTo restore a system snapshot, run:")
 		fmt.Println("  sudo asura rollback --system <snapshot-name>")
@@ -234,7 +234,7 @@ func listRollbackTargets(paths overlay.Paths) int {
 		fmt.Println("  no system snapshots found")
 	} else {
 		for _, s := range snaps {
-			fmt.Printf("  • %s\n", s)
+			fmt.Println("  " + describeSnapshot("/.snapshots", s))
 		}
 	}
 	return exitOK
@@ -252,7 +252,25 @@ func isBtrfsSnapshot(name string) bool {
 
 // listBtrfsSnapshots returns available snapshot names in /.snapshots.
 func listBtrfsSnapshots() ([]string, error) {
-	entries, err := os.ReadDir("/.snapshots")
+	return listSnapshotsIn("/.snapshots")
+}
+
+// snapshotSortKey orders snapshots by the timestamp in their names, so a
+// pre-install one sorts among pre-update ones by time, not by prefix. Names
+// with no timestamp sort after them (newest first means they come last).
+func snapshotSortKey(name string) string {
+	for _, prefix := range []string{snapshotPreUpdate, snapshotPreInstall, snapshotManual} {
+		if stamp, ok := strings.CutPrefix(name, prefix); ok {
+			return "1" + stamp
+		}
+	}
+	return "0" + name
+}
+
+// listSnapshotsIn returns the snapshot names in dir, newest first: the
+// automatic kinds by the time in their names, the rest by name.
+func listSnapshotsIn(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -265,6 +283,6 @@ func listBtrfsSnapshots() ([]string, error) {
 			snaps = append(snaps, entry.Name())
 		}
 	}
-	sort.Sort(sort.Reverse(sort.StringSlice(snaps)))
+	sort.SliceStable(snaps, func(i, j int) bool { return snapshotSortKey(snaps[i]) > snapshotSortKey(snaps[j]) })
 	return snaps, nil
 }

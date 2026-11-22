@@ -48,19 +48,9 @@ The build workflow is driven by `packaging/xbps/build-repo.sh`.
 
 ## Target System Configuration
 
-A machine running ASURA OS registers the repository via `/usr/share/xbps.d/asura.conf`:
-
-```text
-# /usr/share/xbps.d/asura.conf
-repository=https://repo.asura-os.org/current
-```
-
-Updates and package installations use native XBPS commands:
+The published repository, how it is signed, and how machines are pointed at it
+are in [`package-repo.md`](package-repo.md). The package is one, `asura`:
 
 ```sh
-# Synchronize repositories and update all system packages
-sudo xbps-install -Su
-
-# Install ASURA specific packages
-sudo xbps-install -S asura-desktop asura-shell asura-store
+sudo xbps-install -Su          # once the repository is configured
 ```

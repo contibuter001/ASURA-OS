@@ -813,6 +813,13 @@ done
 # Ensure wpa_supplicant does not run as a standalone service (managed by NetworkManager)
 rm -f "$TARGET_DIR/etc/runit/runsvdir/default/wpa_supplicant" "$TARGET_DIR/var/service/wpa_supplicant"
 
+# The quickest Void mirror for this machine (asura mirror; updates keep it).
+# Best effort: offline, or no mirror answering, keeps ASURA's default.
+if [ -x "$TARGET_DIR/usr/bin/asura" ]; then
+	echo "Choosing the quickest package mirror..."
+	timeout 60 chroot "$TARGET_DIR" /usr/bin/asura mirror fastest >/dev/null 2>&1 || true
+fi
+
 # Layer 3 Tuning: Configure zramen zstd compression
 mkdir -p "$TARGET_DIR/etc/sv/zramen"
 cat >"$TARGET_DIR/etc/sv/zramen/conf" <<'ZRAMCONF'
