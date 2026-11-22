@@ -52,5 +52,4 @@ architecture, subsystems, developer contracts, and operational guides.
 
 - [`hub-backend.md`](hub-backend.md): `asura-hubd` Settings Hub data plane and compositor settings renderer.
 - [`store.md`](store.md): ASURA Software Store: showroom UI, XBPS integration, and polkit privilege escalation.
-- [`sysmon.md`](sysmon.md): ASURA Resource Monitor: telemetry data plane, process manager, and system gauges.
 - [`agent.md`](agent.md): Coding assistant integration harness (`asura-agent`), skill suites, and knowledge vault.

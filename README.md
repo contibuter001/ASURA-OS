@@ -200,7 +200,7 @@ into a union of working setups that grows without anyone owning a hardware lab.
 ## Repository layout
 
 ```
-apps/                built-in desktop applications (Hub, Store, Sysmon, VM)
+apps/                configuration ASURA ships for apps (btop, Ghostty, zsh, starship, WirePlumber, default apps)
 desktop/             the control tools: cmd/asura, asura-sysd, asura-userd, asura-shell, asura-hubd, apm
 system/hardware/     detection, matching, redaction, reports, profiles and tiers
 system/kernel/       pinned kernel fleet

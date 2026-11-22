@@ -94,9 +94,6 @@ Item {
             // Wi-Fi password, battery is pointer-only.
             { id: "battery", kind: "battery", anchor: "left", minWidth: 244 },
             { id: "network", kind: "network", anchor: "left", minWidth: 250 },
-            // the rail system-monitor widget's card: CPU / memory / temp gauges
-            // on a left-anchored sliding card like the others.
-            { id: "sysmon", kind: "sysmon", anchor: "left", minWidth: 260 },
             // the rail speaker/mic widgets' card: the audio mixer -- output,
             // input, per-app playback and capture -- on a left-anchored
             // sliding card like the others, pointer-only (faders, no keys).
@@ -129,7 +126,7 @@ Item {
         const mon = menuState[monitorName];
         if (!mon) return false;
         for (const anchor in mon)
-            if (mon[anchor] && mon[anchor].kind && mon[anchor].kind !== "menu" && mon[anchor].id !== "quick-settings" && mon[anchor].id !== "voice" && mon[anchor].id !== "music" && mon[anchor].id !== "bluetooth" && mon[anchor].id !== "battery" && mon[anchor].id !== "network" && mon[anchor].id !== "sysmon" && mon[anchor].id !== "audio" && mon[anchor].id !== "screenshot") return true;
+            if (mon[anchor] && mon[anchor].kind && mon[anchor].kind !== "menu" && mon[anchor].id !== "quick-settings" && mon[anchor].id !== "voice" && mon[anchor].id !== "music" && mon[anchor].id !== "bluetooth" && mon[anchor].id !== "battery" && mon[anchor].id !== "network" && mon[anchor].id !== "audio" && mon[anchor].id !== "screenshot") return true;
         return false;
     }
     // Keyboard focus the frame raises while something is open (contract 05 sec
@@ -142,7 +139,7 @@ Item {
             const rec = mon[anchor];
             if (!rec) continue;
             if (rec.id === "network") return "ondemand";
-            if (rec.kind && rec.kind !== "menu" && rec.id !== "quick-settings" && rec.id !== "voice" && rec.id !== "music" && rec.id !== "bluetooth" && rec.id !== "battery" && rec.id !== "network" && rec.id !== "sysmon" && rec.id !== "audio" && rec.id !== "screenshot") return "exclusive";
+            if (rec.kind && rec.kind !== "menu" && rec.id !== "quick-settings" && rec.id !== "voice" && rec.id !== "music" && rec.id !== "bluetooth" && rec.id !== "battery" && rec.id !== "network" && rec.id !== "audio" && rec.id !== "screenshot") return "exclusive";
         }
         return "none";
     }

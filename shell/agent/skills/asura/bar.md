@@ -90,7 +90,6 @@ Interactive flyout panels attached to bar widgets live in `shell/modules/bar/pop
 - `NetworkPopout.qml`: Wi-Fi networks and connection controls.
 - `BluetoothPopout.qml`: Paired devices, connect/disconnect toggles.
 - `BatteryPopout.qml`: Battery health, charge thresholds, power profile modes.
-- `SysMonitorPopout.qml`: CPU cores, memory utilization, and top processes.
 - `MusicPopout.qml`: MPRIS album art, playback controls, track progress.
 - `DockPreviewPopout.qml`: Live Wayland window previews for docked applications.
 

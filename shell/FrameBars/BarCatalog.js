@@ -13,7 +13,6 @@ const entries = [
     ["notifications", "Notifications", ["horizontal", "vertical"], "widget", null],
     ["quick-settings", "Quick Settings", ["horizontal", "vertical"], "menu", "quick-settings"],
     ["recording", "Recording", ["horizontal", "vertical"], "widget", null],
-    ["sysmon", "System Monitor", ["horizontal", "vertical"], "widget", null],
     ["shutdown", "Shut Down", ["horizontal", "vertical"], "quick-action", "shutdown"],
     ["tray", "Tray", ["horizontal", "vertical"], "widget", null],
     ["vpn", "VPN", ["horizontal", "vertical"], "widget", null]

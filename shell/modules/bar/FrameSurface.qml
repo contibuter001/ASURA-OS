@@ -55,7 +55,7 @@ Popout {
         : (body.item ? body.item.implicitHeight : 0)
 
     // card popouts and the floating stash page float off the frame lip; sidebars abut.
-    edgeGap: (root.kind === "music" || root.kind === "bluetooth" || root.kind === "battery" || root.kind === "network" || root.kind === "voice" || root.kind === "sysmon" || root.kind === "audio" || root.kind === "screenshot" || root.kind === "stash") ? 10 * root.s : 0
+    edgeGap: (root.kind === "music" || root.kind === "bluetooth" || root.kind === "battery" || root.kind === "network" || root.kind === "voice" || root.kind === "audio" || root.kind === "screenshot" || root.kind === "stash") ? 10 * root.s : 0
 
     readonly property bool sideMenu: root.edge === "left" || root.edge === "right"
 
@@ -93,7 +93,6 @@ Popout {
             : root.kind === "bluetooth" ? bluetoothBody
             : root.kind === "battery" ? batteryBody
             : root.kind === "network" ? networkBody
-            : root.kind === "sysmon" ? sysmonBody
             : root.kind === "audio" ? audioBody
             : root.kind === "screenshot" ? captureBody
             : root.kind === "stash" ? stashBody
@@ -151,13 +150,6 @@ Popout {
     Component {
         id: networkBody
         NetworkPopout {
-            s: root.s
-            open: root.effectiveOpen
-        }
-    }
-    Component {
-        id: sysmonBody
-        SysMonitorPopout {
             s: root.s
             open: root.effectiveOpen
         }
