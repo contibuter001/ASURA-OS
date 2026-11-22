@@ -29,7 +29,8 @@ var switchableServices = map[string]optionalService{
 	"printing":  {About: "printers (CUPS)", Package: "cups", Services: []string{"cupsd"}, Group: "lpadmin"},
 	"ssh":       {About: "logging in to this machine over SSH", Package: "openssh", Services: []string{"sshd"}},
 	"libvirt":   {About: "virtual machines (libvirt)", Package: "libvirt", Services: []string{"libvirtd", "virtlockd", "virtlogd"}, Group: "libvirt"},
-	"tailscale": {About: "a Tailscale VPN", Package: "tailscale", Services: []string{"tailscaled"}},
+	"tailscale":   {About: "a Tailscale VPN", Package: "tailscale", Services: []string{"tailscaled"}},
+	"fingerprint": {About: "fingerprint authentication (fprintd)", Package: "fprintd", Services: []string{"fprintd"}},
 }
 
 // Where runit keeps service definitions and the enabled links, and how a
@@ -103,6 +104,9 @@ func asuraEnable(args []string) int {
 	if code >= 0 {
 		return code
 	}
+	if name == "fingerprint" {
+		return runFingerprintEnable()
+	}
 	if !svInstalled(s.Package) {
 		fmt.Printf("installing %s...\n", s.Package)
 		if err := svPrivileged("xbps-install", "-Sy", s.Package); err != nil {
@@ -142,6 +146,9 @@ func asuraDisable(args []string) int {
 	name, s, code := lookupService("disable", args)
 	if code >= 0 {
 		return code
+	}
+	if name == "fingerprint" {
+		return runFingerprintDisable()
 	}
 	for _, svc := range s.Services {
 		link := filepath.Join(svEnabled, svc)

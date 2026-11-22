@@ -35,6 +35,10 @@ asura <command> [flags]
 | `hardware` | `asura hardware report\|match\|lint-profiles\|capture [flags]` | Inspects hardware detection, matches machine profiles from `system/hardware/`, and captures sysfs fixtures. |
 | `gpu` | `asura gpu [--json]` | Inspects integrated and discrete GPUs, reports driver status, and executes commands offloaded to discrete graphics. |
 | `power` | `asura power [profile]` | Manages CPU governors (performance, powersave), EPP energy preferences, and hybrid GPU runtime power (D3cold). |
+| `hibernate` | `asura hibernate status\|setup\|remove` | Opt-in Btrfs swapfile (@swap) creation, resume offset calculation, GRUB and dracut configuration for hibernation. |
+| `fingerprint` | `asura fingerprint status\|enroll\|verify\|enable\|disable` | Opt-in fingerprint authentication via fprintd; safely inserts sufficient auth into sudo, hyprlock, and polkit. |
+| `enable` | `asura enable [service]` | Enables an optional service (`fingerprint`, `docker`, `bluetooth`, `printing`, `ssh`, `libvirt`, `tailscale`). |
+| `disable` | `asura disable [service]` | Disables an optional service and safely rolls back its configuration. |
 | `brightness` | `asura brightness [set\|get\|list] [value]` | Direct backlight control for screens and keyboard illumination without group permission friction. |
 
 ---

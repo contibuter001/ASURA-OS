@@ -170,6 +170,7 @@ Scope {
 
                     SessionActionButton {
                         id: sessionHibernate
+                        visible: Session.canHibernate
                         buttonIcon: "downloading"
                         buttonText: Translation.tr("Hibernate")
                         onClicked: {

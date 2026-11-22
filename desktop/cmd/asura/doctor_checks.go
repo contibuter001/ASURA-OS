@@ -719,3 +719,61 @@ func migrationLog(kind string) string {
 	_, state := migrationDirs(kind)
 	return filepath.Join(filepath.Dir(state), "migrate.log")
 }
+
+// reportFingerprint reports whether fingerprint authentication is active and safe.
+// It warns if PAM references pam_fprintd.so while fprintd or pam_fprintd.so is missing.
+func reportFingerprint(root string) int {
+	fmt.Println()
+	fmt.Println("Fingerprint")
+
+	prefix := root
+	sudoPam := filepath.Join(prefix, fprintPamSudo)
+	hyprlockPam := filepath.Join(prefix, fprintPamHyprlock)
+	polkitPam := filepath.Join(prefix, fprintPamPolkit)
+
+	pamConfigured := false
+	for _, p := range []string{sudoPam, hyprlockPam, polkitPam} {
+		if data, err := os.ReadFile(p); err == nil {
+			if strings.Contains(string(data), fprintBlockBegin) {
+				pamConfigured = true
+				break
+			}
+		}
+	}
+
+	fprintdBinary := filepath.Join(prefix, "/usr/bin/fprintd")
+	pamModule := filepath.Join(prefix, "/usr/lib/security/pam_fprintd.so")
+	fprintdAvailable := false
+	if _, err := os.Stat(fprintdBinary); err == nil {
+		fprintdAvailable = true
+	} else if _, err := exec.LookPath("fprintd"); err == nil {
+		fprintdAvailable = true
+	}
+	if _, err := os.Stat(pamModule); err == nil {
+		fprintdAvailable = true
+	}
+
+	if pamConfigured && !fprintdAvailable {
+		fmt.Println("  problem           PAM has fingerprint auth enabled, but fprintd/pam_fprintd.so is MISSING")
+		fmt.Println("  fix               run 'asura disable fingerprint' to restore PAM, or 'xbps-install -Sy fprintd'")
+		return exitFail
+	}
+
+	hasReader, desc := hasSupportedFingerprintReader()
+	if !hasReader {
+		if pamConfigured {
+			fmt.Println("  warning           PAM has fingerprint configured, but no reader is currently detected")
+		} else {
+			fmt.Println("  reader            none detected (optional)")
+		}
+		return exitOK
+	}
+
+	if pamConfigured {
+		fmt.Printf("  reader            %s (PAM active: sudo, hyprlock, polkit)\n", desc)
+	} else {
+		fmt.Printf("  reader            %s (available, PAM opt-in off)\n", desc)
+	}
+	return exitOK
+}
+
