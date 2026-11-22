@@ -48,9 +48,12 @@ Singleton {
         }
     ]
 
-    // Deduped list to fix double icons
+    // Deduped list to fix double icons and filter out removed packages (such as zed)
     readonly property list<DesktopEntry> list: Array.from(DesktopEntries.applications.values)
         .filter((app, index, self) => 
+            app && app.id && app.name &&
+            !app.id.toLowerCase().includes("zed") &&
+            !app.name.toLowerCase().includes("zed") &&
             index === self.findIndex((t) => (
                 t.id === app.id
             ))

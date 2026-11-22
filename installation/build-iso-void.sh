@@ -386,7 +386,7 @@ if [ -f "$REPO_ROOT/shell/assets/asura-installer.svg" ]; then
 fi
 
 # Core desktop application icons
-for icon_name in asura-settings asura-vm preferences-system preferences-system-network computer utilities-terminal utilities-system-monitor opencode zed; do
+for icon_name in asura-settings asura-vm preferences-system preferences-system-network computer utilities-terminal utilities-system-monitor opencode; do
 	if [ -f "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" ]; then
 		cp "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/icons/hicolor/scalable/apps/"
 		cp "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/pixmaps/"
@@ -1286,6 +1286,7 @@ if [ -d "$REPO_ROOT/public/fonts" ]; then
 	cp -L "$REPO_ROOT/public/fonts"/* "$ROOTFS/usr/share/fonts/TTF/" 2>/dev/null || true
 fi
 chroot "$ROOTFS" fc-cache -f 2>/dev/null || true
+chroot "$ROOTFS" gtk-update-icon-cache -qtf /usr/share/icons/hicolor 2>/dev/null || true
 if [ -f "$ROOTFS/etc/rc.local" ]; then
 	if ! grep -q 'charge_control_end_threshold' "$ROOTFS/etc/rc.local"; then
 		echo 'for b in /sys/class/power_supply/BAT*/charge_control_end_threshold; do [ -f "$b" ] && echo 80 > "$b" 2>/dev/null || true; done' >> "$ROOTFS/etc/rc.local"

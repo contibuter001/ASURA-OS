@@ -42,10 +42,25 @@ RippleButton {
         if (entry?.comment && entry.comment.length > 0 && entry.comment.length < 60) {
             return entry.comment;
         }
+        const name = (root.itemName || "").toLowerCase();
+        if (name.includes("print")) return Translation.tr("Print & CUPS Management");
+        if (name.includes("nvim") || name.includes("neovim")) return Translation.tr("Vim-Fork Terminal Code Editor");
+        if (name.includes("opencode")) return Translation.tr("Terminal Development Environment");
+        if (name.includes("resource monitor") || name.includes("btop")) return Translation.tr("System Resource Monitor & Task Manager");
+        if (name.includes("thunar preferences")) return Translation.tr("File Manager Configuration");
+        if (name.includes("thunar")) return Translation.tr("Fast File Manager");
+        if (name.includes("removable drives")) return Translation.tr("Media & Storage Device Manager");
+        if (name.includes("volume") || name.includes("pavucontrol")) return Translation.tr("Audio & Mixer Settings");
+        if (name.includes("mpv")) return Translation.tr("High Performance Media Player");
+        if (name.includes("asura vm")) return Translation.tr("Virtual Machine Manager");
+        if (name.includes("asura store")) return Translation.tr("App & Package Store");
+        if (name.includes("asura settings")) return Translation.tr("System Settings & Rice Hub");
+        if (name.includes("install asura")) return Translation.tr("Live OS Installer");
+        if (name.includes("network")) return Translation.tr("Network Configuration & VPN");
         if (root.itemType && root.itemType !== Translation.tr("App") && root.itemType !== "App") {
             return root.itemType;
         }
-        return "";
+        return Translation.tr("Application");
     }
     
     visible: root.entryShown
@@ -428,9 +443,24 @@ RippleButton {
                         Loader {
                             anchors.centerIn: parent
                             active: actionButton.iconType === LauncherSearchResult.IconType.System && actionButton.iconName !== ""
-                            sourceComponent: IconImage {
-                                source: Quickshell.iconPath(actionButton.iconName)
-                                implicitSize: 16
+                            sourceComponent: Item {
+                                implicitWidth: 16
+                                implicitHeight: 16
+                                Image {
+                                    id: actImg
+                                    anchors.fill: parent
+                                    source: Quickshell.iconPath(actionButton.iconName)
+                                    sourceSize.width: 16
+                                    sourceSize.height: 16
+                                    visible: source != "" && status === Image.Ready
+                                }
+                                MaterialSymbol {
+                                    anchors.centerIn: parent
+                                    visible: !actImg.visible
+                                    text: "open_in_new"
+                                    iconSize: 14
+                                    color: root.colForeground
+                                }
                             }
                         }
                     }

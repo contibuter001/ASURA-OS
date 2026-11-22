@@ -10,6 +10,7 @@ Kirigami.Icon {
     implicitWidth: implicitSize
     implicitHeight: implicitSize
 
+    fallback: "application-x-executable"
     roundToIconSize: false
     animated: true // It's just fading from one icon to another
 }

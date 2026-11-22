@@ -142,11 +142,12 @@ put_as shell/assets/asura-store.png /usr/share/icons/hicolor/512x512/apps/asura-
 put_as shell-end4/assets/icons/asura-settings.svg /usr/share/icons/hicolor/scalable/apps/asura-settings.svg
 put_as shell-end4/assets/icons/asura-vm.svg /usr/share/icons/hicolor/scalable/apps/asura-vm.svg
 put_as shell-end4/assets/icons/preferences-system.svg /usr/share/icons/hicolor/scalable/apps/preferences-system.svg
+put_as shell-end4/assets/icons/preferences-system-network.svg /usr/share/icons/hicolor/scalable/apps/preferences-system-network.svg
 put_as shell-end4/assets/icons/computer.svg /usr/share/icons/hicolor/scalable/apps/computer.svg
 put_as shell-end4/assets/icons/utilities-terminal.svg /usr/share/icons/hicolor/scalable/apps/utilities-terminal.svg
 put_as shell-end4/assets/icons/utilities-system-monitor.svg /usr/share/icons/hicolor/scalable/apps/utilities-system-monitor.svg
 put_as shell-end4/assets/icons/opencode.svg /usr/share/icons/hicolor/scalable/apps/opencode.svg
-put_as shell-end4/assets/icons/zed.svg /usr/share/icons/hicolor/scalable/apps/zed.svg
+gtk-update-icon-cache -qtf /usr/share/icons/hicolor 2>/dev/null || true
 
 # ── System configuration ────────────────────────────────────────────────────
 log "system configuration"

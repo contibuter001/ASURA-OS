@@ -15,8 +15,17 @@ Kirigami.Icon {
 
     animated: true
     roundToIconSize: false
-    fallback: root.iconName
-    source: tryCustomIcon ? `${Looks.iconsPath}/${root.iconName}${!root.separateLightDark ? "" : Looks.dark ? "-dark" : "-light"}.svg` : fallback
+    fallback: "application-x-executable"
+    source: {
+        if (!root.iconName || root.iconName.length === 0) return "application-x-executable";
+        if (root.tryCustomIcon) {
+            return `${Looks.iconsPath}/${root.iconName}${!root.separateLightDark ? "" : Looks.dark ? "-dark" : "-light"}.svg`;
+        }
+        let guess = AppSearch.guessIcon(root.iconName);
+        if (guess && guess !== "image-missing" && AppSearch.iconExists(guess)) return guess;
+        if (AppSearch.iconExists(root.iconName)) return root.iconName;
+        return "application-x-executable";
+    }
 
     color: Looks.colors.fg
 }

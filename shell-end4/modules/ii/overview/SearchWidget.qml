@@ -46,6 +46,9 @@ Item { // Wrapper
         LauncherSearch.query = "";
         searchBar.animateWidth = true;
         resultModel.values = LauncherSearch.results ?? [];
+        appResults.currentIndex = 0;
+        appResults.contentY = 0;
+        appResults.positionViewAtBeginning();
     }
 
     function setSearchingText(text) {
@@ -174,6 +177,33 @@ Item { // Wrapper
                 color: Appearance.colors.colLayer0Border
             }
 
+            RowLayout {
+                visible: root.showResults && root.searchingText === ""
+                Layout.fillWidth: true
+                Layout.preferredHeight: 26
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.topMargin: 4
+                spacing: 8
+
+                StyledText {
+                    text: Translation.tr("INSTALLED APPLICATIONS")
+                    font.pixelSize: 10
+                    font.weight: Font.DemiBold
+                    font.letterSpacing: 1.2
+                    color: ColorUtils.transparentize(Appearance.colors.colSubtext, 0.3)
+                }
+
+                Item { Layout.fillWidth: true }
+
+                StyledText {
+                    text: (resultModel.values?.length ?? 0) + " " + Translation.tr("apps")
+                    font.pixelSize: 10
+                    font.weight: Font.Medium
+                    color: ColorUtils.transparentize(Appearance.colors.colSubtext, 0.5)
+                }
+            }
+
             ListView { // App results
                 id: appResults
                 visible: root.showResults
@@ -187,6 +217,20 @@ Item { // Wrapper
                 spacing: 2
                 KeyNavigation.up: searchBar.searchInput
                 highlightMoveDuration: 100
+
+                ScrollBar.vertical: ScrollBar {
+                    id: resultScrollBar
+                    policy: appResults.contentHeight > appResults.height ? ScrollBar.AlwaysOn : ScrollBar.AsNeeded
+                    width: 6
+                    active: true
+                    contentItem: Rectangle {
+                        implicitWidth: 4
+                        radius: 2
+                        color: resultScrollBar.hovered
+                            ? Appearance.colors.colPrimary
+                            : ColorUtils.transparentize(Appearance.colors.colSubtext, 0.6)
+                    }
+                }
 
                 onFocusChanged: {
                     if (focus)
@@ -214,6 +258,9 @@ Item { // Wrapper
                     function onResultsChanged() {
                         if (root.searchingText === "") {
                             resultModel.values = LauncherSearch.results ?? [];
+                            appResults.currentIndex = 0;
+                            appResults.contentY = 0;
+                            appResults.positionViewAtBeginning();
                         } else {
                             resultModel.values = (LauncherSearch.results ?? []).slice(0, root.typingResultLimit);
                             debounceTimer.restart();
