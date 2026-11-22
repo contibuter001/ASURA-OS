@@ -37,6 +37,10 @@ same file. Useful keys:
 Edit it with a JSON tool that keeps the rest of the file (e.g. `jq`), or point
 the user to the Settings app.
 
+**Looks:** `asura theme set` lists named looks (wallpaper, light or dark,
+colours); `asura theme set NAME` applies one, recolouring the shell, terminal,
+btop and GTK apps.
+
 **Colours** come from the wallpaper (matugen): `asura-wallpaper wallpaper ui`
 opens the picker, `asura-wallpaper wallpaper random` picks one. The palette is
 written to `~/.local/state/quickshell/user/generated/colors.json`.

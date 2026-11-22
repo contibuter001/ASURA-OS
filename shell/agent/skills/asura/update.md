@@ -42,6 +42,18 @@ asura version --commit      # the commit this machine runs
   applied. `GITHUB_TOKEN` raises the rate limit.
 - "the installed ASURA (X) is newer than Y" — nothing to do.
 
+## Channels, firmware, cleanup
+
+- `asura channel get`; `sudo asura channel set stable` follows releases
+  (main), `unstable` follows dev-unstable (the default). Both only take
+  commits that passed CI.
+- `asura firmware` lists firmware updates (fwupd); `asura firmware update`
+  installs them.
+- `asura clean` removes orphaned packages and the package cache (XBPS asks
+  first).
+- A desktop notice says when an update is available or a reboot would finish
+  one (the `asura-updates` user service runs `asura notify-updates`).
+
 ## Going back
 
 - `asura rollback` — the previous config revision (ASURA keeps the three newest

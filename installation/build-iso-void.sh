@@ -451,6 +451,12 @@ if [ -d "$REPO_ROOT/migrations" ]; then
 	done
 fi
 
+# The user manual (asura manual).
+if [ -d "$REPO_ROOT/docs/manual" ]; then
+	mkdir -p "$INCLUDE_DIR/usr/share/doc/asura/manual"
+	cp "$REPO_ROOT/docs/manual"/*.md "$INCLUDE_DIR/usr/share/doc/asura/manual/"
+fi
+
 # Stage system-wide skills and pre-seed OpenCode / cross-agent skills
 mkdir -p "$INCLUDE_DIR/usr/share/asura/skills"
 if [ -d "$REPO_ROOT/shell/agent/skills" ]; then

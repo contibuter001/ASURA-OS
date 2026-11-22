@@ -55,6 +55,10 @@ func asuraUpdate(args []string) int {
 		targetBranch = *branch
 	} else if *channel == "unstable" || *channel == "dev-unstable" {
 		targetBranch = "dev-unstable"
+	} else if *channel == "stable" {
+		targetBranch = "main"
+	} else if ch := pinnedChannel(*root); ch != "" {
+		targetBranch = channelBranches[ch]
 	} else {
 		if ch, err := xbpsChannel(*root); err == nil {
 			if ch == "unstable" || ch == "dev-unstable" {
@@ -199,6 +203,7 @@ func asuraUpdate(args []string) int {
 		fmt.Println("\n==> ASURA update complete.")
 	} else {
 		fmt.Println("\n==> Full system and ASURA update complete.")
+		reportRebootNeeded()
 	}
 
 	return exitOK

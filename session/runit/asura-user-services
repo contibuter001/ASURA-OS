@@ -107,7 +107,7 @@ start_services() {
 	# Method 2: Resilient background spawner fallback if runsvdir is not installed
 	echo "asura-user-services: runsvdir not found; launching services directly"
 	mkdir -p "$STATE_DIR"
-	for svc in pipewire wireplumber portal-hyprland portal asurad quickshell asura-userd asura-hubd asura-wallpaper asura-idle; do
+	for svc in pipewire wireplumber portal-hyprland portal asurad quickshell asura-userd asura-hubd asura-wallpaper asura-idle asura-updates; do
 		run_script="$USER_SERVICE_DIR/$svc/run"
 		if [ -x "$run_script" ]; then
 			(
