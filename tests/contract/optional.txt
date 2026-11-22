@@ -54,7 +54,7 @@ qalc                   # calculator engine, gated in asura-cmd-calc
 qemu-img               # QEMU disk image utility in asura-vmd
 quickemu               # quickemu VM runtime in asura-vmd
 quickget               # quickget VM image downloader in asura-vmd
-ryomotion              # recording motion helper, gated in scripts
+asura-motion          # recording motion helper, gated in scripts
 secret-tool            # Secret service credential helper, gated in ssh.go
 songrec                # song recognition utility, gated in asura-cmd-songrec
 tesseract              # OCR engine in asura-cmd-ocr

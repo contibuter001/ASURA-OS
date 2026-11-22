@@ -51,13 +51,13 @@ func isVideo(p string) bool {
 	return false
 }
 
-// ryowallsTune: the ryowalls per-image tune (asura-ryowalls.json). frameOffset
+// wallsTune: the wallpaper per-image tune (asura-walls.json). frameOffset
 // reads the sampled frame second for a video wallpaper from it.
-func ryowallsTune() string { return filepath.Join(stateDir(), "asura-ryowalls.json") }
+func wallsTune() string { return filepath.Join(stateDir(), "asura-walls.json") }
 
-// liveFrame: one still from the video, for matugen (and the ryowalls preview) to
+// liveFrame: one still from the video, for matugen (and the wallpaper preview) to
 // read. Cached per clip, mtime and offset, and renamed into place. It used to be
-// one shared file, so a ryowalls preview of another clip handed the reader that
+// one shared file, so a wallpaper preview of another clip handed the reader that
 // clip's frame: the palette took its light/dark from the wrong video. "" on
 // failure, so the palette keeps its previous value.
 func liveFrame(video string) string {
@@ -127,7 +127,7 @@ func pruneLiveFrames(dir string) {
 // frameOffset: seconds into the video that matugen samples, from the per-video
 // sticky tune; "1" by default.
 func frameOffset(video string) string {
-	b, err := os.ReadFile(ryowallsTune())
+	b, err := os.ReadFile(wallsTune())
 	if err != nil {
 		return "1"
 	}

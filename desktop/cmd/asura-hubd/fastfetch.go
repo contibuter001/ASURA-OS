@@ -563,7 +563,7 @@ func importFastfetchLogo(src string) (string, error) {
 // in it is known to be baked (so a re-bake is a no-op, not a double bake).
 const ffDitherSuffix = ".1bit.png"
 
-// ffBone and ffBayer4 reproduce bin/art/ryodither: the decor set's single ink,
+// ffBone and ffBayer4 reproduce bin/art/asura-dither: the decor set's single ink,
 // bone, carried on a transparent ground by an ordered Bayer 4x4 dither.
 var (
 	ffBone   = color.NRGBA{R: 0xe8, G: 0xd8, B: 0xc9, A: 0xff}

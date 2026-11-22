@@ -80,7 +80,7 @@ Scope {
     onLoadFailed: wallpaperSelector._stageWalls = ({})
   }
 
-  // A wall carries the stage badge when its Ryostage effect is on (Depth or
+  // A wall carries the stage badge when its Stage effect is on (Depth or
   // Parallax); off or unlisted walls show nothing.
   function _isStageWall(path) {
     var w = path && wallpaperSelector._stageWalls && wallpaperSelector._stageWalls[path]

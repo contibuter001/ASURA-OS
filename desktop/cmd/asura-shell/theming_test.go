@@ -23,7 +23,7 @@ func TestIsVideo(t *testing.T) {
 func TestFrameOffset(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_STATE_HOME", dir)
-	tune := filepath.Join(dir, "asura-ryowalls.json")
+	tune := filepath.Join(dir, "asura-walls.json")
 	video := "/home/x/Pictures/livewalls/clip.mp4"
 
 	// no tune -> the auto default
@@ -83,9 +83,9 @@ func TestLiveFramePerClip(t *testing.T) {
 		t.Errorf("two.mp4 reused one.mp4's still (%q): a shared still is the bug", other)
 	}
 
-	// The ryowalls frame slider picks a different second: that is a different
+	// The wallpaper frame slider picks a different second: that is a different
 	// still, not an overwrite of the one already on screen.
-	tune := filepath.Join(state, "asura-ryowalls.json")
+	tune := filepath.Join(state, "asura-walls.json")
 	if err := os.WriteFile(tune, []byte(`{"image":"`+one+`","frame":4}`), 0o644); err != nil {
 		t.Fatal(err)
 	}

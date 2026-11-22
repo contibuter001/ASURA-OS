@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Ui.Singletons
 
-// A pluggable remote wallpaper source driven by the ryowalls engine's JSON
+// A pluggable remote wallpaper source driven by the wallpaper engine's JSON
 // verbs (moewalls, motionbgs, github repos): the same search/download shape
 // behind one object, so the picker's Browse surface gains sources without a
 // bespoke browser each. Results are NDJSON rows: {id, thumb, video, dl, name,
@@ -17,7 +17,7 @@ QtObject {
     property bool needsPost: false       // moewalls download wants the post url
     property var extraArgs: []            // e.g. ["--repo", "owner/repo"] for library-list
 
-    // native (no-binary) source paths, phased in per provider; the ryowalls
+    // native (no-binary) source paths, phased in per provider; the wallpaper
     // binary stays the fallback until every provider is ported (then it sunsets).
     readonly property string _ua: "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
     readonly property string _mbBase: "https://motionbgs.com"

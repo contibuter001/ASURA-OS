@@ -10,7 +10,7 @@ import (
 )
 
 // buildGradeArgs is the wire contract between the daemon and magick: the exact
-// operator sequence ryowalls' adjust_image emitted. Pin it operator by operator.
+// operator sequence adjust_image emitted. Pin it operator by operator.
 func TestBuildGradeArgs(t *testing.T) {
 	cases := []struct {
 		name string

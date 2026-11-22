@@ -6,7 +6,7 @@ import qs.Ui.Singletons
 // the candidate matugen palette (from `pv`, the daemon's matugen-preview) so you
 // preview the scheme a wallpaper yields before Set. Paper-and-ink: a hairline
 // bar, a terminal card carrying the base16 strip, and a cava specimen coloured
-// off the picture's own tonal ramps. Folded from ryowalls' MockDesktop, native
+// off the picture's own tonal ramps. Folded from MockDesktop, native
 // on the wall-ui toolkit and driven by explicit props instead of a singleton.
 Item {
     id: mock

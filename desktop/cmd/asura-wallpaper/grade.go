@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-// Grader ports ryowalls' `adjust` verb (bin/ryowalls adjust_image) into the
+// Grader ports the legacy `adjust` verb into the
 // daemon: an imagemagick colour grade (brightness / contrast / saturation /
 // warmth, optional vignette and negate). The same magick pipeline drives the fast preview
 // (long edge capped) and the full-resolution commit, so the specimen editor's
-// preview is exactly what commit writes -- the guarantee the ryowalls GradeSheet
-// relied on. Images only; ryowalls never graded video.
+// preview is exactly what commit writes -- the guarantee the GradeSheet
+// relied on. Images only; video was never graded.
 type Grader struct {
 	cacheDir string
 
@@ -36,7 +36,7 @@ type gradeParams struct {
 	size       int
 }
 
-// gradePreviewSize is the long-edge cap ryowalls used for the live grade preview
+// gradePreviewSize is the long-edge cap used for the live grade preview
 // (GradeSheet passes `--size 1100`): big enough to judge the grade, small enough
 // to render on every debounced slider tick.
 const gradePreviewSize = 1100
@@ -67,7 +67,7 @@ func gradeParamsFrom(p map[string]interface{}) gradeParams {
 // path. The filename alternates between two slots (grade-preview-0/1.png) so a
 // fresh preview never clobbers the one the UI is still showing and the path
 // always changes between calls (Qt's Image cache reloads only on a new URL) --
-// the double-buffer ryowalls used for its adjust slots. The caller debounces.
+// the double-buffer used for its adjust slots. The caller debounces.
 func (g *Grader) Preview(input string, p gradeParams) (string, error) {
 	if input == "" {
 		return "", errors.New("missing 'input' parameter")
@@ -87,7 +87,7 @@ func (g *Grader) Preview(input string, p gradeParams) (string, error) {
 }
 
 // Commit bakes the grade at full resolution. With no explicit output it writes a
-// sibling `<stem>.edit.<ext>` beside the input (ryowalls' _editedPath), leaving
+// sibling `<stem>.edit.<ext>` beside the input (_editedPath), leaving
 // the original untouched, and returns the written path.
 func (g *Grader) Commit(input, output string, p gradeParams) (string, error) {
 	if input == "" {
@@ -107,7 +107,7 @@ func (g *Grader) Commit(input, output string, p gradeParams) (string, error) {
 	return output, nil
 }
 
-// editedPath is ryowalls' _editedPath: a sibling with an `.edit` infix before
+// editedPath is _editedPath: a sibling with an `.edit` infix before
 // the extension, so a baked grade never overwrites the source wallpaper.
 func editedPath(input string) (string, error) {
 	stem, ext, err := stemExt(input)
@@ -128,7 +128,7 @@ func runGrade(input, output string, p gradeParams) error {
 }
 
 // buildGradeArgs assembles the magick argument list, a faithful port of
-// ryowalls' adjust_image pipeline:
+// the adjust_image pipeline:
 //
 //	magick <in> [-resize SIZExSIZE>]
 //	  [-channel R -evaluate multiply <rmul> +channel
@@ -140,7 +140,7 @@ func runGrade(input, output string, p gradeParams) error {
 //	  <out>
 //
 // warmth reweights the red/blue channels (warm = redder, cool = bluer) by the
-// same 0.0018-per-step factor ryowalls used.
+// same 0.0018-per-step factor previously used.
 func buildGradeArgs(input, output string, p gradeParams) []string {
 	args := []string{input}
 	if p.size > 0 {

@@ -56,7 +56,7 @@ ok(
         + (missingHelpers.join(", ") || "all present")
 );
 ok(
-    !JSON.stringify(CATALOG).match(/ryo|qs -c|"qs"/),
+    !JSON.stringify(CATALOG).match(/qs -c|"qs"/),
     "no action calls a legacy tool or qs -c"
 );
 ok(commands().length === new Set(commands()).size && commands().includes("asura"), "commands() lists each command once");

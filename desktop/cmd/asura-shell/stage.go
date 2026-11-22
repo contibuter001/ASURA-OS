@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-// Ryostage v2 (docs/stage.md): the desktop as a stage. One worker, one registry,
+// Stage v2 (docs/stage.md): the desktop as a stage. One worker, one registry,
 // one topic. Depth is the stage with a single still layer in front of the
 // widgets; Parallax is the same stack with drift and a recoloured backdrop.
 // There is no "mode", no per-layer look knobs and no scene order: a wall is one
@@ -973,7 +973,7 @@ func (d *daemon) stageClear() {
 
 // --- migration -------------------------------------------------------------
 
-// The v1 Ryostage (the merged knob-pile that landed and was rejected) is folded
+// The v1 Stage (the merged knob-pile that landed and was rejected) is folded
 // into v2 once, gated by a marker. The registry loses mode/scene and every
 // per-layer look knob; stage.json loses feather/lift/preset and the motion
 // sub-knobs. Read the v1 shapes raw so the retired fields survive long enough to
@@ -995,7 +995,7 @@ func stageMigrationMarker() string {
 	return filepath.Join(stateDir(), "asura", "migrations", "asura-stage-v2")
 }
 
-// migrateStage folds the v1 Ryostage state into v2 once, gated by the marker.
+// migrateStage folds the v1 Stage state into v2 once, gated by the marker.
 // The registry fold must persist before the marker is written, so a failed run
 // retries on the next start and a second start is a no-op.
 func migrateStage() {
@@ -1018,7 +1018,7 @@ func migrateStage() {
 }
 
 // migrateStageRegistry converges the pre-v1 (retired Depth/Parallax) state and a
-// v1 Ryostage registry onto one v2 stage-walls.json. The legacy fold runs first
+// v1 Stage registry onto one v2 stage-walls.json. The legacy fold runs first
 // for walls the v1 registry has not already claimed -- a stable box that skipped
 // v1 gets its whole Depth/Parallax arrangement, while a testing box's own v1
 // entries win -- moving artifacts by rename; then every v1-shaped entry is

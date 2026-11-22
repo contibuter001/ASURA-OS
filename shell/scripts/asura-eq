@@ -63,7 +63,7 @@ gains_of() { jq -r '[.b1,.b2,.b3,.b4,.b5,.b6,.b7,.b8,.b9,.b10] | @tsv' <<<"$1"; 
 # The sink every stream is headed for. The filter names it explicitly rather than
 # riding the "no target" default: a targetless smart filter only catches streams
 # that let the session manager pick for them, and players which name the default
-# sink themselves (mpv, so also Ryotunes) would sail straight past it.
+# sink themselves (mpv, so also asura-tunes) would sail straight past it.
 default_sink() { pactl get-default-sink 2>/dev/null || true; }
 
 node_id() {
@@ -198,7 +198,7 @@ start_filter() {
 
 # Killing the filter process while it carries audio takes its links down with it,
 # and a player that loses its sink mid-track does not wait for it to come back:
-# mpv (so also Ryotunes) treats it as the end of the file and moves on. So the
+# mpv (so also asura-tunes) treats it as the end of the file and moves on. So the
 # filter is retired the way WirePlumber intends. Marking it disabled makes the
 # session manager unlink it and relink every stream straight to the device, which
 # takes a rescan rather than no time at all, so the process is stopped once the

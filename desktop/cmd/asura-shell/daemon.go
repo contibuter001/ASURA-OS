@@ -629,7 +629,7 @@ func (d *daemon) dispatch(line string) string {
 		}
 		return "err hub: expected open [section] or close"
 	case "stage":
-		// One verb surface for Ryostage (docs/stage.md): set-effect records the
+		// One verb surface for Stage (docs/stage.md): set-effect records the
 		// three-way effect per wallpaper; set-layer applies a layer's arrangement
 		// flags (enabled/front/depth); add-layer / cut-layer / remove-layer manage
 		// the manual layers; refresh forces a re-cut; cancel kills a running engine

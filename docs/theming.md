@@ -112,7 +112,7 @@ replaces it, and `asura materialize` puts the static one back until the next ren
 
 Dropped, because ASURA does not ship the app: kitty, fish, yazi, KDE, cava, zathura, tmux, micro,
 alacritty, OBS, Zed, Discord (vesktop, equibop), Steam, Telegram, Heroic, Obsidian, Sidra and
-Ryotunes. Papirus folders are gone too (the package is excluded, `papirus-folders` is not in the
+asura-tunes. Papirus folders are gone too (the package is excluded, `papirus-folders` is not in the
 archive). Two more blocks of the upstream set have no reader here: the Hyprland border file (the daemon recolours the
 live border from `colors.json`) and the screen-share picker's stylesheet (no picker in the archive).
 The Hub's roster keys for the dropped apps now do nothing.

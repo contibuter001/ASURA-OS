@@ -316,10 +316,10 @@ func isVideo(p string) bool {
 func liveWallDir() string { return filepath.Join(os.Getenv("HOME"), "Pictures", "livewalls") }
 
 // previewFrameOffset: seconds into a video wallpaper worth screenshotting,
-// from the same per-video ryowalls tune the shell samples its palette at, so
+// from the same per-video wallpaper tune the shell samples its palette at, so
 // the rice preview shows the frame the user actually tuned the look around.
 func previewFrameOffset(video string) string {
-	b, err := os.ReadFile(filepath.Join(stateHome(), "asura-ryowalls.json"))
+	b, err := os.ReadFile(filepath.Join(stateHome(), "asura-walls.json"))
 	if err != nil {
 		return "1"
 	}

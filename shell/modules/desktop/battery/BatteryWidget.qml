@@ -7,10 +7,15 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell.Io
 import Quickshell.Widgets
+import "../../../components"
+import "../Singletons"
 
 Item {
     id: root
 
+    property string style: "default"
+    property real s: 1.0
+    property bool active: true
     property int refreshSeconds: 5
 
     // Read from sysfs power supply
@@ -75,49 +80,19 @@ Item {
 
     GlyphIcon {
         anchors { verticalCenter: label.verticalCenter; horizontalCenter: label.horizontalCenter }
-        systemFont: "font-awesome"
+        width: 16
+        height: 16
         color: isCharging ? Theme.inkPrimary : (Config.dark ? Theme.inkPrimary : Theme.inkSecondary)
         visible: isCharging
-        name: "\uf240"  // fa-bolt
+        name: "bolt"
     }
 
     GlyphIcon {
         anchors { verticalCenter: label.verticalCenter; horizontalCenter: label.horizontalCenter }
-        systemFont: "font-awesome"
+        width: 16
+        height: 16
         color: !isCharging && percent < 20 ? Theme.colorError : (Config.dark ? Theme.inkPrimary : Theme.inkSecondary)
-        visible: !isCharging && percent < 20
-        name: "\uf244"  // fa-battery-quarter
-    }
-
-    GlyphIcon {
-        anchors { verticalCenter: label.verticalCenter; horizontalCenter: label.horizontalCenter }
-        systemFont: "font-awesome"
-        color: !isCharging
-        visible: !isCharging && percent >= 20 && percent < 40
-        name: "\uf243"  // fa-battery-half
-    }
-
-    GlyphIcon {
-        anchors { verticalCenter: label.verticalCenter; horizontalCenter: label.horizontalCenter }
-        systemFont: "font-awesome"
-        color: !isCharging
-        visible: !isCharging && percent >= 40 && percent < 60
-        name: "\uf242"  // fa-battery-third
-    }
-
-    GlyphIcon {
-        anchors { verticalCenter: label.verticalCenter; horizontalCenter: label.horizontalCenter }
-        systemFont: "font-awesome"
-        color: !isCharging
-        visible: !isCharging && percent >= 60 && percent < 80
-        name: "\uf241"  // fa-battery-quarter
-    }
-
-    GlyphIcon {
-        anchors { verticalCenter: label.verticalCenter; horizontalCenter: label.horizontalCenter }
-        systemFont: "font-awesome"
-        color: !isCharging
-        visible: !isCharging && percent >= 80
-        name: "\uf240"  // fa-battery-full
+        visible: !isCharging
+        name: "battery"
     }
 }

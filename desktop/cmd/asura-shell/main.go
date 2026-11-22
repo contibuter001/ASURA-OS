@@ -62,7 +62,7 @@ func main() {
 	}
 	if args[0] == "matugen-preview" && len(args) == 2 {
 		// Generate (never apply) the palette an image would produce, for the
-		// ryowalls live preview. Runs standalone -- no daemon round trip -- so the
+		// wallpaper live preview. Runs standalone -- no daemon round trip -- so the
 		// same generator serves apply and preview from one binary.
 		if err := matugenPreview(args[1]); err != nil {
 			fmt.Fprintln(os.Stderr, "asura-shell:", err)

@@ -610,7 +610,7 @@ func (d *daemon) matugenApply(img string) error {
 // and neutralizes an achromatic picture, returning the shell palette, the tonal
 // ramps, and the resolved light/dark mode -- the exact values matugenApply
 // writes, with no cache writes and no desktop effects. Shared by apply and the
-// ryowalls preview so the specimen never diverges from what Set paints. `source`
+// wallpaper preview so the specimen never diverges from what Set paints. `source`
 // is the wallpaper the user picked, a clip for a live one, and it is what the
 // smart light/dark reads.
 func generatePaletteStill(img, source string) (map[string]string, map[string]map[string]string, string, error) {
@@ -643,7 +643,7 @@ func generatePaletteStill(img, source string) (map[string]string, map[string]map
 
 // matugenPreview prints, as JSON, the palette an image WOULD produce on apply --
 // the shell colours, the tonal ramps, and the wallpaper's 8x8 L* map -- without
-// touching the cache or the desktop. ryowalls calls it so its live preview and
+// touching the cache or the desktop. the wallpaper tool calls it so its live preview and
 // spectrum specimen show exactly what Set will paint (one generator, no drift).
 func matugenPreview(img string) error {
 	source := img

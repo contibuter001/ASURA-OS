@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # asura-cmd-edit-recording: open the Quick screen recording the shell just wrote
-# in the ryomotion editor. Driven by the record card's "Edit in Ryomotion
+# in the asura-motion editor. Driven by the record card's "Edit in Motion
 # when done" toggle, for Quick captures only -- Studio already records straight
 # through the editor. Waits for gpu-screen-recorder / wf-recorder to finalise the
-# mp4 (a half-written file imports broken), then hands the clip to ryomotion.
+# mp4 (a half-written file imports broken), then hands the clip to asura-motion.
 #
 #   asura-cmd-edit-recording [FILE]   (no arg = the path the recorder wrote)
 
@@ -20,7 +20,7 @@ input="${1:-}"
 [[ -n $input ]] || input="$(cat "$state/last-recording" 2>/dev/null || true)"
 [[ -n $input ]] || { echo "edit-recording: no recording path" >&2; exit 0; }
 
-command -v ryomotion >/dev/null 2>&1 || { notify "Asura" "ryomotion is not installed (not in the Ubuntu archive)"; exit 127; }
+command -v asura-motion >/dev/null 2>&1 || { notify "Asura" "asura-motion is not installed (not in the Ubuntu archive)"; exit 127; }
 
 # wait for the recorder to finish writing: gpu-screen-recorder / wf-recorder both
 # finalise the mp4 on SIGINT, so hold until neither is running, then until the
@@ -45,5 +45,5 @@ for _ in $(seq 1 40); do
 done
 
 # open the clip itself (positional arg), matching asura-cmd-studiorecord; the bare
-# `--edit` flag opens ryomotion's import chooser instead of this specific file.
-exec ryomotion "$input"
+# `--edit` flag opens asura-motion's import chooser instead of this specific file.
+exec asura-motion "$input"

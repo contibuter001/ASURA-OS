@@ -15,7 +15,7 @@ import qs.Ui.Singletons
 // Screenshot is the quick path -- pick a delay, a save target and a mode; with
 // "Beautify after" on the saved shot then opens the editor. Record starts a Quick
 // capture (the floating island takes over the live controls), with desktop / mic
-// toggles and an "edit in Ryomotion when done" hand-off. Every option is
+// toggles and an "edit in Motion when done" hand-off. Every option is
 // remembered (Capture / Recorder prefs). Compact by design; never grabs the keyboard.
 Item {
     id: root
@@ -657,7 +657,7 @@ Item {
         InlineToggle {
             width: parent.width
             glyph: "film"
-            label: I18n.tr("Edit in Ryomotion")
+            label: I18n.tr("Edit in Motion")
             on: Recorder.editMode
             onToggled: Recorder.editMode = !Recorder.editMode
         }
