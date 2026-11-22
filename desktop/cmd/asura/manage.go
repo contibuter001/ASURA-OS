@@ -208,6 +208,7 @@ func sessionChecks(root string, fix bool) []func() int {
 		func() int { return reportUserAudioServices(root, fix) },
 		func() int { return reportHyprlandVersion(root, fix) },
 		func() int { return reportHardwarePower(root, fix) },
+		func() int { return reportMigrationState(root) },
 		func() int { reportDeps(root, runner.Exec(10*time.Second)); return exitOK },
 	}
 }

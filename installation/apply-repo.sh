@@ -69,6 +69,12 @@ put session/hyprland /usr/share/asura/hyprland
 put apps /usr/share/asura/apps
 put_as apps/mimeapps/asura-mimeapps.list /usr/share/applications/asura-mimeapps.list
 put shell/agent/skills /usr/share/asura/skills
+# One-time fixes for installed machines; asura update runs the new ones
+# (asura migrate). Marked done only on a fresh install, never here.
+put migrations /usr/share/asura/migrations
+for f in "$ROOT"/usr/share/asura/migrations/*/*.sh; do
+	[ -f "$f" ] && chmod 0755 "$f"
+done
 put desktop/catalog /usr/share/asura/store/catalog
 put system/runit/user-services /usr/share/asura/runit/services
 
@@ -173,34 +179,6 @@ if [ "$BUILD" -eq 1 ]; then
 	else
 		log "go is not installed; the Go tools are unchanged"
 	fi
-fi
-
-# ── Repair the package database (images built before this fix) ──────────────
-# The ISO registered its prebuilt Hyprland packages under "name-version_rev"
-# keys instead of their names, so xbps did not know they were installed and
-# every update tried to fetch them again. Re-key them by name.
-pkgdb="$ROOT/var/db/xbps/pkgdb-0.38.plist"
-if [ -f "$pkgdb" ] && command -v python3 >/dev/null 2>&1; then
-	python3 - "$pkgdb" <<'PY' || log "could not check the package database"
-import os, plistlib, sys
-path = sys.argv[1]
-with open(path, "rb") as f:
-    db = plistlib.load(f)
-fixed = []
-for key in list(db):
-    value = db[key]
-    if key.startswith("_") or not isinstance(value, dict):
-        continue
-    name = value.get("pkgname")
-    if name and key != name and key == value.get("pkgver") and name not in db:
-        db[name] = db.pop(key)
-        fixed.append(name)
-if fixed:
-    with open(path + ".asura-new", "wb") as f:
-        plistlib.dump(db, f)
-    os.replace(path + ".asura-new", path)
-    print("apply-repo: registered under their names in the package database: " + " ".join(fixed))
-PY
 fi
 
 # ── Packages new in the manifest ────────────────────────────────────────────

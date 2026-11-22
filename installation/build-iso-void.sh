@@ -430,6 +430,27 @@ if [ -d "$REPO_ROOT/apps" ]; then
 	cp -r "$REPO_ROOT/apps"/* "$INCLUDE_DIR/usr/share/asura/apps/"
 fi
 
+# One-time migrations (asura migrate). A fresh install already starts in the
+# state they lead to, so every shipped one is recorded as done: the machine's
+# in /var/lib/asura/migrations, each user's through /etc/skel. Existing
+# machines run them on their next asura update.
+if [ -d "$REPO_ROOT/migrations" ]; then
+	mkdir -p "$INCLUDE_DIR/usr/share/asura/migrations"
+	cp -r "$REPO_ROOT/migrations"/. "$INCLUDE_DIR/usr/share/asura/migrations/"
+	for kind in system user; do
+		case "$kind" in
+		system) state="$INCLUDE_DIR/var/lib/asura/migrations" ;;
+		user) state="$INCLUDE_DIR/etc/skel/.local/state/asura/migrations" ;;
+		esac
+		mkdir -p "$state"
+		for f in "$INCLUDE_DIR/usr/share/asura/migrations/$kind"/*.sh; do
+			[ -f "$f" ] || continue
+			chmod 0755 "$f"
+			echo "marked done by the installer image" >"$state/$(basename "$f")"
+		done
+	done
+fi
+
 # Stage system-wide skills and pre-seed OpenCode / cross-agent skills
 mkdir -p "$INCLUDE_DIR/usr/share/asura/skills"
 if [ -d "$REPO_ROOT/shell/agent/skills" ]; then
