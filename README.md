@@ -139,7 +139,7 @@ hardware profile for your specific machine, and an updater that can roll back.
 | GPU & Power | `asura gpu` (PCI inspection & `prime-run` offload), `asura power` (profiles & NVIDIA RTX 3050 D3cold management) |
 | Terminal | Ghostty — strictly supported, configured by ASURA, never kitty |
 | User shell | zsh + starship |
-| Editor | Zed |
+| Editor | Neovim |
 | Boot chain | GRUB EFI |
 | Installer | `asura install` / `asura-installer.desktop` guided system installer |
 | Desktop services | pipewire + wireplumber, tlp, NetworkManager, seatd |
@@ -147,7 +147,7 @@ hardware profile for your specific machine, and an updater that can roll back.
 | Package manager | XBPS, with first-party repository `asura-xbps-repo`, plus `apm` package manager frontend |
 | Software Store | [Asura Store](https://github.com/ASURA-OS/asura-store) — Graphical showroom window & Go data plane (`asura-store`), multi-provider XBPS/plugin/theme catalogue |
 | Resource Monitor | `btop` — Real-time telemetry, process manager & task manager with Asura adaptive color theming |
-| Agent layer | resident OS agent with a local knowledge vault |
+| Agent layer | OpenCode with the ASURA skills wired in (`asura-agent`) |
 
 ### Why Void Linux is the base layer
 
