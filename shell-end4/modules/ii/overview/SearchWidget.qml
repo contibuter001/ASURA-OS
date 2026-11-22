@@ -21,7 +21,7 @@ Item { // Wrapper
 
     property string searchingText: LauncherSearch.query
     property bool showResults: searchingText != "" || ((LauncherSearch.results?.length ?? 0) > 0)
-    readonly property real launcherWidth: 620
+    readonly property real launcherWidth: 640
     implicitWidth: launcherWidth + Appearance.sizes.elevationMargin * 2
     implicitHeight: searchWidgetContent.implicitHeight + Appearance.sizes.elevationMargin * 2
 
@@ -244,6 +244,127 @@ Item { // Wrapper
                             searchBar.searchInput.text = tabbedText;
                             event.accepted = true;
                             root.focusSearchInput();
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                // Bottom separator
+                visible: root.showResults
+                Layout.fillWidth: true
+                height: 1
+                color: Appearance.colors.colLayer0Border
+            }
+
+            RowLayout {
+                visible: root.showResults
+                Layout.fillWidth: true
+                Layout.preferredHeight: 34
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                spacing: 12
+
+                StyledText {
+                    Layout.alignment: Qt.AlignVCenter
+                    font.pixelSize: Appearance.font.pixelSize.smallest
+                    color: Appearance.colors.colSubtext
+                    text: {
+                        let cnt = appResults.count;
+                        if (root.searchingText === "") {
+                            return cnt + (cnt === 1 ? " application" : " applications");
+                        }
+                        return cnt + (cnt === 1 ? " result" : " results");
+                    }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignVCenter
+                    spacing: 12
+
+                    RowLayout {
+                        spacing: 4
+                        Rectangle {
+                            implicitWidth: 18
+                            implicitHeight: 18
+                            radius: 4
+                            color: Appearance.colors.colLayer1
+                            border.width: 1
+                            border.color: Appearance.colors.colLayer0Border
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                iconSize: 12
+                                text: "keyboard_arrow_up"
+                                color: Appearance.colors.colSubtext
+                            }
+                        }
+                        Rectangle {
+                            implicitWidth: 18
+                            implicitHeight: 18
+                            radius: 4
+                            color: Appearance.colors.colLayer1
+                            border.width: 1
+                            border.color: Appearance.colors.colLayer0Border
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                iconSize: 12
+                                text: "keyboard_arrow_down"
+                                color: Appearance.colors.colSubtext
+                            }
+                        }
+                        StyledText {
+                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            color: Appearance.colors.colSubtext
+                            text: "Navigate"
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 4
+                        Rectangle {
+                            implicitWidth: 20
+                            implicitHeight: 18
+                            radius: 4
+                            color: Appearance.colors.colLayer1
+                            border.width: 1
+                            border.color: Appearance.colors.colLayer0Border
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                iconSize: 12
+                                text: "keyboard_return"
+                                color: Appearance.colors.colSubtext
+                            }
+                        }
+                        StyledText {
+                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            color: Appearance.colors.colSubtext
+                            text: "Open"
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 4
+                        Rectangle {
+                            implicitWidth: 28
+                            implicitHeight: 18
+                            radius: 4
+                            color: Appearance.colors.colLayer1
+                            border.width: 1
+                            border.color: Appearance.colors.colLayer0Border
+                            StyledText {
+                                anchors.centerIn: parent
+                                font.pixelSize: 9
+                                font.weight: Font.DemiBold
+                                color: Appearance.colors.colSubtext
+                                text: "ESC"
+                            }
+                        }
+                        StyledText {
+                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            color: Appearance.colors.colSubtext
+                            text: "Close"
                         }
                     }
                 }

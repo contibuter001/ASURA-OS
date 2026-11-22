@@ -24,6 +24,10 @@ Singleton {
         "asura-hub": "preferences-system",
         "asura-settings": "preferences-system",
         "nm-connection-editor": "preferences-system-network",
+        "utilities-terminal": "com.mitchellh.ghostty",
+        "utilities-system-monitor": "system-run",
+        "opencode": "com.mitchellh.ghostty",
+        "btop": "system-run",
     })
     property var regexSubstitutions: [
         {

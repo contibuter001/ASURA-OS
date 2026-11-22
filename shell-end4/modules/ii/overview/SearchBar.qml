@@ -36,21 +36,29 @@ RowLayout {
         return SearchBar.SearchPrefixType.DefaultSearch;
     }
 
-    implicitHeight: 52
+    implicitHeight: 54
     Layout.fillWidth: true
-    Layout.preferredHeight: 52
+    Layout.preferredHeight: 54
     Layout.leftMargin: 16
     Layout.rightMargin: 16
 
-    Item {
+    Rectangle {
         id: iconContainer
         Layout.alignment: Qt.AlignVCenter
-        implicitWidth: 28
-        implicitHeight: 28
+        implicitWidth: 32
+        implicitHeight: 32
+        radius: 8
+        color: root.searchPrefixType !== SearchBar.SearchPrefixType.DefaultSearch
+            ? ColorUtils.transparentize(Appearance.colors.colPrimary, 0.85)
+            : Appearance.colors.colLayer1
+        border.width: 1
+        border.color: root.searchPrefixType !== SearchBar.SearchPrefixType.DefaultSearch
+            ? ColorUtils.transparentize(Appearance.colors.colPrimary, 0.6)
+            : Appearance.colors.colLayer0Border
 
         MaterialSymbol {
             anchors.centerIn: parent
-            iconSize: 22
+            iconSize: 18
             color: root.searchPrefixType !== SearchBar.SearchPrefixType.DefaultSearch
                 ? Appearance.colors.colPrimary
                 : Appearance.colors.colSubtext
