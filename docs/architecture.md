@@ -317,6 +317,12 @@ rule is what makes rollback possible.
 | `asura rollback` | re-materialize the previous revision |
 | `asura snapshot` | list system (Btrfs) snapshots with their date, reason and ASURA commit, or take one; taken automatically before system updates and before package installs (`asura-pkg-add`) |
 | `asura enable` / `disable` | switch an optional service (docker, bluetooth, printing, ssh, libvirt, tailscale) on or off: package, runit link, group |
+| `asura channel set` | pin what updates follow: `stable` (main) or `unstable` (dev-unstable, the default), in `/etc/asura/channel`, which updates keep |
+| `asura firmware` / `clean` | firmware updates through fwupd; remove orphaned packages and the package cache |
+| `asura notify-updates` | one check for the desktop notice (update available, reboot needed), run by the `asura-updates` user service every 6 hours |
+| `asura bundle` | curated app sets in one command (gaming, dev, editors, apps, creative, office), with a snapshot first |
+| `asura theme set` | switch the end-4 desktop to a named look (`shell-end4/asura/themes.json`) |
+| `asura manual` | the user manual (`docs/manual`, installed at `/usr/share/doc/asura/manual`) |
 | `asura mirror` | choose the Void mirror (`list`, `fastest`, `set`, `reset`), written to `/etc/xbps.d/00-asura-mirror.conf`, which updates keep |
 | `asura materialize <path>` | re-lay the base file, clobbering shipped content |
 | `asura reset <path>` | drop one overlay file back to the base |

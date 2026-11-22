@@ -15,12 +15,18 @@ import (
 const xbpsRepoConf = "/etc/xbps.d/asura.conf"
 
 const channelUsage = `Usage: asura channel get [--root DIR]
+       asura channel set stable|unstable [--root DIR]
 
-Prints the channel this machine follows: the configured repository channel for Asura OS. Only "get" exists.
+get prints the channel this machine follows. set chooses it:
+
+  stable     follow main, where releases are cut
+  unstable   follow dev-unstable, which every merged change reaches first
+
+Either way, asura update only installs commits that passed CI.
 `
 
 func init() {
-	register("channel", "the package repository channel this machine follows", asuraChannel)
+	register("channel", "the channel updates follow (get, or set stable|unstable)", asuraChannel)
 }
 
 func asuraChannel(args []string) int {
@@ -30,9 +36,16 @@ func asuraChannel(args []string) int {
 	if err != nil {
 		return exitUsage
 	}
+	if len(positional) == 2 && positional[0] == "set" {
+		return channelSet(*root, positional[1])
+	}
 	if len(positional) != 1 || positional[0] != "get" {
 		fmt.Fprint(os.Stderr, channelUsage)
 		return exitUsage
+	}
+	if ch := pinnedChannel(*root); ch != "" {
+		fmt.Println(ch)
+		return exitOK
 	}
 
 	channel, err := xbpsChannel(*root)

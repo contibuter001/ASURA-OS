@@ -19,6 +19,12 @@ asura-store settings              # the Store's settings
 
 Look an item up (`search`, `catalog`) before installing, and use its exact id.
 
+## Bundles
+
+`asura bundle` lists curated app sets; `asura bundle show NAME` says what one
+installs; `asura bundle install NAME` installs it (a snapshot first, missing
+package names skipped). Bundles: gaming, dev, editors, apps, creative, office.
+
 ## Plain packages
 
 For a package the catalogue does not list, the system's package manager works

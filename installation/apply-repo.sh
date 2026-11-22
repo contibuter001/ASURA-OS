@@ -69,6 +69,7 @@ put session/hyprland /usr/share/asura/hyprland
 put apps /usr/share/asura/apps
 put_as apps/mimeapps/asura-mimeapps.list /usr/share/applications/asura-mimeapps.list
 put shell/agent/skills /usr/share/asura/skills
+put docs/manual /usr/share/doc/asura/manual
 # One-time fixes for installed machines; asura update runs the new ones
 # (asura migrate). Marked done only on a fresh install, never here.
 put migrations /usr/share/asura/migrations

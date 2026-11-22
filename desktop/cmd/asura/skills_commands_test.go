@@ -30,11 +30,15 @@ func TestSkillsNameRealCommands(t *testing.T) {
 	}
 	skills := filepath.Join(repo, "shell", "agent", "skills")
 	files, _ := filepath.Glob(filepath.Join(skills, "*", "*.md"))
+	// The user manual makes the same promises to people.
+	manual, _ := filepath.Glob(filepath.Join(repo, "docs", "manual", "*.md"))
+	files = append(files, manual...)
 	if len(files) == 0 {
 		t.Fatalf("no skills under %s", skills)
 	}
 	toolExists := func(name string) bool {
-		for _, dir := range []string{"desktop/cmd", "shell/scripts", "session"} {
+		// Commands, scripts, and the user services (a name like asura-updates).
+		for _, dir := range []string{"desktop/cmd", "shell/scripts", "session", "system/runit/user-services"} {
 			if _, err := os.Stat(filepath.Join(repo, dir, name)); err == nil {
 				return true
 			}
