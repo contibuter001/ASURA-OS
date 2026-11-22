@@ -164,11 +164,50 @@ Singleton {
         }
     }
 
+    function makeAppResult(entry) {
+        return resultComp.createObject(null, {
+            type: Translation.tr("App"),
+            id: entry.id,
+            name: entry.name,
+            iconName: entry.icon,
+            iconType: LauncherSearchResult.IconType.System,
+            verb: Translation.tr("Open"),
+            execute: () => {
+                if (!entry.runInTerminal)
+                    entry.execute();
+                else {
+                    // Probably needs more proper escaping, but this will do for now
+                    Quickshell.execDetached(["bash", '-c', `${Config.options.apps.terminal} -e '${StringUtils.shellSingleQuoteEscape(entry.command.join(' '))}'`]);
+                }
+            },
+            comment: entry.comment,
+            runInTerminal: entry.runInTerminal,
+            genericName: entry.genericName,
+            keywords: entry.keywords,
+            actions: (entry.actions || []).map(action => {
+                return resultComp.createObject(null, {
+                    name: action.name,
+                    iconName: action.icon,
+                    iconType: LauncherSearchResult.IconType.System,
+                    execute: () => {
+                        if (!action.runInTerminal)
+                            action.execute();
+                        else {
+                            Quickshell.execDetached(["bash", '-c', `${Config.options.apps.terminal} -e '${StringUtils.shellSingleQuoteEscape(action.command.join(' '))}'`]);
+                        }
+                    }
+                });
+            })
+        });
+    }
+
     property list<var> results: {
         // Search results are handled here
         ////////////////// Skip? //////////////////
-        if (root.query == "")
-            return [];
+        if (root.query == "") {
+            const allApps = Array.from(AppSearch.list).filter(entry => entry && entry.name).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            return allApps.map(root.makeAppResult);
+        }
 
         ///////////// Special cases ///////////////
         if (root.query.startsWith(Config.options.search.prefix.clipboard)) {
@@ -239,42 +278,7 @@ Singleton {
                 Quickshell.clipboardText = root.mathResult;
             }
         });
-        const appResultObjects = AppSearch.fuzzyQuery(StringUtils.cleanPrefix(root.query, Config.options.search.prefix.app)).map(entry => {
-            return resultComp.createObject(null, {
-                type: Translation.tr("App"),
-                id: entry.id,
-                name: entry.name,
-                iconName: entry.icon,
-                iconType: LauncherSearchResult.IconType.System,
-                verb: Translation.tr("Open"),
-                execute: () => {
-                    if (!entry.runInTerminal)
-                        entry.execute();
-                    else {
-                        // Probably needs more proper escaping, but this will do for now
-                        Quickshell.execDetached(["bash", '-c', `${Config.options.apps.terminal} -e '${StringUtils.shellSingleQuoteEscape(entry.command.join(' '))}'`]);
-                    }
-                },
-                comment: entry.comment,
-                runInTerminal: entry.runInTerminal,
-                genericName: entry.genericName,
-                keywords: entry.keywords,
-                actions: entry.actions.map(action => {
-                    return resultComp.createObject(null, {
-                        name: action.name,
-                        iconName: action.icon,
-                        iconType: LauncherSearchResult.IconType.System,
-                        execute: () => {
-                            if (!action.runInTerminal)
-                                action.execute();
-                            else {
-                                Quickshell.execDetached(["bash", '-c', `${Config.options.apps.terminal} -e '${StringUtils.shellSingleQuoteEscape(action.command.join(' '))}'`]);
-                            }
-                        }
-                    });
-                })
-            });
-        });
+        const appResultObjects = AppSearch.fuzzyQuery(StringUtils.cleanPrefix(root.query, Config.options.search.prefix.app)).map(root.makeAppResult);
         const commandResultObject = resultComp.createObject(null, {
             name: StringUtils.cleanPrefix(root.query, Config.options.search.prefix.shellCommand).replace("file://", ""),
             verb: Translation.tr("Run"),

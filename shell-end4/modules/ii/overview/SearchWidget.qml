@@ -20,10 +20,14 @@ Item { // Wrapper
     readonly property int typingResultLimit: 15 // Should be enough to cover the whole view
 
     property string searchingText: LauncherSearch.query
-    property bool showResults: searchingText != ""
+    property bool showResults: searchingText != "" || ((LauncherSearch.results?.length ?? 0) > 0)
     readonly property real launcherWidth: 620
     implicitWidth: launcherWidth + Appearance.sizes.elevationMargin * 2
     implicitHeight: searchWidgetContent.implicitHeight + Appearance.sizes.elevationMargin * 2
+
+    Component.onCompleted: {
+        resultModel.values = LauncherSearch.results ?? [];
+    }
 
     function focusFirstItem() {
         appResults.currentIndex = 0;
@@ -41,6 +45,7 @@ Item { // Wrapper
         searchBar.searchInput.selectAll();
         LauncherSearch.query = "";
         searchBar.animateWidth = true;
+        resultModel.values = LauncherSearch.results ?? [];
     }
 
     function setSearchingText(text) {
@@ -207,9 +212,13 @@ Item { // Wrapper
                 Connections {
                     target: LauncherSearch
                     function onResultsChanged() {
-                        resultModel.values = LauncherSearch.results.slice(0, root.typingResultLimit);
+                        if (root.searchingText === "") {
+                            resultModel.values = LauncherSearch.results ?? [];
+                        } else {
+                            resultModel.values = (LauncherSearch.results ?? []).slice(0, root.typingResultLimit);
+                            debounceTimer.restart();
+                        }
                         root.focusFirstItem();
-                        debounceTimer.restart();
                     }
                 }
 

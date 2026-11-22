@@ -20,6 +20,10 @@ Singleton {
         "wps": "wps-office2019-kprometheus",
         "wpsoffice": "wps-office2019-kprometheus",
         "footclient": "foot",
+        "asura-vm": "computer",
+        "asura-hub": "preferences-system",
+        "asura-settings": "preferences-system",
+        "nm-connection-editor": "preferences-system-network",
     })
     property var regexSubstitutions: [
         {
@@ -79,7 +83,9 @@ Singleton {
 
     function iconExists(iconName) {
         if (!iconName || iconName.length == 0) return false;
-        return (Quickshell.iconPath(iconName, true).length > 0) 
+        let p = Quickshell.iconPath(iconName, true);
+        return (p && p.length > 0) 
+            && !p.includes("image-missing")
             && !iconName.includes("image-missing");
     }
 

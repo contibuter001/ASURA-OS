@@ -154,10 +154,72 @@ RippleButton {
 
         Component {
             id: iconImageComponent
-            IconImage {
-                source: Quickshell.iconPath(root.iconName, "image-missing")
-                width: 35
-                height: 35
+            Item {
+                implicitWidth: 35
+                implicitHeight: 35
+
+                readonly property string resolvedIconPath: {
+                    if (!root.iconName || root.iconName.length === 0) return "";
+                    if (root.iconName.startsWith("/") || root.iconName.startsWith("file://")) {
+                        return root.iconName;
+                    }
+                    let p = Quickshell.iconPath(root.iconName);
+                    if (p && p.length > 0 && !p.includes("image-missing")) {
+                        return p;
+                    }
+                    let guess = AppSearch.guessIcon(root.iconName);
+                    if (guess && guess.length > 0 && guess !== root.iconName) {
+                        p = Quickshell.iconPath(guess);
+                        if (p && p.length > 0 && !p.includes("image-missing")) {
+                            return p;
+                        }
+                    }
+                    const fallbacks = {
+                        "computer": ["asura-vm", "virtualbox", "system-run", "utilities-terminal", "application-x-executable"],
+                        "preferences-system": ["asura-hub", "org.gnome.Settings", "system-run", "application-x-executable"],
+                        "preferences-system-network": ["network-wired", "network-workgroup", "network-wireless", "preferences-system", "application-x-executable"],
+                        "nm-connection-editor": ["preferences-system-network", "network-wired"]
+                    };
+                    const list = fallbacks[root.iconName] || [];
+                    for (let fb of list) {
+                        p = Quickshell.iconPath(fb);
+                        if (p && p.length > 0 && !p.includes("image-missing")) {
+                            return p;
+                        }
+                    }
+                    p = Quickshell.iconPath("application-x-executable");
+                    if (p && p.length > 0 && !p.includes("image-missing")) {
+                        return p;
+                    }
+                    return "";
+                }
+
+                IconImage {
+                    id: iconImg
+                    anchors.fill: parent
+                    source: parent.resolvedIconPath
+                    visible: parent.resolvedIconPath.length > 0 && status !== Image.Error
+                }
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    visible: !iconImg.visible
+                    iconSize: 28
+                    color: root.colForeground
+                    text: {
+                        const name = (root.iconName || "").toLowerCase();
+                        if (name.includes("vm") || name.includes("computer") || name.includes("virtual")) return "computer";
+                        if (name.includes("setting") || name.includes("preferences") || name.includes("hub")) return "settings";
+                        if (name.includes("network") || name.includes("wifi") || name.includes("connection")) return "lan";
+                        if (name.includes("terminal") || name.includes("console")) return "terminal";
+                        if (name.includes("edit") || name.includes("text")) return "edit_note";
+                        if (name.includes("store") || name.includes("shop") || name.includes("market")) return "shopping_bag";
+                        if (name.includes("audio") || name.includes("sound") || name.includes("music")) return "volume_up";
+                        if (name.includes("video") || name.includes("movie")) return "movie";
+                        if (name.includes("image") || name.includes("photo") || name.includes("draw")) return "image";
+                        return "apps";
+                    }
+                }
             }
         }
 
