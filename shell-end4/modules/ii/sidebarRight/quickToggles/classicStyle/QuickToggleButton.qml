@@ -1,7 +1,6 @@
 import qs.modules.common
 import qs.modules.common.widgets
 import QtQuick
-import QtQuick.Layouts
 
 GroupButton {
     id: button
@@ -12,10 +11,9 @@ GroupButton {
     toggled: false
     buttonRadius: (altAction && toggled) ? Appearance?.rounding.normal : Math.min(baseHeight, baseWidth) / 2
     buttonRadiusPressed: Appearance?.rounding?.small
-    Layout.fillHeight: true
-    Layout.alignment: Qt.AlignVCenter
 
     contentItem: MaterialSymbol {
+        anchors.centerIn: parent
         iconSize: 18
         fill: button.toggled ? 1 : 0
         color: button.toggled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1

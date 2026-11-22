@@ -32,8 +32,7 @@ Button {
     property bool isAtSide: indexInParent === 0 || indexInParent === (parentGroup?.childrenCount - 1)
 
     Layout.fillWidth: (clickIndex >= 0 && clickIndex - 1 <= indexInParent && indexInParent <= clickIndex + 1)
-    Layout.fillHeight: true
-    Layout.alignment: Qt.AlignVCenter
+    Layout.fillHeight: false
     implicitWidth: (root.down && bounce) ? clickedWidth : baseWidth
     implicitHeight: (root.down && bounce) ? clickedHeight : baseHeight
 
