@@ -167,8 +167,8 @@ Item { // Bar content region
         implicitWidth: rightSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
-        // No scroll or click action: volume and brightness are sliders in the
-        // control menu (the right sidebar), and only its button opens it.
+        onScrollDown: Audio.decrementVolume()
+        onScrollUp: Audio.incrementVolume()
 
         // Visual content
 
@@ -178,32 +178,18 @@ Item { // Bar content region
             spacing: 5
             layoutDirection: Qt.RightToLeft
 
-            BatteryIndicator { // The battery, at the very end of the bar
-                visible: Battery.available
-                Layout.alignment: Qt.AlignVCenter
-                Layout.rightMargin: 10
-            }
-
-            BarGroup { // Resources, at the end of the bar
-                Layout.alignment: Qt.AlignVCenter
-                Layout.rightMargin: 6
-                Resources {
-                    alwaysShowAllResources: root.useShortenedForm === 2
-                }
-            }
-
-            RippleButton { // Right sidebar button
+            RippleButton { // Unified quick settings & status capsule, at the very end of the bar
                 id: rightSidebarButton
 
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                Layout.rightMargin: Appearance.rounding.screenRounding
+                Layout.alignment: Qt.AlignVCenter
+                Layout.rightMargin: 10
                 Layout.fillWidth: false
 
-                implicitWidth: indicatorsRowLayout.implicitWidth + 10 * 2
-                implicitHeight: indicatorsRowLayout.implicitHeight + 5 * 2
+                implicitWidth: indicatorsRowLayout.implicitWidth + 24
+                implicitHeight: indicatorsRowLayout.implicitHeight + 8
 
                 buttonRadius: Appearance.rounding.full
-                colBackground: barRightSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
+                colBackground: hovered ? Appearance.colors.colLayer1Hover : Appearance.colors.colLayer1
                 colBackgroundHover: Appearance.colors.colLayer1Hover
                 colRipple: Appearance.colors.colLayer1Active
                 colBackgroundToggled: Appearance.colors.colSecondaryContainer
@@ -220,68 +206,152 @@ Item { // Bar content region
                     GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
                 }
 
+                WheelHandler {
+                    onWheel: event => {
+                        if (event.angleDelta.y > 0)
+                            Audio.incrementVolume();
+                        else
+                            Audio.decrementVolume();
+                    }
+                }
+
                 RowLayout {
                     id: indicatorsRowLayout
                     anchors.centerIn: parent
-                    property real realSpacing: 15
-                    spacing: 0
+                    spacing: 10
 
-                    Revealer {
-                        reveal: Audio.sink?.audio?.muted ?? false
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        MaterialSymbol {
-                            text: "volume_off"
-                            iconSize: Appearance.font.pixelSize.larger
-                            color: rightSidebarButton.colText
-                        }
-                    }
-                    Revealer {
-                        reveal: Audio.source?.audio?.muted ?? false
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        MaterialSymbol {
-                            text: "mic_off"
-                            iconSize: Appearance.font.pixelSize.larger
-                            color: rightSidebarButton.colText
-                        }
-                    }
-                    HyprlandXkbIndicator {
+                    MaterialSymbol { // Network
                         Layout.alignment: Qt.AlignVCenter
-                        Layout.rightMargin: indicatorsRowLayout.realSpacing
-                        color: rightSidebarButton.colText
-                    }
-                    Revealer {
-                        reveal: Notifications.silent || Notifications.unread > 0
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        implicitHeight: reveal ? notificationUnreadCount.implicitHeight : 0
-                        implicitWidth: reveal ? notificationUnreadCount.implicitWidth : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        NotificationUnreadCount {
-                            id: notificationUnreadCount
-                        }
-                    }
-                    MaterialSymbol {
                         text: Network.materialSymbol
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
                     }
-                    MaterialSymbol {
-                        Layout.leftMargin: indicatorsRowLayout.realSpacing
-                        visible: BluetoothStatus.available
-                        text: BluetoothStatus.connected ? "bluetooth_connected" : BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
+
+                    MaterialSymbol { // Bluetooth
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: true
+                        text: BluetoothStatus.connected ? "bluetooth_connected" : (BluetoothStatus.available && !BluetoothStatus.enabled) ? "bluetooth_disabled" : "bluetooth"
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
                     }
+
+                    MaterialSymbol { // Volume
+                        Layout.alignment: Qt.AlignVCenter
+                        text: Audio.sink?.audio?.muted ? "volume_off" : (Audio.sink?.audio?.volume === 0 ? "volume_mute" : (Audio.sink?.audio?.volume < 0.5 ? "volume_down" : "volume_up"))
+                        iconSize: Appearance.font.pixelSize.larger
+                        color: rightSidebarButton.colText
+                    }
+
+                    Revealer {
+                        reveal: Audio.source?.audio?.muted ?? false
+                        Layout.fillHeight: true
+                        Layout.alignment: Qt.AlignVCenter
+                        MaterialSymbol {
+                            text: "mic_off"
+                            iconSize: Appearance.font.pixelSize.larger
+                            color: Appearance.colors.colError
+                        }
+                    }
+
+                    HyprlandXkbIndicator {
+                        Layout.alignment: Qt.AlignVCenter
+                        color: rightSidebarButton.colText
+                    }
+
+                    Revealer {
+                        reveal: Notifications.silent || Notifications.unread > 0
+                        Layout.fillHeight: true
+                        Layout.alignment: Qt.AlignVCenter
+                        implicitHeight: reveal ? notificationUnreadCount.implicitHeight : 0
+                        implicitWidth: reveal ? notificationUnreadCount.implicitWidth : 0
+                        NotificationUnreadCount {
+                            id: notificationUnreadCount
+                        }
+                    }
+
+                    RowLayout { // Battery
+                        id: batteryGroup
+                        visible: Battery.available
+                        spacing: 5
+                        Layout.alignment: Qt.AlignVCenter
+
+                        readonly property bool isCharging: Battery.isCharging
+                        readonly property real percentage: Battery.percentage
+                        readonly property bool isLow: percentage <= (Config.options?.battery?.low ?? 20) / 100
+                        readonly property color levelColor: (isLow && !isCharging) ? Appearance.colors.colError
+                            : isCharging ? Appearance.colors.colPrimary
+                            : rightSidebarButton.colText
+
+                        Item { // Battery icon
+                            implicitWidth: 22
+                            implicitHeight: 12
+                            Layout.alignment: Qt.AlignVCenter
+
+                            Rectangle { // body
+                                id: batteryBody
+                                width: 20
+                                height: 12
+                                color: "transparent"
+                                border.width: 1.5
+                                border.color: rightSidebarButton.colText
+                                radius: 2
+
+                                Rectangle { // charge
+                                    x: 2.5
+                                    y: 2.5
+                                    height: parent.height - 5
+                                    width: Math.max(1, (parent.width - 5) * Math.max(0, Math.min(1, batteryGroup.percentage)))
+                                    color: batteryGroup.levelColor
+                                    radius: 1
+                                    Behavior on width {
+                                        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                                    }
+                                }
+                            }
+
+                            Rectangle { // terminal
+                                anchors {
+                                    left: batteryBody.right
+                                    verticalCenter: batteryBody.verticalCenter
+                                }
+                                width: 2
+                                height: 5
+                                color: rightSidebarButton.colText
+                            }
+
+                            MaterialSymbol { // charging bolt
+                                anchors.centerIn: batteryBody
+                                visible: batteryGroup.isCharging
+                                fill: 1
+                                text: "bolt"
+                                iconSize: 13
+                                color: Appearance.colors.colLayer0
+                                style: Text.Outline
+                                styleColor: Appearance.colors.colLayer0
+                            }
+                        }
+
+                        StyledText {
+                            Layout.alignment: Qt.AlignVCenter
+                            text: `${Math.round(batteryGroup.percentage * 100)}%`
+                            color: (batteryGroup.isLow && !batteryGroup.isCharging) ? Appearance.colors.colError : rightSidebarButton.colText
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.family: Appearance.font.family.monospace
+                        }
+
+                        BatteryPopup {
+                            id: batteryPopup
+                            hoverTarget: batteryGroup
+                        }
+                    }
+                }
+            }
+
+            BarGroup { // Resources, to the left of the status pill
+                Layout.alignment: Qt.AlignVCenter
+                Layout.rightMargin: 4
+                Resources {
+                    alwaysShowAllResources: root.useShortenedForm === 2
                 }
             }
 
