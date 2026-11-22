@@ -1,6 +1,7 @@
 import qs.modules.common
 import qs.modules.common.widgets
 import QtQuick
+import QtQuick.Layouts
 
 GroupButton {
     id: button
