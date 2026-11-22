@@ -1,78 +1,131 @@
-# Installation & Live ISO Building
+# Installation, Dual-Boot & Adoption Guide
 
-This document covers the installation pipeline in ASURA OS: generating live bootable media,
-running the guided system installer, configuring full-disk encryption, and bootstrapping
-the Void Linux package repository.
+This document covers all three installation paths in ASURA OS, unattended deployments,
+and converting existing Void Linux systems via `asura adopt`.
 
 ---
 
-## 1. Live ISO Generation (`build-iso-void.sh`)
+## 1. Installation Paths Overview
 
-ASURA OS builds hybrid UEFI/BIOS bootable ISO images based on Void Linux glibc x86_64 using
-`void-mklive` and packages defined in `system/packages-void.yaml`.
+ASURA OS supports three distinct ways to get the desktop running:
 
-The builder script is located at `installation/build-iso-void.sh`.
-
-### Key Features
-- **Deterministic Package Extraction**: Reads the reviewed package fleet from
-  `system/packages-void.yaml`, automatically excluding unsupported or conflict packages.
-- **Runit User Supervision**: Injects default runit user services into `/etc/skel/.config/service/`.
-- **Automatic Live Autologin**: Configures `agetty-tty1` to automatically log into the live user session
-  (`asura`) with standard group memberships (`_seatd`, `video`, `audio`, `input`, `wheel`).
-- **Hyprland + Quickshell Session**: Automatically starts the Wayland session via `asura-session`
-  upon console login.
-- **Installer Integration**: Stages `asura-installer.sh` and the desktop shortcut
-  `session/applications/asura-installer.desktop` to launch the guided installer from the live environment.
-
-### Building the ISO
-
-```sh
-# Ensure dependencies are installed (void-mklive, xbps, squasfs-tools, xorriso)
-sudo xbps-install -S void-mklive xorriso squashfs-tools
-
-# Run ISO build
-sudo ./installation/build-iso-void.sh
-```
+| Path | Command | Use Case | Disk Changes |
+|---|---|---|---|
+| **Clean Install** | `asura install` | Dedicated drive or new machine | Erases disk, creates GPT/ESP, Btrfs subvolumes |
+| **Install Alongside (Dual-Boot)** | `asura install --alongside` | Coexist with Windows or another Linux | Preserves partition table, uses unallocated free space, reuses ESP |
+| **Unattended Install** | `asura install --config FILE` | Automated lab, VM, or CI deployment | Guided by answer file, passwords never logged in plaintext |
+| **Adopt Existing Void** | `asura adopt` | Convert existing Void Linux glibc installation | In-place, reversible with `asura adopt --undo`, atomic backup |
 
 ---
 
 ## 2. Guided Installer (`asura-installer.sh`)
 
-The installer is a terminal and GUI-driven disk partitioner, rootfs unpacker, and configuration
-engine located at `installation/asura-installer.sh`. It can be run directly from terminal or
-via `asura install` / `asura-installer.desktop`.
+The guided system installer is located at `installation/asura-installer.sh` and launched via
+`asura install` or the application launcher shortcut.
 
-### Installation Steps
+### Flag Reference
+```sh
+asura-installer [options] [TARGET_DISK]
 
-1. **Target Selection**: Enumerates non-removable block devices using `lsblk` and `/sys/block/`.
-2. **Partitioning Scheme**:
-   - EFI System Partition (ESP): 1024 MiB, formatted FAT32 (`vfat`), mounted at `/boot/efi`.
-   - Boot Partition: 1024 MiB ext4 partition at `/boot` (used for LUKS2 encrypted setups).
-   - Root Partition: Remainder of drive formatted Btrfs or ext4, mounted at `/`.
-3. **Full-Disk Encryption (LUKS2)**:
-   - Optional full-disk encryption using `cryptsetup luksFormat --type luks2 --pbkdf argon2id`.
-   - Integrated with Dracut `crypt` module and Plymouth password prompt on boot.
-4. **Btrfs Subvolumes**:
-   - Subvolume `@` mounted at `/`.
-   - Subvolume `@home` mounted at `/home`.
-   - Subvolume `@snapshots` mounted at `/.snapshots` for rollback integration.
-5. **Base System Deployment**:
-   - Deploys base packages via XBPS into target mount (`/mnt`).
-   - Copies user services, configuration skeletons, and desktop binaries.
-6. **Bootloader Configuration**:
-   - Installs GRUB EFI (`grub-install --target=x86_64-efi --efi-directory=/boot/efi`).
-   - Generates `/etc/fstab` using persistent UUIDs.
-   - Generates initial RAM disk via `dracut --force`.
+Options:
+  --alongside, --dual-boot   Install into contiguous free space alongside existing OS
+  --wipe, --clean            Clean install: erase entire target drive (default)
+  --dry-run                  Simulate partitioning, formatting and deployment without touching disk
+  --config FILE              Unattended installation using documented answer file
+  --encrypt                  Enable LUKS2 (argon2id) root filesystem encryption
+  --no-encrypt               Disable encryption
+  -h, --help                 Show help information
+```
 
 ---
 
-## 3. Package Repository Bootstrapping (`apply-repo.sh`)
+## 3. Dual-Boot Next to Windows / Other OS (`--alongside`)
 
-`installation/apply-repo.sh` configures the host or target chroot to use the ASURA OS binary
-XBPS repository. It generates `/usr/share/xbps.d/asura.conf` and installs the repository
-signing key.
+Installing alongside another operating system safely coexists on the same drive without
+erasing existing data or breaking Windows Boot Manager.
 
 ```sh
-# Apply local or remote repository to running system or chroot
-sudo ./installation/apply-repo.sh /path/to/repo [target_root]
+# Run installer in alongside mode
+sudo asura install --alongside /dev/nvme0n1
 ```
+
+### Safety Rules & Guardrails
+1. **UEFI Mode Required**: The installer verifies `IS_UEFI=1`. Legacy BIOS / MBR alongside
+   installation is strictly refused because partition table sharing risks bootloader corruption.
+2. **GPT Table Required**: Target disk must use GPT. MBR partition tables are refused.
+3. **BitLocker Detection**: Partitions are scanned using `blkid`. If Windows BitLocker encryption
+   is active, the installer halts with instructions to suspend or disable BitLocker in Windows.
+4. **Windows Fast Startup / Dirty NTFS Guard**: All NTFS partitions are checked. If Windows Fast
+   Startup or hibernation left the volume dirty, the installer refuses to proceed to prevent
+   filesystem corruption, guiding the user to perform a clean shutdown in Windows.
+5. **ESP Preservation**: The existing EFI System Partition is discovered and preserved. It is
+   **never** formatted with `mkfs.vfat`.
+6. **Contiguous Free Space**: Scans for unallocated slices >= 20 GiB. Only the free slice is
+   partitioned into `AsuraRoot` (and `ASURA_BOOT` if encrypted).
+7. **GRUB OS-Prober**: Enables `GRUB_DISABLE_OS_PROBER=false` in `/etc/default/grub` so `grub-mkconfig`
+   automatically discovers Windows Boot Manager and other installed kernels.
+8. **Preserve Fallback Bootloader**: In dual-boot mode, `/boot/efi/EFI/BOOT/BOOTX64.EFI` is
+   never overwritten, preserving vendor and Windows fallback boot options.
+
+---
+
+## 4. Unattended Installation (`--config FILE`)
+
+Deploy ASURA OS non-interactively using an answer file. Passwords can be supplied as pre-hashed
+shadow strings (`$6$...`) or plain strings. Passwords and passphrases are **never logged in cleartext**.
+
+### Sample Answer File (`asura-answer.yaml` / properties)
+```yaml
+disk: /dev/sda
+mode: alongside          # "alongside" (dual-boot) or "wipe" (clean)
+filesystem: btrfs        # "btrfs" or "ext4"
+encryption: yes          # "yes" or "no"
+luks_password: SuperSecureLuksPass123!
+hostname: asura-station
+user: asura
+password_hash: $6$rounds=4096$saltsalt$fakehashvalueforunattended123
+timezone: UTC
+locale: en_US.UTF-8
+keyboard: us
+```
+
+### Executing Unattended Install
+```sh
+# Dry run to preview the execution plan
+asura install --dry-run --config /path/to/asura-answer.yaml
+
+# Execute unattended installation
+sudo asura install --config /path/to/asura-answer.yaml
+```
+
+---
+
+## 5. Converting an Existing Void Linux Install (`asura adopt`)
+
+`asura adopt` installs the ASURA desktop shell, portal graph, and services in-place onto an
+existing Void Linux glibc x86_64 system without reinstalling, repartitioning, or touching the kernel.
+
+### Commands
+```sh
+# 1. Preflight check (inspects Void, glibc, x86_64, disk space >= 5GB)
+asura adopt --check
+
+# 2. Execute adoption (atomic backup to /etc/asura/adopt/backup/<timestamp>/)
+sudo asura adopt
+
+# 3. Verify deployed session registrations and integrity
+asura adopt --verify
+
+# 4. Check for obsolete or conflicting display managers
+asura adopt --prune
+
+# 5. Full rollback (byte-for-byte undo using self-contained restore.sh)
+sudo asura adopt --undo
+```
+
+### Adoption Guardrails
+- **Distribution Check**: Strictly requires Void Linux (`/etc/os-release` `ID=void`).
+- **Architecture Check**: Strictly requires `x86_64`.
+- **C Library Check**: Strictly requires `glibc`. Musl installations are refused.
+- **Reversibility**: Generates `/etc/asura/adopt/backup/<timestamp>/restore.sh` and `/etc/asura/adopt/state.json`.
+  Running `asura adopt --undo` restores all replaced files byte-for-byte and unregisters ASURA session components.

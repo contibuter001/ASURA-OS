@@ -77,6 +77,70 @@ if grep -q "testpassphrase123" "$OUT_ENCRYPT"; then
 	exit 1
 fi
 
+# Test 4: Unattended installation via --config answer file
+CONFIG_FILE="$TMP_DIR/asura-answer.yaml"
+cat >"$CONFIG_FILE" <<'EOF'
+disk: /dev/sda
+mode: wipe
+filesystem: btrfs
+encryption: yes
+luks_password: secretunattendedpass123
+hostname: unattended-host
+username: unattended-user
+password_hash: $6$rounds=4096$saltsalt$fakehashvalueforunattended123
+timezone: UTC
+locale: en_US.UTF-8
+keyboard: us
+EOF
+
+OUT_CONFIG="$TMP_DIR/out_config.txt"
+sh "$INSTALLER" --dry-run --config "$CONFIG_FILE" > "$OUT_CONFIG" 2>&1
+
+grep -Fq "unattended-host" "$OUT_CONFIG" || {
+	echo "asura-installer_test: missing unattended hostname in output" >&2
+	exit 1
+}
+grep -Fq "unattended-user" "$OUT_CONFIG" || {
+	echo "asura-installer_test: missing unattended user in output" >&2
+	exit 1
+}
+if grep -q "secretunattendedpass123" "$OUT_CONFIG" || grep -q "fakehashvalueforunattended123" "$OUT_CONFIG"; then
+	echo "asura-installer_test: SECURITY LEAK: unattended password or hash found in installer output!" >&2
+	exit 1
+fi
+
+# Test 5: Alongside / dual-boot installation (--alongside / --dual-boot)
+OUT_ALONGSIDE="$TMP_DIR/out_alongside.txt"
+sh "$INSTALLER" --dry-run --alongside --no-encrypt /dev/sda <<'EOF' > "$OUT_ALONGSIDE" 2>&1
+1
+dual-host
+dual-user
+dualpass123
+dualpass123
+Y
+EOF
+
+grep -Fq "Install Alongside" "$OUT_ALONGSIDE" || {
+	echo "asura-installer_test: missing 'Install Alongside' in specification summary" >&2
+	exit 1
+}
+grep -Fq "preserve existing partition table" "$OUT_ALONGSIDE" || {
+	echo "asura-installer_test: missing partition table preservation in alongside dry-run" >&2
+	exit 1
+}
+grep -Fq "os-prober enabled" "$OUT_ALONGSIDE" || {
+	echo "asura-installer_test: missing os-prober enablement in alongside dry-run" >&2
+	exit 1
+}
+grep -Fq "without overwriting fallback EFI/BOOT/BOOTX64.EFI" "$OUT_ALONGSIDE" || {
+	echo "asura-installer_test: missing fallback bootloader preservation in alongside dry-run" >&2
+	exit 1
+}
+! sed -n '/DRY RUN SUMMARY:/,$p' "$OUT_ALONGSIDE" | grep -q "Wipe" || {
+	echo "asura-installer_test: unexpected wipe in alongside dry-run summary" >&2
+	exit 1
+}
+
 # The snapshot GRUB snippet is installed before the first grub-mkconfig, so
 # the installed system's first grub.cfg already carries it.
 snippet_line=$(grep -n '40_asura_snapshots' "$REPO_ROOT/installation/asura-installer.sh" | head -n1 | cut -d: -f1)

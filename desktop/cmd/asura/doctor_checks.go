@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -811,6 +812,39 @@ func reportHardwareQuirks(root string) int {
 		fmt.Printf("  model             %s (%s)\n", matched.Name, matched.ID)
 		fmt.Println("  status            available (not applied)")
 		fmt.Println("  fix               run 'asura hardware quirks apply' to enable model-specific tuning")
+	}
+	return exitOK
+}
+
+// reportAdoption reports whether this machine is an adopted Void Linux installation.
+func reportAdoption(root string) int {
+	statePath := filepath.Join(root, "etc", "asura", "adopt", "state.json")
+	data, err := os.ReadFile(statePath)
+	if err != nil {
+		return exitOK
+	}
+
+	var state adoptState
+	if err := json.Unmarshal(data, &state); err != nil {
+		return exitOK
+	}
+
+	fmt.Println()
+	fmt.Println("Adoption Status")
+	fmt.Println("  type              adopted Void Linux glibc installation")
+	fmt.Printf("  adopted           %s (user: %s)\n", state.Timestamp, state.User)
+	fmt.Printf("  backup            %s\n", state.BackupDir)
+
+	missing := []string{}
+	for _, f := range state.CreatedFiles {
+		if _, err := os.Stat(filepath.Join(root, f)); err != nil {
+			missing = append(missing, f)
+		}
+	}
+	if len(missing) > 0 {
+		fmt.Printf("  status            drift detected (%d missing registrations)\n", len(missing))
+	} else {
+		fmt.Println("  status            healthy (all session registrations active)")
 	}
 	return exitOK
 }

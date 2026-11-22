@@ -210,6 +210,7 @@ func sessionChecks(root string, fix bool) []func() int {
 		func() int { return reportHardwarePower(root, fix) },
 		func() int { return reportFingerprint(root) },
 		func() int { return reportHardwareQuirks(root) },
+		func() int { return reportAdoption(root) },
 		func() int { return reportMigrationState(root) },
 		func() int { reportDeps(root, runner.Exec(10*time.Second)); return exitOK },
 	}

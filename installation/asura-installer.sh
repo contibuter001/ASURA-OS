@@ -8,25 +8,129 @@ DUAL_BOOT=0
 DRY_RUN=0
 ENCRYPT_ARG=""
 TARGET_DISK_ARG=""
+CONFIG_ARG=""
+ALONGSIDE_ARG=""
 
-for arg in "$@"; do
-	case "$arg" in
-		--dual-boot) DUAL_BOOT=1 ;;
-		--dry-run) DRY_RUN=1 ;;
-		--encrypt) ENCRYPT_ARG=1 ;;
-		--no-encrypt) ENCRYPT_ARG=0 ;;
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--dual-boot|--alongside)
+			DUAL_BOOT=1
+			ALONGSIDE_ARG=1
+			shift
+			;;
+		--wipe|--clean)
+			DUAL_BOOT=0
+			ALONGSIDE_ARG=0
+			shift
+			;;
+		--dry-run)
+			DRY_RUN=1
+			shift
+			;;
+		--encrypt)
+			ENCRYPT_ARG=1
+			shift
+			;;
+		--no-encrypt)
+			ENCRYPT_ARG=0
+			shift
+			;;
+		--config)
+			if [ $# -lt 2 ]; then
+				echo "Error: --config requires a file argument" >&2
+				exit 1
+			fi
+			CONFIG_ARG="$2"
+			shift 2
+			;;
+		--config=*)
+			CONFIG_ARG="${1#*=}"
+			shift
+			;;
+		-h|--help|help)
+			echo "Usage: asura-installer [options] [TARGET_DISK]"
+			echo "Options:"
+			echo "  --config FILE          unattended answer file (YAML or key=value)"
+			echo "  --alongside            install alongside existing OS in free space"
+			echo "  --dual-boot            alias for --alongside"
+			echo "  --wipe                 erase entire disk (clean installation)"
+			echo "  --dry-run              print installation plan without making changes"
+			echo "  --encrypt              enable LUKS2 root filesystem encryption"
+			echo "  --no-encrypt           disable encryption"
+			exit 0
+			;;
 		-*)
-			echo "Unknown option: $arg" >&2
-			echo "Usage: asura-installer [--dual-boot] [--dry-run] [--encrypt|--no-encrypt] [TARGET_DISK]" >&2
+			echo "Unknown option: $1" >&2
+			echo "Usage: asura-installer [--config FILE] [--alongside] [--dry-run] [--encrypt|--no-encrypt] [TARGET_DISK]" >&2
 			exit 1
 			;;
 		*)
 			if [ -z "$TARGET_DISK_ARG" ]; then
-				TARGET_DISK_ARG="$arg"
+				TARGET_DISK_ARG="$1"
 			fi
+			shift
 			;;
 	esac
 done
+
+# Answer file parsing (unattended configuration)
+CFG_DISK=""
+CFG_MODE=""
+CFG_FS=""
+CFG_ENCRYPT=""
+CFG_LUKS_PASS=""
+CFG_LUKS_PASS_FILE=""
+CFG_HOSTNAME=""
+CFG_USER=""
+CFG_PASS=""
+CFG_PASS_HASH=""
+CFG_ROOT_PASS=""
+CFG_LOCK_ROOT=""
+CFG_TIMEZONE=""
+CFG_LOCALE=""
+CFG_KEYMAP=""
+
+get_answer_val() {
+	k="$1"
+	f="$2"
+	[ -f "$f" ] || return 0
+	val=$(grep -E "^[[:space:]]*${k}[[:space:]]*[:=]" "$f" 2>/dev/null | head -n1 | sed -E "s/^[[:space:]]*${k}[[:space:]]*[:=][[:space:]]*//; s/^[\"']//; s/[\"'][[:space:]]*$//" || true)
+	printf '%s' "$val"
+}
+
+if [ -n "$CONFIG_ARG" ]; then
+	if [ ! -f "$CONFIG_ARG" ]; then
+		echo "Error: configuration answer file not found: $CONFIG_ARG" >&2
+		exit 1
+	fi
+	CFG_DISK=$(get_answer_val "disk" "$CONFIG_ARG")
+	CFG_MODE=$(get_answer_val "mode" "$CONFIG_ARG")
+	CFG_FS=$(get_answer_val "filesystem" "$CONFIG_ARG")
+	CFG_ENCRYPT=$(get_answer_val "encryption" "$CONFIG_ARG")
+	CFG_LUKS_PASS=$(get_answer_val "luks_password" "$CONFIG_ARG")
+	CFG_LUKS_PASS_FILE=$(get_answer_val "luks_passphrase_file" "$CONFIG_ARG")
+	CFG_HOSTNAME=$(get_answer_val "hostname" "$CONFIG_ARG")
+	CFG_USER=$(get_answer_val "user" "$CONFIG_ARG")
+	[ -z "$CFG_USER" ] && CFG_USER=$(get_answer_val "username" "$CONFIG_ARG")
+	CFG_PASS=$(get_answer_val "password" "$CONFIG_ARG")
+	CFG_PASS_HASH=$(get_answer_val "password_hash" "$CONFIG_ARG")
+	CFG_ROOT_PASS=$(get_answer_val "root_password" "$CONFIG_ARG")
+	CFG_LOCK_ROOT=$(get_answer_val "lock_root" "$CONFIG_ARG")
+	CFG_TIMEZONE=$(get_answer_val "timezone" "$CONFIG_ARG")
+	CFG_LOCALE=$(get_answer_val "locale" "$CONFIG_ARG")
+	CFG_KEYMAP=$(get_answer_val "keyboard" "$CONFIG_ARG")
+	[ -z "$CFG_KEYMAP" ] && CFG_KEYMAP=$(get_answer_val "keymap" "$CONFIG_ARG")
+
+	[ -n "$CFG_DISK" ] && TARGET_DISK_ARG="$CFG_DISK"
+	case "$CFG_MODE" in
+		alongside|dual-boot) DUAL_BOOT=1 ;;
+		wipe|clean) DUAL_BOOT=0 ;;
+	esac
+	case "$CFG_ENCRYPT" in
+		yes|true|1) ENCRYPT_ARG=1 ;;
+		no|false|0) ENCRYPT_ARG=0 ;;
+	esac
+fi
 
 BOLD=$(printf '\033[1m')
 DIM=$(printf '\033[2m')
@@ -214,9 +318,18 @@ printf "${WHITE}╭────────────────────�
 ╰──────────────────────────────────────────────────────────────╯${RESET}\n"
 printf "  ${WHITE}[1]${RESET} ${BOLD}Btrfs${RESET} ${DIM}(Recommended: subvolumes @, @home, @snapshots, zstd:1 compression)${RESET}\n"
 printf "  ${WHITE}[2]${RESET} ${BOLD}ext4${RESET}  ${DIM}(Standard Linux journaling filesystem)${RESET}\n\n"
-printf "${WHITE}Choose filesystem [1/2] (default: 1): ${RESET}"
-read -r FS_CHOICE || FS_CHOICE="1"
-[ -z "$FS_CHOICE" ] && FS_CHOICE="1"
+
+if [ -n "$CFG_FS" ]; then
+	case "$CFG_FS" in
+		ext4) FS_CHOICE="2" ;;
+		*) FS_CHOICE="1" ;;
+	esac
+	printf "Filesystem (unattended): %s\n" "$([ "$FS_CHOICE" = "2" ] && echo "ext4" || echo "btrfs")"
+else
+	printf "${WHITE}Choose filesystem [1/2] (default: 1): ${RESET}"
+	read -r FS_CHOICE || FS_CHOICE="1"
+	[ -z "$FS_CHOICE" ] && FS_CHOICE="1"
+fi
 
 # ── STEP 3: Disk Encryption (LUKS2) ─────────────────────────────────────────
 printf "\n${WHITE}╭──────────────────────────────────────────────────────────────╮
@@ -239,7 +352,11 @@ fi
 
 LUKS_PASS=""
 if [ "$ENCRYPT_DISK" -eq 1 ]; then
-	if [ -n "${ASURA_LUKS_PASSPHRASE_FILE:-}" ] && [ -f "$ASURA_LUKS_PASSPHRASE_FILE" ]; then
+	if [ -n "${CFG_LUKS_PASS:-}" ]; then
+		LUKS_PASS="$CFG_LUKS_PASS"
+	elif [ -n "${CFG_LUKS_PASS_FILE:-}" ] && [ -f "$CFG_LUKS_PASS_FILE" ]; then
+		LUKS_PASS=$(head -n 1 "$CFG_LUKS_PASS_FILE" | tr -d '\r\n')
+	elif [ -n "${ASURA_LUKS_PASSPHRASE_FILE:-}" ] && [ -f "$ASURA_LUKS_PASSPHRASE_FILE" ]; then
 		LUKS_PASS=$(head -n 1 "$ASURA_LUKS_PASSPHRASE_FILE" | tr -d '\r\n')
 	fi
 
@@ -291,77 +408,203 @@ fi
 printf "\n${WHITE}╭──────────────────────────────────────────────────────────────╮
 │  ${BOLD}[ STEP 4/5 ]  System Identity & User Setup${RESET}${WHITE}                  │
 ╰──────────────────────────────────────────────────────────────╯${RESET}\n"
-printf "Enter system hostname [default: asura-os]: "
-read -r HOSTNAME_INPUT || HOSTNAME_INPUT="asura-os"
-[ -z "$HOSTNAME_INPUT" ] && HOSTNAME_INPUT="asura-os"
 
-printf "Enter primary username [default: asura]: "
-read -r USERNAME_INPUT || USERNAME_INPUT="asura"
-[ -z "$USERNAME_INPUT" ] && USERNAME_INPUT="asura"
+if [ -n "$CFG_HOSTNAME" ]; then
+	HOSTNAME_INPUT="$CFG_HOSTNAME"
+	printf "Hostname (unattended): %s\n" "$HOSTNAME_INPUT"
+else
+	printf "Enter system hostname [default: asura-os]: "
+	read -r HOSTNAME_INPUT || HOSTNAME_INPUT="asura-os"
+	[ -z "$HOSTNAME_INPUT" ] && HOSTNAME_INPUT="asura-os"
+fi
 
-# Prompt for password for primary user
-while true; do
-	printf "Enter password for %s: " "$USERNAME_INPUT"
-	stty -echo 2>/dev/null || true
-	read -r USER_PASS || USER_PASS=""
-	stty echo 2>/dev/null || true
-	printf "\n"
-	if [ -z "$USER_PASS" ]; then
-		if [ "$DRY_RUN" -eq 1 ]; then
-			USER_PASS="dryrunpass"
-			break
-		fi
-		printf "${RED}Password cannot be empty. Please enter a valid password.${RESET}\n"
-		continue
-	fi
-	printf "Confirm password for %s: " "$USERNAME_INPUT"
-	stty -echo 2>/dev/null || true
-	read -r USER_PASS_CONFIRM || USER_PASS_CONFIRM=""
-	stty echo 2>/dev/null || true
-	printf "\n"
-	if [ "$USER_PASS" = "$USER_PASS_CONFIRM" ]; then
-		break
-	fi
-	printf "${RED}Passwords do not match. Please try again.${RESET}\n"
-done
+if [ -n "$CFG_USER" ]; then
+	USERNAME_INPUT="$CFG_USER"
+	printf "Primary user (unattended): %s\n" "$USERNAME_INPUT"
+else
+	printf "Enter primary username [default: asura]: "
+	read -r USERNAME_INPUT || USERNAME_INPUT="asura"
+	[ -z "$USERNAME_INPUT" ] && USERNAME_INPUT="asura"
+fi
 
-# Root account setup (lock or set password)
-printf "Lock root account (recommended for sudo setups)? [Y/n]: "
-read -r LOCK_ROOT_INPUT || LOCK_ROOT_INPUT="Y"
-[ -z "$LOCK_ROOT_INPUT" ] && LOCK_ROOT_INPUT="Y"
+USER_PASS=""
+USER_PASS_HASH=""
 
-ROOT_PASS=""
-case "$LOCK_ROOT_INPUT" in
-	[nN]|[nN][oO])
-		while true; do
-			printf "Enter root password: "
-			stty -echo 2>/dev/null || true
-			read -r ROOT_PASS || ROOT_PASS=""
-			stty echo 2>/dev/null || true
-			printf "\n"
-			if [ -z "$ROOT_PASS" ]; then
-				if [ "$DRY_RUN" -eq 1 ]; then
-					ROOT_PASS="dryrunroot"
-					break
-				fi
-				printf "${RED}Root password cannot be empty.${RESET}\n"
-				continue
-			fi
-			printf "Confirm root password: "
-			stty -echo 2>/dev/null || true
-			read -r ROOT_PASS_CONFIRM || ROOT_PASS_CONFIRM=""
-			stty echo 2>/dev/null || true
-			printf "\n"
-			if [ "$ROOT_PASS" = "$ROOT_PASS_CONFIRM" ]; then
+if [ -n "$CFG_PASS_HASH" ]; then
+	USER_PASS_HASH="$CFG_PASS_HASH"
+	printf "Password hash provided (unattended).\n"
+elif [ -n "$CFG_PASS" ]; then
+	USER_PASS="$CFG_PASS"
+	printf "Password provided (unattended).\n"
+else
+	# Prompt for password for primary user
+	while true; do
+		printf "Enter password for %s: " "$USERNAME_INPUT"
+		stty -echo 2>/dev/null || true
+		read -r USER_PASS || USER_PASS=""
+		stty echo 2>/dev/null || true
+		printf "\n"
+		if [ -z "$USER_PASS" ]; then
+			if [ "$DRY_RUN" -eq 1 ]; then
+				USER_PASS="dryrunpass"
 				break
 			fi
-			printf "${RED}Passwords do not match. Please try again.${RESET}\n"
-		done
-		;;
-	*)
-		ROOT_PASS=""
-		;;
-esac
+			printf "${RED}Password cannot be empty. Please enter a valid password.${RESET}\n"
+			continue
+		fi
+		printf "Confirm password for %s: " "$USERNAME_INPUT"
+		stty -echo 2>/dev/null || true
+		read -r USER_PASS_CONFIRM || USER_PASS_CONFIRM=""
+		stty echo 2>/dev/null || true
+		printf "\n"
+		if [ "$USER_PASS" = "$USER_PASS_CONFIRM" ]; then
+			break
+		fi
+		printf "${RED}Passwords do not match. Please try again.${RESET}\n"
+	done
+fi
+
+ROOT_PASS=""
+if [ -n "$CFG_ROOT_PASS" ]; then
+	ROOT_PASS="$CFG_ROOT_PASS"
+elif [ "$CFG_LOCK_ROOT" = "yes" ] || [ "$CFG_LOCK_ROOT" = "true" ] || [ -n "$CONFIG_ARG" ]; then
+	ROOT_PASS=""
+else
+	# Root account setup (lock or set password)
+	printf "Lock root account (recommended for sudo setups)? [Y/n]: "
+	read -r LOCK_ROOT_INPUT || LOCK_ROOT_INPUT="Y"
+	[ -z "$LOCK_ROOT_INPUT" ] && LOCK_ROOT_INPUT="Y"
+
+	case "$LOCK_ROOT_INPUT" in
+		[nN]|[nN][oO])
+			while true; do
+				printf "Enter root password: "
+				stty -echo 2>/dev/null || true
+				read -r ROOT_PASS || ROOT_PASS=""
+				stty echo 2>/dev/null || true
+				printf "\n"
+				if [ -z "$ROOT_PASS" ]; then
+					if [ "$DRY_RUN" -eq 1 ]; then
+						ROOT_PASS="dryrunroot"
+						break
+					fi
+					printf "${RED}Root password cannot be empty.${RESET}\n"
+					continue
+				fi
+				printf "Confirm root password: "
+				stty -echo 2>/dev/null || true
+				read -r ROOT_PASS_CONFIRM || ROOT_PASS_CONFIRM=""
+				stty echo 2>/dev/null || true
+				printf "\n"
+				if [ "$ROOT_PASS" = "$ROOT_PASS_CONFIRM" ]; then
+					break
+				fi
+				printf "${RED}Passwords do not match. Please try again.${RESET}\n"
+			done
+			;;
+		*)
+			ROOT_PASS=""
+			;;
+	esac
+fi
+
+# Alongside mode safety pre-checks and EFI/free-space discovery
+check_alongside_safety() {
+	disk="$1"
+
+	# 1. Boot mode must be UEFI
+	if [ "$IS_UEFI" -ne 1 ]; then
+		printf "${RED}Error: Alongside / dual-boot installation requires UEFI mode.${RESET}\n" >&2
+		printf "  Legacy BIOS (MBR) cannot safely share an existing disk without risking bootloader corruption.\n" >&2
+		exit 1
+	fi
+
+	# 2. Check disk partition table
+	ptable=$(parted -s "$disk" print 2>/dev/null | grep -i "^Partition Table:" | awk '{print $3}' || echo "")
+	if [ "$ptable" = "msdos" ]; then
+		printf "${RED}Error: Target disk %s has an MBR (msdos) partition table.${RESET}\n" "$disk" >&2
+		printf "  Alongside installation requires GPT. Convert the disk to GPT or wipe the entire drive.\n" >&2
+		exit 1
+	fi
+
+	# 3. Scan for BitLocker
+	for part in $(lsblk -l -n -o NAME,TYPE "$disk" 2>/dev/null | grep 'part' | awk '{print $1}'); do
+		pdev="/dev/$part"
+		[ -b "$pdev" ] || continue
+		ptype=$(blkid -s TYPE -o value "$pdev" 2>/dev/null || true)
+		case "$ptype" in
+			*BitLocker*|*bitlocker*)
+				printf "${RED}Error: Windows BitLocker encryption detected on %s.${RESET}\n" "$pdev" >&2
+				printf "  BitLocker locks partition structures and prevents safe alongside installation.\n" >&2
+				printf "  Please boot into Windows, suspend or disable BitLocker, and re-run installer.\n" >&2
+				exit 1
+				;;
+		esac
+	done
+
+	# 4. Scan NTFS partitions for Fast Startup / Hibernation
+	for part in $(lsblk -l -n -o NAME,TYPE "$disk" 2>/dev/null | grep 'part' | awk '{print $1}'); do
+		pdev="/dev/$part"
+		[ -b "$pdev" ] || continue
+		ptype=$(blkid -s TYPE -o value "$pdev" 2>/dev/null || true)
+		if [ "$ptype" = "ntfs" ]; then
+			ntfs_check=""
+			if command -v ntfsfix >/dev/null 2>&1; then
+				ntfs_check=$(ntfsfix -n "$pdev" 2>&1 || true)
+			fi
+			if echo "$ntfs_check" | grep -qiE "hibernated|dirty|fast startup"; then
+				printf "${RED}Error: Windows Fast Startup or Hibernation is active on %s.${RESET}\n" "$pdev" >&2
+				printf "  The NTFS filesystem was not cleanly unmounted. Modifying partitions may corrupt data.\n" >&2
+				printf "  Please boot into Windows, disable Fast Startup in Power Options, shut down cleanly, and restart.\n" >&2
+				exit 1
+			fi
+		fi
+	done
+
+	# 5. Discover existing ESP
+	EXISTING_ESP=""
+	for part in $(lsblk -l -n -o NAME,TYPE "$disk" 2>/dev/null | grep 'part' | awk '{print $1}'); do
+		pdev="/dev/$part"
+		[ -b "$pdev" ] || continue
+		btype=$(blkid -s TYPE -o value "$pdev" 2>/dev/null || true)
+		if [ "$btype" = "vfat" ]; then
+			EXISTING_ESP="$pdev"
+			break
+		fi
+	done
+
+	if [ -z "$EXISTING_ESP" ] && [ "$DRY_RUN" -eq 0 ]; then
+		printf "${RED}Error: No existing EFI System Partition (ESP) found on %s.${RESET}\n" "$disk" >&2
+		printf "  Alongside installation requires an existing ESP to preserve existing OS boot entries.\n" >&2
+		exit 1
+	fi
+	PART_EFI="${EXISTING_ESP:-${disk}p1}"
+}
+
+find_unallocated_slice() {
+	disk="$1"
+	parted -s "$disk" unit MiB print free 2>/dev/null | awk '
+	/Free Space/ {
+		start = $1; end = $2; sz = $3;
+		sub(/MiB/, "", sz);
+		sub(/MiB/, "", start);
+		sub(/MiB/, "", end);
+		if (sz+0 > max_sz) {
+			max_sz = sz+0;
+			best_start = start;
+			best_end = end;
+		}
+	}
+	END {
+		if (max_sz >= 20480) {
+			print best_start, best_end, max_sz;
+		}
+	}'
+}
+
+if [ "$DUAL_BOOT" -eq 1 ] && [ "$DRY_RUN" -eq 0 ]; then
+	check_alongside_safety "$TARGET_DISK"
+fi
 
 # ── STEP 5: Review & Final Confirmation ────────────────────────────────────
 FS_DISPLAY="Btrfs (subvolumes @, @home, @snapshots, compress=zstd:1)"
@@ -376,10 +619,14 @@ ENCRYPT_DISPLAY="None"
 ROOT_STATUS="Locked (sudo only via wheel group)"
 [ -n "$ROOT_PASS" ] && ROOT_STATUS="Password set"
 
+INSTALL_MODE_DISPLAY="Clean Install (Wipe entire disk)"
+[ "$DUAL_BOOT" -eq 1 ] && INSTALL_MODE_DISPLAY="Install Alongside (Preserve existing OS & partition table)"
+
 printf "\n${WHITE}╭──────────────────────────────────────────────────────────────╮
 │                   INSTALLATION SPECIFICATION                 │
 ├──────────────────────────────────────────────────────────────┤${RESET}\n"
 printf "${WHITE}│${RESET} Target Disk:    ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$TARGET_DISK"
+printf "${WHITE}│${RESET} Install Mode:   ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$INSTALL_MODE_DISPLAY"
 printf "${WHITE}│${RESET} Bootloader:     ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$BOOT_DISPLAY"
 printf "${WHITE}│${RESET} Encryption:     ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$ENCRYPT_DISPLAY"
 printf "${WHITE}│${RESET} Filesystem:     ${BOLD}%-44s${RESET} ${WHITE}│${RESET}\n" "$FS_DISPLAY"
@@ -390,7 +637,24 @@ printf "${WHITE}╰────────────────────�
 
 if [ "$DRY_RUN" -eq 1 ]; then
 	printf "${YELLOW}${BOLD}DRY RUN SUMMARY:${RESET}\n"
-	if [ "$ENCRYPT_DISK" -eq 1 ]; then
+	if [ "$DUAL_BOOT" -eq 1 ]; then
+		printf "  1. Install Alongside: preserve existing partition table and other operating systems\n"
+		printf "  2. Pre-flight verification: UEFI verified, BitLocker inactive, NTFS clean, ESP preserved at %s\n" "${PART_EFI:-${TARGET_DISK}p1}"
+		printf "  3. Allocate partition(s) into contiguous unallocated free space on %s\n" "$TARGET_DISK"
+		if [ "$ENCRYPT_DISK" -eq 1 ]; then
+			printf "     Format unencrypted /boot partition and root partition with LUKS2 (argon2id, label ASURA_CRYPT)\n"
+			printf "     Open LUKS container as /dev/mapper/asura_root\n"
+		fi
+		printf "  4. Format root filesystem with %s (never wipe disk or existing partitions)\n" "$FS_DISPLAY"
+		if [ "$FS_CHOICE" != "2" ]; then
+			printf "     Create Btrfs subvolumes: @ -> /, @home -> /home, @snapshots -> /.snapshots\n"
+		fi
+		printf "  5. Deploy rootfs via rsync to /mnt/asura-target\n"
+		printf "  6. Configure fstab with persistent UUIDs, preserve ESP without formatting\n"
+		printf "  7. Set credentials: user '%s' password, root: %s\n" "$USERNAME_INPUT" "$ROOT_STATUS"
+		printf "  8. Configure GRUB with os-prober enabled (GRUB_DISABLE_OS_PROBER=false) to detect existing OS\n"
+		printf "  9. Install GRUB EFI to EFI/Asura without overwriting fallback EFI/BOOT/BOOTX64.EFI\n\n"
+	elif [ "$ENCRYPT_DISK" -eq 1 ]; then
 		if [ "$IS_UEFI" -eq 1 ]; then
 			printf "  1. Partition %s (GPT: 512MB ESP, 1GB unencrypted /boot, LUKS2 root)\n" "$TARGET_DISK"
 		else
@@ -423,84 +687,121 @@ if [ "$DRY_RUN" -eq 1 ]; then
 	exit 0
 fi
 
-printf "${RED}${BOLD}⚠  CRITICAL WARNING: ALL EXISTING DATA ON %s WILL BE ERASED!${RESET}\n" "$TARGET_DISK"
-printf "${WHITE}Type ${BOLD}'YES'${RESET}${WHITE} to format disk and install Asura OS: ${RESET}"
-read -r CONFIRM
-if [ "$CONFIRM" != "YES" ]; then
-	printf "\n${DIM}Installation cancelled by user.${RESET}\n"
-	exit 0
+if [ -z "$CONFIG_ARG" ]; then
+	if [ "$DUAL_BOOT" -eq 1 ]; then
+		printf "${YELLOW}${BOLD}⚠  Dual-Boot Confirmation: Installing alongside existing operating systems on %s.${RESET}\n" "$TARGET_DISK"
+		printf "${WHITE}Type ${BOLD}'YES'${RESET}${WHITE} to partition free space and install Asura OS: ${RESET}"
+	else
+		printf "${RED}${BOLD}⚠  CRITICAL WARNING: ALL EXISTING DATA ON %s WILL BE ERASED!${RESET}\n" "$TARGET_DISK"
+		printf "${WHITE}Type ${BOLD}'YES'${RESET}${WHITE} to format disk and install Asura OS: ${RESET}"
+	fi
+	read -r CONFIRM
+	if [ "$CONFIRM" != "YES" ]; then
+		printf "\n${DIM}Installation cancelled by user.${RESET}\n"
+		exit 0
+	fi
 fi
 
 # ── EXECUTION: Partitioning, Formatting, Deployment ────────────────────────
 printf "\n${WHITE}${BOLD}[1/5] Partitioning target disk (%s)...${RESET}\n" "$TARGET_DISK"
-wipefs -a "$TARGET_DISK"
 
-if [ "$ENCRYPT_DISK" -eq 1 ]; then
-	if [ "$IS_UEFI" -eq 1 ]; then
-		parted -s "$TARGET_DISK" mklabel gpt
-		parted -s "$TARGET_DISK" mkpart "ESP" fat32 1MiB 513MiB
-		parted -s "$TARGET_DISK" set 1 esp on
-		parted -s "$TARGET_DISK" mkpart "ASURA_BOOT" ext4 513MiB 1537MiB
-		parted -s "$TARGET_DISK" mkpart "AsuraRoot" 1537MiB 100%
+if [ "$DUAL_BOOT" -eq 1 ]; then
+	# Alongside mode: Never wipefs, never mklabel!
+	slice_info=$(find_unallocated_slice "$TARGET_DISK" || echo "")
+	slice_start=$(echo "$slice_info" | awk '{print $1}')
+	slice_end=$(echo "$slice_info" | awk '{print $2}')
+	if [ -z "$slice_start" ] || [ -z "$slice_end" ]; then
+		echo "ERROR: Could not find contiguous unallocated free space (>= 20GB) on $TARGET_DISK" >&2
+		exit 1
+	fi
+
+	if [ "$ENCRYPT_DISK" -eq 1 ]; then
+		boot_end=$((slice_start + 1024))
+		parted -s "$TARGET_DISK" mkpart "ASURA_BOOT" ext4 "${slice_start}MiB" "${boot_end}MiB"
+		parted -s "$TARGET_DISK" mkpart "AsuraRoot" "${boot_end}MiB" "${slice_end}MiB"
+		# Find newly created partition names
+		new_parts=$(lsblk -l -n -o NAME,TYPE "$TARGET_DISK" 2>/dev/null | grep 'part' | awk '{print $1}' | tail -n2)
+		p_boot_name=$(echo "$new_parts" | head -n1)
+		p_root_name=$(echo "$new_parts" | tail -n1)
+		PART_BOOT="/dev/$p_boot_name"
+		PART_ROOT_RAW="/dev/$p_root_name"
 	else
-		parted -s "$TARGET_DISK" mklabel msdos
-		parted -s "$TARGET_DISK" mkpart primary ext4 1MiB 1025MiB
-		parted -s "$TARGET_DISK" set 1 boot on
-		parted -s "$TARGET_DISK" mkpart primary 1025MiB 100%
+		parted -s "$TARGET_DISK" mkpart "AsuraRoot" "${slice_start}MiB" "${slice_end}MiB"
+		new_part_name=$(lsblk -l -n -o NAME,TYPE "$TARGET_DISK" 2>/dev/null | grep 'part' | awk '{print $1}' | tail -n1)
+		PART_ROOT_RAW="/dev/$new_part_name"
+		PART_BOOT=""
 	fi
 else
-	if [ "$IS_UEFI" -eq 1 ]; then
-		parted -s "$TARGET_DISK" mklabel gpt
-		parted -s "$TARGET_DISK" mkpart "ESP" fat32 1MiB 513MiB
-		parted -s "$TARGET_DISK" set 1 esp on
-		parted -s "$TARGET_DISK" mkpart "AsuraRoot" 513MiB 100%
-	else
-		parted -s "$TARGET_DISK" mklabel msdos
-		parted -s "$TARGET_DISK" mkpart primary 1MiB 100%
-		parted -s "$TARGET_DISK" set 1 boot on
-	fi
-fi
+	# Clean install: wipe entire disk
+	wipefs -a "$TARGET_DISK"
 
-# Resolve partition names
-if [ "$ENCRYPT_DISK" -eq 1 ]; then
-	if [ "$IS_UEFI" -eq 1 ]; then
-		if [ -b "${TARGET_DISK}p1" ]; then
-			PART_EFI="${TARGET_DISK}p1"
-			PART_BOOT="${TARGET_DISK}p2"
-			PART_ROOT_RAW="${TARGET_DISK}p3"
+	if [ "$ENCRYPT_DISK" -eq 1 ]; then
+		if [ "$IS_UEFI" -eq 1 ]; then
+			parted -s "$TARGET_DISK" mklabel gpt
+			parted -s "$TARGET_DISK" mkpart "ESP" fat32 1MiB 513MiB
+			parted -s "$TARGET_DISK" set 1 esp on
+			parted -s "$TARGET_DISK" mkpart "ASURA_BOOT" ext4 513MiB 1537MiB
+			parted -s "$TARGET_DISK" mkpart "AsuraRoot" 1537MiB 100%
 		else
-			PART_EFI="${TARGET_DISK}1"
-			PART_BOOT="${TARGET_DISK}2"
-			PART_ROOT_RAW="${TARGET_DISK}3"
+			parted -s "$TARGET_DISK" mklabel msdos
+			parted -s "$TARGET_DISK" mkpart primary ext4 1MiB 1025MiB
+			parted -s "$TARGET_DISK" set 1 boot on
+			parted -s "$TARGET_DISK" mkpart primary 1025MiB 100%
 		fi
 	else
-		if [ -b "${TARGET_DISK}p1" ]; then
-			PART_BOOT="${TARGET_DISK}p1"
-			PART_ROOT_RAW="${TARGET_DISK}p2"
+		if [ "$IS_UEFI" -eq 1 ]; then
+			parted -s "$TARGET_DISK" mklabel gpt
+			parted -s "$TARGET_DISK" mkpart "ESP" fat32 1MiB 513MiB
+			parted -s "$TARGET_DISK" set 1 esp on
+			parted -s "$TARGET_DISK" mkpart "AsuraRoot" 513MiB 100%
 		else
-			PART_BOOT="${TARGET_DISK}1"
-			PART_ROOT_RAW="${TARGET_DISK}2"
+			parted -s "$TARGET_DISK" mklabel msdos
+			parted -s "$TARGET_DISK" mkpart primary 1MiB 100%
+			parted -s "$TARGET_DISK" set 1 boot on
 		fi
-		PART_EFI=""
 	fi
-else
-	if [ "$IS_UEFI" -eq 1 ]; then
-		if [ -b "${TARGET_DISK}p1" ]; then
-			PART_EFI="${TARGET_DISK}p1"
-			PART_ROOT_RAW="${TARGET_DISK}p2"
+
+	# Resolve partition names for clean install
+	if [ "$ENCRYPT_DISK" -eq 1 ]; then
+		if [ "$IS_UEFI" -eq 1 ]; then
+			if [ -b "${TARGET_DISK}p1" ]; then
+				PART_EFI="${TARGET_DISK}p1"
+				PART_BOOT="${TARGET_DISK}p2"
+				PART_ROOT_RAW="${TARGET_DISK}p3"
+			else
+				PART_EFI="${TARGET_DISK}1"
+				PART_BOOT="${TARGET_DISK}2"
+				PART_ROOT_RAW="${TARGET_DISK}3"
+			fi
 		else
-			PART_EFI="${TARGET_DISK}1"
-			PART_ROOT_RAW="${TARGET_DISK}2"
+			if [ -b "${TARGET_DISK}p1" ]; then
+				PART_BOOT="${TARGET_DISK}p1"
+				PART_ROOT_RAW="${TARGET_DISK}p2"
+			else
+				PART_BOOT="${TARGET_DISK}1"
+				PART_ROOT_RAW="${TARGET_DISK}2"
+			fi
+			PART_EFI=""
 		fi
 	else
-		if [ -b "${TARGET_DISK}p1" ]; then
-			PART_ROOT_RAW="${TARGET_DISK}p1"
+		if [ "$IS_UEFI" -eq 1 ]; then
+			if [ -b "${TARGET_DISK}p1" ]; then
+				PART_EFI="${TARGET_DISK}p1"
+				PART_ROOT_RAW="${TARGET_DISK}p2"
+			else
+				PART_EFI="${TARGET_DISK}1"
+				PART_ROOT_RAW="${TARGET_DISK}2"
+			fi
 		else
-			PART_ROOT_RAW="${TARGET_DISK}1"
+			if [ -b "${TARGET_DISK}p1" ]; then
+				PART_ROOT_RAW="${TARGET_DISK}p1"
+			else
+				PART_ROOT_RAW="${TARGET_DISK}1"
+			fi
+			PART_EFI=""
 		fi
-		PART_EFI=""
+		PART_BOOT=""
 	fi
-	PART_BOOT=""
 fi
 
 sleep 1
@@ -707,8 +1008,24 @@ else
 	chroot "$TARGET_DIR" usermod -aG wheel,_seatd,video,audio,input,storage,network,asura-hw,docker "$USERNAME_INPUT"
 fi
 
-# Set password for primary user with explicit SHA512 encryption
-echo "$USERNAME_INPUT:$USER_PASS" | chroot "$TARGET_DIR" chpasswd -c SHA512
+# Set password for primary user with explicit SHA512 encryption or pre-computed hash
+if [ -n "${USER_PASS_HASH:-}" ]; then
+	chroot "$TARGET_DIR" usermod -p "$USER_PASS_HASH" "$USERNAME_INPUT"
+else
+	echo "$USERNAME_INPUT:$USER_PASS" | chroot "$TARGET_DIR" chpasswd -c SHA512
+fi
+
+# Localization and keymap configuration
+if [ -n "${CFG_TIMEZONE:-}" ] && [ -f "$TARGET_DIR/usr/share/zoneinfo/$CFG_TIMEZONE" ]; then
+	ln -sf "/usr/share/zoneinfo/$CFG_TIMEZONE" "$TARGET_DIR/etc/localtime"
+	sed -i "s/^#\?TIMEZONE=.*/TIMEZONE=\"$CFG_TIMEZONE\"/" "$TARGET_DIR/etc/rc.conf" 2>/dev/null || true
+fi
+if [ -n "${CFG_KEYMAP:-}" ]; then
+	sed -i "s/^#\?KEYMAP=.*/KEYMAP=\"$CFG_KEYMAP\"/" "$TARGET_DIR/etc/rc.conf" 2>/dev/null || true
+fi
+if [ -n "${CFG_LOCALE:-}" ]; then
+	echo "LANG=\"$CFG_LOCALE\"" > "$TARGET_DIR/etc/locale.conf"
+fi
 
 # Configure root password or lock root account
 if [ -n "$ROOT_PASS" ]; then
@@ -916,10 +1233,14 @@ if [ "$IS_UEFI" -eq 1 ]; then
 	fi
 	chroot "$TARGET_DIR" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Asura --recheck
 	mkdir -p "$TARGET_DIR/boot/efi/EFI/BOOT"
-	if [ -f "$TARGET_DIR/boot/efi/EFI/Asura/grubx64.efi" ]; then
-		cp -f "$TARGET_DIR/boot/efi/EFI/Asura/grubx64.efi" "$TARGET_DIR/boot/efi/EFI/BOOT/BOOTX64.EFI"
-	elif [ -f "$TARGET_DIR/boot/efi/EFI/asura/grubx64.efi" ]; then
-		cp -f "$TARGET_DIR/boot/efi/EFI/asura/grubx64.efi" "$TARGET_DIR/boot/efi/EFI/BOOT/BOOTX64.EFI"
+	if [ "$DUAL_BOOT" -eq 0 ]; then
+		if [ -f "$TARGET_DIR/boot/efi/EFI/Asura/grubx64.efi" ]; then
+			cp -f "$TARGET_DIR/boot/efi/EFI/Asura/grubx64.efi" "$TARGET_DIR/boot/efi/EFI/BOOT/BOOTX64.EFI"
+		elif [ -f "$TARGET_DIR/boot/efi/EFI/asura/grubx64.efi" ]; then
+			cp -f "$TARGET_DIR/boot/efi/EFI/asura/grubx64.efi" "$TARGET_DIR/boot/efi/EFI/BOOT/BOOTX64.EFI"
+		fi
+	else
+		printf "  Dual-boot mode: preserving existing fallback bootloader at EFI/BOOT/BOOTX64.EFI\n"
 	fi
 	chroot "$TARGET_DIR" grub-mkconfig -o /boot/grub/grub.cfg
 else
