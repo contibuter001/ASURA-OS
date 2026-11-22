@@ -692,7 +692,7 @@ ApplicationWindow {
 
                     ColumnLayout {
                         anchors.fill: parent
-                        spacing: 20
+                        spacing: 16
 
                         ColumnLayout {
                             spacing: 4
@@ -717,12 +717,14 @@ ApplicationWindow {
 
                         RowLayout {
                             Layout.fillWidth: true
+                            Layout.fillHeight: true
                             spacing: 24
 
                             // Left Controls
                             ColumnLayout {
                                 Layout.preferredWidth: 380
-                                spacing: 20
+                                Layout.fillHeight: true
+                                spacing: 16
 
                                 ContentSubsection {
                                     title: Translation.tr("Bar position")
@@ -756,6 +758,8 @@ ApplicationWindow {
                                     }
                                 }
 
+                                Item { Layout.fillHeight: true }
+
                                 NoticeBox {
                                     Layout.fillWidth: true
                                     text: Translation.tr("Tip: You can customize panel widgets, sound, and CPU monitors anytime in Asura Settings.")
@@ -770,64 +774,73 @@ ApplicationWindow {
                                 color: Appearance.m3colors.m3surfaceContainerLowest
                                 border.width: 1
                                 border.color: Appearance.colors.colOutlineVariant
+                                clip: true
 
                                 ColumnLayout {
                                     anchors.centerIn: parent
-                                    spacing: 12
+                                    spacing: 14
 
                                     // Monitor Mockup
                                     Rectangle {
-                                        width: 280
-                                        height: 180
-                                        radius: 8
-                                        color: "#0a0a0e"
+                                        Layout.alignment: Qt.AlignHCenter
+                                        width: 300
+                                        height: 190
+                                        radius: 10
+                                        color: "#0d0d12"
                                         border.width: 2
-                                        border.color: Appearance.m3colors.m3primary
+                                        border.color: Appearance.colors.colOutlineVariant
 
-                                        // Mockup Bar
-                                        Rectangle {
-                                            id: previewBarMock
-                                            color: Appearance.m3colors.m3primary
-                                            radius: Config.options.bar.cornerStyle === 1 ? 6 : (Config.options.bar.cornerStyle === 0 ? 0 : 0)
+                                        // Screen Display Area
+                                        Item {
+                                            anchors.fill: parent
+                                            anchors.margins: 4
+                                            clip: true
 
-                                            // Dynamic positioning based on user choice
-                                            anchors.top: !Config.options.bar.bottom && !Config.options.bar.vertical ? parent.top : undefined
-                                            anchors.bottom: Config.options.bar.bottom && !Config.options.bar.vertical ? parent.bottom : undefined
-                                            anchors.left: Config.options.bar.vertical && !Config.options.bar.bottom ? parent.left : (Config.options.bar.vertical ? undefined : parent.left)
-                                            anchors.right: Config.options.bar.vertical && Config.options.bar.bottom ? parent.right : (Config.options.bar.vertical ? undefined : parent.right)
+                                            // Mockup Bar
+                                            Rectangle {
+                                                id: previewBarMock
+                                                color: Appearance.m3colors.m3primary
+                                                radius: Config.options.bar.cornerStyle === 1 ? 4 : (Config.options.bar.cornerStyle === 0 ? 0 : 0)
 
-                                            anchors.margins: Config.options.bar.cornerStyle === 1 ? 6 : 0
+                                                // Dynamic positioning based on user choice
+                                                anchors.top: !Config.options.bar.bottom && !Config.options.bar.vertical ? parent.top : undefined
+                                                anchors.bottom: Config.options.bar.bottom && !Config.options.bar.vertical ? parent.bottom : undefined
+                                                anchors.left: Config.options.bar.vertical && !Config.options.bar.bottom ? parent.left : (Config.options.bar.vertical ? undefined : parent.left)
+                                                anchors.right: Config.options.bar.vertical && Config.options.bar.bottom ? parent.right : (Config.options.bar.vertical ? undefined : parent.right)
 
-                                            width: Config.options.bar.vertical ? 24 : parent.width - (Config.options.bar.cornerStyle === 1 ? 12 : 0)
-                                            height: Config.options.bar.vertical ? parent.height - (Config.options.bar.cornerStyle === 1 ? 12 : 0) : 22
+                                                anchors.margins: Config.options.bar.cornerStyle === 1 ? 4 : 0
 
-                                            Row {
-                                                anchors.centerIn: parent
-                                                visible: !Config.options.bar.vertical
-                                                spacing: 6
-                                                Text { text: "//"; color: "#ffffff"; font.pixelSize: 8; font.weight: Font.Bold }
-                                                Text { text: "ASURA OS"; color: "#ffffff"; font.pixelSize: 8; font.weight: Font.Bold }
+                                                width: Config.options.bar.vertical ? 22 : parent.width - (Config.options.bar.cornerStyle === 1 ? 8 : 0)
+                                                height: Config.options.bar.vertical ? parent.height - (Config.options.bar.cornerStyle === 1 ? 8 : 0) : 20
+
+                                                Row {
+                                                    anchors.centerIn: parent
+                                                    visible: !Config.options.bar.vertical
+                                                    spacing: 6
+                                                    Text { text: "//"; color: "#ffffff"; font.pixelSize: 8; font.weight: Font.Bold }
+                                                    Text { text: "ASURA OS"; color: "#ffffff"; font.pixelSize: 8; font.weight: Font.Bold }
+                                                }
                                             }
-                                        }
 
-                                        // Mockup Windows
-                                        Rectangle {
-                                            anchors.centerIn: parent
-                                            width: 140
-                                            height: 90
-                                            radius: 6
-                                            color: "#181820"
-                                            border.width: 1
-                                            border.color: "#30303e"
+                                            // Mockup Windows
+                                            Rectangle {
+                                                anchors.centerIn: parent
+                                                width: 150
+                                                height: 95
+                                                radius: 6
+                                                color: "#181820"
+                                                border.width: 1
+                                                border.color: "#30303e"
 
-                                            Row {
-                                                anchors.top: parent.top
-                                                anchors.left: parent.left
-                                                anchors.margins: 6
-                                                spacing: 3
-                                                Rectangle { width: 4; height: 4; radius: 2; color: "#e2342a" }
-                                                Rectangle { width: 4; height: 4; radius: 2; color: "#e5a50a" }
-                                                Rectangle { width: 4; height: 4; radius: 2; color: "#57e389" }
+                                                Row {
+                                                    anchors.top: parent.top
+                                                    anchors.left: parent.left
+                                                    anchors.margins: 6
+                                                    spacing: 3
+                                                    Rectangle { width: 5; height: 5; radius: 2.5; color: "#e2342a" }
+                                                    Rectangle { width: 5; height: 5; radius: 2.5; color: "#e5a50a" }
+                                                    Rectangle { width: 5; height: 5; radius: 2.5; color: "#57e389" }
+                                                }
                                             }
                                         }
                                     }
