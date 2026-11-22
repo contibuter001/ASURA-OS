@@ -189,6 +189,7 @@ var hardwareSubcommands = map[string]func(args []string) int{
 	"match":         hardwareMatch,
 	"lint-profiles": hardwareLintProfiles,
 	"capture":       hardwareCapture,
+	"quirks":        hardwareQuirks,
 }
 
 func runHardware(args []string) int {
@@ -219,6 +220,7 @@ func hardwareUsage(w *os.File) {
   match            which profile claims this machine, and at what tier
   lint-profiles    check the profile database against the schema rules
   capture          write this machine's raw sysfs tree to a directory
+  quirks           model-specific hardware fixes and device tuning
 
 Run a subcommand with --help for its own flags.
 

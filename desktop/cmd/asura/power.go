@@ -86,6 +86,20 @@ func runPowerStatus() int {
 }
 
 func getPowerProfile() int {
+	if plat, err := os.ReadFile("/sys/firmware/acpi/platform_profile"); err == nil {
+		curPlat := strings.TrimSpace(string(plat))
+		switch curPlat {
+		case "performance":
+			fmt.Println("performance")
+			return exitOK
+		case "quiet", "low-power":
+			fmt.Println("battery")
+			return exitOK
+		case "balanced":
+			fmt.Println("balanced")
+			return exitOK
+		}
+	}
 	epp, _ := os.ReadFile("/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference")
 	cur := strings.TrimSpace(string(epp))
 	switch cur {
@@ -104,17 +118,21 @@ func setPowerProfile(profile string) int {
 
 	var governor string
 	var epp string
+	var platformProfile string
 
 	switch profile {
 	case "performance":
 		governor = "performance"
 		epp = "performance"
+		platformProfile = "performance"
 	case "battery", "bat", "powersave":
 		governor = "powersave"
 		epp = "power"
+		platformProfile = "quiet"
 	case "balanced", "balance":
 		governor = "powersave"
 		epp = "balance_performance"
+		platformProfile = "balanced"
 	default:
 		fmt.Fprintf(os.Stderr, "asura power profile: unknown profile %q (choose: balanced, performance, battery)\n", profile)
 		return exitUsage
@@ -138,6 +156,13 @@ func setPowerProfile(profile string) int {
 	epps, _ := filepath.Glob("/sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference")
 	for _, f := range epps {
 		_ = os.WriteFile(f, []byte(epp), 0644)
+	}
+
+	// ASUS WMI platform_profile (/sys/firmware/acpi/platform_profile)
+	if platformProfile != "" {
+		if os.WriteFile("/sys/firmware/acpi/platform_profile", []byte(platformProfile), 0644) == nil {
+			applied = true
+		}
 	}
 
 	// Enable D3cold auto runtime PM on GPU devices

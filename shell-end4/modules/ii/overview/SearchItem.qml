@@ -192,20 +192,31 @@ RippleButton {
                     if (root.iconName.startsWith("/") || root.iconName.startsWith("file://")) {
                         return root.iconName;
                     }
-                    let p = Quickshell.iconPath(root.iconName);
-                    if (p && p.length > 0 && !p.includes("image-missing")) {
-                        return p;
+
+                    // Check local shell assets first
+                    let localAsset = Quickshell.shellPath("assets/icons/" + root.iconName + ".svg");
+                    if (localAsset && localAsset.length > 0) {
+                        return "file://" + localAsset;
                     }
+
                     let guess = AppSearch.guessIcon(root.iconName);
-                    if (guess && guess.length > 0 && guess !== root.iconName) {
-                        p = Quickshell.iconPath(guess);
-                        if (p && p.length > 0 && !p.includes("image-missing")) {
-                            return p;
+                    if (guess && guess.length > 0 && guess !== root.iconName && guess !== "image-missing") {
+                        let localGuess = Quickshell.shellPath("assets/icons/" + guess + ".svg");
+                        if (localGuess && localGuess.length > 0) {
+                            return "file://" + localGuess;
                         }
                     }
+
+                    if (AppSearch.iconExists(root.iconName)) {
+                        return Quickshell.iconPath(root.iconName);
+                    }
+                    if (guess && guess.length > 0 && guess !== root.iconName && guess !== "image-missing" && AppSearch.iconExists(guess)) {
+                        return Quickshell.iconPath(guess);
+                    }
+
                     const fallbacks = {
                         "computer": ["asura-vm", "virtualbox", "system-run", "utilities-terminal", "application-x-executable"],
-                        "preferences-system": ["asura-hub", "org.gnome.Settings", "system-run", "application-x-executable"],
+                        "preferences-system": ["asura-settings", "asura-hub", "org.gnome.Settings", "system-run", "application-x-executable"],
                         "preferences-system-network": ["network-wired", "network-workgroup", "network-wireless", "preferences-system", "application-x-executable"],
                         "nm-connection-editor": ["preferences-system-network", "network-wired"],
                         "utilities-terminal": ["ghostty", "terminal", "x-terminal-emulator", "system-run"],
@@ -213,23 +224,27 @@ RippleButton {
                     };
                     const list = fallbacks[root.iconName] || [];
                     for (let fb of list) {
-                        p = Quickshell.iconPath(fb);
-                        if (p && p.length > 0 && !p.includes("image-missing")) {
-                            return p;
+                        let localFb = Quickshell.shellPath("assets/icons/" + fb + ".svg");
+                        if (localFb && localFb.length > 0) {
+                            return "file://" + localFb;
+                        }
+                        if (AppSearch.iconExists(fb)) {
+                            return Quickshell.iconPath(fb);
                         }
                     }
-                    p = Quickshell.iconPath("application-x-executable");
-                    if (p && p.length > 0 && !p.includes("image-missing")) {
-                        return p;
+                    if (AppSearch.iconExists("application-x-executable")) {
+                        return Quickshell.iconPath("application-x-executable");
                     }
                     return "";
                 }
 
-                IconImage {
+                Image {
                     id: iconImg
                     anchors.fill: parent
                     source: parent.resolvedIconPath
-                    visible: parent.resolvedIconPath.length > 0 && status !== Image.Error
+                    sourceSize.width: 32
+                    sourceSize.height: 32
+                    visible: parent.resolvedIconPath.length > 0 && status === Image.Ready
                 }
 
                 MaterialSymbol {
@@ -242,9 +257,9 @@ RippleButton {
                         if (name.includes("vm") || name.includes("computer") || name.includes("virtual")) return "computer";
                         if (name.includes("setting") || name.includes("preferences") || name.includes("hub")) return "settings";
                         if (name.includes("network") || name.includes("wifi") || name.includes("connection")) return "lan";
-                        if (name.includes("terminal") || name.includes("console")) return "terminal";
-                        if (name.includes("monitor") || name.includes("btop") || name.includes("sysmon")) return "speed";
-                        if (name.includes("edit") || name.includes("text") || name.includes("nvim")) return "edit_note";
+                        if (name.includes("terminal") || name.includes("console") || name.includes("opencode")) return "terminal";
+                        if (name.includes("monitor") || name.includes("btop") || name.includes("sysmon") || name.includes("resource")) return "speed";
+                        if (name.includes("edit") || name.includes("text") || name.includes("nvim") || name.includes("zed") || name.includes("code")) return "edit_note";
                         if (name.includes("store") || name.includes("shop") || name.includes("market")) return "shopping_bag";
                         if (name.includes("audio") || name.includes("sound") || name.includes("music") || name.includes("volume")) return "volume_up";
                         if (name.includes("video") || name.includes("movie") || name.includes("mpv")) return "movie";

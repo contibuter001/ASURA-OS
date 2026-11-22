@@ -385,6 +385,14 @@ if [ -f "$REPO_ROOT/shell/assets/asura-installer.svg" ]; then
 	cp "$REPO_ROOT/shell/assets/asura-installer.svg" "$INCLUDE_DIR/usr/share/pixmaps/"
 fi
 
+# Core desktop application icons
+for icon_name in asura-settings asura-vm preferences-system preferences-system-network computer utilities-terminal utilities-system-monitor opencode zed; do
+	if [ -f "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" ]; then
+		cp "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/icons/hicolor/scalable/apps/"
+		cp "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/pixmaps/"
+	fi
+done
+
 # Resource monitor (btop) desktop entry
 if [ -f "$REPO_ROOT/session/applications/btop.desktop" ]; then
 	cp "$REPO_ROOT/session/applications/btop.desktop" "$INCLUDE_DIR/usr/share/applications/"

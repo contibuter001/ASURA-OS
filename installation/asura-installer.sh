@@ -868,6 +868,11 @@ if [ -d "$TARGET_DIR/usr/share/plymouth/themes/asura" ]; then
 fi
 chroot "$TARGET_DIR" plymouth-set-default-theme asura 2>/dev/null || true
 
+# Apply model-specific hardware quirks if this machine matches a known profile
+if [ -x "$TARGET_DIR/usr/bin/asura" ]; then
+	chroot "$TARGET_DIR" /usr/bin/asura hardware quirks apply >/dev/null 2>&1 || true
+fi
+
 printf "${GREEN}✓ Host, services, and accounts configured.${RESET}\n"
 
 # Bind mounts for chroot maintenance

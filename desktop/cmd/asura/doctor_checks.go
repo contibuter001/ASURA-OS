@@ -777,3 +777,42 @@ func reportFingerprint(root string) int {
 	return exitOK
 }
 
+// reportHardwareQuirks reports whether the machine matches any model hardware quirks and whether they are applied.
+func reportHardwareQuirks(root string) int {
+	fmt.Println()
+	fmt.Println("Hardware Quirks")
+
+	dir := resolveModelsDir()
+	models, err := loadQuirkModels(dir)
+	if err != nil || len(models) == 0 {
+		fmt.Println("  models            no model quirks available")
+		return exitOK
+	}
+
+	matched := findMatchedQuirkModel(models, root)
+	appliedID := getAppliedQuirkID()
+
+	if matched == nil {
+		if appliedID != "" {
+			fmt.Printf("  applied           %s (no longer matches current hardware)\n", appliedID)
+		} else {
+			fmt.Println("  model             no specific model quirk matched (standard profile in use)")
+		}
+		return exitOK
+	}
+
+	if appliedID == matched.ID {
+		fmt.Printf("  model             %s (%s)\n", matched.Name, matched.ID)
+		fmt.Println("  status            applied and active")
+	} else if appliedID != "" {
+		fmt.Printf("  model             %s matches, but %s is currently applied\n", matched.Name, appliedID)
+		fmt.Printf("  fix               run 'asura hardware quirks apply %s'\n", matched.ID)
+	} else {
+		fmt.Printf("  model             %s (%s)\n", matched.Name, matched.ID)
+		fmt.Println("  status            available (not applied)")
+		fmt.Println("  fix               run 'asura hardware quirks apply' to enable model-specific tuning")
+	}
+	return exitOK
+}
+
+

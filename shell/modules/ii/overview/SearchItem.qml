@@ -154,10 +154,46 @@ RippleButton {
 
         Component {
             id: iconImageComponent
-            IconImage {
-                source: Quickshell.iconPath(root.iconName, "image-missing")
+            Item {
                 width: 35
                 height: 35
+
+                readonly property string resolvedIconPath: {
+                    if (!root.iconName || root.iconName.length === 0) return "";
+                    if (root.iconName.startsWith("/") || root.iconName.startsWith("file://")) return root.iconName;
+                    let localAsset = Quickshell.shellPath("assets/icons/" + root.iconName + ".svg");
+                    if (localAsset && localAsset.length > 0) return "file://" + localAsset;
+                    if (typeof AppSearch !== "undefined" && AppSearch.iconExists && AppSearch.iconExists(root.iconName)) {
+                        return Quickshell.iconPath(root.iconName);
+                    }
+                    return Quickshell.iconPath(root.iconName, "");
+                }
+
+                Image {
+                    id: iconImg
+                    anchors.fill: parent
+                    source: parent.resolvedIconPath
+                    sourceSize.width: 35
+                    sourceSize.height: 35
+                    visible: parent.resolvedIconPath.length > 0 && status === Image.Ready
+                }
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    visible: !iconImg.visible
+                    iconSize: 26
+                    color: root.colForeground
+                    text: {
+                        const name = (root.iconName || "").toLowerCase();
+                        if (name.includes("vm") || name.includes("computer")) return "computer";
+                        if (name.includes("setting") || name.includes("preferences") || name.includes("hub")) return "settings";
+                        if (name.includes("network") || name.includes("wifi")) return "lan";
+                        if (name.includes("terminal") || name.includes("console")) return "terminal";
+                        if (name.includes("monitor") || name.includes("btop") || name.includes("resource")) return "speed";
+                        if (name.includes("edit") || name.includes("text") || name.includes("nvim") || name.includes("code")) return "edit_note";
+                        return "apps";
+                    }
+                }
             }
         }
 
