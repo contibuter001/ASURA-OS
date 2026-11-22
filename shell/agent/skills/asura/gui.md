@@ -1,5 +1,9 @@
 # The Asura GUI & Hub Architecture
 
+> **ASURA's own shell only.** This guide applies when
+> `gsettings get org.asura.shell desktop-shell` is `'asura'`. The default
+> desktop is end-4's: see [`desktop.md`](desktop.md).
+
 Asura OS provides a graphical interface for almost every system setting.
 The primary surface is **Asura Hub** (`shell/hub/Hub.qml`), backed by **QS Bar Settings**
 and the **Wallpaper Picker**.

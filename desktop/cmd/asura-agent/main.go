@@ -11,6 +11,9 @@ Usage:
   asura-agent wire [agent]      Symlink the Asura skill suite into all or specified agent
   asura-agent unwire [agent]    Remove the Asura skill symlink from all or specified agent
   asura-agent status [--json]   Report detection in PATH and wiring status of local agents
+  asura-agent wire --installed  Wire every supported agent that is installed (run at login)
+  asura-agent ask QUESTION      Ask ASURA's assistant (opens OpenCode in a terminal)
+  asura-agent chat MESSAGE      The same, for the shell's chat panel (JSON lines)
 
 Supported agents:
   opencode    OpenCode CLI (~/.config/opencode/skills/asura)
@@ -30,6 +33,13 @@ func main() {
 		agent := ""
 		if len(os.Args) > 2 {
 			agent = os.Args[2]
+		}
+		if agent == "--installed" {
+			if _, err := WireInstalled(); err != nil {
+				fmt.Fprintf(os.Stderr, "asura-agent wire: %v\n", err)
+				os.Exit(1)
+			}
+			return
 		}
 		if _, err := Wire(agent); err != nil {
 			fmt.Fprintf(os.Stderr, "asura-agent wire: %v\n", err)
@@ -55,6 +65,12 @@ func main() {
 			fmt.Fprintf(os.Stderr, "asura-agent status: %v\n", err)
 			os.Exit(1)
 		}
+	case "ask":
+		os.Exit(Ask(os.Args[2:], os.Stdout))
+	case "chat":
+		os.Exit(Chat(os.Args[2:], os.Stdout))
+	case "agent":
+		os.Exit(0) // the chat panel's engine picker: OpenCode is the only one
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		os.Exit(0)

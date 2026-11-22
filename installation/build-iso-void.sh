@@ -609,6 +609,7 @@ echo "build-iso-void: building Asura Go binaries..."
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-shell" ./cmd/asura-shell
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-wallpaper" ./cmd/asura-wallpaper
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/apm" ./cmd/apm
+	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-agent" ./cmd/asura-agent
 	# Build Asura Store (prioritizing standalone repository https://github.com/ASURA-OS/asura-store)
 	STORE_SRC="${ASURA_STORE_SRC:-}"
 	if [ -z "$STORE_SRC" ]; then

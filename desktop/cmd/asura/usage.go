@@ -123,6 +123,7 @@ asked to: --fix renames the values Asura has renamed in your shell.json.
 
   --root DIR   operate on a tree under this directory
   --fix        apply the renames the Config section offers
+  --json       print the report as JSON: {"ok", "sections": [{"section", "ok", "lines"}]}
 `
 
 const statusUsage = `Usage: asura status [flags]
