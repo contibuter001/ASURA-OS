@@ -106,11 +106,15 @@ func asuraReset(args []string) int {
 func asuraDoctor(args []string) int {
 	set := newFlags("doctor", doctorUsage)
 	var (
-		root = set.String("root", "", "operate on a tree under this directory")
-		fix  = set.Bool("fix", false, "apply the fixes the config section offers")
+		root   = set.String("root", "", "operate on a tree under this directory")
+		fix    = set.Bool("fix", false, "apply the fixes the config section offers")
+		asJSON = set.Bool("json", false, "print the report as JSON, one object per section")
 	)
 	if err := set.Parse(args); err != nil {
 		return exitUsage
+	}
+	if *asJSON {
+		return doctorJSON(*root, *fix, os.Stdout)
 	}
 
 	paths, err := overlayPaths(*root)
@@ -177,45 +181,35 @@ func asuraDoctor(args []string) int {
 // misread portal configuration or a registration pointing at nothing would go
 // unnoticed.
 func reportSessionChecks(root string, paths overlay.Paths, fix bool) int {
-	code := reportPortals(root)
-	if registrationCode := reportRegistrations(root); registrationCode != exitOK {
-		code = registrationCode
+	code := exitOK
+	for _, check := range sessionChecks(root, fix) {
+		if c := check(); c != exitOK {
+			code = c
+		}
 	}
-	if sessionCode := reportSession(root); sessionCode != exitOK {
-		code = sessionCode
-	}
-	if shellCode := reportShell(root); shellCode != exitOK {
-		code = shellCode
-	}
-	if desktopCode := reportDesktopShell(root, runner.Exec(5*time.Second)); desktopCode != exitOK {
-		code = desktopCode
-	}
-	if hubCode := reportHub(root); hubCode != exitOK {
-		code = hubCode
-	}
-	if commandsCode := reportCommands(root); commandsCode != exitOK {
-		code = commandsCode
-	}
-	if repoCode := reportVoidRepo(root); repoCode != exitOK {
-		code = repoCode
-	}
-	if runitCode := reportRunitServices(root); runitCode != exitOK {
-		code = runitCode
-	}
-	if coreSvcCode := reportCoreServices(root, fix); coreSvcCode != exitOK {
-		code = coreSvcCode
-	}
-	if audioCode := reportUserAudioServices(root, fix); audioCode != exitOK {
-		code = audioCode
-	}
-	if hyprCode := reportHyprlandVersion(root, fix); hyprCode != exitOK {
-		code = hyprCode
-	}
-	if hwCode := reportHardwarePower(root, fix); hwCode != exitOK {
-		code = hwCode
-	}
-	reportDeps(root, runner.Exec(10*time.Second))
 	return code
+}
+
+// sessionChecks lists the session checks in the order doctor runs them, so the
+// text report and --json run the same checks. The dependency report is
+// advisory: it prints what is missing but never fails doctor.
+func sessionChecks(root string, fix bool) []func() int {
+	return []func() int{
+		func() int { return reportPortals(root) },
+		func() int { return reportRegistrations(root) },
+		func() int { return reportSession(root) },
+		func() int { return reportShell(root) },
+		func() int { return reportDesktopShell(root, runner.Exec(5*time.Second)) },
+		func() int { return reportHub(root) },
+		func() int { return reportCommands(root) },
+		func() int { return reportVoidRepo(root) },
+		func() int { return reportRunitServices(root) },
+		func() int { return reportCoreServices(root, fix) },
+		func() int { return reportUserAudioServices(root, fix) },
+		func() int { return reportHyprlandVersion(root, fix) },
+		func() int { return reportHardwarePower(root, fix) },
+		func() int { reportDeps(root, runner.Exec(10*time.Second)); return exitOK },
+	}
 }
 
 // reportHub checks the claim that every setting has a Hub page and every page

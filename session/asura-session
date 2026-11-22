@@ -242,6 +242,13 @@ if [ ! -e "$USER_WALLPAPER_LINK" ]; then
     ln -sf "$DEFAULT_WALLPAPER" "$USER_WALLPAPER_LINK"
 fi
 
+# Give every installed coding assistant (OpenCode ships with ASURA) the ASURA
+# skills, so it knows this desktop from the first question. Idempotent, and
+# assistants that are not installed get nothing.
+if command -v asura-agent >/dev/null 2>&1; then
+    asura-agent wire --installed >/dev/null 2>&1 || true
+fi
+
 echo "asura-session: env ok, starting Hyprland"
 
 # The compositor's configuration. Asura ships one — the keybinds are the only

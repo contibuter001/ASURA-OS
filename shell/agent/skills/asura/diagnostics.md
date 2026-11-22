@@ -1,5 +1,40 @@
 # Asura OS Diagnostics & Crash Triage Playbook
 
+## 0. Start here
+
+```bash
+asura doctor --json     # every check as {"ok", "sections": [{"section", "ok", "lines"}]}
+gsettings get org.asura.shell desktop-shell   # 'end4' (default) or 'asura'
+asura version -v        # which ASURA commit is applied
+```
+
+Read the sections with `"ok": false` first; each line says what is wrong.
+`asura doctor` exits non-zero when any check fails.
+
+### The default desktop (end-4) will not load or misbehaves
+
+```bash
+tail -n 60 ~/.local/state/asura/quickshell.log
+sv status ~/.config/service/quickshell
+```
+
+- `Reload failed` / `Failed to load configuration` names a QML file and line:
+  that file in `/usr/share/asura/shell-end4/` is broken. Do not edit it in
+  place (an update overwrites it); `asura update` brings the fixed version once
+  it is on dev-unstable, and `asura rollback` returns to the previous one.
+- After a fix, clear the crash guard and restart:
+  `rm -f ~/.local/state/asura/end4-quick-exits; sv restart ~/.config/service/quickshell`.
+- A setting that "does nothing": check `~/.config/illogical-impulse/config.json`
+  is valid JSON (`jq . ~/.config/illogical-impulse/config.json`); end-4 ignores
+  a file it cannot parse.
+- Apps that will not open from the dock or launcher: run the app's command in
+  a terminal to see its error.
+
+The rest of this playbook (sections 1-3) covers runit services, logs, and
+ASURA's own shell.
+
+---
+
 This playbook provides actionable steps for diagnosing and resolving Quickshell errors,
 daemon failures, QML binding issues, and broken user configurations on Asura OS.
 

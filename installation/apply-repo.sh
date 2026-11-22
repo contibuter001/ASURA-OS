@@ -161,7 +161,7 @@ if [ "$BUILD" -eq 1 ]; then
 			cd "$REPO/desktop"
 			export GOWORK=off GOFLAGS=-buildvcs=false CGO_ENABLED=0
 			go build -o "$out/" ./cmd/asura ./cmd/asura-sysd ./cmd/asura-userd ./cmd/asura-hubd \
-				./cmd/asura-shell ./cmd/asura-wallpaper ./cmd/apm ./cmd/asura-store
+				./cmd/asura-shell ./cmd/asura-wallpaper ./cmd/apm ./cmd/asura-store ./cmd/asura-agent
 			go build -o "$out/asura-vm-mon" ./cmd/asura-vm/mon
 			go build -o "$out/asura-vm-ssh" ./cmd/asura-vm/remote
 		) && for b in "$out"/*; do
