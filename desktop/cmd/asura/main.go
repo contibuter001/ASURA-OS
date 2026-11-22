@@ -24,7 +24,7 @@ import (
 	"os"
 )
 
-var version = "0.1-pre-alpha"
+var version = "0.1.0-beta.1"
 
 func main() {
 	os.Exit(run(os.Args[1:]))
@@ -140,7 +140,7 @@ var helpText = map[string]string{
 	"status":      statusUsage,
 	"state":       "Usage: asura state\n\nPrints the live desktop state as JSON, for the sidebar.\n",
 	"windows":     "Usage: asura windows\n\nPrints the switchable windows as JSON, most recently focused first.\n",
-	"version":     "Usage: asura version [--commit | -v]\n\n  (none)    the edition, e.g. 0.1-pre-alpha\n  --commit  the dev-unstable commit applied to this system\n  -v        both\n",
+	"version":     "Usage: asura version [--commit | -v]\n\n  (none)    the edition, e.g. 0.1.0-beta.1\n  --commit  the dev-unstable commit applied to this system\n  -v        both\n",
 	"brightness":  brightnessUsage,
 	"channel":     channelUsage,
 	"gpu":         gpuUsage,

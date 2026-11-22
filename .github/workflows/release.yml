@@ -160,6 +160,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: refs/tags/${{ needs.build.outputs.tag }}
+          path: src
+
       - uses: actions/download-artifact@v7
         with:
           name: release-files
@@ -182,9 +187,16 @@ jobs:
           flags=""
           [ "$PRERELEASE" = true ] && flags="--prerelease"
           # shellcheck disable=SC2086
+          # docs/releases/<tag>.md is the release's notes when it exists;
+          # otherwise GitHub lists the merged pull requests.
+          notes="src/docs/releases/$TAG.md"
+          if [ -f "$notes" ]; then
+            flags="$flags --notes-file $notes"
+          else
+            flags="$flags --generate-notes"
+          fi
           gh release create "$TAG" dist/* \
             --verify-tag \
             --title "ASURA OS $VERSION" \
-            --generate-notes \
             $flags
           gh release view "$TAG" --json url --jq .url

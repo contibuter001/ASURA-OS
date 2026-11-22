@@ -4,8 +4,8 @@ ASURA is a distribution, and a distribution is a union of other people's work. N
 every laptop; everybody can test one. Those two facts decide what a contribution to this
 project is worth.
 
-ASURA runs pre-alpha. Nothing is bootable yet, so the contributions that matter today are a
-hardware profile, a decision, or documentation. See [`docs/roadmap.md`](docs/roadmap.md) for
+ASURA is in beta: the ISO boots, installs and updates. The contributions that matter most are
+a hardware profile, a bug report from a real machine, or documentation. See [`docs/roadmap.md`](docs/roadmap.md) for
 what lands in what order.
 
 ---

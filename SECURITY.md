@@ -107,12 +107,12 @@ File these as normal issues, using the hardware support form where it applies:
 
 | ASURA release | Status | Security fixes |
 |---|---|---|
-| `asura-0.1` — pre-alpha development line | Current | Yes |
+| `0.1.0-beta.1` and the `dev-unstable` line `asura update` follows | Current | Yes |
 | Anything older | No releases exist | No |
 
-No release has shipped. There is nothing installable yet, so there is nothing to backport a
-fix to. This table becomes the record of what receives fixes once the first release exists,
-and the previous line moves to security-fixes-only.
+`0.1.0-beta.1` is the first release. Installed machines follow `dev-unstable` through
+`asura update` (only commits that passed CI), so a fix reaches them as soon as it is merged.
+When a later release line starts, the previous one moves to security fixes only.
 
 **Base layer: Void Linux (rolling).** Security updates for the substrate arrive through Void Linux's
 own repository and reach users through `xbps-install -Su` or `asura update`. When a fix is present in Void Linux's repository
