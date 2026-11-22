@@ -94,6 +94,19 @@ scripts/colors/applycolor.sh
 scripts/colors/switchwall.sh
 modules/ii/bar/Media.qml
 services/MprisController.qml
+assets/images/default_wallpaper.png
+modules/common/widgets/GroupButton.qml
+modules/common/widgets/StyledSlider.qml
+modules/ii/overview/SearchItem.qml
+modules/ii/sidebarRight/QuickSliders.qml
+modules/ii/sidebarRight/notifications/NotificationList.qml
+modules/ii/sidebarRight/notifications/NotificationStatusButton.qml
+modules/ii/sidebarRight/quickToggles/AndroidQuickPanel.qml
+modules/ii/sidebarRight/quickToggles/androidStyle/AndroidQuickToggleButton.qml
+modules/ii/sidebarRight/quickToggles/classicStyle/QuickToggleButton.qml
+modules/waffle/background/WaffleBackground.qml
+services/AppSearch.qml
+services/LauncherSearch.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }
