@@ -80,7 +80,7 @@ logged() {
 		if [ -n "${GITHUB_ACTIONS:-}" ]; then
 			tail -n 25 "$log" | sed 's/%/%25/g' | awk -v n="$name" '
 				{ msg = msg (NR > 1 ? "%0A" : "") $0 }
-				END { print "::error title=build-stack failed on " n "::" msg }'
+				END { print ""; print "::error title=build-stack failed on " n "::" msg }'
 		fi
 		exit 1
 	fi

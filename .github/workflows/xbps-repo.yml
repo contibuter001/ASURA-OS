@@ -81,9 +81,19 @@ jobs:
               xbps-install -Syu xbps >/dev/null && xbps-install -yu >/dev/null && xbps-install -y bash sudo curl git >/dev/null
               git config --global --add safe.directory /workspace
               sh packaging/xbps/build-stack.sh build/repo/current
-              sh packaging/xbps/build-repo.sh build/repo/current build/stage'
+              sh packaging/xbps/build-repo.sh build/repo/current build/stage' 2>&1 | tee build/container.log
           rm -f build/signing-key.pem
           sudo chown -R "$(id -u):$(id -g)" build
+
+      # The log needs a sign-in to read; annotations and the summary do not.
+      - name: Show why the build failed
+        if: failure()
+        run: |
+          rm -f build/signing-key.pem
+          [ -f build/container.log ] || exit 0
+          tail -n 40 build/container.log | sed 's/\x1b\[[0-9;]*m//g' > build/tail.log
+          { echo '### The last lines of the build'; echo '```'; cat build/tail.log; echo; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
+          sed 's/%/%25/g' build/tail.log | awk '{ m = m (NR > 1 ? "%0A" : "") $0 } END { print "::error title=Last lines of the build::" m }'
 
       - name: Install the package in a clean Void container
         run: |
