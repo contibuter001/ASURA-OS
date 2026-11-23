@@ -539,6 +539,46 @@ for hpkg in $HYPR_PKGS; do
 		tar -xf "$HYPR_CACHE/$hpkg" -C "$INCLUDE_DIR"
 	fi
 done
+# Fallback: until ASURA's own repository is published, Hyprland 0.57 is not
+# downloadable, and Void has no Hyprland at all. Stage the prebuilt 0.49 stack
+# instead (the ISO's source before ASURA built its own), so the image always
+# has a compositor. asura-session picks the .conf config for Hyprland < 0.57.
+if [ ! -f "$HYPR_CACHE/hyprland-0.57.2_1.x86_64.xbps" ]; then
+	echo "build-iso-void: Hyprland 0.57.2 is not available from $ASURA_REPO_URL; staging the prebuilt 0.49 stack" >&2
+	rm -f "$HYPR_CACHE"/*.xbps
+	HYPR_FALLBACK_URL="https://raw.githubusercontent.com/Makrennel/hyprland-void/repository-x86_64-glibc"
+	HYPR_PKGS="tomlplusplus-3.4.0_1.x86_64.xbps hyprutils-0.7.1_1.x86_64.xbps aquamarine-0.8.0_2.x86_64.xbps hyprlang-0.6.3_1.x86_64.xbps hyprcursor-0.1.12_1.x86_64.xbps hyprgraphics-0.1.3_2.x86_64.xbps libspng-0.7.4_1.x86_64.xbps sdbus-cpp-2.1.0_1.x86_64.xbps hyprland-0.49.0_1.x86_64.xbps xdg-desktop-portal-hyprland-1.3.9_2.x86_64.xbps hyprland-qtutils-0.1.4_1.x86_64.xbps hypridle-0.1.6_2.x86_64.xbps hyprlock-0.8.2_1.x86_64.xbps"
+	for hpkg in $HYPR_PKGS; do
+		curl -sSL -f -o "$HYPR_CACHE/$hpkg" "$HYPR_FALLBACK_URL/$hpkg" || {
+			echo "build-iso-void: ERROR: could not download $hpkg from either repository" >&2
+			exit 1
+		}
+		verify_checksum "$HYPR_CACHE/$hpkg"
+		tar -xf "$HYPR_CACHE/$hpkg" -C "$INCLUDE_DIR"
+	done
+	# Trust the fallback repository's signing key.
+	mkdir -p "$INCLUDE_DIR/var/db/xbps/keys"
+	cat >"$INCLUDE_DIR/var/db/xbps/keys/30:93:47:9e:1f:55:c5:c5:07:b1:9a:e6:8b:10:5b:4b.plist" <<'KEYEOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>public-key</key>
+	<data>LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUFtNWk4VnhQdEpJRVU5ZERuSlNmSAo5by9PNCt1THFYc1hqemY0emZxTXFXM0RIQTJjM2pHeDE2dFVUT0dHbUdzVk1pb3l6TXl0TjUwSTZwb0J0ODBZCjlWQ25MRVBmVFFmbjlNaHV1ZGFPNjA5OGZVb2srejA4WjJsZ205NVg5Z3JDblkraEhwMC8yZ2VxNGJ5Zy9mZG0KTjlCbGVqaTlNd2dJdHFpRllJM0J4MXdWUVkzekVzWEUyeXlseHpycTFpS2p0S2dYMXAxWDFnWDBadzR2ZEIzMwo4b1luSDNNYkNMUGlobWxocm5BMTRhWm1UaHFuNFNRU1A2czAzdStQSHNuaHVKQ3EvS1N4S3AyRFhVM0JpY1dmCnY0YmdPQmV2TmYrZWhKbDJyRHdTSk9lS0NrOFhnZVYyVXNKQW4xaTM3UUpjdm9ZNWZUamFNUmxYSnRISERvN04KVzNXZHVPcWxwMHVHVVlXZVNxLzFMRVlJUDE2bGJ1dXd1a1ZrWXF5QzZMbWY0VXovOVZOYkc1anp0UUdmVkZJdgoxZmppZGg0cEpzNWEyeGx6QVpOTVpoT1VMdElnM2U5bkorYUc5dGt5K09kSjRiS1lja2NicWxRMlNiME5QTmF4CnQ4Q1Q2c2E4MHNJRU1oZWRvemUvVkhmdlNaZitLZ3FPc25BaGMvY1ZEUmhsQWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==</data>
+	<key>public-key-size</key>
+	<integer>3072</integer>
+	<key>signature-by</key>
+	<string>hyprland-void-github-action</string>
+	<key>signature-type</key>
+	<string>rsa</string>
+</dict>
+</plist>
+KEYEOF
+	cp "$INCLUDE_DIR/var/db/xbps/keys/30:93:47:9e:1f:55:c5:c5:07:b1:9a:e6:8b:10:5b:4b.plist" \
+	   "$INCLUDE_DIR/var/db/xbps/keys/00649994a2d04d020cdb1119ff53e712be6b5c3e726accfb04c664d1200d748d.plist"
+	cp "$INCLUDE_DIR/var/db/xbps/keys/30:93:47:9e:1f:55:c5:c5:07:b1:9a:e6:8b:10:5b:4b.plist" \
+	   "$INCLUDE_DIR/var/db/xbps/keys/1293d0c27380d795a88fdbd007356dae84090282b5bd4123678ee9a682d06dd3.plist"
+fi
 rm -f "$INCLUDE_DIR/props.plist" "$INCLUDE_DIR/files.plist"
 if [ -f "$INCLUDE_DIR/usr/libexec/xdg-desktop-portal-hyprland" ]; then
 	cp "$INCLUDE_DIR/usr/libexec/xdg-desktop-portal-hyprland" "$INCLUDE_DIR/usr/bin/xdg-desktop-portal-hyprland" 2>/dev/null || true
