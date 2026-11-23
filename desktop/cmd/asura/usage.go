@@ -10,6 +10,7 @@ issue: serials appear as stable tokens, never in the clear.
   --format text|json|profile   output shape (default text)
   --profile                    shorthand for --format profile
   --deep                       include ACPI-derived facts
+  --submit                     prepare redacted report and open prefilled GitHub issue in browser
   --raw                        unredacted dump, local only; refuses under CI
   --out FILE                   write to a file instead of stdout
   --root DIR                   read this sysfs tree instead of /sys

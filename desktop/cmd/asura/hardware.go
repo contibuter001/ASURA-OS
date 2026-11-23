@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -13,6 +15,10 @@ import (
 	"asura/hardware/redact"
 	"asura/hardware/report"
 )
+
+var openBrowser = func(targetURL string) error {
+	return exec.Command("xdg-open", targetURL).Start()
+}
 
 // profilesDirOverride lets --profiles point at a different database. It is a
 // package variable rather than a global flag because each subcommand declares
@@ -292,6 +298,7 @@ func hardwareReport(args []string) int {
 		format      = set.String("format", "text", "output shape: text, json or profile")
 		deep        = set.Bool("deep", false, "include ACPI-derived facts")
 		profileOnly = set.Bool("profile", false, "emit a candidate profile")
+		submit      = set.Bool("submit", false, "prepare redacted report and open prefilled GitHub issue in browser")
 		raw         = set.Bool("raw", false, "unredacted dump, local only")
 		out         = set.String("out", "", "write to a file instead of stdout")
 		root        = set.String("root", probe.RootDefault, "sysfs root to read")
@@ -324,6 +331,46 @@ func hardwareReport(args []string) int {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "asura hardware report:", err)
 		return exitFail
+	}
+
+	if *submit {
+		rendered, err := report.Render(input, report.Options{Format: report.FormatText, Deep: true})
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "asura hardware report:", err)
+			return exitFail
+		}
+
+		vendor := input.DMI.SysVendor
+		if vendor == "" {
+			vendor = "Unknown"
+		}
+		model := input.DMI.ProductName
+		if model == "" {
+			model = input.DMI.ProductFamily
+		}
+		if model == "" {
+			model = "Laptop"
+		}
+
+		title := fmt.Sprintf("[hardware]: %s %s", vendor, model)
+		body := fmt.Sprintf("### Manufacturer\n%s\n\n### Model\n%s\n\n### asura hardware report output\n```yaml\n%s\n```",
+			vendor, model, string(rendered))
+
+		params := url.Values{}
+		params.Set("template", "hardware-support.yml")
+		params.Set("title", title)
+		params.Set("body", body)
+
+		issueURL := "https://github.com/mohitjoer/ASURA-OS/issues/new?" + params.Encode()
+
+		fmt.Println("Redacted hardware report prepared (no serial numbers or personal data).")
+		fmt.Println("Opening prefilled GitHub issue in your browser...")
+		fmt.Println("Issue URL:", issueURL)
+
+		if err := openBrowser(issueURL); err != nil {
+			fmt.Fprintf(os.Stderr, "Note: could not launch browser (%v). Please open the URL above manually.\n", err)
+		}
+		return exitOK
 	}
 
 	rendered, err := report.Render(input, report.Options{Format: shape, Deep: *deep})
