@@ -1,0 +1,27 @@
+id: samsung-galaxybook
+name: "Samsung Galaxy Book Laptops"
+description: "Samsung Galaxy Book hardware profile: battery longevity limit and performance profiles"
+layer: vendor
+
+match:
+  sys_vendor: "SAMSUNG ELECTRONICS CO., LTD."
+  chassis: "laptop"
+
+packages: []
+
+kernel_parameters: []
+
+files:
+  udev:
+    - target: "/etc/udev/rules.d/99-samsung-battery.rules"
+      content: |
+        # Samsung Battery Life Extender (caps charge at 85%)
+        SUBSYSTEM=="power_supply", KERNEL=="BAT[0-9]", ATTR{charge_control_end_threshold}="85"
+      reason: "Persist 85% charge threshold on Samsung laptops (Linux drivers/platform/x86/samsung-galaxybook.c)"
+
+services: []
+
+notes:
+  - "Knowledge source: Linux kernel drivers/platform/x86/samsung-galaxybook.c and samsung-laptop.c."
+  - "Samsung Battery Life Extender limits state of charge to 85%."
+  - "Fan mode (silent, optimized, high-performance) mapped to platform_profile."
