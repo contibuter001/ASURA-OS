@@ -45,6 +45,12 @@ fi
 echo "build-stack: preparing to build stack in $VP_DIR..."
 cd "$VP_DIR"
 [ -x ./xbps-src ] || { echo "build-stack: $VP_DIR has no xbps-src" >&2; exit 1; }
+for tool in bash git; do
+	command -v "$tool" >/dev/null 2>&1 || { echo "build-stack: $tool is not installed (xbps-install -y bash sudo git)" >&2; exit 1; }
+done
+if [ "$(id -u)" = 0 ] && ! command -v sudo >/dev/null 2>&1; then
+	echo "build-stack: sudo is not installed (xbps-install -y sudo)" >&2; exit 1
+fi
 
 # Run xbps-src the way Void's own CI does (common/travis/prepare.sh): as a
 # non-root user in the xbuilder group, with the uchroot chroot style, in a
@@ -57,9 +63,9 @@ CONF
 if [ "$(id -u)" = 0 ]; then
 	id builder >/dev/null 2>&1 || useradd -G xbuilder -M builder
 	chown -R builder:builder "$VP_DIR"
-	as_builder() { su builder -s /bin/sh -c "cd '$VP_DIR' && $*"; }
+	as_builder() { (cd "$VP_DIR" && sudo -Eu builder "$@"); }
 else
-	as_builder() { sh -c "cd '$VP_DIR' && $*"; }
+	as_builder() { (cd "$VP_DIR" && "$@"); }
 fi
 
 echo "build-stack: binary-bootstrap..."
