@@ -342,11 +342,22 @@ if [ -z "$COMPOSITOR" ] || ( ! command -v "$COMPOSITOR" >/dev/null 2>&1 && [ ! -
     exit 127
 fi
 
-if [ -f "/usr/share/asura/hyprland/hyprland.lua" ]; then
+# Hyprland reads Lua configs from 0.57 and hyprlang (.conf) before that, and
+# each version refuses the other format: a Lua config on an older Hyprland is a
+# desktop that never starts. ASURA ships both, so pick by the Hyprland that is
+# actually installed, not by which file exists (a machine can receive ASURA's
+# new files before its Hyprland package is updated).
+hyprland_reads_lua() {
+    hv=$(Hyprland --version 2>/dev/null | sed -n '1s/^Hyprland \([0-9][0-9.]*\).*/\1/p')
+    [ -n "$hv" ] || return 1
+    echo "$hv" | awk -F. '{ exit !($1 > 0 || ($1 == 0 && $2 >= 57)) }'
+}
+if [ -f "/usr/share/asura/hyprland/hyprland.lua" ] && hyprland_reads_lua; then
     HYPR_CONF="${ASURA_HYPRLAND_CONFIG:-/usr/share/asura/hyprland/hyprland.lua}"
 else
     HYPR_CONF="${ASURA_HYPRLAND_CONFIG:-/usr/share/asura/hyprland/hyprland.conf}"
 fi
+echo "asura-session: Hyprland $(Hyprland --version 2>/dev/null | sed -n '1s/^Hyprland \([0-9][0-9.]*\).*/\1/p'), config $HYPR_CONF"
 
 # Launch Hyprland with automatic fallback if hardware EGL/DRM fails on VM
 if echo "$COMPOSITOR" | grep -q "start-hyprland"; then
