@@ -9,7 +9,6 @@ set -eu
 
 OUT_DIR=${1:-build/repo/current}
 VOID_PACKAGES_DIR=${2:-}
-ARCH=x86_64
 
 mkdir -p "$OUT_DIR"
 OUT_DIR=$(CDPATH='' cd -- "$OUT_DIR" && pwd)
@@ -45,29 +44,42 @@ fi
 
 echo "build-stack: preparing to build stack in $VP_DIR..."
 cd "$VP_DIR"
+[ -x ./xbps-src ] || { echo "build-stack: $VP_DIR has no xbps-src" >&2; exit 1; }
 
-if [ -x "./xbps-src" ]; then
-	if [ ! -d "masterdir" ]; then
-		echo "build-stack: binary-bootstrap for xbps-src..."
-		./xbps-src -A "$ARCH" binary-bootstrap || true
-	fi
-	for pkg in $STACK_PACKAGES; do
-		if [ -d "srcpkgs/$pkg" ]; then
-			echo "build-stack: building $pkg..."
-			./xbps-src -A "$ARCH" pkg "$pkg" || {
-				echo "build-stack: failed to build $pkg" >&2
-				exit 1
-			}
-		fi
-	done
-
-	# Copy built packages to OUT_DIR
-	if [ -d "hostdir/binpkgs" ]; then
-		find hostdir/binpkgs -name "*.xbps" -exec cp -f {} "$OUT_DIR/" \;
-	fi
+# Run xbps-src the way Void's own CI does (common/travis/prepare.sh): as a
+# non-root user in the xbuilder group, with the uchroot chroot style, in a
+# privileged container. xbps-src refuses to build as root.
+cat >>etc/conf <<'CONF'
+XBPS_BUILD_ENVIRONMENT=void-packages-ci
+XBPS_ALLOW_RESTRICTED=yes
+XBPS_CHROOT_CMD=uchroot
+CONF
+if [ "$(id -u)" = 0 ]; then
+	id builder >/dev/null 2>&1 || useradd -G xbuilder -M builder
+	chown -R builder:builder "$VP_DIR"
+	as_builder() { su builder -s /bin/sh -c "cd '$VP_DIR' && $*"; }
 else
-	echo "build-stack: xbps-src not executable in $VP_DIR; skipping xbps-src compilation step"
+	as_builder() { sh -c "cd '$VP_DIR' && $*"; }
 fi
+
+echo "build-stack: binary-bootstrap..."
+as_builder ./xbps-src binary-bootstrap
+
+jobs=$(nproc 2>/dev/null || echo 2)
+for pkg in $STACK_PACKAGES; do
+	[ -d "srcpkgs/$pkg" ] || { echo "build-stack: srcpkgs/$pkg is missing" >&2; exit 1; }
+	echo "build-stack: building $pkg..."
+	as_builder ./xbps-src -j"$jobs" pkg "$pkg" || {
+		echo "build-stack: failed to build $pkg" >&2
+		exit 1
+	}
+done
+
+# xbps-src puts packages under hostdir/binpkgs/<branch>/.
+find hostdir/binpkgs -name "*.xbps" -exec cp -f {} "$OUT_DIR/" \;
+n=$(find "$OUT_DIR" -maxdepth 1 -name "*.xbps" | wc -l)
+[ "$n" -gt 0 ] || { echo "build-stack: no packages were built" >&2; exit 1; }
+echo "build-stack: $n package(s) in $OUT_DIR"
 
 # Index repository if xbps-rindex exists
 if command -v xbps-rindex >/dev/null 2>&1; then

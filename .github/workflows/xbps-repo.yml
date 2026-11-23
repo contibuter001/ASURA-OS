@@ -72,7 +72,8 @@ jobs:
         run: |
           key=""
           [ -f build/signing-key.pem ] && key=/workspace/build/signing-key.pem
-          docker run --rm -v "$PWD":/workspace -w /workspace -e XBPS_SIGNING_KEY="$key" \
+          # --privileged: xbps-src's uchroot needs it, as in Void's own CI.
+          docker run --rm --privileged -v "$PWD":/workspace -w /workspace -e XBPS_SIGNING_KEY="$key" \
             ghcr.io/void-linux/void-glibc-full:latest sh -euc '
               xbps-install -Syu xbps >/dev/null && xbps-install -y git >/dev/null
               git config --global --add safe.directory /workspace
