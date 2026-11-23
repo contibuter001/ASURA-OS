@@ -1,6 +1,8 @@
 # Hardware
 
+- Consult the [Hardware Compatibility Matrix](../hardware.md) for full laptop line support levels, component details, and how to submit new profiles.
 - `asura hardware report`: what ASURA found in your machine.
+  `asura hardware report --submit` prepares a redacted report and opens a pre-filled GitHub issue in your browser.
   `asura hardware report --profile` writes a profile you can share when you
   report a problem; it helps ASURA support your model.
 - **Two graphics cards** (laptops): `asura gpu status` shows them;
