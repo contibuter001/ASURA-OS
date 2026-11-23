@@ -1,6 +1,6 @@
 id: nvidia-gpu
-name: "NVIDIA Discrete GPU (PCIe RTD3 & Modesetting)"
-description: "PCIe RTD3 runtime D3cold power management and nvidia-drm modeset support for NVIDIA discrete GPUs"
+name: "NVIDIA Discrete Graphics (PCIe RTD3, Modeset & Wayland)"
+description: "Runtime D3cold power management, GSP firmware, nvidia-drm modeset, and Hyprland Wayland environment"
 layer: component
 
 match:
@@ -13,6 +13,7 @@ packages:
 
 kernel_parameters:
   - "nvidia-drm.modeset=1"
+  - "nvidia-drm.fbdev=1"
 
 files:
   udev:
@@ -23,10 +24,20 @@ files:
     - target: "/etc/modprobe.d/nvidia-optimus.conf"
       source: "system/modprobe.d/nvidia-optimus.conf"
       reason: "Configure NVreg_DynamicPowerManagement=0x02 for dynamic hybrid power off (NVIDIA Driver README Appendix B)"
+  sysctl:
+    - target: "/etc/environment.d/10-asura-nvidia.conf"
+      content: |
+        # Wayland and hardware video acceleration environment for NVIDIA GPUs
+        LIBVA_DRIVER_NAME=nvidia
+        GBM_BACKEND=nvidia-drm
+        __GLX_VENDOR_LIBRARY_NAME=nvidia
+        NVD_BACKEND=direct
+      reason: "Set Wayland compositor and hardware decoding environment for NVIDIA proprietary driver (Hyprland NVIDIA guide)"
 
 services: []
 
 notes:
   - "Knowledge source: Linux kernel Documentation/power/pci.rst and NVIDIA Driver Documentation on Runtime Power Management."
   - "PCIe RTD3 dynamic power management shuts down GPU power rails (D3cold) when display server and compute are idle."
-  - "nvidia-drm.modeset=1 enables kernel modesetting required for Wayland compositors (Hyprland)."
+  - "nvidia-drm.modeset=1 and fbdev=1 enable atomic kernel modesetting required for Wayland compositors (Hyprland)."
+  - "Run applications offloaded to discrete NVIDIA GPU with 'asura gpu run <command>'."
