@@ -72,10 +72,12 @@ jobs:
         run: |
           key=""
           [ -f build/signing-key.pem ] && key=/workspace/build/signing-key.pem
-          # --privileged: xbps-src's uchroot needs it, as in Void's own CI.
+          # --privileged: xbps-src's uchroot needs it, as in Void's own CI. The
+          # container installs the tools Void's CI installs (xbps-src is a bash
+          # script). No apostrophes inside the single-quoted script below: one
+          # would end the quoting and run the rest on the runner instead.
           docker run --rm --privileged -v "$PWD":/workspace -w /workspace -e XBPS_SIGNING_KEY="$key" \
             ghcr.io/void-linux/void-glibc-full:latest sh -euc '
-              # The tools Void's own CI installs: xbps-src is a bash script.
               xbps-install -Syu xbps >/dev/null && xbps-install -yu >/dev/null && xbps-install -y bash sudo curl git >/dev/null
               git config --global --add safe.directory /workspace
               sh packaging/xbps/build-stack.sh build/repo/current
