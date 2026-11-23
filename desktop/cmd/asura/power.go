@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -15,12 +16,16 @@ const powerUsage = `Usage: asura power <verb> [arguments...]
 Verbs:
   status                print current power supply state, governor, and profile
   profile [name]        get or set profile (balanced, performance, battery)
+  threshold [pct]       get or set battery charge stop threshold (e.g. 80)
+  sleep [mode]          get or set system suspend sleep mode (s2idle | deep)
   ac                    switch power settings to AC (balanced/performance)
   bat                   switch power settings to Battery (power-saving, D3cold)
 `
 
+var powerPrivileged = runPrivileged
+
 func init() {
-	register("power", "manage CPU governors, energy preference, and hybrid GPU power", asuraPower)
+	register("power", "manage CPU governors, energy preference, battery thresholds, and sleep modes", asuraPower)
 }
 
 func asuraPower(args []string) int {
@@ -36,6 +41,16 @@ func asuraPower(args []string) int {
 			return setPowerProfile(args[1])
 		}
 		return getPowerProfile()
+	case "threshold":
+		if len(args) > 1 {
+			return setBatteryThreshold(args[1])
+		}
+		return getBatteryThreshold()
+	case "sleep":
+		if len(args) > 1 {
+			return setSleepMode(args[1])
+		}
+		return getSleepMode()
 	case "ac":
 		return setPowerProfile("balanced")
 	case "bat", "battery":
@@ -74,10 +89,15 @@ func runPowerStatus() int {
 		state["epp"] = strings.TrimSpace(string(epp))
 	}
 
-	// Read NVIDIA power status
+	// Read GPU runtime status
 	nvPower, _ := os.ReadFile("/sys/bus/pci/devices/0000:01:00.0/power/runtime_status")
 	if len(nvPower) > 0 {
 		state["gpu_runtime_status"] = strings.TrimSpace(string(nvPower))
+	}
+
+	// Read sleep mode
+	if memSleep, err := os.ReadFile("/sys/power/mem_sleep"); err == nil {
+		state["mem_sleep"] = strings.TrimSpace(string(memSleep))
 	}
 
 	out, _ := json.MarshalIndent(state, "", "  ")
@@ -138,13 +158,11 @@ func setPowerProfile(profile string) int {
 		return exitUsage
 	}
 
-	// Try IPC via /run/asura/sysd.sock (asura-sysd) first
 	if applyViaSysd(governor, epp, profile) {
 		fmt.Printf("Power profile set to %s (via asura-sysd)\n", profile)
 		return exitOK
 	}
 
-	// Direct sysfs fallback if running with privileges
 	applied := false
 	cpus, _ := filepath.Glob("/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor")
 	for _, f := range cpus {
@@ -158,14 +176,12 @@ func setPowerProfile(profile string) int {
 		_ = os.WriteFile(f, []byte(epp), 0644)
 	}
 
-	// ASUS WMI platform_profile (/sys/firmware/acpi/platform_profile)
 	if platformProfile != "" {
 		if os.WriteFile("/sys/firmware/acpi/platform_profile", []byte(platformProfile), 0644) == nil {
 			applied = true
 		}
 	}
 
-	// Enable D3cold auto runtime PM on GPU devices
 	gpus, _ := filepath.Glob("/sys/bus/pci/devices/*/power/control")
 	for _, f := range gpus {
 		_ = os.WriteFile(f, []byte("auto"), 0644)
@@ -177,6 +193,105 @@ func setPowerProfile(profile string) int {
 	}
 
 	fmt.Printf("Power profile requested: %s (requires asura-sysd or root privileges)\n", profile)
+	return exitOK
+}
+
+func getBatteryThreshold() int {
+	nodes := []string{
+		"/sys/class/power_supply/BAT0/charge_control_end_threshold",
+		"/sys/class/power_supply/BAT1/charge_control_end_threshold",
+		"/sys/class/power_supply/BAT0/charge_stop_threshold",
+		"/sys/class/power_supply/BAT1/charge_stop_threshold",
+		"/sys/devices/platform/lg-laptop/battery_care_limit",
+		"/sys/bus/platform/drivers/ideapad_acpi/*/conservation_mode",
+	}
+
+	for _, n := range nodes {
+		matches, _ := filepath.Glob(n)
+		for _, m := range matches {
+			if data, err := os.ReadFile(m); err == nil {
+				val := strings.TrimSpace(string(data))
+				if strings.Contains(m, "conservation_mode") {
+					if val == "1" {
+						fmt.Println("Battery charge threshold: 60-80% (Lenovo conservation mode enabled)")
+					} else {
+						fmt.Println("Battery charge threshold: 100% (Lenovo conservation mode disabled)")
+					}
+					return exitOK
+				}
+				fmt.Printf("Battery charge threshold: %s%%\n", val)
+				return exitOK
+			}
+		}
+	}
+
+	fmt.Println("Battery charge threshold: not exposed or standard profile active")
+	return exitOK
+}
+
+func setBatteryThreshold(arg string) int {
+	pct, err := strconv.Atoi(strings.TrimSuffix(strings.TrimSpace(arg), "%"))
+	if err != nil || pct < 20 || pct > 100 {
+		fmt.Fprintf(os.Stderr, "asura power threshold: invalid percentage %q (must be 20-100)\n", arg)
+		return exitUsage
+	}
+
+	applied := false
+	valStr := strconv.Itoa(pct)
+
+	nodes := []string{
+		"/sys/class/power_supply/BAT0/charge_control_end_threshold",
+		"/sys/class/power_supply/BAT1/charge_control_end_threshold",
+		"/sys/class/power_supply/BAT0/charge_stop_threshold",
+		"/sys/class/power_supply/BAT1/charge_stop_threshold",
+		"/sys/devices/platform/lg-laptop/battery_care_limit",
+	}
+
+	for _, n := range nodes {
+		if _, err := os.Stat(n); err == nil {
+			_ = powerPrivileged("sh", "-c", fmt.Sprintf("echo %s > %s", valStr, n))
+			applied = true
+		}
+	}
+
+	// Lenovo conservation mode
+	ideapadNodes, _ := filepath.Glob("/sys/bus/platform/drivers/ideapad_acpi/*/conservation_mode")
+	for _, n := range ideapadNodes {
+		mode := "1"
+		if pct > 90 {
+			mode = "0"
+		}
+		_ = powerPrivileged("sh", "-c", fmt.Sprintf("echo %s > %s", mode, n))
+		applied = true
+	}
+
+	if applied {
+		fmt.Printf("Battery charge limit set to %d%%\n", pct)
+	} else {
+		fmt.Printf("Battery charge limit requested (%d%%), no compatible sysfs node found on this machine.\n", pct)
+	}
+	return exitOK
+}
+
+func getSleepMode() int {
+	data, err := os.ReadFile("/sys/power/mem_sleep")
+	if err != nil {
+		fmt.Println("Sleep modes: not available or ACPI sleep not supported")
+		return exitOK
+	}
+	fmt.Printf("Suspend sleep modes: %s\n", strings.TrimSpace(string(data)))
+	return exitOK
+}
+
+func setSleepMode(mode string) int {
+	mode = strings.ToLower(strings.TrimSpace(mode))
+	if mode != "s2idle" && mode != "deep" {
+		fmt.Fprintf(os.Stderr, "asura power sleep: invalid mode %q (must be 's2idle' or 'deep')\n", mode)
+		return exitUsage
+	}
+
+	_ = powerPrivileged("sh", "-c", fmt.Sprintf("echo %s > /sys/power/mem_sleep", mode))
+	fmt.Printf("Sleep mode set to %s\n", mode)
 	return exitOK
 }
 
