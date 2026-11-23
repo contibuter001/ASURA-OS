@@ -9,6 +9,11 @@ name: xbps-repo
 #   (the rule asura update follows), and only when the XBPS_SIGNING_KEY secret
 #   exists: an unsigned repository is never published. It is served by GitHub
 #   Pages at https://<owner>.github.io/<repo>/current (docs/package-repo.md).
+# - Running it by hand (Run workflow) on dev-unstable also publishes, so a
+#   first publish does not wait for the next commit.
+# - GitHub starts workflow_run workflows only from the default branch, so
+#   dev-unstable must be the repository's default branch for the automatic
+#   publish to happen.
 
 on:
   pull_request:
@@ -99,7 +104,7 @@ jobs:
           retention-days: 7
 
       - name: Upload the repository for Pages
-        if: github.event_name == 'workflow_run' && env.HAS_KEY == 'true'
+        if: env.HAS_KEY == 'true' && (github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev-unstable'))
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/repo/
@@ -107,7 +112,8 @@ jobs:
   publish:
     name: XBPS — publish to GitHub Pages
     needs: build
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    # After ci passed on dev-unstable, or when run by hand on dev-unstable.
+    if: (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev-unstable')
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
