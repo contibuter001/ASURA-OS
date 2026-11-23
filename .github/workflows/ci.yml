@@ -160,8 +160,12 @@ jobs:
         run: sh shell/shell_test.sh
       - name: Desktop is byte-identical to its pin (shell-desktop)
         run: sh shell-desktop/asura/vendor.sh verify
-      - name: Desktop Lua dispatches translate to hyprlang
-        run: python3 shell-desktop/asura/hyprlang.py --test
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: desktop/go.mod
+      - name: Keybindings are the same in the hyprlang and Lua configs
+        working-directory: desktop
+        run: go test -count=1 -run TestBindsParityBetweenHyprlangAndLua ./internal/shell
       - name: Branding assets
         run: |
           python3 - <<'PY'
