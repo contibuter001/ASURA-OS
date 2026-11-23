@@ -75,7 +75,8 @@ jobs:
           # --privileged: xbps-src's uchroot needs it, as in Void's own CI.
           docker run --rm --privileged -v "$PWD":/workspace -w /workspace -e XBPS_SIGNING_KEY="$key" \
             ghcr.io/void-linux/void-glibc-full:latest sh -euc '
-              xbps-install -Syu xbps >/dev/null && xbps-install -y git >/dev/null
+              # The tools Void's own CI installs: xbps-src is a bash script.
+              xbps-install -Syu xbps >/dev/null && xbps-install -yu >/dev/null && xbps-install -y bash sudo curl git >/dev/null
               git config --global --add safe.directory /workspace
               sh packaging/xbps/build-stack.sh build/repo/current
               sh packaging/xbps/build-repo.sh build/repo/current build/stage'
