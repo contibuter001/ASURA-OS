@@ -42,7 +42,7 @@ ALIAS = {
     "sensors": ["lm_sensors", "lm-sensors"], "ffprobe": ["ffmpeg"], "ffplay": ["ffmpeg"], "makoctl": ["mako-notifier", "mako"],
     "nmcli": ["NetworkManager", "network-manager"], "bluetoothctl": ["bluez"], "wpctl": ["wireplumber"], "pactl": ["pipewire", "pulseaudio-utils", "pipewire-pulse"],
     "pw-cli": ["pipewire", "pipewire-bin"], "pw-dump": ["pipewire", "pipewire-bin"], "pw-metadata": ["pipewire", "pipewire-bin"],
-    "hyprctl": ["hyprland"], "xdg-open": ["xdg-utils"], "xdg-settings": ["xdg-utils"], "fc-list": ["fontconfig"],
+    "hyprctl": ["hyprland"], "Hyprland": ["hyprland"], "xdg-open": ["xdg-utils"], "xdg-settings": ["xdg-utils"], "fc-list": ["fontconfig"],
     "notify-send": ["libnotify", "libnotify-bin"], "gsettings": ["glib", "libglib2.0-bin"], "gio": ["glib", "libglib2.0-bin"],
     "glib-compile-schemas": ["glib", "libglib2.0-bin"], "update-desktop-database": ["desktop-file-utils"],
     "powerprofilesctl": ["power-profiles-daemon"], "killall": ["psmisc"], "lspci": ["pciutils"],
