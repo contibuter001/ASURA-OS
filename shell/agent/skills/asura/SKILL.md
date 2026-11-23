@@ -2,7 +2,7 @@
 name: asura
 description: >
   Help with an ASURA OS machine: Void Linux (glibc, runit) with Hyprland and
-  end-4's Quickshell desktop. Use for anything about this desktop or system:
+  the primary Quickshell desktop. Use for anything about this desktop or system:
   the bar, the dock, workspaces, the sidebars, the overview/launcher, settings,
   keybinds, windows and monitors in Hyprland, wallpaper and colours, updates
   (asura update), installing apps, themes and plugins (asura-store), services
@@ -23,11 +23,11 @@ systemctl (see the `systemd-bridge` skill for the runit equivalents).
 The desktop shell is chosen by one setting:
 
 ```sh
-gsettings get org.asura.shell desktop-shell     # 'end4' (default) or 'asura'
+gsettings get org.asura.shell desktop-shell     # 'desktop' (default) or 'asura'
 ```
 
-- **`end4`** (the default): end-4's illogical-impulse desktop, shipped at
-  `/usr/share/asura/shell-end4/`. Read [`desktop.md`](desktop.md).
+- **`desktop`** (the default): ASURA's primary Quickshell desktop, shipped at
+  `/usr/share/asura/shell-desktop/`. Read [`desktop.md`](desktop.md).
 - **`asura`**: ASURA's own shell at `/usr/share/asura/shell/`. Only then do
   [`bar.md`](bar.md), [`gui.md`](gui.md) and [`plugins.md`](plugins.md) apply.
 
@@ -38,7 +38,7 @@ desktops have different files and settings.
 
 1. **Never edit shipped files.** `/usr/share/asura/` is replaced on every
    `asura update`. Change things through the user's files:
-   - end-4's settings: `~/.config/illogical-impulse/config.json` (or its
+   - the desktop settings: `~/.config/illogical-impulse/config.json` (or its
      Settings app; it reloads the file on change),
    - Hyprland: `~/.config/asura/hyprland/user.conf` (sourced after ASURA's
      config, so it wins),
@@ -58,7 +58,7 @@ desktops have different files and settings.
 
 | Guide | Read it for |
 |---|---|
-| [`desktop.md`](desktop.md) | The default (end-4) desktop: bar, dock, workspaces, sidebars, overview, settings, Hyprland look, keybind functions, and how ASURA changes end-4 (overlays). |
+| [`desktop.md`](desktop.md) | The default desktop: bar, dock, workspaces, sidebars, overview, settings, Hyprland look, keybind functions, and how ASURA manages overlays. |
 | [`update.md`](update.md) | `asura update`: how a machine follows dev-unstable, the CI gate, `--check`/`--wait`/`--force`, system packages, refreshing the desktop, rollback. |
 | [`store.md`](store.md) | Installing and removing apps, themes, bar styles and plugins with `asura-store`. |
 | [`diagnostics.md`](diagnostics.md) | Something is broken: `asura doctor` (and `--json`), logs, services, a desktop that will not load. |

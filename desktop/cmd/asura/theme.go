@@ -13,7 +13,7 @@ import (
 const themeUsage = `asura theme — take the desktop's colours from one image
 
 Usage:
-  asura theme set [NAME]       switch the end-4 desktop to a named look (wallpaper,
+  asura theme set [NAME]       switch the desktop to a named look (wallpaper,
                                light or dark, colours); no NAME lists them
   asura theme generate [flags] IMAGE   write the shell's palette from IMAGE
   asura theme render --config CONFIG --palette CARRIER

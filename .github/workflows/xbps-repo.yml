@@ -87,7 +87,7 @@ jobs:
                 asura
               xbps-query asura | sed -n "s/^pkgver: //p"
               test -x /usr/bin/asura
-              test -f /usr/share/asura/shell-end4/shell.qml
+              test -f /usr/share/asura/shell-desktop/shell.qml
               /usr/bin/asura version'
 
       - name: Upload the repository

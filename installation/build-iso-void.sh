@@ -391,9 +391,9 @@ fi
 
 # Core desktop application icons
 for icon_name in asura-settings asura-vm preferences-system preferences-system-network computer utilities-terminal utilities-system-monitor opencode; do
-	if [ -f "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" ]; then
-		cp "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/icons/hicolor/scalable/apps/"
-		cp "$REPO_ROOT/shell-end4/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/pixmaps/"
+	if [ -f "$REPO_ROOT/shell-desktop/assets/icons/${icon_name}.svg" ]; then
+		cp "$REPO_ROOT/shell-desktop/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/icons/hicolor/scalable/apps/"
+		cp "$REPO_ROOT/shell-desktop/assets/icons/${icon_name}.svg" "$INCLUDE_DIR/usr/share/pixmaps/"
 	fi
 done
 
@@ -496,13 +496,13 @@ if [ -d "$REPO_ROOT/session/sddm" ]; then
 	cp -r "$REPO_ROOT/session/sddm" "$INCLUDE_DIR/usr/share/asura/session/" 2>/dev/null || true
 fi
 cp -r "$REPO_ROOT/shell"/* "$INCLUDE_DIR/usr/share/asura/shell/"
-# end-4's desktop, the default shell (org.asura.shell desktop-shell = end4).
+# The desktop, the default shell (org.asura.shell desktop-shell = desktop).
 # Its own scripts (vendor.sh, hyprlang.py, manifest.txt) are build tooling and stay out of the image.
-mkdir -p "$INCLUDE_DIR/usr/share/asura/shell-end4"
-cp -r "$REPO_ROOT/shell-end4"/* "$INCLUDE_DIR/usr/share/asura/shell-end4/"
-rm -f "$INCLUDE_DIR/usr/share/asura/shell-end4/asura/vendor.sh" \
-	"$INCLUDE_DIR/usr/share/asura/shell-end4/asura/hyprlang.py" \
-	"$INCLUDE_DIR/usr/share/asura/shell-end4/asura/manifest.txt"
+mkdir -p "$INCLUDE_DIR/usr/share/asura/shell-desktop"
+cp -r "$REPO_ROOT/shell-desktop"/* "$INCLUDE_DIR/usr/share/asura/shell-desktop/"
+rm -f "$INCLUDE_DIR/usr/share/asura/shell-desktop/asura/vendor.sh" \
+	"$INCLUDE_DIR/usr/share/asura/shell-desktop/asura/hyprlang.py" \
+	"$INCLUDE_DIR/usr/share/asura/shell-desktop/asura/manifest.txt"
 cp -r "$REPO_ROOT/system/runit/user-services"/* "$INCLUDE_DIR/usr/share/asura/runit/services/"
 # The commit this image is built from: asura update compares it with the
 # branch, so a fresh install knows whether there is anything newer.

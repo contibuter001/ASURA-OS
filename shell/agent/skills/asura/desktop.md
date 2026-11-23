@@ -1,9 +1,9 @@
-# The default desktop (end-4)
+# The default desktop (shell-desktop)
 
-When `gsettings get org.asura.shell desktop-shell` is `'end4'` (the default),
-the desktop is end-4's illogical-impulse Quickshell desktop, shipped at
-`/usr/share/asura/shell-end4/` and started by the runit user service
-`~/.config/service/quickshell` (`quickshell -p /usr/share/asura/shell-end4`).
+When `gsettings get org.asura.shell desktop-shell` is `'desktop'` (the default),
+the desktop is ASURA's Quickshell desktop, shipped at
+`/usr/share/asura/shell-desktop/` and started by the runit user service
+`~/.config/service/quickshell` (`quickshell -p /usr/share/asura/shell-desktop`).
 
 ## What the user sees (ASURA's layout)
 
@@ -16,7 +16,7 @@ the desktop is end-4's illogical-impulse Quickshell desktop, shipped at
 - **Control menu** (right sidebar): quick toggles, volume and brightness
   sliders, notifications, calendar.
 - **Overview / launcher**: search apps, run commands, calculate.
-- There is no left sidebar (end-4's AI chat and anime browser are not loaded).
+- There is no left sidebar (AI chat and anime browser are not loaded).
 
 ## Changing it
 
@@ -47,34 +47,34 @@ written to `~/.local/state/quickshell/user/generated/colors.json`.
 
 **Hyprland** (gaps, borders, rules, monitors, input): ASURA's config is
 `/usr/share/asura/hyprland/hyprland.conf`; put changes in
-`~/.config/asura/hyprland/user.conf`. end-4's look (blur, animations, layer
-rules) is `/usr/share/asura/shell-end4/asura/hyprland.conf`, loaded through
-`~/.config/asura/hyprland/shell.conf` while end-4 is the desktop. Apply with
+`~/.config/asura/hyprland/user.conf`. The desktop's look (blur, animations, layer
+rules) is `/usr/share/asura/shell-desktop/asura/hyprland.conf`, loaded through
+`~/.config/asura/hyprland/shell.conf` while desktop is the shell. Apply with
 `hyprctl reload` or `asura refresh`.
 
 ## Keybind functions
 
 Keybindings run `asura ipc call asura <function>`, answered by
-`shell-end4/asura/AsuraBridge.qml`: `togglePopover <name>`, `toggleOverview`,
+`shell-desktop/asura/AsuraBridge.qml`: `togglePopover <name>`, `toggleOverview`,
 `overviewDesktop <delta>`, `advanceSwitcher`, `reverseSwitcher`,
 `closeSwitcher`, `toggleCheatsheet`, `session`, `ocr`, `toggleScreenshot`,
 `toggleSurface <name>`, `reloadSettings`. Test one by running the same command.
 
-## How ASURA changes end-4 (for code changes, not user requests)
+## How ASURA changes the desktop (for code changes, not user requests)
 
-`shell-end4/` in the ASURA repository is end-4's tree **byte for byte** at a
-pinned commit; `sh shell-end4/asura/vendor.sh verify` checks it and CI runs
+`shell-desktop/` in the ASURA repository is the upstream tree **byte for byte** at a
+pinned commit; `sh shell-desktop/asura/vendor.sh verify` checks it and CI runs
 it. A file ASURA changes becomes an **overlay**: listed in `OVERLAYS` in
-`shell-end4/asura/vendor.sh` and removed from `shell-end4/asura/manifest.txt`.
+`shell-desktop/asura/vendor.sh` and removed from `shell-desktop/asura/manifest.txt`.
 Editing a vendored file without that fails CI, and `asura update` then keeps
 every machine on the last commit that passed. Every change must also load:
-CI's `end4-load` job loads the desktop with Quickshell and fails on any QML
+CI's `desktop-load` job loads the desktop with Quickshell and fails on any QML
 error.
 
 ## When the desktop will not load
 
 `tail -n 60 ~/.local/state/asura/quickshell.log`. A "Reload failed" usually
 names one file and line ("Cannot assign to non-existent property", "Type X
-unavailable"). If end-4 keeps crashing, the service waits 5 s between
-restarts; after fixing, `rm -f ~/.local/state/asura/end4-quick-exits` and
+unavailable"). If the desktop keeps crashing, the service waits 5 s between
+restarts; after fixing, `rm -f ~/.local/state/asura/desktop-quick-exits` and
 `sv restart ~/.config/service/quickshell`.

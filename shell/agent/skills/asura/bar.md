@@ -2,7 +2,7 @@
 
 > **ASURA's own shell only.** This guide applies when
 > `gsettings get org.asura.shell desktop-shell` is `'asura'`. The default
-> desktop is end-4's: see [`desktop.md`](desktop.md).
+> desktop is: see [`desktop.md`](desktop.md).
 
 The Asura desktop bar is the **Top Bar** (`top`) or **Side Bar** (`side`), rendered by Quickshell. It is driven by data
 and reactive event streaming, never by polling subprocesses.

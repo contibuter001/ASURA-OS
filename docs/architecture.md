@@ -321,7 +321,7 @@ rule is what makes rollback possible.
 | `asura firmware` / `clean` | firmware updates through fwupd; remove orphaned packages and the package cache |
 | `asura notify-updates` | one check for the desktop notice (update available, reboot needed), run by the `asura-updates` user service every 6 hours |
 | `asura bundle` | curated app sets in one command (gaming, dev, editors, apps, creative, office), with a snapshot first |
-| `asura theme set` | switch the end-4 desktop to a named look (`shell-end4/asura/themes.json`) |
+| `asura theme set` | switch the desktop to a named look (`shell-desktop/asura/themes.json`) |
 | `asura kernel` | list, set or remove Void Linux kernel series (`linux`, `linux-lts`, `linux-mainline`), update GRUB default, keep fallback entry, and verify NVIDIA DKMS headers |
 | `asura vm` | manage virtual machines via `asura-vmd` and quickemu, including guided Windows 11 setup (`asura vm windows`) with TPM 2.0 and UEFI |
 | `asura hook` | execute user extension scripts in `~/.config/asura/hooks/<event>/` (`pre-update`, `post-update`, `post-theme`, `post-login`), logged to `~/.local/state/asura/hooks.log` |
@@ -806,7 +806,7 @@ against.
 | The service graph — audio, network, bluetooth, battery, media, tray | **upstream** | The components, byte-identical to the pinned commit |
 
 A row says who owns the *capability*, not who draws the pixels. The rows that say *upstream*
-describe the vendored end-4 tree, which stays byte-identical to its pinned commit. The
+describe the vendored desktop tree, which stays byte-identical to its pinned commit. The
 surfaces the running shell draws — the bar, the dock, the launcher, the overview, the
 on-screen display, the notifications and the wallpaper — and its service graph
 (`shell/Services/`) are ported components, adapted in place and recorded in

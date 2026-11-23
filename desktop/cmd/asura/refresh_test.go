@@ -20,7 +20,7 @@ func TestRefresh(t *testing.T) {
 	rt := t.TempDir()
 	t.Setenv("XDG_RUNTIME_DIR", rt)
 	t.Setenv("HYPRLAND_INSTANCE_SIGNATURE", "sig1")
-	t.Setenv("ASURA_DESKTOP_SHELL", "end4")
+	t.Setenv("ASURA_DESKTOP_SHELL", "desktop")
 
 	src := t.TempDir()
 	write := func(p, s string, mode os.FileMode) {
@@ -75,7 +75,7 @@ func TestRefresh(t *testing.T) {
 	}
 	b, _ := os.ReadFile(filepath.Join(home, ".config", "asura", "hyprland", "shell.conf"))
 	if !strings.Contains(string(b), "source = "+look) {
-		t.Errorf("shell.conf does not source the end-4 look: %q", b)
+		t.Errorf("shell.conf does not source the desktop look: %q", b)
 	}
 
 	// ASURA's own shell: the look file is empty of sources.
@@ -85,7 +85,7 @@ func TestRefresh(t *testing.T) {
 	}
 	b, _ = os.ReadFile(filepath.Join(home, ".config", "asura", "hyprland", "shell.conf"))
 	if strings.Contains(string(b), "source") {
-		t.Errorf("ASURA's shell got the end-4 look: %q", b)
+		t.Errorf("ASURA's shell got the desktop look: %q", b)
 	}
 }
 

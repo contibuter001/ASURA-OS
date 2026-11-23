@@ -1,6 +1,6 @@
 # Welcome to ASURA OS
 
-ASURA OS is Void Linux with the Hyprland compositor and end-4's desktop, set
+ASURA OS is Void Linux with the Hyprland compositor and a custom Quickshell desktop, set
 up for you and kept up to date by ASURA's own tools. Windows tile next to each
 other instead of overlapping, and almost everything has a keyboard shortcut.
 

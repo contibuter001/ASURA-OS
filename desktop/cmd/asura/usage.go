@@ -115,7 +115,7 @@ const resetUsage = `Usage: asura reset <path> [flags]
 Drops user edits and restores defaults.
 
   <path>              drop one user edit and restore that file from the base
-  --desktop           reset desktop configuration back to ASURA defaults (end-4 config.json,
+  --desktop           reset desktop configuration back to ASURA defaults (desktop config.json,
                       Hyprland user files, shell state), backing up current files to a dated folder
   --restore BACKUP    restore a previous desktop configuration backup byte-for-byte
   --root DIR          operate on a tree under this directory

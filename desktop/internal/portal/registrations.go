@@ -264,8 +264,8 @@ func CheckUnits(env RegistrationEnv) []RegistrationFinding {
 	// is only visible before the login, not during it.
 	findings = append(findings, checkDirectory(env, "shell configuration",
 		"/usr/share/asura/shell")...)
-	findings = append(findings, checkDirectory(env, "end-4 desktop",
-		"/usr/share/asura/shell-end4")...)
+	findings = append(findings, checkDirectory(env, "desktop shell",
+		"/usr/share/asura/shell-desktop")...)
 
 	return findings
 }

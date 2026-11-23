@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-// `asura theme set NAME` switches the end-4 desktop to a named look: the
+// `asura theme set NAME` switches the desktop to a named look: the
 // wallpaper, light or dark, the colour scheme and, for some, a fixed accent.
-// end-4's own switcher (scripts/colors/switchwall.sh) applies it, and matugen
+// The desktop switcher (scripts/colors/switchwall.sh) applies it, and matugen
 // recolours the shell, the terminal, btop and GTK apps from it in one step.
-// The looks are listed in shell-end4/asura/themes.json.
+// The looks are listed in shell-desktop/asura/themes.json.
 
 type namedTheme struct {
 	Name      string `json:"name"`
@@ -26,9 +26,9 @@ type namedTheme struct {
 }
 
 var (
-	themeCatalog     = "/usr/share/asura/shell-end4/asura/themes.json"
+	themeCatalog     = "/usr/share/asura/shell-desktop/asura/themes.json"
 	themeWallpapers  = "/usr/share/asura/backgrounds"
-	themeSwitcher    = "/usr/share/asura/shell-end4/scripts/colors/switchwall.sh"
+	themeSwitcher    = "/usr/share/asura/shell-desktop/scripts/colors/switchwall.sh"
 	themeDesktop     = currentDesktopShell
 	themeRunSwitcher = func(args ...string) error {
 		cmd := exec.Command(themeSwitcher, args...)
@@ -85,12 +85,12 @@ func themeStateFile() string {
 func currentDesktopShell() string {
 	out, err := exec.Command("gsettings", "get", "org.asura.shell", "desktop-shell").Output()
 	if err != nil {
-		return "end4"
+		return "desktop"
 	}
 	if v := strings.Trim(strings.TrimSpace(string(out)), "'"); v != "" {
 		return v
 	}
-	return "end4"
+	return "desktop"
 }
 
 // themeSet is `asura theme set [NAME]`.
@@ -137,8 +137,8 @@ func themeSet(args []string) int {
 		fmt.Fprintln(os.Stderr, "asura theme set:", err)
 		return exitFail
 	}
-	if shell := themeDesktop(); shell != "end4" {
-		fmt.Fprintf(os.Stderr, "asura theme set: looks are for the end-4 desktop; this machine runs %q (asura theme generate IMAGE colours ASURA's shell)\n", shell)
+	if shell := themeDesktop(); shell != "desktop" {
+		fmt.Fprintf(os.Stderr, "asura theme set: looks are for the desktop shell; this machine runs %q (asura theme generate IMAGE colours ASURA's shell)\n", shell)
 		return exitFail
 	}
 	wall := filepath.Join(themeWallpapers, chosen.Wallpaper)

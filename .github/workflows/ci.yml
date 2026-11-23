@@ -158,10 +158,10 @@ jobs:
       - uses: actions/checkout@v5
       - name: shell/shell_test.sh
         run: sh shell/shell_test.sh
-      - name: end-4 desktop is byte-identical to its pin (shell-end4)
-        run: sh shell-end4/asura/vendor.sh verify
-      - name: end-4 Lua dispatches translate to hyprlang
-        run: python3 shell-end4/asura/hyprlang.py --test
+      - name: Desktop is byte-identical to its pin (shell-desktop)
+        run: sh shell-desktop/asura/vendor.sh verify
+      - name: Desktop Lua dispatches translate to hyprlang
+        run: python3 shell-desktop/asura/hyprlang.py --test
       - name: Branding assets
         run: |
           python3 - <<'PY'
@@ -212,15 +212,15 @@ jobs:
           PY
 
   # ==========================================================================
-  # PART 5b: The end-4 desktop loads (Void, Quickshell)
+  # PART 5b: The desktop loads (Void, Quickshell)
   # ==========================================================================
   # The default desktop is QML; a wrong property name in one file makes the
   # whole config fail to load ("Quickshell: Reload failed") and nothing else in
-  # CI compiles QML. This loads shell-end4/ with the Quickshell and Qt modules
+  # CI compiles QML. This loads shell-desktop/ with the Quickshell and Qt modules
   # the OS ships (system/packages-void.yaml), offscreen, and fails on any type
   # that does not compile or resolve. asura update only takes commits that pass.
-  end4-load:
-    name: Shell — end-4 desktop loads (Quickshell)
+  desktop-load:
+    name: Shell — desktop loads (Quickshell)
     timeout-minutes: 15
     runs-on: ubuntu-24.04
     container: ghcr.io/void-linux/void-glibc-full:latest
@@ -234,9 +234,9 @@ jobs:
             qt6-wayland qt6-imageformats qt6-qt5compat qt6-position qt6-shadertools \
             kf6-kirigami kf6-syntax-highlighting
       - uses: actions/checkout@v5
-      - name: shell-end4 loads
+      - name: shell-desktop loads
         shell: sh
-        run: sh tests/contract/load.sh shell-end4
+        run: sh tests/contract/load.sh shell-desktop
 
   # ==========================================================================
   # PART 6: Release scripts syntax check

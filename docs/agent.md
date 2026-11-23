@@ -60,8 +60,8 @@ installed systems) expose deep OS integration to coding agents:
 
 - **`asura`**: the system skill. `SKILL.md` sets the rules (never edit shipped files, user files
   and commands instead) and routes to:
-  - `desktop.md`: the default end-4 desktop: its settings file, Hyprland files, keybind functions,
-    and the overlay rule for changing end-4's code.
+  - `desktop.md`: the default desktop: its settings file, Hyprland files, keybind functions,
+    and the overlay rule for changing desktop code.
   - `update.md`: `asura update`, the CI gate, `--check`/`--wait`/`--force`, rollback.
   - `store.md`: installing apps, themes and plugins with `asura-store`.
   - `diagnostics.md`: `asura doctor --json`, logs, runit services, a desktop that will not load.
