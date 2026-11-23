@@ -39,6 +39,8 @@ published.
 2. **Add it to the repository** as the Actions secret `XBPS_SIGNING_KEY`
    (Settings → Secrets and variables → Actions), pasting the whole PEM file.
 3. **Turn on Pages** with "GitHub Actions" as the source (Settings → Pages).
+   Then allow it to deploy from `dev-unstable`: Settings → Environments →
+   `github-pages` → Deployment branches → add `dev-unstable`.
 4. Push to `dev-unstable` (or run the workflow by hand). Once `ci` passes, the
    repository is at `https://<owner>.github.io/<repo>/current`.
 
@@ -55,3 +57,15 @@ Once the repository is published:
   `sudo xbps-install -Su` updates ASURA like any other package.
 
 Until then, `asura update` installs ASURA from `dev-unstable` as it does now.
+
+## When it publishes
+
+Publishing is the last stage of the `ci` workflow (the `Packages` job): on a
+push to `dev-unstable`, once every required job has passed, ci calls
+`xbps-repo.yml`, which builds, signs and publishes. A run by hand (Actions →
+xbps-repo → Run workflow, on `dev-unstable`) publishes too. `main` stays the
+default branch; nothing here depends on it.
+
+`asura update` does not wait for the `Packages` checks: publishing says
+nothing about whether a commit works, so a publishing problem never holds
+machines back.

@@ -111,6 +111,7 @@ func commitChecks(repo, sha string) (ciState, error) {
 	var body struct {
 		Total int `json:"total_count"`
 		Runs  []struct {
+			Name       string `json:"name"`
 			Status     string `json:"status"`
 			Conclusion string `json:"conclusion"`
 		} `json:"check_runs"`
@@ -118,11 +119,28 @@ func commitChecks(repo, sha string) (ciState, error) {
 	if err := json.NewDecoder(io.LimitReader(resp.Body, 4<<20)).Decode(&body); err != nil {
 		return ciUnchecked, err
 	}
-	return ciVerdict(body.Total, func(yield func(status, conclusion string)) {
+	counted := 0
+	for _, r := range body.Runs {
+		if !publishingCheck(r.Name) {
+			counted++
+		}
+	}
+	return ciVerdict(counted, func(yield func(status, conclusion string)) {
 		for _, r := range body.Runs {
-			yield(r.Status, r.Conclusion)
+			if !publishingCheck(r.Name) {
+				yield(r.Status, r.Conclusion)
+			}
 		}
 	}), nil
+}
+
+// publishingCheck reports whether a check run is ci's publishing stage (the
+// "Packages" job and the jobs it calls). Publishing ASURA's package
+// repository happens after the code checks passed and says nothing about
+// whether the commit works; a publishing problem (GitHub Pages, a slow
+// compositor build) must not hold every machine back.
+func publishingCheck(name string) bool {
+	return strings.HasPrefix(name, "Packages")
 }
 
 // ciVerdict folds the runs into one state.

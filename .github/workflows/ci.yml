@@ -372,3 +372,20 @@ jobs:
           path: ${{ runner.temp }}/installer-e2e/
           if-no-files-found: ignore
           retention-days: 7
+
+  # ==========================================================================
+  # LAST: publish ASURA's package repository (dev-unstable pushes only)
+  # ==========================================================================
+  # Runs only when every required job above passed, so a commit is published
+  # exactly when asura update would take it. The installer end-to-end test is
+  # still allowed to fail, so it does not hold this back.
+  packages:
+    name: Packages — build, sign and publish
+    needs: [go-hardware, go-desktop, go-version-check, cli-smoke, session-tests, shell-tests, desktop-load, release-scripts, contract-tests, iso]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev-unstable'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/xbps-repo.yml
+    secrets: inherit
