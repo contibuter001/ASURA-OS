@@ -9,18 +9,15 @@ DRY_RUN=0
 ENCRYPT_ARG=""
 TARGET_DISK_ARG=""
 CONFIG_ARG=""
-ALONGSIDE_ARG=""
 
 while [ $# -gt 0 ]; do
 	case "$1" in
 		--dual-boot|--alongside)
 			DUAL_BOOT=1
-			ALONGSIDE_ARG=1
 			shift
 			;;
 		--wipe|--clean)
 			DUAL_BOOT=0
-			ALONGSIDE_ARG=0
 			shift
 			;;
 		--dry-run)

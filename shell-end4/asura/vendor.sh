@@ -107,6 +107,10 @@ modules/ii/sidebarRight/quickToggles/classicStyle/QuickToggleButton.qml
 modules/waffle/background/WaffleBackground.qml
 services/AppSearch.qml
 services/LauncherSearch.qml
+modules/common/functions/Session.qml
+modules/common/widgets/AppIcon.qml
+modules/ii/sessionScreen/SessionScreen.qml
+modules/waffle/looks/WAppIcon.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }

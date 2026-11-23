@@ -490,6 +490,8 @@ EOF
 
 # Copy Hyprland configuration, runit services, and shell tree
 cp -r "$REPO_ROOT/session/hyprland"/* "$INCLUDE_DIR/usr/share/asura/hyprland/"
+mkdir -p "$INCLUDE_DIR/usr/share/asura/safe-mode"
+cp -r "$REPO_ROOT/session/safe-mode"/* "$INCLUDE_DIR/usr/share/asura/safe-mode/"
 if [ -d "$REPO_ROOT/session/sddm" ]; then
 	cp -r "$REPO_ROOT/session/sddm" "$INCLUDE_DIR/usr/share/asura/session/" 2>/dev/null || true
 fi

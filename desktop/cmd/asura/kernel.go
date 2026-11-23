@@ -34,7 +34,7 @@ var (
 	kernelXbpsQuery = func(pkg string) bool {
 		return exec.Command("xbps-query", pkg).Run() == nil
 	}
-	kernelBootDir = "/boot"
+	kernelBootDir         = "/boot"
 	supportedKernelSeries = map[string]bool{
 		"linux":          true,
 		"linux-lts":      true,

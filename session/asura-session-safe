@@ -41,5 +41,5 @@ if [ -z "$COMPOSITOR" ] || ( ! command -v "$COMPOSITOR" >/dev/null 2>&1 && [ ! -
     exit 127
 fi
 
-SAFE_CONF="${ASURA_SAFE_HYPRLAND_CONFIG:-/usr/share/asura/hyprland/safe-mode.conf}"
+SAFE_CONF="${ASURA_SAFE_HYPRLAND_CONFIG:-/usr/share/asura/safe-mode/hyprland.conf}"
 exec "$COMPOSITOR" -c "$SAFE_CONF" "$@"

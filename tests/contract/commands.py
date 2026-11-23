@@ -46,7 +46,7 @@ ALIAS = {
     "notify-send": ["libnotify", "libnotify-bin"], "gsettings": ["glib", "libglib2.0-bin"], "gio": ["glib", "libglib2.0-bin"],
     "glib-compile-schemas": ["glib", "libglib2.0-bin"], "update-desktop-database": ["desktop-file-utils"],
     "powerprofilesctl": ["power-profiles-daemon"], "killall": ["psmisc"], "lspci": ["pciutils"],
-    "fwupdmgr": ["fwupd"], "fprintd-list": ["fprintd"], "fprintd-delete": ["fprintd"], "rfkill": ["rfkill"], "nvidia-smi": ["nvidia-utils", "nvidia"],
+    "fwupdmgr": ["fwupd"], "fprintd-list": ["fprintd"], "fprintd-delete": ["fprintd"], "fprintd-enroll": ["fprintd"], "fprintd-verify": ["fprintd"], "tailscale": ["tailscale"], "rfkill": ["rfkill"], "nvidia-smi": ["nvidia-utils", "nvidia"],
     "ssh": ["openssh", "openssh-client"], "ssh-add": ["openssh", "openssh-client"], "ssh-copy-id": ["openssh", "openssh-client"], "ssh-keygen": ["openssh", "openssh-client"],
     "qemu-img": ["qemu", "qemu-utils"], "quickget": ["quickemu"], "lsusb": ["usbutils"],
     "btrfs": ["btrfs-progs"], "grub-mkconfig": ["grub", "grub2-common"], "grub-reboot": ["grub", "grub2-common"], "pkexec": ["polkit", "policykit-1"],

@@ -848,5 +848,3 @@ func reportAdoption(root string) int {
 	}
 	return exitOK
 }
-
-

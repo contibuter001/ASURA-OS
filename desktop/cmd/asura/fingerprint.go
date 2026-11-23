@@ -28,11 +28,11 @@ import (
 // - Marked block with byte-for-byte backup restoration on disable.
 
 var (
-	fprintPamSudo      = "/etc/pam.d/sudo"
-	fprintPamHyprlock  = "/etc/pam.d/hyprlock"
-	fprintPamPolkit    = "/etc/pam.d/polkit-1"
-	fprintPrivileged   = runPrivileged
-	fprintCommandExec  = func(name string, args ...string) ([]byte, error) {
+	fprintPamSudo     = "/etc/pam.d/sudo"
+	fprintPamHyprlock = "/etc/pam.d/hyprlock"
+	fprintPamPolkit   = "/etc/pam.d/polkit-1"
+	fprintPrivileged  = runPrivileged
+	fprintCommandExec = func(name string, args ...string) ([]byte, error) {
 		return exec.Command(name, args...).CombinedOutput()
 	}
 	fprintInstalled = svInstalled

@@ -24,11 +24,11 @@ type optionalService struct {
 }
 
 var switchableServices = map[string]optionalService{
-	"docker":    {About: "Docker containers", Package: "docker", Services: []string{"docker"}, Group: "docker"},
-	"bluetooth": {About: "Bluetooth devices", Package: "bluez", Services: []string{"bluetoothd"}, Group: "bluetooth"},
-	"printing":  {About: "printers (CUPS)", Package: "cups", Services: []string{"cupsd"}, Group: "lpadmin"},
-	"ssh":       {About: "logging in to this machine over SSH", Package: "openssh", Services: []string{"sshd"}},
-	"libvirt":   {About: "virtual machines (libvirt)", Package: "libvirt", Services: []string{"libvirtd", "virtlockd", "virtlogd"}, Group: "libvirt"},
+	"docker":      {About: "Docker containers", Package: "docker", Services: []string{"docker"}, Group: "docker"},
+	"bluetooth":   {About: "Bluetooth devices", Package: "bluez", Services: []string{"bluetoothd"}, Group: "bluetooth"},
+	"printing":    {About: "printers (CUPS)", Package: "cups", Services: []string{"cupsd"}, Group: "lpadmin"},
+	"ssh":         {About: "logging in to this machine over SSH", Package: "openssh", Services: []string{"sshd"}},
+	"libvirt":     {About: "virtual machines (libvirt)", Package: "libvirt", Services: []string{"libvirtd", "virtlockd", "virtlogd"}, Group: "libvirt"},
 	"tailscale":   {About: "a Tailscale VPN", Package: "tailscale", Services: []string{"tailscaled"}},
 	"fingerprint": {About: "fingerprint authentication (fprintd)", Package: "fprintd", Services: []string{"fprintd"}},
 }
