@@ -194,3 +194,19 @@ func git(t *testing.T, dir string, args ...string) string {
 	}
 	return string(out)
 }
+
+func TestThePublishingStageDoesNotGateUpdates(t *testing.T) {
+	for _, name := range []string{
+		"Packages — build, sign and publish",
+		"Packages — build, sign and publish / XBPS — build and install the package",
+	} {
+		if !publishingCheck(name) {
+			t.Errorf("%q should not gate updates", name)
+		}
+	}
+	for _, name := range []string{"Go — desktop module", "ISO — build Asura OS", "Contract — full suite"} {
+		if publishingCheck(name) {
+			t.Errorf("%q must gate updates", name)
+		}
+	}
+}
