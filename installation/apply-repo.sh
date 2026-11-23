@@ -81,12 +81,14 @@ put system/runit/user-services /usr/share/asura/runit/services
 
 # ── The session ─────────────────────────────────────────────────────────────
 log "session files and scripts"
-for f in asura-session asura-activate; do
+for f in asura-session asura-session-safe asura-activate; do
 	put_as "session/$f" "/usr/share/asura/session/$f"
 	put_bin "session/$f" "/usr/bin/$f"
 done
 put_as session/asura.desktop /usr/share/asura/session/asura.desktop
 put_as session/asura.desktop /usr/share/wayland-sessions/asura.desktop
+put_as session/asura-safe.desktop /usr/share/asura/session/asura-safe.desktop
+put_as session/asura-safe.desktop /usr/share/wayland-sessions/asura-safe.desktop
 put_as session/binds.json /usr/share/asura/session/binds.json
 put_as session/runit/asura-user-services /usr/share/asura/session/asura-user-services
 put_bin session/runit/asura-user-services /usr/bin/asura-user-services

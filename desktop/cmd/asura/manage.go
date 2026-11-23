@@ -71,32 +71,6 @@ func asuraMaterialize(args []string) int {
 	return exitOK
 }
 
-// asuraReset drops one overlay file back to the base.
-func asuraReset(args []string) int {
-	set := newFlags("reset", resetUsage)
-	var root = set.String("root", "", "operate on a tree under this directory")
-	positional, err := parseFlags(set, args)
-	if err != nil {
-		return exitUsage
-	}
-	if len(positional) != 1 {
-		fmt.Fprintln(os.Stderr, "asura reset: needs exactly one path")
-		return exitUsage
-	}
-
-	paths, err := overlayPaths(*root)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "asura reset:", err)
-		return exitFail
-	}
-	if err := overlay.Reset(paths, positional[0]); err != nil {
-		fmt.Fprintln(os.Stderr, "asura reset:", err)
-		return exitFail
-	}
-	fmt.Printf("%s is back to the base\n", positional[0])
-	return exitOK
-}
-
 // asuraDoctor reports drift between base and overlay.
 //
 // It changes nothing, unless it is asked to with --fix, and then only what the

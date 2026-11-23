@@ -21,7 +21,9 @@ asura <command> [flags]
 | `update` | `asura update [--force]` | Pulls latest ASURA system tree, updates packages via XBPS, and refreshes the desktop. |
 | `rollback` | `asura rollback [--system]` | Re-materializes the previous config revision. With `--system`, stages Btrfs boot rollback. |
 | `materialize` | `asura materialize` | Re-lays the baseline configuration and assets, replacing shipped defaults while preserving user overrides. |
-| `reset` | `asura reset PATH` | Drops user edits for a specific path back to system base default. |
+| `reset` | `asura reset PATH \| --desktop \| --restore BACKUP` | Drops user edits for a path, or resets desktop configuration back to defaults with dated backup (`--desktop`). |
+| `reinstall` | `asura reinstall` | Re-applies shipped ASURA files for currently installed commit without updating newer code. |
+| `recovery` | `asura recovery` | Interactive text menu on TTY (diagnostics, desktop reset, reinstall, snapshots, safe mode, logs). |
 | `status` | `asura status` | Reports current git revision, system paths, and configuration drift. |
 | `doctor` | `asura doctor` | Comprehensive health check: config drift, portals, runit user services, system services, and hardware power. |
 | `version` | `asura version` | Prints `asura` version and compilation metadata. |

@@ -156,6 +156,8 @@ var helpText = map[string]string{
 	"reload":      reloadUsage,
 	"role":        roleUsage,
 	"wm":          wmUsage,
+	"reinstall":   reinstallUsage,
+	"recovery":    recoveryUsage,
 }
 
 // runVersion prints the edition (the line the shell's About page and the Hub

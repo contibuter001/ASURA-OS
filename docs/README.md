@@ -11,6 +11,7 @@ architecture, subsystems, developer contracts, and operational guides.
 - [`adopting-asura.md`](adopting-asura.md): Migration and adoption design document.
 - [`roadmap.md`](roadmap.md): Milestone tracker, deliverables, and release status across development phases.
 - [`cli.md`](cli.md): Reference manual for the `asura` control CLI binary (`desktop/cmd/asura/`).
+- [`trouble.md`](trouble.md): Troubleshooting, TTY emergency login, desktop reset, reinstall, and recovery.
 - [`packaging.md`](packaging.md): Void Linux XBPS packaging templates, repository layout, and build automation.
 - [`installation.md`](installation.md): Void Linux Live ISO generator (`build-iso-void.sh`), guided partitioner, and full-disk encryption.
 

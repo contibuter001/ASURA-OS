@@ -109,11 +109,31 @@ edits are preserved. For one file, use ` + "`asura reset <path>`" + `.
 `
 
 const resetUsage = `Usage: asura reset <path> [flags]
+       asura reset --desktop [flags]
+       asura reset --restore BACKUP [flags]
 
-Drops one user edit and restores that file from the base. This is the only
-command that destroys a change you made, so it takes exactly one path.
+Drops user edits and restores defaults.
+
+  <path>              drop one user edit and restore that file from the base
+  --desktop           reset desktop configuration back to ASURA defaults (end-4 config.json,
+                      Hyprland user files, shell state), backing up current files to a dated folder
+  --restore BACKUP    restore a previous desktop configuration backup byte-for-byte
+  --root DIR          operate on a tree under this directory
+`
+
+const reinstallUsage = `Usage: asura reinstall [flags]
+
+Re-apply the ASURA files for the commit already installed, to repair deleted
+or edited shipped files without updating to anything newer.
 
   --root DIR   operate on a tree under this directory
+`
+
+const recoveryUsage = `Usage: asura recovery
+
+A guided text menu that works on a TTY (no desktop needed) to diagnose and
+repair system issues: run doctor, reset desktop configuration, reinstall
+ASURA files, list and restore snapshots, launch safe-mode session, or inspect logs.
 `
 
 const doctorUsage = `Usage: asura doctor [flags]
