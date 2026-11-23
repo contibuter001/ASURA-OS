@@ -75,6 +75,37 @@ echo "build-repo: creating $PKGVER"
 
 echo "build-repo: indexing $OUT_DIR"
 xbps-rindex -a "$OUT_DIR/$PKGVER.$ARCH.xbps"
+
+# Retain up to 3 versions per package name, then clean obsolete index entries
+if command -v python3 >/dev/null 2>&1; then
+	python3 - "$OUT_DIR" <<'PY'
+import os, sys, glob, re
+
+out_dir = sys.argv[1]
+xbps_files = glob.glob(os.path.join(out_dir, "*.xbps"))
+pkgs = {}
+for f in xbps_files:
+    fname = os.path.basename(f)
+    m = re.match(r"^(.+)-([0-9].+)\.([^.]+)\.xbps$", fname)
+    if m:
+        name = m.group(1)
+        pkgs.setdefault(name, []).append((os.path.getmtime(f), f))
+
+for name, files in pkgs.items():
+    if len(files) > 3:
+        files.sort(key=lambda x: x[0], reverse=True)
+        for _, old_f in files[3:]:
+            try:
+                os.remove(old_f)
+                sig_f = old_f + ".sig2"
+                if os.path.exists(sig_f):
+                    os.remove(sig_f)
+            except OSError:
+                pass
+PY
+fi
+
+xbps-rindex -c "$OUT_DIR" 2>/dev/null || true
 # A rolling repository: drop packages the index no longer names.
 xbps-rindex -r "$OUT_DIR"
 

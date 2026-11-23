@@ -269,7 +269,7 @@ func runSysdPkgUpdate() error {
 
 // runLocalXbpsUpdate executes xbps-install -Su -y locally with privilege elevation.
 //
-// A third-party repository (hyprland-void) can lag behind a library soname
+// A package repository can lag behind a library soname
 // bump in Void: the update then aborts with exit 8, "broken, unresolvable
 // shlib", and nothing at all is updated. In that case the packages XBPS names
 // as broken, and the installed library each of them needs, are held for one

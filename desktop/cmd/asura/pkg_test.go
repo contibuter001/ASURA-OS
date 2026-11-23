@@ -37,6 +37,8 @@ func TestPkgArgvXbps(t *testing.T) {
 		{"upgrade everything", "upgrade", nil, "", []string{"xbps-install", "-Su"}},
 		{"remove", "remove", []string{"pkg2"}, "", []string{"xbps-remove", "-y", "pkg2"}},
 		{"search", "search", []string{"ghostty"}, "", []string{"xbps-query", "-Rs", "ghostty"}},
+		{"hold", "hold", []string{"hyprland"}, "", []string{"xbps-pkgdb", "-m", "hold", "hyprland"}},
+		{"unhold", "unhold", []string{"hyprland"}, "", []string{"xbps-pkgdb", "-m", "unhold", "hyprland"}},
 		{"the repository rides first", "install", []string{"cpu"},
 			"https://asuraos.dev/xbps/unstable",
 			[]string{"xbps-install", "-R", "https://asuraos.dev/xbps/unstable", "-S", "-y", "cpu"}},
