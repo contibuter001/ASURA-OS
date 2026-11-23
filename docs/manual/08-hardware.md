@@ -8,5 +8,12 @@
 - **Power**: `asura power status`; `asura power profile balanced|performance|battery`.
 - **Monitors**: **Super + P** switches displays (laptop screen, external,
   both); details and pins go in `~/.config/asura/hyprland/monitors-user.conf`.
+- **Kernels**: Switch Void kernel series with `asura kernel [list | set NAME | remove NAME]`.
+  Series include `linux` (stable), `linux-lts` (long-term support), and `linux-mainline`.
+  `set` installs the kernel, updates GRUB, and preserves the current kernel as fallback.
+  Systems with NVIDIA graphics automatically verify and install matching kernel headers.
+- **Windows Virtual Machine**: `asura vm windows` guides through creating a tuned Windows 11
+  VM with TPM 2.0, UEFI, 4 cores, 8 GB RAM, and SPICE clipboard/display sharing via quickemu.
+  Manage VMs with `asura vm list`, `asura vm launch NAME`, and `asura vm stop NAME`.
 - **Firmware**: `asura firmware` (see the updates chapter).
 - **Secure Boot** is not supported yet: keep it off in your firmware settings.

@@ -107,6 +107,7 @@ func asuraUpdate(args []string) int {
 	var asuraErr error
 	var fetch func() error
 	if !*dryRun {
+		runUserHooks("pre-update", nil)
 		fetch = func() error {
 			// System packages first, so ASURA is built and applied against the
 			// libraries it will run with (only as root or with --system).
@@ -204,6 +205,10 @@ func asuraUpdate(args []string) int {
 	} else {
 		fmt.Println("\n==> Full system and ASURA update complete.")
 		reportRebootNeeded()
+	}
+
+	if !*dryRun {
+		runUserHooks("post-update", nil)
 	}
 
 	return exitOK

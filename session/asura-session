@@ -249,6 +249,11 @@ if command -v asura-agent >/dev/null 2>&1; then
     asura-agent wire --installed >/dev/null 2>&1 || true
 fi
 
+# Fire user post-login extension hooks in background
+if command -v asura >/dev/null 2>&1; then
+    asura hook run post-login >/dev/null 2>&1 &
+fi
+
 echo "asura-session: env ok, starting Hyprland"
 
 # The compositor's configuration. Asura ships one — the keybinds are the only

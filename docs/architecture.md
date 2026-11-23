@@ -322,6 +322,10 @@ rule is what makes rollback possible.
 | `asura notify-updates` | one check for the desktop notice (update available, reboot needed), run by the `asura-updates` user service every 6 hours |
 | `asura bundle` | curated app sets in one command (gaming, dev, editors, apps, creative, office), with a snapshot first |
 | `asura theme set` | switch the end-4 desktop to a named look (`shell-end4/asura/themes.json`) |
+| `asura kernel` | list, set or remove Void Linux kernel series (`linux`, `linux-lts`, `linux-mainline`), update GRUB default, keep fallback entry, and verify NVIDIA DKMS headers |
+| `asura vm` | manage virtual machines via `asura-vmd` and quickemu, including guided Windows 11 setup (`asura vm windows`) with TPM 2.0 and UEFI |
+| `asura hook` | execute user extension scripts in `~/.config/asura/hooks/<event>/` (`pre-update`, `post-update`, `post-theme`, `post-login`), logged to `~/.local/state/asura/hooks.log` |
+| `asura share` | send and receive files across Tailscale network via Taildrop with desktop notification into `~/Downloads` |
 | `asura manual` | the user manual (`docs/manual`, installed at `/usr/share/doc/asura/manual`) |
 | `asura mirror` | choose the Void mirror (`list`, `fastest`, `set`, `reset`), written to `/etc/xbps.d/00-asura-mirror.conf`, which updates keep |
 | `asura materialize <path>` | re-lay the base file, clobbering shipped content |

@@ -160,5 +160,12 @@ func themeSet(args []string) int {
 	_ = os.MkdirAll(filepath.Dir(themeStateFile()), 0o755)
 	_ = os.WriteFile(themeStateFile(), []byte(chosen.Name+"\n"), 0o644)
 	fmt.Printf("look: %s (%s, %s). The desktop, terminal, btop and GTK apps follow; open apps may need a restart.\n", chosen.Title, chosen.Mode, chosen.Wallpaper)
+	runUserHooks("post-theme", map[string]string{
+		"ASURA_THEME_NAME":      chosen.Name,
+		"ASURA_THEME_WALLPAPER": chosen.Wallpaper,
+		"ASURA_THEME_MODE":      chosen.Mode,
+		"ASURA_THEME_SCHEME":    chosen.Scheme,
+		"ASURA_THEME_ACCENT":    chosen.Accent,
+	})
 	return exitOK
 }

@@ -39,6 +39,10 @@ asura <command> [flags]
 | `power` | `asura power [profile]` | Manages CPU governors (performance, powersave), EPP energy preferences, and hybrid GPU runtime power (D3cold). |
 | `hibernate` | `asura hibernate status\|setup\|remove` | Opt-in Btrfs swapfile (@swap) creation, resume offset calculation, GRUB and dracut configuration for hibernation. |
 | `fingerprint` | `asura fingerprint status\|enroll\|verify\|enable\|disable` | Opt-in fingerprint authentication via fprintd; safely inserts sufficient auth into sudo, hyprlock, and polkit. |
+| `kernel` | `asura kernel list\|set\|remove` | Manage Void Linux kernel series (`linux`, `linux-lts`, `linux-mainline`), update GRUB default, and verify NVIDIA headers. |
+| `vm` | `asura vm windows\|list\|launch\|stop` | Manage local VMs and run guided Windows 11 setup with TPM 2.0, UEFI, 4 cores, and SPICE integration. |
+| `hook` | `asura hook run\|list` | Manage and trigger user extension hooks (`pre-update`, `post-update`, `post-theme`, `post-login`). |
+| `share` | `asura share send\|receive\|devices` | Tailscale Taildrop file transfer: send files to peers, receive into `~/Downloads`, and notify desktop. |
 | `enable` | `asura enable [service]` | Enables an optional service (`fingerprint`, `docker`, `bluetooth`, `printing`, `ssh`, `libvirt`, `tailscale`). |
 | `disable` | `asura disable [service]` | Disables an optional service and safely rolls back its configuration. |
 | `brightness` | `asura brightness [set\|get\|list] [value]` | Direct backlight control for screens and keyboard illumination without group permission friction. |
