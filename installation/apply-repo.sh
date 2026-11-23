@@ -78,6 +78,8 @@ for f in "$ROOT"/usr/share/asura/migrations/*/*.sh; do
 done
 put desktop/catalog /usr/share/asura/store/catalog
 put system/runit/user-services /usr/share/asura/runit/services
+put system/hardware/models /usr/share/asura/hardware/models
+put system/hardware/components /usr/share/asura/hardware/components
 
 # ── The session ─────────────────────────────────────────────────────────────
 log "session files and scripts"

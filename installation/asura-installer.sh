@@ -1182,17 +1182,17 @@ if [ -d "$TARGET_DIR/usr/share/plymouth/themes/asura" ]; then
 fi
 chroot "$TARGET_DIR" plymouth-set-default-theme asura 2>/dev/null || true
 
-# Apply model-specific hardware quirks if this machine matches a known profile
+# Bind mounts for chroot maintenance and hardware detection
+mount --bind /dev "$TARGET_DIR/dev"
+mount --bind /proc "$TARGET_DIR/proc"
+mount --bind /sys "$TARGET_DIR/sys"
+
+# Apply hardware quirks across matched layers if this machine matches known profiles
 if [ -x "$TARGET_DIR/usr/bin/asura" ]; then
 	chroot "$TARGET_DIR" /usr/bin/asura hardware quirks apply >/dev/null 2>&1 || true
 fi
 
 printf "${GREEN}✓ Host, services, and accounts configured.${RESET}\n"
-
-# Bind mounts for chroot maintenance
-mount --bind /dev "$TARGET_DIR/dev"
-mount --bind /proc "$TARGET_DIR/proc"
-mount --bind /sys "$TARGET_DIR/sys"
 
 printf "${WHITE}${BOLD}[4.5/5] Regenerating initramfs for installed kernel...${RESET}\n"
 KERNEL_PKG=$(chroot "$TARGET_DIR" xbps-query -l 2>/dev/null | grep -E '^ii linux[0-9]' | awk '{print $2}' | cut -d- -f1 | head -n1 || echo "linux")

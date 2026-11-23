@@ -1,0 +1,32 @@
+id: nvidia-gpu
+name: "NVIDIA Discrete GPU (PCIe RTD3 & Modesetting)"
+description: "PCIe RTD3 runtime D3cold power management and nvidia-drm modeset support for NVIDIA discrete GPUs"
+layer: component
+
+match:
+  pci:
+    - "10de:*"
+
+packages:
+  - nvidia
+  - nvidia-dkms
+
+kernel_parameters:
+  - "nvidia-drm.modeset=1"
+
+files:
+  udev:
+    - target: "/etc/udev/rules.d/80-nvidia-pm.rules"
+      source: "system/udev/80-nvidia-pm.rules"
+      reason: "Enable PCIe RTD3 runtime power management for NVIDIA discrete GPUs (Linux kernel Documentation/power/pci.rst)"
+  modprobe:
+    - target: "/etc/modprobe.d/nvidia-optimus.conf"
+      source: "system/modprobe.d/nvidia-optimus.conf"
+      reason: "Configure NVreg_DynamicPowerManagement=0x02 for dynamic hybrid power off (NVIDIA Driver README Appendix B)"
+
+services: []
+
+notes:
+  - "Knowledge source: Linux kernel Documentation/power/pci.rst and NVIDIA Driver Documentation on Runtime Power Management."
+  - "PCIe RTD3 dynamic power management shuts down GPU power rails (D3cold) when display server and compute are idle."
+  - "nvidia-drm.modeset=1 enables kernel modesetting required for Wayland compositors (Hyprland)."
