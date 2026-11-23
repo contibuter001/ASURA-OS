@@ -1,432 +1,106 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
-	"asura/hardware/match"
 	"asura/hardware/probe"
+	"asura/hardware/quirks"
 )
 
-// Model-specific hardware quirks system:
-//   asura hardware quirks list
-//   asura hardware quirks show [model-id]
-//   asura hardware quirks apply [model-id]
-//   asura hardware quirks remove [model-id]
+// Hardware quirks engine with layered matching:
+// generic -> vendor -> family -> model -> component
 //
-// Matches laptops by DMI (/sys/class/dmi/id) and optional PCI IDs (e.g. GPU).
-// Reads declarative data files in system/hardware/models/<vendor>-<model>.yaml.
-// Data contains packages, modprobe/udev/sysctl files, kernel parameters,
-// runit services, and notes. ASURA's code applies them safely; data never executes shell.
+// Usage:
+//   asura hardware quirks list
+//   asura hardware quirks show [model-or-component-id]
+//   asura hardware quirks apply [id]
+//   asura hardware quirks remove [id]
 
-type QuirkModel struct {
-	ID               string
-	Name             string
-	Description      string
-	Match            QuirkMatch
-	Packages         []string
-	KernelParameters []string
-	Files            []QuirkFile
-	Services         []string
-	Notes            []string
-	FilePath         string
-}
-
-type QuirkMatch struct {
-	SysVendor     string
-	ProductName   string
-	ProductFamily string
-	BoardName     string
-	Chassis       string // "laptop", "desktop", etc.
-	GPU           string // e.g. "10de:25a2"
-}
-
-type QuirkFile struct {
-	Kind    string // "udev", "modprobe", "sysctl"
-	Target  string
-	Source  string
-	Content string
-	Reason  string
-}
+const (
+	appliedStateJSONFile   = "/var/lib/asura/hardware/applied.json"
+	legacyAppliedStateFile = "/var/lib/asura/quirks.applied"
+	appliedBackupsDir      = "/var/lib/asura/hardware/backups"
+)
 
 var (
-	quirksAppliedStateFile = "/var/lib/asura/quirks.applied"
+	quirksAppliedStateFile = appliedStateJSONFile
 	quirksPrivileged       = runPrivileged
 )
 
-// resolveModelsDir finds the models directory.
-func resolveModelsDir() string {
+// resolveHardwareDirs finds the models and components directories.
+func resolveHardwareDirs() (modelsDir, componentsDir string) {
 	candidates := []string{
-		"/usr/share/asura/hardware/models",
-		"system/hardware/models",
-		"../system/hardware/models",
-		"../../system/hardware/models",
-		"../../../system/hardware/models",
+		"/usr/share/asura/hardware",
+		"system/hardware",
+		"../system/hardware",
+		"../../system/hardware",
+		"../../../system/hardware",
 	}
 	for _, dir := range candidates {
-		if info, err := os.Stat(dir); err == nil && info.IsDir() {
-			return dir
+		m := filepath.Join(dir, "models")
+		if info, err := os.Stat(m); err == nil && info.IsDir() {
+			c := filepath.Join(dir, "components")
+			return m, c
 		}
 	}
-	return "system/hardware/models"
+	return "system/hardware/models", "system/hardware/components"
 }
 
-// parseQuirkModel parses a model quirk YAML file without external dependencies.
-func parseQuirkModel(data []byte, path string) (QuirkModel, error) {
-	scanner := bufio.NewScanner(bytes.NewReader(data))
-	model := QuirkModel{
-		FilePath: path,
-	}
-
-	section := ""
-	subSection := ""
-	var currentFile *QuirkFile
-
-	flushCurrentFile := func() {
-		if currentFile != nil && currentFile.Target != "" {
-			model.Files = append(model.Files, *currentFile)
-			currentFile = nil
-		}
-	}
-
-	inMultilineContent := false
-	var contentBuilder strings.Builder
-
-	for scanner.Scan() {
-		rawLine := scanner.Text()
-		trimmed := strings.TrimSpace(rawLine)
-
-		if inMultilineContent {
-			indent := len(rawLine) - len(strings.TrimLeft(rawLine, " "))
-			if indent >= 8 && trimmed != "" {
-				contentBuilder.WriteString(rawLine[8:])
-				contentBuilder.WriteString("\n")
-				continue
-			}
-			inMultilineContent = false
-			if currentFile != nil {
-				currentFile.Content = contentBuilder.String()
-			}
-			contentBuilder.Reset()
-		}
-
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-
-		indent := len(rawLine) - len(strings.TrimLeft(rawLine, " "))
-
-		// Top-level sections (indent == 0)
-		if indent == 0 {
-			flushCurrentFile()
-			key, val, found := strings.Cut(trimmed, ":")
-			if !found {
-				continue
-			}
-			key = strings.TrimSpace(key)
-			val = strings.Trim(strings.TrimSpace(val), "\"'")
-
-			section = key
-			subSection = ""
-			switch key {
-			case "id":
-				model.ID = val
-			case "name":
-				model.Name = val
-			case "description":
-				model.Description = val
-			}
-			continue
-		}
-
-		// Indented level
-		switch section {
-		case "match":
-			key, val, found := strings.Cut(trimmed, ":")
-			if found {
-				key = strings.TrimSpace(key)
-				val = strings.Trim(strings.TrimSpace(val), "\"'")
-				switch key {
-				case "sys_vendor":
-					model.Match.SysVendor = val
-				case "product_name":
-					model.Match.ProductName = val
-				case "product_family":
-					model.Match.ProductFamily = val
-				case "board_name":
-					model.Match.BoardName = val
-				case "chassis", "chassis_type":
-					model.Match.Chassis = val
-				case "gpu":
-					model.Match.GPU = val
-				}
-			}
-		case "packages":
-			if strings.HasPrefix(trimmed, "- ") {
-				pkg := strings.Trim(strings.TrimSpace(trimmed[2:]), "\"'")
-				if pkg != "" {
-					model.Packages = append(model.Packages, pkg)
-				}
-			}
-		case "kernel_parameters":
-			if strings.HasPrefix(trimmed, "- ") {
-				param := strings.Trim(strings.TrimSpace(trimmed[2:]), "\"'")
-				if param != "" {
-					model.KernelParameters = append(model.KernelParameters, param)
-				}
-			}
-		case "services":
-			if strings.HasPrefix(trimmed, "- ") {
-				svc := strings.Trim(strings.TrimSpace(trimmed[2:]), "\"'")
-				if svc != "" {
-					model.Services = append(model.Services, svc)
-				}
-			}
-		case "notes":
-			if strings.HasPrefix(trimmed, "- ") {
-				note := strings.Trim(strings.TrimSpace(trimmed[2:]), "\"'")
-				if note != "" {
-					model.Notes = append(model.Notes, note)
-				}
-			}
-		case "files":
-			if indent == 2 {
-				flushCurrentFile()
-				key, _, _ := strings.Cut(trimmed, ":")
-				subSection = strings.TrimSpace(key)
-				continue
-			}
-			if strings.HasPrefix(trimmed, "- target:") {
-				flushCurrentFile()
-				targetVal := strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "- target:")), "\"'")
-				currentFile = &QuirkFile{
-					Kind:   subSection,
-					Target: targetVal,
-				}
-				continue
-			}
-			if currentFile != nil {
-				key, val, found := strings.Cut(trimmed, ":")
-				if found {
-					key = strings.TrimSpace(key)
-					val = strings.TrimSpace(val)
-					switch key {
-					case "source":
-						currentFile.Source = strings.Trim(val, "\"'")
-					case "reason":
-						currentFile.Reason = strings.Trim(val, "\"'")
-					case "content":
-						if val == "|" || val == ">" {
-							inMultilineContent = true
-							contentBuilder.Reset()
-						} else {
-							currentFile.Content = strings.Trim(val, "\"'")
-						}
-					}
-				}
-			}
-		}
-	}
-	flushCurrentFile()
-
-	if model.ID == "" {
-		model.ID = strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
-	}
-	return model, nil
+func loadAllHardwareQuirks() ([]quirks.QuirkDef, error) {
+	modelsDir, componentsDir := resolveHardwareDirs()
+	return quirks.LoadQuirks(modelsDir, componentsDir)
 }
 
-// loadQuirkModels loads all quirk models from the models directory.
-func loadQuirkModels(dir string) ([]QuirkModel, error) {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
+func getAppliedState() (*quirks.AppliedState, error) {
+	data, err := os.ReadFile(appliedStateJSONFile)
+	if err == nil {
+		var state quirks.AppliedState
+		if err := json.Unmarshal(data, &state); err == nil {
+			return &state, nil
+		}
 	}
 
-	var models []QuirkModel
-	for _, entry := range entries {
-		if entry.IsDir() || (!strings.HasSuffix(entry.Name(), ".yaml") && !strings.HasSuffix(entry.Name(), ".yml")) {
-			continue
-		}
-		path := filepath.Join(dir, entry.Name())
-		data, err := os.ReadFile(path)
-		if err != nil {
-			continue
-		}
-		model, err := parseQuirkModel(data, path)
-		if err == nil && model.ID != "" {
-			models = append(models, model)
+	// Legacy fallback
+	if legData, legErr := os.ReadFile(legacyAppliedStateFile); legErr == nil {
+		id := strings.TrimSpace(string(legData))
+		if id != "" {
+			return &quirks.AppliedState{
+				AppliedAt: time.Now().UTC().Format(time.RFC3339),
+				Layers: []quirks.AppliedLayerInfo{
+					{ID: id, Name: id, Layer: "legacy"},
+				},
+			}, nil
 		}
 	}
-	return models, nil
+
+	return nil, err
 }
 
-func isLaptopChassis(chassis string) bool {
-	c := strings.ToLower(strings.TrimSpace(chassis))
-	switch c {
-	case "laptop", "notebook", "portable", "sub-notebook", "convertible", "detachable":
-		return true
-	}
-	return false
-}
-
-func matchFieldPattern(pattern, value string) bool {
-	if pattern == "" || pattern == "*" {
-		return true
-	}
-	p := strings.ToLower(strings.TrimSpace(pattern))
-	v := strings.ToLower(strings.TrimSpace(value))
-	if p == v {
-		return true
-	}
-	if matched, _ := filepath.Match(p, v); matched {
-		return true
-	}
-	if strings.Contains(p, "*") {
-		trimmedPat := strings.Trim(p, "*")
-		if trimmedPat != "" && strings.Contains(v, trimmedPat) {
-			return true
+func getAppliedQuirkIDs() map[string]bool {
+	res := make(map[string]bool)
+	state, err := getAppliedState()
+	if err == nil && state != nil {
+		for _, l := range state.Layers {
+			res[l.ID] = true
 		}
 	}
-	normP := match.Normalize(pattern)
-	normV := match.Normalize(value)
-	if normP != "" && normV != "" {
-		if normP == normV || strings.HasPrefix(normV, normP) || strings.HasPrefix(normP, normV) {
-			return true
-		}
-	}
-	return false
-}
-
-// quirkSpecificity calculates the specificity score of a quirk model for ranking.
-func quirkSpecificity(model QuirkModel) int {
-	score := 0
-	if model.Match.ProductName != "" && model.Match.ProductName != "*" {
-		score += 100
-	}
-	if model.Match.BoardName != "" && model.Match.BoardName != "*" {
-		score += 50
-	}
-	if model.Match.GPU != "" && model.Match.GPU != "*" {
-		score += 40
-	}
-	if model.Match.ProductFamily != "" && model.Match.ProductFamily != "*" {
-		score += 25
-	}
-	if model.Match.SysVendor != "" && model.Match.SysVendor != "*" {
-		score += 10
-	}
-	if model.Match.Chassis != "" {
-		score += 1
-	}
-	return score
-}
-
-// matchQuirkModel checks if a model matches the machine DMI, Chassis, and PCI IDs.
-func matchQuirkModel(model QuirkModel, dmi probe.Fields, pciDevices []probe.Device) bool {
-	// Chassis matching
-	if model.Match.Chassis != "" {
-		req := strings.ToLower(strings.TrimSpace(model.Match.Chassis))
-		if req == "laptop" || req == "notebook" {
-			if !isLaptopChassis(dmi.ChassisType) {
-				return false
-			}
-		} else if !matchFieldPattern(model.Match.Chassis, dmi.ChassisType) {
-			return false
-		}
-	}
-
-	// DMI matching
-	if model.Match.SysVendor != "" {
-		if !matchFieldPattern(model.Match.SysVendor, dmi.SysVendor) {
-			return false
-		}
-	}
-	if model.Match.ProductName != "" {
-		if !matchFieldPattern(model.Match.ProductName, dmi.ProductName) {
-			return false
-		}
-	}
-	if model.Match.ProductFamily != "" {
-		if !matchFieldPattern(model.Match.ProductFamily, dmi.ProductFamily) {
-			return false
-		}
-	}
-	if model.Match.BoardName != "" {
-		if !matchFieldPattern(model.Match.BoardName, dmi.BoardName) {
-			return false
-		}
-	}
-
-	// PCI matching (optional)
-	if model.Match.GPU != "" {
-		normGPU := strings.ToLower(strings.TrimSpace(model.Match.GPU))
-		matchedGPU := false
-		for _, dev := range pciDevices {
-			v := strings.TrimPrefix(strings.ToLower(dev.Vendor), "0x")
-			d := strings.TrimPrefix(strings.ToLower(dev.Device), "0x")
-			id := v + ":" + d
-			if id == normGPU {
-				matchedGPU = true
-				break
-			}
-		}
-		if !matchedGPU {
-			return false
-		}
-	}
-
-	return true
-}
-
-// findMatchedQuirkModel finds the model quirk matching this machine with highest specificity.
-func findMatchedQuirkModel(models []QuirkModel, root string) *QuirkModel {
-	fs, err := probe.New(root)
-	if err != nil {
-		return nil
-	}
-	dmi, err := probe.DMI(fs)
-	if err != nil {
-		return nil
-	}
-	pciDevices, _ := probe.PCI(fs, nil)
-
-	var matched []QuirkModel
-	for _, m := range models {
-		if matchQuirkModel(m, dmi, pciDevices) {
-			matched = append(matched, m)
-		}
-	}
-	if len(matched) == 0 {
-		return nil
-	}
-
-	bestIdx := 0
-	bestScore := quirkSpecificity(matched[0])
-	for i := 1; i < len(matched); i++ {
-		score := quirkSpecificity(matched[i])
-		if score > bestScore {
-			bestScore = score
-			bestIdx = i
-		}
-	}
-
-	chosen := matched[bestIdx]
-	return &chosen
+	return res
 }
 
 const quirksUsage = `Usage: asura hardware quirks [list | show | apply | remove]
 
-Manages model-specific hardware fixes and device tuning.
+Manages hardware fixes and device tuning with layered precedence.
 
-  list            list available model quirks and highlight matches for this machine
-  show [model-id] display configuration and tuning plan for a model
-  apply [model-id]apply model fixes (creates a system snapshot first)
-  remove [model-id]revert applied model fixes
+  list            list available hardware quirks and highlight matches for this machine
+  show [id]       display configuration, matched layers, and tuning plan
+  apply [id]      apply hardware fixes across all matched layers
+  remove [id]     revert all applied hardware fixes
 `
 
 func hardwareQuirks(args []string) int {
@@ -453,117 +127,204 @@ func hardwareQuirks(args []string) int {
 }
 
 func runQuirksList() int {
-	dir := resolveModelsDir()
-	models, err := loadQuirkModels(dir)
+	allDefs, err := loadAllHardwareQuirks()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "asura hardware quirks: %v\n", err)
 		return exitFail
 	}
 
-	matched := findMatchedQuirkModel(models, "")
-	appliedID := getAppliedQuirkID()
+	fs, _ := probe.New("")
+	matchedLayers, _ := quirks.MatchMachine(allDefs, fs)
+	matchedMap := make(map[string]bool)
+	for _, m := range matchedLayers {
+		matchedMap[m.Def.ID] = true
+	}
+	appliedMap := getAppliedQuirkIDs()
 
-	fmt.Printf("Model Hardware Quirks (%d definition(s) in %s):\n\n", len(models), dir)
-	for _, m := range models {
+	modelsDir, componentsDir := resolveHardwareDirs()
+	fmt.Printf("Hardware Quirks (%d definition(s) across %s and %s):\n\n", len(allDefs), modelsDir, componentsDir)
+
+	for _, d := range allDefs {
 		tag := ""
-		if matched != nil && matched.ID == m.ID {
-			if appliedID == m.ID {
-				tag = " [MATCHES THIS MACHINE, APPLIED]"
-			} else {
-				tag = " [MATCHES THIS MACHINE]"
-			}
-		} else if appliedID == m.ID {
+		isMatched := matchedMap[d.ID]
+		isApplied := appliedMap[d.ID]
+
+		if isMatched && isApplied {
+			tag = " [MATCHES THIS MACHINE, APPLIED]"
+		} else if isMatched {
+			tag = " [MATCHES THIS MACHINE]"
+		} else if isApplied {
 			tag = " [APPLIED]"
 		}
-		fmt.Printf("  %-25s %s%s\n", m.ID, m.Name, tag)
+
+		layerPrefix := fmt.Sprintf("[%s]", d.Layer)
+		fmt.Printf("  %-12s %-24s %s%s\n", layerPrefix, d.ID, d.Name, tag)
 	}
+
 	fmt.Println()
-	if matched != nil && appliedID != matched.ID {
-		fmt.Printf("Run 'asura hardware quirks apply' to apply fixes for %s.\n", matched.Name)
+	if len(matchedLayers) > 0 {
+		allApplied := true
+		for _, m := range matchedLayers {
+			if !appliedMap[m.Def.ID] {
+				allApplied = false
+				break
+			}
+		}
+		if !allApplied {
+			fmt.Println("Run 'asura hardware quirks apply' to apply all matched hardware layers.")
+		}
 	}
+
 	return exitOK
 }
 
 func runQuirksShow(args []string) int {
-	dir := resolveModelsDir()
-	models, err := loadQuirkModels(dir)
+	allDefs, err := loadAllHardwareQuirks()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "asura hardware quirks: %v\n", err)
 		return exitFail
 	}
 
-	var target *QuirkModel
 	if len(args) > 0 {
 		targetID := args[0]
-		for _, m := range models {
-			if m.ID == targetID {
-				cp := m
+		var target *quirks.QuirkDef
+		for _, d := range allDefs {
+			if d.ID == targetID {
+				cp := d
 				target = &cp
 				break
 			}
 		}
 		if target == nil {
-			fmt.Fprintf(os.Stderr, "asura hardware quirks: model %q not found\n", targetID)
+			fmt.Fprintf(os.Stderr, "asura hardware quirks: quirk %q not found\n", targetID)
 			return exitFail
 		}
-	} else {
-		target = findMatchedQuirkModel(models, "")
-		if target == nil {
-			fmt.Println("No specific model quirks match this machine.")
-			return exitOK
+
+		fmt.Printf("ID:          %s\n", target.ID)
+		fmt.Printf("Name:        %s\n", target.Name)
+		fmt.Printf("Layer:       %s\n", target.Layer)
+		fmt.Printf("Description: %s\n", target.Description)
+		fmt.Println()
+
+		fmt.Println("Match Criteria:")
+		if target.Match.Chassis != "" {
+			fmt.Printf("  chassis:        %s\n", target.Match.Chassis)
 		}
+		if target.Match.SysVendor != "" {
+			fmt.Printf("  sys_vendor:     %s\n", target.Match.SysVendor)
+		}
+		if target.Match.ProductName != "" {
+			fmt.Printf("  product_name:   %s\n", target.Match.ProductName)
+		}
+		if target.Match.ProductFamily != "" {
+			fmt.Printf("  product_family: %s\n", target.Match.ProductFamily)
+		}
+		if target.Match.BoardName != "" {
+			fmt.Printf("  board_name:     %s\n", target.Match.BoardName)
+		}
+		if len(target.Match.PCI) > 0 {
+			fmt.Printf("  pci:            %s\n", strings.Join(target.Match.PCI, ", "))
+		}
+		if len(target.Match.USB) > 0 {
+			fmt.Printf("  usb:            %s\n", strings.Join(target.Match.USB, ", "))
+		}
+		if len(target.Match.Module) > 0 {
+			fmt.Printf("  module:         %s\n", strings.Join(target.Match.Module, ", "))
+		}
+		if len(target.Match.ACPI) > 0 {
+			fmt.Printf("  acpi:           %s\n", strings.Join(target.Match.ACPI, ", "))
+		}
+		fmt.Println()
+
+		if len(target.Packages) > 0 {
+			fmt.Println("Packages:")
+			for _, p := range target.Packages {
+				fmt.Printf("  - %s\n", p)
+			}
+			fmt.Println()
+		}
+
+		if len(target.KernelParameters) > 0 {
+			fmt.Println("Kernel Parameters:")
+			for _, kp := range target.KernelParameters {
+				fmt.Printf("  - %s\n", kp)
+			}
+			fmt.Println()
+		}
+
+		if len(target.Files) > 0 {
+			fmt.Println("Configuration Files:")
+			for _, f := range target.Files {
+				overrideStr := ""
+				if f.Override {
+					overrideStr = " (override)"
+				}
+				fmt.Printf("  - %s (%s)%s: %s\n", f.Target, f.Kind, overrideStr, f.Reason)
+			}
+			fmt.Println()
+		}
+
+		if len(target.Notes) > 0 {
+			fmt.Println("Hardware Notes:")
+			for _, n := range target.Notes {
+				fmt.Printf("  * %s\n", n)
+			}
+		}
+		return exitOK
 	}
 
-	fmt.Printf("Model:       %s (%s)\n", target.Name, target.ID)
-	fmt.Printf("Description: %s\n", target.Description)
-	fmt.Println()
+	// Show matched layers for current machine
+	fs, _ := probe.New("")
+	matchedLayers, _ := quirks.MatchMachine(allDefs, fs)
+	if len(matchedLayers) == 0 {
+		fmt.Println("No hardware quirks match this machine.")
+		return exitOK
+	}
 
-	fmt.Println("DMI Match Criteria:")
-	if target.Match.SysVendor != "" {
-		fmt.Printf("  sys_vendor:     %s\n", target.Match.SysVendor)
-	}
-	if target.Match.ProductName != "" {
-		fmt.Printf("  product_name:   %s\n", target.Match.ProductName)
-	}
-	if target.Match.ProductFamily != "" {
-		fmt.Printf("  product_family: %s\n", target.Match.ProductFamily)
-	}
-	if target.Match.BoardName != "" {
-		fmt.Printf("  board_name:     %s\n", target.Match.BoardName)
-	}
-	if target.Match.GPU != "" {
-		fmt.Printf("  gpu (pci):      %s\n", target.Match.GPU)
-	}
-	fmt.Println()
+	files, overridden, pkgs, params, _ := quirks.ResolvePlan(matchedLayers)
 
-	if len(target.Packages) > 0 {
-		fmt.Println("Packages:")
-		for _, p := range target.Packages {
-			fmt.Printf("  - %s\n", p)
+	overriddenMap := make(map[string]quirks.OverriddenFile)
+	for _, o := range overridden {
+		overriddenMap[o.Target] = o
+	}
+
+	fmt.Printf("Matched Hardware Layers (%d layer(s) ordered generic -> vendor -> family -> model -> component):\n\n", len(matchedLayers))
+
+	for i, m := range matchedLayers {
+		fmt.Printf("[%d/%d] %s layer: %s (%s)\n", i+1, len(matchedLayers), m.Layer, m.Def.Name, m.Def.ID)
+		if len(m.Reasons) > 0 {
+			fmt.Printf("  Match Reason:      %s\n", strings.Join(m.Reasons, "; "))
+		}
+		if len(m.Def.Packages) > 0 {
+			fmt.Printf("  Packages:          %s\n", strings.Join(m.Def.Packages, ", "))
+		}
+		if len(m.Def.KernelParameters) > 0 {
+			fmt.Printf("  Kernel Parameters: %s\n", strings.Join(m.Def.KernelParameters, ", "))
+		}
+		if len(m.Def.Files) > 0 {
+			fmt.Println("  Files:")
+			for _, f := range m.Def.Files {
+				if ov, isOv := overriddenMap[f.Target]; isOv && ov.OriginalQuirkID == m.Def.ID {
+					fmt.Printf("    - %s (%s) [OVERRIDDEN by %s layer %s]\n", f.Target, f.Kind, ov.OverriddenBy, ov.OverriddenByID)
+				} else {
+					fmt.Printf("    - %s (%s): %s\n", f.Target, f.Kind, f.Reason)
+				}
+			}
 		}
 		fmt.Println()
 	}
 
-	if len(target.KernelParameters) > 0 {
-		fmt.Println("Kernel Parameters:")
-		for _, kp := range target.KernelParameters {
-			fmt.Printf("  - %s\n", kp)
-		}
-		fmt.Println()
+	fmt.Println("Resolved Active Configuration Plan:")
+	if len(pkgs) > 0 {
+		fmt.Printf("  Packages to install:       %s\n", strings.Join(pkgs, ", "))
 	}
-
-	if len(target.Files) > 0 {
-		fmt.Println("Configuration Files:")
-		for _, f := range target.Files {
-			fmt.Printf("  - %s (%s): %s\n", f.Target, f.Kind, f.Reason)
-		}
-		fmt.Println()
+	if len(params) > 0 {
+		fmt.Printf("  Kernel parameters to set:  %s\n", strings.Join(params, ", "))
 	}
-
-	if len(target.Notes) > 0 {
-		fmt.Println("Hardware Notes:")
-		for _, n := range target.Notes {
-			fmt.Printf("  * %s\n", n)
+	if len(files) > 0 {
+		fmt.Println("  Files to lay down:")
+		for _, f := range files {
+			fmt.Printf("    - %s (from [%s] %s)\n", f.Target, f.FromLayer, f.FromQuirkID)
 		}
 	}
 
@@ -571,35 +332,42 @@ func runQuirksShow(args []string) int {
 }
 
 func runQuirksApply(args []string) int {
-	dir := resolveModelsDir()
-	models, err := loadQuirkModels(dir)
+	allDefs, err := loadAllHardwareQuirks()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "asura hardware quirks: %v\n", err)
 		return exitFail
 	}
 
-	var target *QuirkModel
+	var layersToApply []quirks.MatchedLayer
+
 	if len(args) > 0 {
-		for _, m := range models {
-			if m.ID == args[0] {
-				cp := m
-				target = &cp
+		targetID := args[0]
+		for _, d := range allDefs {
+			if d.ID == targetID {
+				layersToApply = append(layersToApply, quirks.MatchedLayer{
+					Def:   d,
+					Layer: d.Layer,
+				})
 				break
 			}
 		}
-		if target == nil {
-			fmt.Fprintf(os.Stderr, "asura hardware quirks: model %q not found\n", args[0])
+		if len(layersToApply) == 0 {
+			fmt.Fprintf(os.Stderr, "asura hardware quirks: quirk %q not found\n", targetID)
 			return exitFail
 		}
 	} else {
-		target = findMatchedQuirkModel(models, "")
-		if target == nil {
-			fmt.Println("No model quirks match this machine.")
+		fs, _ := probe.New("")
+		layersToApply, err = quirks.MatchMachine(allDefs, fs)
+		if err != nil || len(layersToApply) == 0 {
+			fmt.Println("No hardware quirks match this machine.")
 			return exitOK
 		}
 	}
 
-	fmt.Printf("Applying hardware quirks for %s...\n", target.Name)
+	fmt.Printf("Applying %d hardware quirk layer(s)...\n", len(layersToApply))
+	for _, m := range layersToApply {
+		fmt.Printf("  + [%s] %s (%s)\n", m.Layer, m.Def.Name, m.Def.ID)
+	}
 
 	// Pre-apply snapshot
 	if isBtrfsRoot() {
@@ -609,24 +377,35 @@ func runQuirksApply(args []string) int {
 		}
 	}
 
+	files, _, pkgs, params, svcs := quirks.ResolvePlan(layersToApply)
+
 	// Install packages
-	for _, pkg := range target.Packages {
+	for _, pkg := range pkgs {
 		if !svInstalled(pkg) {
 			fmt.Printf("Installing %s...\n", pkg)
 			_ = quirksPrivileged("xbps-install", "-Sy", pkg)
 		}
 	}
 
-	// Install files with backup
-	for _, f := range target.Files {
+	var appliedFiles []quirks.AppliedFileInfo
+	_ = os.MkdirAll(appliedBackupsDir, 0755)
+
+	// Deploy resolved files
+	for _, rf := range files {
 		var content []byte
-		if f.Content != "" {
-			content = []byte(f.Content)
-		} else if f.Source != "" {
-			if data, err := os.ReadFile(f.Source); err == nil {
-				content = data
-			} else if data, err := os.ReadFile(filepath.Join("..", f.Source)); err == nil {
-				content = data
+		if rf.Content != "" {
+			content = []byte(rf.Content)
+		} else if rf.Source != "" {
+			candidates := []string{
+				rf.Source,
+				filepath.Join("..", rf.Source),
+				filepath.Join("../..", rf.Source),
+			}
+			for _, c := range candidates {
+				if data, err := os.ReadFile(c); err == nil {
+					content = data
+					break
+				}
 			}
 		}
 
@@ -634,90 +413,121 @@ func runQuirksApply(args []string) int {
 			continue
 		}
 
-		// Keep backup if target exists
-		if orig, err := os.ReadFile(f.Target); err == nil {
-			bak := f.Target + ".asura-quirk-bak"
-			if _, err := os.Stat(bak); os.IsNotExist(err) {
-				_ = os.WriteFile(bak, orig, 0644)
+		backupPath := ""
+		if orig, err := os.ReadFile(rf.Target); err == nil {
+			// Save backup
+			safeName := strings.ReplaceAll(strings.TrimPrefix(rf.Target, "/"), "/", "_")
+			backupPath = filepath.Join(appliedBackupsDir, safeName+".bak")
+			if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+				_ = os.WriteFile(backupPath, orig, 0644)
 			}
 		}
 
-		_ = os.MkdirAll(filepath.Dir(f.Target), 0755)
-		tmp := filepath.Join(os.TempDir(), "quirk-"+filepath.Base(f.Target))
+		_ = os.MkdirAll(filepath.Dir(rf.Target), 0755)
+		tmp := filepath.Join(os.TempDir(), "quirk-"+filepath.Base(rf.Target))
 		if err := os.WriteFile(tmp, content, 0644); err == nil {
-			_ = quirksPrivileged("cp", tmp, f.Target)
+			_ = quirksPrivileged("cp", tmp, rf.Target)
 			_ = os.Remove(tmp)
-			fmt.Printf("Laid down %s: %s\n", f.Target, f.Reason)
+			fmt.Printf("Laid down %s (from [%s] %s): %s\n", rf.Target, rf.FromLayer, rf.FromQuirkID, rf.Reason)
+			appliedFiles = append(appliedFiles, quirks.AppliedFileInfo{
+				Target:     rf.Target,
+				Kind:       rf.Kind,
+				FromQuirk:  rf.FromQuirkID,
+				Reason:     rf.Reason,
+				BackupPath: backupPath,
+			})
 		}
 	}
 
-	// Update kernel parameters in GRUB if any
-	if len(target.KernelParameters) > 0 {
-		applyGrubKernelParameters(target.KernelParameters)
+	// Update kernel parameters in GRUB
+	if len(params) > 0 {
+		applyGrubKernelParameters(params)
 	}
 
-	// Reload udev rules
+	// Reload udev
 	_ = quirksPrivileged("udevadm", "control", "--reload-rules")
 	_ = quirksPrivileged("udevadm", "trigger")
 
-	// Record applied quirk ID
-	_ = os.MkdirAll(filepath.Dir(quirksAppliedStateFile), 0755)
-	_ = os.WriteFile(quirksAppliedStateFile, []byte(target.ID+"\n"), 0644)
+	// Save state to /var/lib/asura/hardware/applied.json
+	var appliedLayers []quirks.AppliedLayerInfo
+	for _, m := range layersToApply {
+		appliedLayers = append(appliedLayers, quirks.AppliedLayerInfo{
+			ID:      m.Def.ID,
+			Name:    m.Def.Name,
+			Layer:   m.Layer.String(),
+			Reasons: m.Reasons,
+		})
+	}
 
-	fmt.Printf("Successfully applied hardware quirks for %s.\n", target.Name)
+	state := quirks.AppliedState{
+		AppliedAt:        time.Now().UTC().Format(time.RFC3339),
+		Layers:           appliedLayers,
+		Files:            appliedFiles,
+		KernelParameters: params,
+		Packages:         pkgs,
+		Services:         svcs,
+	}
+
+	_ = os.MkdirAll(filepath.Dir(appliedStateJSONFile), 0755)
+	if data, err := json.MarshalIndent(state, "", "  "); err == nil {
+		_ = os.WriteFile(appliedStateJSONFile, data, 0644)
+	}
+	// Write primary model ID to legacy file for backward compatibility
+	if len(appliedLayers) > 0 {
+		_ = os.WriteFile(legacyAppliedStateFile, []byte(appliedLayers[len(appliedLayers)-1].ID+"\n"), 0644)
+	}
+
+	fmt.Println("Successfully applied hardware quirks.")
 	return exitOK
 }
 
 func runQuirksRemove(args []string) int {
-	appliedID := getAppliedQuirkID()
-	if appliedID == "" && len(args) == 0 {
+	state, err := getAppliedState()
+	if err != nil || state == nil {
 		fmt.Println("No hardware quirks are currently applied.")
 		return exitOK
 	}
 
-	dir := resolveModelsDir()
-	models, _ := loadQuirkModels(dir)
-	var target *QuirkModel
-	for _, m := range models {
-		if (len(args) > 0 && m.ID == args[0]) || (len(args) == 0 && m.ID == appliedID) {
-			cp := m
-			target = &cp
-			break
-		}
-	}
+	fmt.Printf("Reverting %d applied hardware quirk layer(s)...\n", len(state.Layers))
 
-	if target != nil {
-		fmt.Printf("Removing hardware quirks for %s...\n", target.Name)
-		for _, f := range target.Files {
-			bak := f.Target + ".asura-quirk-bak"
-			if _, err := os.Stat(bak); err == nil {
-				_ = quirksPrivileged("cp", bak, f.Target)
-				_ = quirksPrivileged("rm", "-f", bak)
+	// Revert files
+	for _, f := range state.Files {
+		if f.BackupPath != "" {
+			if _, err := os.Stat(f.BackupPath); err == nil {
+				_ = quirksPrivileged("cp", f.BackupPath, f.Target)
+				_ = quirksPrivileged("rm", "-f", f.BackupPath)
 				fmt.Printf("Restored %s from backup\n", f.Target)
-			} else {
-				_ = quirksPrivileged("rm", "-f", f.Target)
-				fmt.Printf("Removed %s\n", f.Target)
+				continue
 			}
 		}
-		if len(target.KernelParameters) > 0 {
-			removeGrubKernelParameters(target.KernelParameters)
+		// Also check legacy .asura-quirk-bak
+		legacyBak := f.Target + ".asura-quirk-bak"
+		if _, err := os.Stat(legacyBak); err == nil {
+			_ = quirksPrivileged("cp", legacyBak, f.Target)
+			_ = quirksPrivileged("rm", "-f", legacyBak)
+			fmt.Printf("Restored %s from backup\n", f.Target)
+			continue
 		}
+
+		_ = quirksPrivileged("rm", "-f", f.Target)
+		fmt.Printf("Removed %s\n", f.Target)
 	}
 
+	// Revert kernel parameters
+	if len(state.KernelParameters) > 0 {
+		removeGrubKernelParameters(state.KernelParameters)
+	}
+
+	// Reload udev
 	_ = quirksPrivileged("udevadm", "control", "--reload-rules")
 	_ = quirksPrivileged("udevadm", "trigger")
-	_ = os.Remove(quirksAppliedStateFile)
+
+	// Remove state files
+	_ = os.Remove(appliedStateJSONFile)
+	_ = os.Remove(legacyAppliedStateFile)
 
 	fmt.Println("Hardware quirks removed.")
 	return exitOK
-}
-
-func getAppliedQuirkID() string {
-	data, err := os.ReadFile(quirksAppliedStateFile)
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(data))
 }
 
 func updateGrubCmdlineParams(content string, params []string, add bool) string {
@@ -743,7 +553,7 @@ func updateGrubCmdlineParams(content string, params []string, add bool) string {
 			return match[1] + strings.Join(opts, " ") + match[3]
 		}
 		// remove
-		filtered := []string{}
+		var filtered []string
 		for _, opt := range opts {
 			if !paramSet[opt] {
 				filtered = append(filtered, opt)
