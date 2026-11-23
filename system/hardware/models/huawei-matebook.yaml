@@ -1,0 +1,27 @@
+id: huawei-matebook
+name: "Huawei & Honor MateBook Laptops"
+description: "Huawei MateBook hardware profile: huawei-wmi battery protection threshold and hotkey controls"
+layer: vendor
+
+match:
+  sys_vendor: "HUAWEI"
+  chassis: "laptop"
+
+packages: []
+
+kernel_parameters: []
+
+files:
+  udev:
+    - target: "/etc/udev/rules.d/99-huawei-battery.rules"
+      content: |
+        # Huawei battery charge threshold (caps charge at 80% for battery longevity)
+        SUBSYSTEM=="power_supply", KERNEL=="BAT[0-9]", ATTR{charge_control_thresholds}="40 80"
+      reason: "Persist battery longevity limit on Huawei BAT0 (Linux drivers/platform/x86/huawei-wmi.c)"
+
+services: []
+
+notes:
+  - "Knowledge source: Linux kernel drivers/platform/x86/huawei-wmi.c."
+  - "Battery protection thresholds (40% start, 80% stop) managed via huawei-wmi."
+  - "Fn-lock and mic mute hotkeys mapped natively."
