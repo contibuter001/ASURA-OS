@@ -72,6 +72,7 @@ jobs:
             ghcr.io/void-linux/void-glibc-full:latest sh -euc '
               xbps-install -Syu xbps >/dev/null && xbps-install -y git >/dev/null
               git config --global --add safe.directory /workspace
+              sh packaging/xbps/build-stack.sh build/repo/current
               sh packaging/xbps/build-repo.sh build/repo/current build/stage'
           rm -f build/signing-key.pem
           sudo chown -R "$(id -u):$(id -g)" build
@@ -83,7 +84,6 @@ jobs:
               xbps-install -Syu xbps >/dev/null
               xbps-install -Sy \
                 --repository=/repo \
-                --repository=https://raw.githubusercontent.com/Makrennel/hyprland-void/repository-x86_64-glibc/ \
                 asura
               xbps-query asura | sed -n "s/^pkgver: //p"
               test -x /usr/bin/asura

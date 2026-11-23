@@ -25,7 +25,7 @@ import (
 
 const pkgUsage = `Usage: asura pkg [-flatpak] [-repo URL] verb [package...]
 
-Verbs: install, remove, search, update, upgrade.
+Verbs: install, remove, search, update, upgrade, hold, unhold.
 
 The package manager is xbps. A package name that carries an application id
 (org.mozilla.firefox) is routed to flatpak, and --flatpak forces that; the
@@ -78,6 +78,8 @@ var pkgVerbs = map[string]map[string][]string{
 		"upgrade": {"xbps-install", "-Su"},
 		"remove":  {"xbps-remove", "-y"},
 		"search":  {"xbps-query", "-Rs"},
+		"hold":    {"xbps-pkgdb", "-m", "hold"},
+		"unhold":  {"xbps-pkgdb", "-m", "unhold"},
 	},
 	"flatpak": {
 		"install": {"flatpak", "install", "-y"},
@@ -89,7 +91,7 @@ var pkgVerbs = map[string]map[string][]string{
 }
 
 // pkgNeedsPackages says which verbs refuse to run without at least one.
-var pkgVerbsNeedPackages = map[string]bool{"install": true, "remove": true, "search": true}
+var pkgVerbsNeedPackages = map[string]bool{"install": true, "remove": true, "search": true, "hold": true, "unhold": true}
 
 // pkgArgv builds the argv one verb runs, or false when the backend has no
 // such verb, the verb needs packages and got none, or the backend is unknown
