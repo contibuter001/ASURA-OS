@@ -18,17 +18,17 @@ func TestSafeModeConfigStructure(t *testing.T) {
 	}
 	repoRoot := cwd
 	for {
-		if _, err := os.Stat(filepath.Join(repoRoot, "session", "hyprland", "safe-mode.conf")); err == nil {
+		if _, err := os.Stat(filepath.Join(repoRoot, "session", "safe-mode", "hyprland.conf")); err == nil {
 			break
 		}
 		parent := filepath.Dir(repoRoot)
 		if parent == repoRoot {
-			t.Fatal("could not find session/hyprland/safe-mode.conf from working tree")
+			t.Fatal("could not find session/safe-mode/hyprland.conf from working tree")
 		}
 		repoRoot = parent
 	}
 
-	confPath := filepath.Join(repoRoot, "session", "hyprland", "safe-mode.conf")
+	confPath := filepath.Join(repoRoot, "session", "safe-mode", "hyprland.conf")
 	data, err := os.ReadFile(confPath)
 	if err != nil {
 		t.Fatalf("reading %s: %v", confPath, err)

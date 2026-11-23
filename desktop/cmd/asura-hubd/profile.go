@@ -48,8 +48,8 @@ type asuraHero struct {
 // verbatim, and (only for a custom hero) the packed image, else null.
 type asuraEnvelope struct {
 	Asuraprofile int             `json:"asuraprofile"`
-	Profile    json.RawMessage `json:"profile"`
-	Hero       *asuraHero        `json:"hero"`
+	Profile      json.RawMessage `json:"profile"`
+	Hero         *asuraHero      `json:"hero"`
 }
 
 // exportProfile packs profile.json (and a custom hero image, if any) into a

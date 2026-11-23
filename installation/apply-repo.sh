@@ -66,6 +66,7 @@ rm -f "$ROOT/usr/share/asura/shell-end4/asura/vendor.sh" \
 	"$ROOT/usr/share/asura/shell-end4/asura/hyprlang.py" \
 	"$ROOT/usr/share/asura/shell-end4/asura/manifest.txt"
 put session/hyprland /usr/share/asura/hyprland
+put session/safe-mode /usr/share/asura/safe-mode
 put apps /usr/share/asura/apps
 put_as apps/mimeapps/asura-mimeapps.list /usr/share/applications/asura-mimeapps.list
 put shell/agent/skills /usr/share/asura/skills

@@ -233,6 +233,8 @@ power-and-hardware-services:
     - fwupd
     - cups
     - cups-filters
+    - fprintd
+    - tailscale
 
 fonts-and-icons:
   packages:
