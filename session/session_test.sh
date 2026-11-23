@@ -74,7 +74,7 @@ check "the script reaches the compositor" $?
 grep -qx -- '-c' "$WORK/seen.args"
 check "the compositor is started with a config" $?
 
-grep -qx -- '/usr/share/asura/hyprland/hyprland.conf' "$WORK/seen.args"
+grep -qE -- '/usr/share/asura/hyprland/hyprland\.(lua|conf)' "$WORK/seen.args"
 check "the compositor is started with Asura's configuration" $?
 
 # The user's own configuration is created, because Hyprland treats a source

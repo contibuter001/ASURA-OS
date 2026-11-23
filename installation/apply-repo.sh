@@ -63,7 +63,6 @@ log "desktop shells, Hyprland, apps"
 put shell /usr/share/asura/shell
 put shell-desktop /usr/share/asura/shell-desktop
 rm -f "$ROOT/usr/share/asura/shell-desktop/asura/vendor.sh" \
-	"$ROOT/usr/share/asura/shell-desktop/asura/hyprlang.py" \
 	"$ROOT/usr/share/asura/shell-desktop/asura/manifest.txt"
 put session/hyprland /usr/share/asura/hyprland
 put session/safe-mode /usr/share/asura/safe-mode

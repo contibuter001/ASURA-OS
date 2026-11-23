@@ -497,11 +497,10 @@ if [ -d "$REPO_ROOT/session/sddm" ]; then
 fi
 cp -r "$REPO_ROOT/shell"/* "$INCLUDE_DIR/usr/share/asura/shell/"
 # The desktop, the default shell (org.asura.shell desktop-shell = desktop).
-# Its own scripts (vendor.sh, hyprlang.py, manifest.txt) are build tooling and stay out of the image.
+# Its own scripts (vendor.sh, manifest.txt) are build tooling and stay out of the image.
 mkdir -p "$INCLUDE_DIR/usr/share/asura/shell-desktop"
 cp -r "$REPO_ROOT/shell-desktop"/* "$INCLUDE_DIR/usr/share/asura/shell-desktop/"
 rm -f "$INCLUDE_DIR/usr/share/asura/shell-desktop/asura/vendor.sh" \
-	"$INCLUDE_DIR/usr/share/asura/shell-desktop/asura/hyprlang.py" \
 	"$INCLUDE_DIR/usr/share/asura/shell-desktop/asura/manifest.txt"
 cp -r "$REPO_ROOT/system/runit/user-services"/* "$INCLUDE_DIR/usr/share/asura/runit/services/"
 # The commit this image is built from: asura update compares it with the

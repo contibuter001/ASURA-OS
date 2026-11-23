@@ -218,17 +218,27 @@ fi
 for user_cfg in monitors-auto.conf monitors-user.conf settings.conf rebinds.conf user.conf vm-perf.conf; do
     [ -e "$USER_HYPRLAND_DIR/$user_cfg" ] || touch "$USER_HYPRLAND_DIR/$user_cfg"
 done
+for user_cfg_lua in monitors-auto.lua monitors-user.lua settings.lua rebinds.lua user.lua vm-perf.lua shell.lua asura.lua; do
+    [ -e "$USER_HYPRLAND_DIR/$user_cfg_lua" ] || touch "$USER_HYPRLAND_DIR/$user_cfg_lua"
+done
 
 # The desktop shell's half of the look. The desktop styles its frosted panels and
 # animations in the compositor, so while it is the shell its rules are sourced
-# (shell-desktop/asura/hyprland.conf); for ASURA's shell the file is empty.
+# (shell-desktop/asura/hyprland.conf and hyprland.lua); for ASURA's shell the file is empty.
 # Rewritten every login, so switching shells takes effect at the next one.
 SHELL_LOOK=/usr/share/asura/shell-desktop/asura/hyprland.conf
+SHELL_LOOK_LUA=/usr/share/asura/shell-desktop/asura/hyprland.lua
 DESKTOP_SHELL="${ASURA_DESKTOP_SHELL:-$(gsettings get org.asura.shell desktop-shell 2>/dev/null | tr -d "'")}"
-if [ "${DESKTOP_SHELL:-desktop}" = desktop ] && [ -f "$SHELL_LOOK" ]; then
-    printf '# Written by asura-session at login; do not edit.\nsource = %s\n' "$SHELL_LOOK" >"$USER_HYPRLAND_DIR/shell.conf"
+if [ "${DESKTOP_SHELL:-desktop}" = desktop ]; then
+    if [ -f "$SHELL_LOOK" ]; then
+        printf '# Written by asura-session at login; do not edit.\nsource = %s\n' "$SHELL_LOOK" >"$USER_HYPRLAND_DIR/shell.conf"
+    fi
+    if [ -f "$SHELL_LOOK_LUA" ]; then
+        printf 'pcall(dofile, "%s")\n' "$SHELL_LOOK_LUA" >"$USER_HYPRLAND_DIR/shell.lua"
+    fi
 else
     printf '# Written by asura-session at login; do not edit.\n' >"$USER_HYPRLAND_DIR/shell.conf"
+    printf '-- Written by asura-session at login; do not edit.\n' >"$USER_HYPRLAND_DIR/shell.lua"
 fi
 
 # First-boot wallpaper seed: establish the current/background fallback symlink
@@ -288,6 +298,26 @@ misc:allow_session_lock_restore = true
 env = LIBGL_ALWAYS_SOFTWARE,1
 env = WLR_NO_HARDWARE_CURSORS,1
 VMCFG
+    cat > "$USER_HYPR_DIR/vm-perf.lua" <<'VMCFGLUA'
+hl.config({
+    decoration = {
+        blur = { enabled = false },
+        shadow = { enabled = false },
+    },
+    animations = { enabled = false },
+    misc = {
+        vfr = true,
+        disable_hyprland_logo = true,
+        disable_splash_rendering = true,
+        allow_session_lock_restore = true,
+    },
+    cursor = {
+        no_hardware_cursors = true,
+    },
+})
+hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
+hl.env("WLR_NO_HARDWARE_CURSORS", "1")
+VMCFGLUA
 fi
 
 # Detect compositor executable: on Void Linux the packaged binary is Hyprland,
@@ -312,7 +342,11 @@ if [ -z "$COMPOSITOR" ] || ( ! command -v "$COMPOSITOR" >/dev/null 2>&1 && [ ! -
     exit 127
 fi
 
-HYPR_CONF="${ASURA_HYPRLAND_CONFIG:-/usr/share/asura/hyprland/hyprland.conf}"
+if [ -f "/usr/share/asura/hyprland/hyprland.lua" ]; then
+    HYPR_CONF="${ASURA_HYPRLAND_CONFIG:-/usr/share/asura/hyprland/hyprland.lua}"
+else
+    HYPR_CONF="${ASURA_HYPRLAND_CONFIG:-/usr/share/asura/hyprland/hyprland.conf}"
+fi
 
 # Launch Hyprland with automatic fallback if hardware EGL/DRM fails on VM
 if echo "$COMPOSITOR" | grep -q "start-hyprland"; then
