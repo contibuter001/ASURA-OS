@@ -91,12 +91,12 @@ desktop:
     - qt6-qt5compat
     - qt6-position
     - qt6-shadertools
-    # end-4's desktop (shell-end4): app icons through Kirigami, and the
+    # Desktop (shell-desktop): app icons through Kirigami, and the
     # syntax highlighting its sidebar uses.
     - kf6-kirigami
     - kf6-syntax-highlighting
-    # end-4's switchwall.sh turns the wallpaper into the desktop's palette
-    # with matugen (templates: shell-end4/matugen).
+    # switchwall.sh turns the wallpaper into the desktop's palette
+    # with matugen (templates: shell-desktop/matugen).
     - matugen
     # Core utilities
     - dconf

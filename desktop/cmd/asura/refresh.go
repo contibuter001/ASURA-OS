@@ -39,7 +39,7 @@ sudo.
 // The installed user services, and the ones refresh restarts when running.
 var (
 	refreshServicesSrc = "/usr/share/asura/runit/services"
-	refreshShellLook   = "/usr/share/asura/shell-end4/asura/hyprland.conf"
+	refreshShellLook   = "/usr/share/asura/shell-desktop/asura/hyprland.conf"
 	refreshDaemons     = []string{"asurad", "asura-userd", "asura-hubd", "asura-wallpaper", "asura-idle"}
 )
 
@@ -121,7 +121,7 @@ func refreshMain(out, errOut io.Writer, run runner.Func) int {
 
 	// 3. The shell. sv restart, and when the session has no runsvdir (or sv
 	// times out), end the process: the session's supervisor starts it again.
-	// The shell's run script pauses before restarting end-4 when it exits
+	// The shell's run script pauses before restarting the desktop when it exits
 	// within 15 s three times in a row. A restart asked for here is not a
 	// crash: clear that count first, so a refresh is never delayed.
 	clearShellCrashCount()
@@ -223,7 +223,7 @@ func copyFileAtomic(from, to string) error {
 }
 
 // writeShellLook writes ~/.config/asura/hyprland/shell.conf the way
-// asura-session does at login: end-4's compositor look while it is the
+// asura-session does at login: the desktop's compositor look while it is the
 // desktop shell, nothing for ASURA's shell.
 func writeShellLook(run runner.Func) error {
 	home, err := os.UserHomeDir()
@@ -241,7 +241,7 @@ func writeShellLook(run runner.Func) error {
 		}
 	}
 	text := "# Written by asura-session at login; do not edit.\n"
-	if (shell == "" || shell == "end4") && fileExists(refreshShellLook) {
+	if (shell == "" || shell == "desktop") && fileExists(refreshShellLook) {
 		text += "source = " + refreshShellLook + "\n"
 	}
 	return os.WriteFile(filepath.Join(dir, "shell.conf"), []byte(text), 0o644)
@@ -281,7 +281,7 @@ func hyprlandEnv() string {
 	return "HYPRLAND_INSTANCE_SIGNATURE=" + best
 }
 
-// clearShellCrashCount removes the end-4 quick-exit count the quickshell run
+// clearShellCrashCount removes the quick-exit count the quickshell run
 // script keeps (system/runit/user-services/quickshell/run).
 func clearShellCrashCount() {
 	dir := os.Getenv("XDG_STATE_HOME")
@@ -289,7 +289,7 @@ func clearShellCrashCount() {
 		home, _ := os.UserHomeDir()
 		dir = filepath.Join(home, ".local", "state")
 	}
-	for _, f := range []string{"end4-quick-exits", "end4-last-start"} {
+	for _, f := range []string{"desktop-quick-exits", "desktop-last-start"} {
 		_ = os.Remove(filepath.Join(dir, "asura", f))
 	}
 }

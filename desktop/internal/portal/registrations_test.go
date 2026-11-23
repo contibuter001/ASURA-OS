@@ -31,7 +31,7 @@ func installedTree(t *testing.T) RegistrationEnv {
 	// Asura's, and they are absent from this tree: the check saying so is the
 	// point.
 	mkdirAll(t, filepath.Join(root, "/usr/share/asura/shell"))
-	mkdirAll(t, filepath.Join(root, "/usr/share/asura/shell-end4"))
+	mkdirAll(t, filepath.Join(root, "/usr/share/asura/shell-desktop"))
 	mkdirAll(t, filepath.Join(root, "/usr/share/asura/portal"))
 
 	return RegistrationEnv{Root: root}

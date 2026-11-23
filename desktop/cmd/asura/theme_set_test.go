@@ -10,7 +10,7 @@ import (
 // TestShippedLooksAreValid checks every look in the catalogue ASURA ships and
 // that its wallpaper is one ASURA ships.
 func TestShippedLooksAreValid(t *testing.T) {
-	themes, err := loadNamedThemes("../../../shell-end4/asura/themes.json")
+	themes, err := loadNamedThemes("../../../shell-desktop/asura/themes.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func themeSandbox(t *testing.T, desktop string) *[]string {
 	t.Cleanup(func() {
 		themeCatalog, themeWallpapers, themeDesktop, themeRunSwitcher = oldCat, oldWall, oldDesk, oldRun
 	})
-	themeCatalog, themeWallpapers = "../../../shell-end4/asura/themes.json", walls
+	themeCatalog, themeWallpapers = "../../../shell-desktop/asura/themes.json", walls
 	themeDesktop = func() string { return desktop }
 	var calls []string
 	themeRunSwitcher = func(args ...string) error { calls = append(calls, strings.Join(args, " ")); return nil }
@@ -57,7 +57,7 @@ func themeSandbox(t *testing.T, desktop string) *[]string {
 }
 
 func TestThemeSetRunsTheSwitcherAndRemembersTheLook(t *testing.T) {
-	calls := themeSandbox(t, "end4")
+	calls := themeSandbox(t, "desktop")
 	if code := themeSet([]string{"forest"}); code != exitOK {
 		t.Fatalf("code %d", code)
 	}
@@ -78,7 +78,7 @@ func TestThemeSetRefusesOnASURAsOwnShellAndUnknownLooks(t *testing.T) {
 	if code := themeSet([]string{"forest"}); code != exitFail || len(*calls) != 0 {
 		t.Fatalf("on asura's shell: %d %v", code, *calls)
 	}
-	themeSandbox(t, "end4")
+	themeSandbox(t, "desktop")
 	if code := themeSet([]string{"neon"}); code != exitUsage {
 		t.Fatalf("unknown: %d", code)
 	}

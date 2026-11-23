@@ -53,8 +53,8 @@ func (d *daemon) wallpaperVerb(line string) string {
 			}
 			return "ok"
 		}
-		if end4Desktop() {
-			return callEnd4("wallpaperSelector", "random")
+		if isDesktopShell() {
+			return callDesktopIPC("wallpaperSelector", "random")
 		}
 		return "err wallpaper: no wallpapers available"
 	case "next":

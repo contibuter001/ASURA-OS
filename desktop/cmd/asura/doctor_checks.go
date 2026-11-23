@@ -606,7 +606,7 @@ func reportHardwarePower(root string, fix bool) int {
 
 // reportDesktopShell checks the desktop shell the session will start: which
 // one org.asura.shell desktop-shell picks, that its tree is installed, and,
-// for end-4, what its look depends on (matugen, a generated palette, the
+// for the desktop, what its look depends on (matugen, a generated palette, the
 // compositor look) and whether it is crashing in a loop.
 func reportDesktopShell(root string, run runner.Func) int {
 	fmt.Println()
@@ -620,11 +620,11 @@ func reportDesktopShell(root string, run runner.Func) int {
 		}
 	}
 	if choice == "" {
-		choice = "end4"
+		choice = "desktop"
 	}
 	dir := "/usr/share/asura/shell"
-	if choice == "end4" {
-		dir = "/usr/share/asura/shell-end4"
+	if choice == "desktop" {
+		dir = "/usr/share/asura/shell-desktop"
 	}
 	fmt.Printf("  %-18s %s (org.asura.shell desktop-shell)\n", "chosen", choice)
 	if _, err := os.Stat(filepath.Join(root, dir, "shell.qml")); err != nil {
@@ -633,7 +633,7 @@ func reportDesktopShell(root string, run runner.Func) int {
 	} else {
 		fmt.Printf("  %-18s %s\n", "installed", dir)
 	}
-	if choice != "end4" {
+	if choice != "desktop" {
 		if problems > 0 {
 			return exitFail
 		}
@@ -648,7 +648,7 @@ func reportDesktopShell(root string, run runner.Func) int {
 	}
 	if _, err := exec.LookPath("matugen"); err != nil && root == "" {
 		problems++
-		fmt.Printf("  %-18s not installed: end-4 cannot take colours from the wallpaper (sudo xbps-install -S matugen)\n", "matugen")
+		fmt.Printf("  %-18s not installed: desktop cannot take colours from the wallpaper (sudo xbps-install -S matugen)\n", "matugen")
 	} else if root == "" {
 		fmt.Printf("  %-18s installed\n", "matugen")
 	}
@@ -665,22 +665,22 @@ func reportDesktopShell(root string, run runner.Func) int {
 		state = filepath.Join(home, ".local", "state")
 	}
 	if info, err := os.Stat(filepath.Join(state, "quickshell", "user", "generated", "colors.json")); err != nil || info.Size() == 0 {
-		fmt.Printf("  %-18s none generated yet: the desktop uses end-4's default colours (Super+Shift+W picks a wallpaper and makes one)\n", "palette")
+		fmt.Printf("  %-18s none generated yet: the desktop uses default colours (Super+Shift+W picks a wallpaper and makes one)\n", "palette")
 	} else {
 		fmt.Printf("  %-18s generated from the wallpaper\n", "palette")
 	}
 	look, _ := os.ReadFile(filepath.Join(home, ".config", "asura", "hyprland", "shell.conf"))
-	if strings.Contains(string(look), "shell-end4") {
-		fmt.Printf("  %-18s end-4's compositor look is loaded\n", "compositor look")
+	if strings.Contains(string(look), "shell-desktop") {
+		fmt.Printf("  %-18s desktop compositor look is loaded\n", "compositor look")
 	} else {
 		fmt.Printf("  %-18s not loaded yet (asura refresh, or log in again)\n", "compositor look")
 	}
-	if b, err := os.ReadFile(filepath.Join(state, "asura", "end4-quick-exits")); err == nil {
+	if b, err := os.ReadFile(filepath.Join(state, "asura", "desktop-quick-exits")); err == nil {
 		if n, _ := strconv.Atoi(strings.TrimSpace(string(b))); n >= 3 {
 			problems++
-			fmt.Printf("  %-18s end-4 keeps exiting and restarting; see %s\n", "crash loop",
+			fmt.Printf("  %-18s desktop keeps exiting and restarting; see %s\n", "crash loop",
 				filepath.Join(state, "asura", "quickshell.log"))
-			fmt.Printf("  %-18s after fixing it: rm %s/asura/end4-*; sv restart ~/.config/service/quickshell\n", "", state)
+			fmt.Printf("  %-18s after fixing it: rm %s/asura/desktop-*; sv restart ~/.config/service/quickshell\n", "", state)
 		}
 	}
 	if problems > 0 {

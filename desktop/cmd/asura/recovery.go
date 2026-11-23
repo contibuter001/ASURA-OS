@@ -139,7 +139,7 @@ func runRecoveryMenu(r *recoveryRunner) int {
 			}
 		case "2":
 			fmt.Fprintln(r.out, "\n[Option 2: Reset Desktop Configuration]")
-			fmt.Fprintln(r.out, "This moves your current desktop configuration (end-4 config.json,")
+			fmt.Fprintln(r.out, "This moves your current desktop configuration (desktop config.json,")
 			fmt.Fprintln(r.out, "Hyprland overrides, shell state) into a dated backup folder under")
 			fmt.Fprintln(r.out, "~/.local/state/asura/backups/ and restores clean ASURA defaults.")
 			fmt.Fprintln(r.out, "Nothing outside your desktop configuration is touched.")

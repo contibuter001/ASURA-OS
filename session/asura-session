@@ -219,13 +219,13 @@ for user_cfg in monitors-auto.conf monitors-user.conf settings.conf rebinds.conf
     [ -e "$USER_HYPRLAND_DIR/$user_cfg" ] || touch "$USER_HYPRLAND_DIR/$user_cfg"
 done
 
-# The desktop shell's half of the look. end-4 styles its frosted panels and
+# The desktop shell's half of the look. The desktop styles its frosted panels and
 # animations in the compositor, so while it is the shell its rules are sourced
-# (shell-end4/asura/hyprland.conf); for ASURA's shell the file is empty.
+# (shell-desktop/asura/hyprland.conf); for ASURA's shell the file is empty.
 # Rewritten every login, so switching shells takes effect at the next one.
-SHELL_LOOK=/usr/share/asura/shell-end4/asura/hyprland.conf
+SHELL_LOOK=/usr/share/asura/shell-desktop/asura/hyprland.conf
 DESKTOP_SHELL="${ASURA_DESKTOP_SHELL:-$(gsettings get org.asura.shell desktop-shell 2>/dev/null | tr -d "'")}"
-if [ "${DESKTOP_SHELL:-end4}" = end4 ] && [ -f "$SHELL_LOOK" ]; then
+if [ "${DESKTOP_SHELL:-desktop}" = desktop ] && [ -f "$SHELL_LOOK" ]; then
     printf '# Written by asura-session at login; do not edit.\nsource = %s\n' "$SHELL_LOOK" >"$USER_HYPRLAND_DIR/shell.conf"
 else
     printf '# Written by asura-session at login; do not edit.\n' >"$USER_HYPRLAND_DIR/shell.conf"

@@ -58,7 +58,7 @@ asura reset --desktop
 ### What it does:
 - Creates a dated backup under `~/.local/state/asura/backups/desktop-YYYYMMDD-HHMMSS/`.
 - Backs up and resets:
-  - `~/.config/illogical-impulse/config.json` (end-4 shell settings)
+  - `~/.config/illogical-impulse/config.json` (desktop shell settings)
   - `~/.config/asura/hyprland/` (user Hyprland overrides and custom binds)
   - `~/.config/asura/user_edits/` (materialized overlay overrides)
   - `~/.local/state/asura/` (shell state and dynamic caches)

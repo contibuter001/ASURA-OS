@@ -51,20 +51,20 @@ mkdir -p "$LOG_DIR"
 exec >>"$LOG_DIR/quickshell.log" 2>&1
 
 # Which desktop shell: org.asura.shell desktop-shell picks ASURA's own shell
-# (asura) or end-4's illogical-impulse desktop (end4). ASURA_DESKTOP_SHELL
+# (asura) or the desktop shell (desktop). ASURA_DESKTOP_SHELL
 # overrides it for a test run, and ASURA_SHELL_DIR overrides the directory.
 DESKTOP_SHELL="${ASURA_DESKTOP_SHELL:-$(gsettings get org.asura.shell desktop-shell 2>/dev/null | tr -d "'")}"
-DESKTOP_SHELL="${DESKTOP_SHELL:-end4}"
+DESKTOP_SHELL="${DESKTOP_SHELL:-desktop}"
 
-# end-4 is the desktop. ASURA's own shell runs only when the user chooses it
+# The desktop is the default shell. ASURA's own shell runs only when the user chooses it
 # (org.asura.shell desktop-shell = asura); it is never switched to on its own.
-# When end-4 exits within 15 seconds three times in a row, it is restarted
+# When the desktop exits within 15 seconds three times in a row, it is restarted
 # after a pause instead, so a crash loop does not spin the CPU, and the user
 # is told once where the log is.
-CRASHES="$LOG_DIR/end4-quick-exits"
-if [ "$DESKTOP_SHELL" = "end4" ]; then
+CRASHES="$LOG_DIR/desktop-quick-exits"
+if [ "$DESKTOP_SHELL" = "desktop" ]; then
 	now=$(date +%s)
-	last=$(cat "$LOG_DIR/end4-last-start" 2>/dev/null || echo 0)
+	last=$(cat "$LOG_DIR/desktop-last-start" 2>/dev/null || echo 0)
 	count=$(cat "$CRASHES" 2>/dev/null || echo 0)
 	if [ "$last" -gt 0 ] && [ $((now - last)) -lt 15 ]; then
 		count=$((count + 1))
@@ -73,17 +73,17 @@ if [ "$DESKTOP_SHELL" = "end4" ]; then
 	fi
 	echo "$count" >"$CRASHES"
 	if [ "$count" -ge 3 ]; then
-		echo "quickshell: the end-4 desktop exited within 15s $count times in a row; restarting it in 5s" >&2
+		echo "quickshell: the desktop exited within 15s $count times in a row; restarting it in 5s" >&2
 		if [ "$count" -eq 3 ] && command -v notify-send >/dev/null 2>&1; then
 			notify-send -a ASURA "The desktop keeps restarting" "See ~/.local/state/asura/quickshell.log" 2>/dev/null || true
 		fi
 		sleep 5
 	fi
-	date +%s >"$LOG_DIR/end4-last-start"
+	date +%s >"$LOG_DIR/desktop-last-start"
 fi
 
 case "$DESKTOP_SHELL" in
-	end4) DEFAULT_DIR=/usr/share/asura/shell-end4 ;;
+	desktop) DEFAULT_DIR=/usr/share/asura/shell-desktop ;;
 	*) DEFAULT_DIR=/usr/share/asura/shell ;;
 esac
 SHELL_DIR="${ASURA_SHELL_DIR:-$DEFAULT_DIR}"

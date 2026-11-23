@@ -23,7 +23,7 @@ env -i PATH="$PATH" LANG=C.UTF-8 HOME="$t" XDG_RUNTIME_DIR="$t/run" XDG_CONFIG_H
     timeout -k 2 10 quickshell -p "$tree" >"$t/log" 2>&1 || true
 # A type that fails to compile (a property the element does not have, a syntax
 # error) makes every type that uses it "unavailable" and the whole config fails
-# to load: the end-4 desktop's "Quickshell: Reload failed" was one wrong
+# to load: the desktop's "Quickshell: Reload failed" was one wrong
 # property name in one file.
 #
 # Offscreen has no layer-shell, so a PanelWindow produces "No PanelWindow backend

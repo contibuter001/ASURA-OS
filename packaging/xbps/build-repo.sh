@@ -32,7 +32,7 @@ for f in \
 	usr/bin/asura \
 	usr/bin/asura-session \
 	usr/share/asura/session/asura-activate \
-	usr/share/asura/shell-end4/shell.qml \
+	usr/share/asura/shell-desktop/shell.qml \
 	usr/share/asura/hyprland/hyprland.conf \
 	usr/share/asura/migrations; do
 	if [ ! -e "$STAGE/$f" ]; then
