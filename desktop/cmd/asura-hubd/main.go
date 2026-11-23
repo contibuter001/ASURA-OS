@@ -8,7 +8,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 )
@@ -25,13 +24,10 @@ func main() {
 		usage()
 		return
 	case "keybinds":
-		b, err := json.Marshal(keybinds())
-		if err != nil {
+		if err := runKeybinds(args[1:]); err != nil {
 			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
 			os.Exit(1)
 		}
-		os.Stdout.Write(b)
-		fmt.Println()
 	case "apps":
 		if err := printApps(); err != nil {
 			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
@@ -128,6 +124,31 @@ func main() {
 			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
 			os.Exit(1)
 		}
+	case "rules":
+		if err := runRules(args[1:]); err != nil {
+			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
+			os.Exit(1)
+		}
+	case "autostart":
+		if err := runAutostart(args[1:]); err != nil {
+			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
+			os.Exit(1)
+		}
+	case "env":
+		if err := runEnv(args[1:]); err != nil {
+			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
+			os.Exit(1)
+		}
+	case "look":
+		if err := runLook(args[1:]); err != nil {
+			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
+			os.Exit(1)
+		}
+	case "updates":
+		if err := runUpdates(args[1:]); err != nil {
+			fmt.Fprintln(os.Stderr, "asura-hubd:", err)
+			os.Exit(1)
+		}
 	default:
 		usage()
 		os.Exit(2)
@@ -203,6 +224,11 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "  asura-hubd reload-cover import <path>")
 	fmt.Fprintln(os.Stderr, "  asura-hubd reload-cover prune [<managed-path>]")
 	fmt.Fprintln(os.Stderr, "  asura-hubd clipboard stats|prune")
+	fmt.Fprintln(os.Stderr, "  asura-hubd rules [list|add|remove]")
+	fmt.Fprintln(os.Stderr, "  asura-hubd autostart [list|add|remove]")
+	fmt.Fprintln(os.Stderr, "  asura-hubd env [list|check|set|remove]")
+	fmt.Fprintln(os.Stderr, "  asura-hubd look [list|set|mode|wallpapers]")
+	fmt.Fprintln(os.Stderr, "  asura-hubd updates [status|check|channel|snapshots]")
 	fmt.Fprintln(os.Stderr, "  asura-hubd import scan <path|url>")
 	fmt.Fprintln(os.Stderr, "  asura-hubd import apply <decisions.json|->")
 	fmt.Fprintln(os.Stderr, "  asura-hubd import undo [<ts>]")

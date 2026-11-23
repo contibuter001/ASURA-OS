@@ -37,6 +37,9 @@ func UserEditsHyprDir() string { return userEditsHyprDir() }
 
 func shellStorePath() string { return filepath.Join(asuraConfigDir(), "shell.json") }
 
+// SessionEnvPath is the path to user session environment variables.
+func SessionEnvPath() string { return filepath.Join(asuraConfigDir(), "session", "asura-session.env") }
+
 func fileExists(p string) bool {
 	_, err := os.Stat(p)
 	return err == nil

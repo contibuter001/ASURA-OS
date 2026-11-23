@@ -152,3 +152,42 @@ func TestKeybindsEmptyWithoutCatalogue(t *testing.T) {
 		t.Errorf("got %d categories without a catalogue, want 0", len(l.Categories))
 	}
 }
+
+// TestCustomKeybindsAddAndRemove verifies:
+// Custom binds can be added and removed from desktop.json under "Custom Shortcuts"
+func TestCustomKeybindsAddAndRemove(t *testing.T) {
+	stubCatalogue(t, testCatalogue, `{"desktop":{}}`)
+
+	l := keybinds()
+	if len(l.Categories) == 0 {
+		t.Fatal("expected categories from test catalogue")
+	}
+
+	// Add custom keybind
+	if err := runKeybinds([]string{"add", "SUPER + Shift + T", "alacritty", "Custom Terminal"}); err != nil {
+		t.Fatalf("runKeybinds add failed: %v", err)
+	}
+
+	lAfterAdd := keybinds()
+	customCat := catByName(lAfterAdd, "Custom Shortcuts")
+	if customCat == nil || len(customCat.Binds) != 1 {
+		t.Fatalf("expected Custom Shortcuts category with 1 bind, got %v", customCat)
+	}
+	if customCat.Binds[0].Combo != "SUPER + SHIFT + T" || customCat.Binds[0].Desc != "alacritty" {
+		t.Errorf("unexpected custom bind: %+v", customCat.Binds[0])
+	}
+	if customCat.Binds[0].Locked {
+		t.Errorf("custom bind should not be locked")
+	}
+
+	// Remove custom keybind
+	if err := runKeybinds([]string{"remove", "SUPER + Shift + T"}); err != nil {
+		t.Fatalf("runKeybinds remove failed: %v", err)
+	}
+
+	lAfterRm := keybinds()
+	customCatAfterRm := catByName(lAfterRm, "Custom Shortcuts")
+	if customCatAfterRm != nil && len(customCatAfterRm.Binds) > 0 {
+		t.Errorf("expected custom bind to be removed, got: %v", customCatAfterRm)
+	}
+}

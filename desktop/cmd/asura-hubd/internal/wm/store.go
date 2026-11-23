@@ -392,6 +392,11 @@ type neutralStore struct {
 	} `json:"wm"`
 }
 
+// LoadStore reads desktop.json into the override model with defaults filled.
+func LoadStore(path string) Overrides {
+	return loadStore(path)
+}
+
 // loadStore reads desktop.json into the override model with defaults filled. The
 // merge is namespace-agnostic, so a key under the wrong namespace is still
 // honoured; the split only matters for a compositor that ignores wm.hyprland.

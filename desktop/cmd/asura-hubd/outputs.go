@@ -65,6 +65,15 @@ func runOutputs(args []string) error {
 			return fmt.Errorf("outputs apply needs a layout JSON")
 		}
 		return applyOutputs(args[1])
+	case args[0] == "apply-test" || args[0] == "test":
+		if len(args) < 2 {
+			return fmt.Errorf("outputs apply-test needs a layout JSON")
+		}
+		return applyOutputsTest(args[1])
+	case args[0] == "confirm":
+		return confirmOutputs()
+	case args[0] == "revert":
+		return revertOutputs()
 	case args[0] == "profiles":
 		return listProfiles()
 	case args[0] == "save":
@@ -153,6 +162,71 @@ func applyLayout(layout []wm.OutputLayout) error {
 	}
 	publishGreeterPrimary(layout)
 	return printJSON(rep)
+}
+
+func revertFilePath() string {
+	return wm.MonitorsUserConfPath() + ".revert"
+}
+
+func applyOutputsTest(raw string) error {
+	confPath := wm.MonitorsUserConfPath()
+	// Backup existing monitors-user.conf if present
+	if data, err := os.ReadFile(confPath); err == nil {
+		_ = atomicWrite(revertFilePath(), data, 0o644)
+	} else {
+		// Mark that no file existed previously
+		_ = atomicWrite(revertFilePath(), []byte("# NONE\n"), 0o644)
+	}
+
+	layout, err := parseLayout(raw)
+	if err != nil {
+		return err
+	}
+	if err := applyLayout(layout); err != nil {
+		_ = revertOutputs()
+		return err
+	}
+
+	// Validate config syntax
+	if err := wm.CheckConfigErrors(); err != nil {
+		_ = revertOutputs()
+		return fmt.Errorf("displays mode test failed: %w (reverted)", err)
+	}
+
+	return printJSON(map[string]any{
+		"status":  "testing",
+		"timeout": 15,
+		"message": "Display configuration applied for 15-second test. Confirm to keep.",
+	})
+}
+
+func confirmOutputs() error {
+	_ = os.Remove(revertFilePath())
+	return printJSON(map[string]string{
+		"status":  "confirmed",
+		"message": "Display settings kept successfully.",
+	})
+}
+
+func revertOutputs() error {
+	revPath := revertFilePath()
+	confPath := wm.MonitorsUserConfPath()
+	data, err := os.ReadFile(revPath)
+	if err == nil {
+		if string(data) == "# NONE\n" {
+			_ = os.Remove(confPath)
+			_ = os.Remove(filepath.Join(wm.UserEditsHyprDir(), "monitors-user.conf"))
+		} else {
+			_ = atomicWrite(confPath, data, 0o644)
+			_ = atomicWrite(filepath.Join(wm.UserEditsHyprDir(), "monitors-user.conf"), data, 0o644)
+		}
+		_ = os.Remove(revPath)
+	}
+	_ = desktopClient().Act(wm.ActionConfigReload)
+	return printJSON(map[string]string{
+		"status":  "reverted",
+		"message": "Display settings reverted.",
+	})
 }
 
 // publishGreeterPrimary records the layout's main output where the login

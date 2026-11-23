@@ -134,6 +134,22 @@ func runCtl(args ...string) ([]byte, error) {
 	return stdout.Bytes(), nil
 }
 
+// CheckConfigErrors queries hyprctl for config syntax errors after reload.
+func CheckConfigErrors() error {
+	if !live() {
+		return nil
+	}
+	out, err := ctl("configerrors")
+	if err != nil {
+		return nil
+	}
+	s := strings.TrimSpace(string(out))
+	if s != "" && s != "ok" && !strings.Contains(s, "no errors") {
+		return fmt.Errorf("hyprland config error: %s", s)
+	}
+	return nil
+}
+
 // Detect names the compositor this user runs. Asura has one, so detection is
 // only about whether it is live right now.
 func Detect() Detection {

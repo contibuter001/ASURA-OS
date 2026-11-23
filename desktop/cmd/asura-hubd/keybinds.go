@@ -1,20 +1,15 @@
 package main
 
 import (
+	"fmt"
+
 	"asura/desktop/cmd/asura-hubd/internal/wm"
 )
 
-// The keybind legend the Hub keybinds page and the Super+K cheatsheet draw. It
-// is the effective legend the active window-manager provider reports through the
-// seam: the shipped Asura catalogue resolved against the user's rebinds, each
-// row struck or annotated where the running compositor cannot honour it, then
-// that compositor's own exclusive binds and the user's custom binds. The
-// provider owns the parse now, so the two surfaces read one source instead of
-// each parsing a compositor's own config and drifting apart.
+// The keybind legend the Hub keybinds page and the Super+K cheatsheet draw.
+// ASURA's own shortcuts are shown read-only (project rule: ASURA shortcuts cannot be changed).
+// User-added custom bindings in ~/.config/asura/hyprland/ are shown and editable.
 
-// bind is one legend row for the two surfaces: every wm.BindRow field, plus desc
-// and combo so the Hub page and the cheatsheet keep the field names they already
-// read (desc is the row's label, combo the shipped default chord).
 type bind struct {
 	wm.BindRow
 	Desc  string `json:"desc"`
@@ -30,17 +25,40 @@ type legend struct {
 	Categories []category `json:"categories"`
 }
 
-// keybinds groups the provider's effective legend into sections in the order the
-// rows arrive: a category opens the first time one of its rows appears, and every
-// later row for it lands under that same header, so the sheet's sections read in
-// catalogue order. On a provider error there is no honest legend to draw, so the
-// result is the empty set and the Hub shows its empty state.
+func runKeybinds(args []string) error {
+	if len(args) == 0 || args[0] == "list" {
+		return printJSON(keybinds())
+	}
+	switch args[0] {
+	case "add":
+		if len(args) < 3 {
+			return fmt.Errorf("keybinds add needs <chord> <command> [label]")
+		}
+		label := args[1]
+		if len(args) >= 4 {
+			label = args[3]
+		}
+		return addCustomKeybind(args[1], args[2], label)
+	case "remove", "rm":
+		if len(args) < 2 {
+			return fmt.Errorf("keybinds remove needs <chord>")
+		}
+		return removeCustomKeybind(args[1])
+	default:
+		return fmt.Errorf("unknown keybinds subcommand %q", args[0])
+	}
+}
+
+// keybinds groups the provider's effective legend into sections.
+// Shipped binds are marked Locked=true, Rebindable=false.
+// User custom binds are added under "Custom Shortcuts".
 func keybinds() legend {
 	l := legend{Categories: []category{}}
 	rows, err := wm.Open().Binds()
 	if err != nil {
 		return l
 	}
+
 	at := map[string]int{}
 	for _, r := range rows {
 		i, ok := at[r.Category]
@@ -55,5 +73,94 @@ func keybinds() legend {
 			Combo:   r.Default,
 		})
 	}
+
+	// Add user-added custom binds from desktop.json
+	o := wm.LoadStore(desktopStorePath())
+	if len(o.Keybinds) > 0 {
+		var customBinds []bind
+		for _, k := range o.Keybinds {
+			chord := wm.NormChord(k.Keys)
+			customBinds = append(customBinds, bind{
+				BindRow: wm.BindRow{
+					ID:         "custom-" + chord,
+					Category:   "Custom Shortcuts",
+					Label:      k.Value,
+					Keys:       wm.DisplayKeys(chord),
+					Default:    chord,
+					Chord:      chord,
+					Kind:       wm.BindCustom,
+					Rebindable: true,
+					Locked:     false,
+				},
+				Desc:  k.Value,
+				Combo: chord,
+			})
+		}
+		if len(customBinds) > 0 {
+			l.Categories = append(l.Categories, category{
+				Name:  "Custom Shortcuts",
+				Binds: customBinds,
+			})
+		}
+	}
+
 	return l
+}
+
+func addCustomKeybind(keys, command, label string) error {
+	return withDesktopLock(func() error {
+		o := wm.LoadStore(desktopStorePath())
+		chord := wm.NormChord(keys)
+		found := false
+		for i := range o.Keybinds {
+			if wm.NormChord(o.Keybinds[i].Keys) == chord {
+				o.Keybinds[i].Action = "exec"
+				o.Keybinds[i].Value = command
+				found = true
+				break
+			}
+		}
+		if !found {
+			o.Keybinds = append(o.Keybinds, wm.Keybind{
+				Keys:   chord,
+				Action: "exec",
+				Value:  command,
+			})
+		}
+		if err := setHyprSections(map[string]any{"keybinds": o.Keybinds}); err != nil {
+			return err
+		}
+		if err := applyLive(); err != nil {
+			return err
+		}
+		return printJSON(map[string]string{
+			"status":  "added",
+			"chord":   chord,
+			"command": command,
+		})
+	})
+}
+
+func removeCustomKeybind(keys string) error {
+	return withDesktopLock(func() error {
+		o := wm.LoadStore(desktopStorePath())
+		chord := wm.NormChord(keys)
+		var kept []wm.Keybind
+		for _, k := range o.Keybinds {
+			if wm.NormChord(k.Keys) != chord {
+				kept = append(kept, k)
+			}
+		}
+		o.Keybinds = kept
+		if err := setHyprSections(map[string]any{"keybinds": o.Keybinds}); err != nil {
+			return err
+		}
+		if err := applyLive(); err != nil {
+			return err
+		}
+		return printJSON(map[string]string{
+			"status": "removed",
+			"chord":  chord,
+		})
+	})
 }
