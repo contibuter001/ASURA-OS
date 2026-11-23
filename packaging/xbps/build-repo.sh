@@ -33,6 +33,7 @@ for f in \
 	usr/bin/asura-session \
 	usr/share/asura/session/asura-activate \
 	usr/share/asura/shell-desktop/shell.qml \
+	usr/share/asura/hyprland/hyprland.lua \
 	usr/share/asura/hyprland/hyprland.conf \
 	usr/share/asura/migrations; do
 	if [ ! -e "$STAGE/$f" ]; then
@@ -67,7 +68,7 @@ echo "build-repo: creating $PKGVER"
 		-m "mohitjoer <mohitjoe.r@gmail.com>" \
 		-l "GPL-3.0-only" \
 		-H "https://github.com/mohitjoer/ASURA-OS" \
-		-D "hyprland>=0 quickshell>=0 seatd>=0 turnstile>=0" \
+		-D "hyprland>=0.57 quickshell>=0 seatd>=0 turnstile>=0" \
 		-F "$conf_files" \
 		"$STAGE"
 )
