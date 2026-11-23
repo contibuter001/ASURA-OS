@@ -45,7 +45,7 @@ care about first.
 | USB stick | 4 GB or larger, for the installer image |
 | Network | Optional for the install, needed for updates |
 
-Check your laptop in the [hardware matrix](system/hardware/) first. Machines without a
+Check your laptop in the [hardware compatibility matrix](docs/hardware.md) first. Machines without a
 profile get conservative defaults (support tier 3) and may need manual fixes.
 
 ### 1. Download
@@ -224,6 +224,7 @@ The four design documents, and what each one decides:
 | Document | Decides |
 |---|---|
 | [`docs/architecture.md`](docs/architecture.md) | The stack and the reasoning behind it — settled decisions, rejected options, the base-layer boundary, the portal seam |
+| [`docs/hardware.md`](docs/hardware.md) | Hardware compatibility matrix, supported laptop families, support levels, and submission workflow |
 | [`docs/hardware-detection.md`](docs/hardware-detection.md) | The subsystem that decides whether ASURA works on someone else's laptop — probes, matching, PII stripping, tier assignment |
 | [`docs/session.md`](docs/session.md) | The boot and login chain — GRUB through runit to Hyprland, the session entry point, what starts in what order, and who owns logout, suspend and shutdown |
 | [`docs/menu.md`](docs/menu.md) | `asura menu` — the unified "do everything" menu on Super+Alt+Space coordinating apps, setup, themes, updates and power |

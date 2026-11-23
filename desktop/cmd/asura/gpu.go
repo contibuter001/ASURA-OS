@@ -13,9 +13,12 @@ import (
 const gpuUsage = `Usage: asura gpu <verb> [arguments...]
 
 Verbs:
-  status        report detected GPUs, drivers, and runtime power status
-  run <cmd...>  execute command offloaded to discrete NVIDIA/AMD GPU
+  status                   report detected GPUs, drivers, and runtime power status
+  switch [mode]            switch GPU mode (hybrid | integrated | discrete)
+  run <cmd...>             execute command offloaded to discrete NVIDIA/AMD GPU
 `
+
+var gpuPrivileged = runPrivileged
 
 func init() {
 	register("gpu", "inspect GPUs and run commands offloaded to discrete graphics", asuraGpu)
@@ -28,6 +31,7 @@ type GPUInfo struct {
 	Driver        string `json:"driver"`
 	RuntimeStatus string `json:"runtime_status,omitempty"`
 	PowerControl  string `json:"power_control,omitempty"`
+	PowerState    string `json:"power_state,omitempty"`
 }
 
 func asuraGpu(args []string) int {
@@ -39,6 +43,8 @@ func asuraGpu(args []string) int {
 	switch args[0] {
 	case "status":
 		return runGpuStatus(args[1:])
+	case "switch":
+		return runGpuSwitch(args[1:])
 	case "run":
 		return runGpuOffload(args[1:])
 	case "-h", "--help", "help":
@@ -63,7 +69,7 @@ func scanGPUs() []GPUInfo {
 			continue
 		}
 		class := strings.TrimSpace(string(classData))
-		// Class 0x030000 is VGA compatible, 0x030200 is 3D controller (NVIDIA Optimus)
+		// Class 0x030000 is VGA compatible, 0x030200 is 3D controller (NVIDIA Optimus / AMD dGPU)
 		if !strings.HasPrefix(class, "0x0300") && !strings.HasPrefix(class, "0x0302") {
 			continue
 		}
@@ -85,12 +91,21 @@ func scanGPUs() []GPUInfo {
 			vendorName = "Advanced Micro Devices, Inc. [AMD/ATI]"
 		}
 
+		rStatus := strings.TrimSpace(string(runtimeStatus))
+		pState := "Unknown"
+		if rStatus == "suspended" {
+			pState = "D3cold (Suspended, 0W idle)"
+		} else if rStatus == "active" {
+			pState = "D0 (Active)"
+		}
+
 		info := GPUInfo{
 			Address:       addr,
 			Vendor:        vendorName,
 			Driver:        filepath.Base(driverLink),
-			RuntimeStatus: strings.TrimSpace(string(runtimeStatus)),
+			RuntimeStatus: rStatus,
 			PowerControl:  strings.TrimSpace(string(powerControl)),
+			PowerState:    pState,
 		}
 		gpus = append(gpus, info)
 	}
@@ -115,8 +130,69 @@ func runGpuStatus(args []string) int {
 		fmt.Printf("  Driver:         %s\n", gpu.Driver)
 		if gpu.RuntimeStatus != "" {
 			fmt.Printf("  Runtime Power:  %s (control: %s)\n", gpu.RuntimeStatus, gpu.PowerControl)
+			fmt.Printf("  Power State:    %s\n", gpu.PowerState)
 		}
 	}
+	return exitOK
+}
+
+func runGpuSwitch(args []string) int {
+	gpus := scanGPUs()
+
+	// Find discrete GPU
+	var dGPU *GPUInfo
+	for _, g := range gpus {
+		if strings.Contains(g.Vendor, "NVIDIA") || strings.Contains(g.Vendor, "AMD") {
+			cp := g
+			dGPU = &cp
+			break
+		}
+	}
+
+	if len(args) == 0 {
+		if dGPU == nil {
+			fmt.Println("Current GPU mode: integrated (no discrete GPU detected)")
+			return exitOK
+		}
+		if dGPU.PowerControl == "on" {
+			fmt.Println("Current GPU mode: discrete (dGPU kept awake in D0)")
+		} else {
+			fmt.Println("Current GPU mode: hybrid (dynamic RTD3 / D3cold power management)")
+		}
+		return exitOK
+	}
+
+	mode := strings.ToLower(args[0])
+	switch mode {
+	case "hybrid", "auto":
+		if dGPU != nil {
+			ctrlPath := fmt.Sprintf("/sys/bus/pci/devices/%s/power/control", dGPU.Address)
+			_ = gpuPrivileged("sh", "-c", fmt.Sprintf("echo auto > %s", ctrlPath))
+			fmt.Println("GPU mode switched to hybrid: dGPU will enter D3cold dynamically when idle.")
+		} else {
+			fmt.Println("GPU mode set to hybrid.")
+		}
+	case "discrete", "performance":
+		if dGPU != nil {
+			ctrlPath := fmt.Sprintf("/sys/bus/pci/devices/%s/power/control", dGPU.Address)
+			_ = gpuPrivileged("sh", "-c", fmt.Sprintf("echo on > %s", ctrlPath))
+			fmt.Println("GPU mode switched to discrete: dGPU kept awake in D0.")
+		} else {
+			fmt.Println("GPU mode set to discrete.")
+		}
+	case "integrated":
+		if dGPU != nil {
+			ctrlPath := fmt.Sprintf("/sys/bus/pci/devices/%s/power/control", dGPU.Address)
+			_ = gpuPrivileged("sh", "-c", fmt.Sprintf("echo auto > %s", ctrlPath))
+			fmt.Println("GPU mode switched to integrated: dGPU dynamic power management active.")
+		} else {
+			fmt.Println("GPU mode set to integrated.")
+		}
+	default:
+		fmt.Fprintf(os.Stderr, "asura gpu switch: unknown mode %q (must be hybrid, integrated, or discrete)\n", mode)
+		return exitUsage
+	}
+
 	return exitOK
 }
 
@@ -157,7 +233,6 @@ func runGpuOffload(args []string) int {
 		}
 	}
 
-	// Exec target binary replacing current process
 	return execSubprocess(path, args, env)
 }
 

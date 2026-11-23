@@ -12,6 +12,8 @@ import (
 	"strings"
 
 	"asura/desktop/internal/runner"
+	"asura/hardware/probe"
+	"asura/hardware/quirks"
 )
 
 // Two checks for faults that say nothing when they happen. A keybind whose
@@ -778,41 +780,67 @@ func reportFingerprint(root string) int {
 	return exitOK
 }
 
-// reportHardwareQuirks reports whether the machine matches any model hardware quirks and whether they are applied.
+// reportHardwareQuirks reports whether the machine matches any hardware quirks and whether they are applied.
 func reportHardwareQuirks(root string) int {
 	fmt.Println()
 	fmt.Println("Hardware Quirks")
 
-	dir := resolveModelsDir()
-	models, err := loadQuirkModels(dir)
-	if err != nil || len(models) == 0 {
-		fmt.Println("  models            no model quirks available")
+	allDefs, err := loadAllHardwareQuirks()
+	if err != nil || len(allDefs) == 0 {
+		fmt.Println("  definitions       no hardware quirks available")
 		return exitOK
 	}
 
-	matched := findMatchedQuirkModel(models, root)
-	appliedID := getAppliedQuirkID()
+	fs, _ := probe.New(root)
+	matchedLayers, _ := quirks.MatchMachine(allDefs, fs)
+	appliedState, _ := getAppliedState()
 
-	if matched == nil {
-		if appliedID != "" {
-			fmt.Printf("  applied           %s (no longer matches current hardware)\n", appliedID)
+	appliedMap := make(map[string]bool)
+	var staleLayers []string
+	if appliedState != nil {
+		matchedIDMap := make(map[string]bool)
+		for _, m := range matchedLayers {
+			matchedIDMap[m.Def.ID] = true
+		}
+		for _, l := range appliedState.Layers {
+			appliedMap[l.ID] = true
+			if !matchedIDMap[l.ID] {
+				staleLayers = append(staleLayers, l.ID)
+			}
+		}
+	}
+
+	if len(matchedLayers) == 0 {
+		if len(staleLayers) > 0 {
+			fmt.Printf("  applied           %s (no longer matches current hardware)\n", strings.Join(staleLayers, ", "))
+			fmt.Println("  fix               run 'asura hardware quirks remove' to clean stale configuration")
 		} else {
-			fmt.Println("  model             no specific model quirk matched (standard profile in use)")
+			fmt.Println("  model             no specific hardware quirks matched (standard profile in use)")
 		}
 		return exitOK
 	}
 
-	if appliedID == matched.ID {
-		fmt.Printf("  model             %s (%s)\n", matched.Name, matched.ID)
-		fmt.Println("  status            applied and active")
-	} else if appliedID != "" {
-		fmt.Printf("  model             %s matches, but %s is currently applied\n", matched.Name, appliedID)
-		fmt.Printf("  fix               run 'asura hardware quirks apply %s'\n", matched.ID)
-	} else {
-		fmt.Printf("  model             %s (%s)\n", matched.Name, matched.ID)
-		fmt.Println("  status            available (not applied)")
-		fmt.Println("  fix               run 'asura hardware quirks apply' to enable model-specific tuning")
+	allMatchedApplied := true
+	for _, m := range matchedLayers {
+		status := "available"
+		if appliedMap[m.Def.ID] {
+			status = "applied"
+		} else {
+			allMatchedApplied = false
+		}
+		fmt.Printf("  layer             [%s] %s (%s) [%s]\n", m.Layer, m.Def.Name, m.Def.ID, status)
 	}
+
+	if len(staleLayers) > 0 {
+		fmt.Printf("  stale applied     %s (no longer matches current hardware)\n", strings.Join(staleLayers, ", "))
+		fmt.Println("  fix               run 'asura hardware quirks remove' or 'asura hardware quirks apply' to re-sync")
+	} else if allMatchedApplied {
+		fmt.Println("  status            applied and active")
+	} else {
+		fmt.Println("  status            available (unapplied layers detected)")
+		fmt.Println("  fix               run 'asura hardware quirks apply' to apply all matched hardware layers")
+	}
+
 	return exitOK
 }
 

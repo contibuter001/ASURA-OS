@@ -28,7 +28,7 @@ files:
       reason: "Persist 80% charge threshold on ASUS BAT0 charge_control_end_threshold"
     - target: "/etc/udev/rules.d/90-asus-backlight.rules"
       content: |
-        # Allow users in video/input groups or all seats to adjust ASUS keyboard backlight
+        # Allow users to adjust ASUS keyboard backlight brightness
         SUBSYSTEM=="leds", KERNEL=="asus::kbd_backlight", ACTION=="add", RUN+="/bin/chmod a+w /sys/class/leds/asus::kbd_backlight/brightness"
       reason: "Grant write permissions to asus::kbd_backlight brightness interface"
   modprobe:

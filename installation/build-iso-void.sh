@@ -478,6 +478,15 @@ mkdir -p "$INCLUDE_DIR/etc/skel/.agents/skills"
 cp -r "$INCLUDE_DIR/usr/share/asura/skills"/* "$INCLUDE_DIR/etc/skel/.agents/skills/" 2>/dev/null || true
 mkdir -p "$INCLUDE_DIR/etc/skel/.config/opencode/skills"
 cp -r "$INCLUDE_DIR/usr/share/asura/skills"/* "$INCLUDE_DIR/etc/skel/.config/opencode/skills/" 2>/dev/null || true
+
+# Hardware models and components for quirks engine
+mkdir -p "$INCLUDE_DIR/usr/share/asura/hardware/models" "$INCLUDE_DIR/usr/share/asura/hardware/components"
+if [ -d "$REPO_ROOT/system/hardware/models" ]; then
+	cp -r "$REPO_ROOT/system/hardware/models"/* "$INCLUDE_DIR/usr/share/asura/hardware/models/" 2>/dev/null || true
+fi
+if [ -d "$REPO_ROOT/system/hardware/components" ]; then
+	cp -r "$REPO_ROOT/system/hardware/components"/* "$INCLUDE_DIR/usr/share/asura/hardware/components/" 2>/dev/null || true
+fi
 cat >"$INCLUDE_DIR/etc/skel/.config/opencode/opencode.json" <<'EOF'
 {
   "$schema": "https://opencode.ai/config.json",

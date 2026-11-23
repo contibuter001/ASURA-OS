@@ -53,6 +53,7 @@ for f in \
 	usr/share/asura/hyprland/binds.conf \
 	usr/share/asura/runit/services/quickshell/run \
 	usr/share/asura/session/binds.json \
+	usr/share/asura/hardware/models/generic-laptop.yaml \
 	usr/share/glib-2.0/schemas/org.asura.shell.gschema.xml \
 	usr/bin/asura-session \
 	usr/bin/asura-installer \
