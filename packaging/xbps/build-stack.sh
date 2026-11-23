@@ -68,17 +68,33 @@ else
 	as_builder() { (cd "$VP_DIR" && "$@"); }
 fi
 
+# Run a step with its output in a log; on failure print the log and, in
+# GitHub Actions, an annotation with its last lines (annotations show on the
+# run page without signing in; the log does not).
+logged() {
+	name=$1; shift
+	log="$VP_DIR/build-$name.log"
+	if ! "$@" >"$log" 2>&1; then
+		cat "$log"
+		echo "build-stack: $name failed" >&2
+		if [ -n "${GITHUB_ACTIONS:-}" ]; then
+			tail -n 25 "$log" | sed 's/%/%25/g' | awk -v n="$name" '
+				{ msg = msg (NR > 1 ? "%0A" : "") $0 }
+				END { print "::error title=build-stack failed on " n "::" msg }'
+		fi
+		exit 1
+	fi
+	tail -n 3 "$log"
+}
+
 echo "build-stack: binary-bootstrap..."
-as_builder ./xbps-src binary-bootstrap
+logged binary-bootstrap as_builder ./xbps-src binary-bootstrap
 
 jobs=$(nproc 2>/dev/null || echo 2)
 for pkg in $STACK_PACKAGES; do
 	[ -d "srcpkgs/$pkg" ] || { echo "build-stack: srcpkgs/$pkg is missing" >&2; exit 1; }
 	echo "build-stack: building $pkg..."
-	as_builder ./xbps-src -j"$jobs" pkg "$pkg" || {
-		echo "build-stack: failed to build $pkg" >&2
-		exit 1
-	}
+	logged "$pkg" as_builder ./xbps-src -j"$jobs" pkg "$pkg"
 done
 
 # xbps-src puts packages under hostdir/binpkgs/<branch>/.

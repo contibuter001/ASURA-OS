@@ -76,7 +76,7 @@ jobs:
           # container installs the tools Void's CI installs (xbps-src is a bash
           # script). No apostrophes inside the single-quoted script below: one
           # would end the quoting and run the rest on the runner instead.
-          docker run --rm --privileged -v "$PWD":/workspace -w /workspace -e XBPS_SIGNING_KEY="$key" \
+          docker run --rm --privileged -v "$PWD":/workspace -w /workspace -e XBPS_SIGNING_KEY="$key" -e GITHUB_ACTIONS \
             ghcr.io/void-linux/void-glibc-full:latest sh -euc '
               xbps-install -Syu xbps >/dev/null && xbps-install -yu >/dev/null && xbps-install -y bash sudo curl git >/dev/null
               git config --global --add safe.directory /workspace
