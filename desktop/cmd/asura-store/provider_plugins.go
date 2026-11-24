@@ -24,7 +24,7 @@ func (pluginProvider) Category() Category {
 		ID:          "plugins",
 		Name:        "Plugins",
 		Group:       "customize",
-		Description: "Community widgets, overlays, integrations, and tools for Toren Linux.",
+		Description: "Community widgets, overlays, integrations, and tools for Asura OS.",
 	}
 }
 
