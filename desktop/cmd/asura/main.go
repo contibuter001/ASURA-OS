@@ -97,14 +97,14 @@ func run(args []string) int {
 }
 
 func usage(w *os.File) {
-	fmt.Fprintf(w, `asura %s — Asura OS control tool
+	fmt.Fprintf(w, `asura %s — Toren Linux control tool
 
 Usage:
   asura <command> [flags]
 
 Commands:
   hardware      read this machine, and the profile database
-  update        pull ASURA, update packages, refresh the desktop
+  update        pull Toren, update packages, refresh the desktop
   rollback      re-materialize the previous revision
   materialize   re-lay the base, clobbering shipped content
   reset PATH    drop one user edit back to the base

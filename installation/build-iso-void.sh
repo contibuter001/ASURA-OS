@@ -1077,7 +1077,7 @@ fi
 
 cat >"$ROOTFS/usr/bin/void-docs" <<'DOCS'
 #!/bin/sh
-echo "Asura OS documentation is available at: https://asuraos.dev"
+echo "Toren Linux documentation is available at: https://asuraos.dev"
 DOCS
 chmod 0755 "$ROOTFS/usr/bin/void-docs"
 

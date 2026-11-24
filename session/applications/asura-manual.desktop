@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=ASURA Manual
+Name=Toren Manual
 GenericName=User manual
-Comment=How to use ASURA OS: the desktop, shortcuts, apps, updates, looks and fixing problems
+Comment=How to use Toren Linux: the desktop, shortcuts, apps, updates, looks and fixing problems
 Exec=asura-app terminal -- asura manual --all
 Terminal=false
 Icon=help-browser

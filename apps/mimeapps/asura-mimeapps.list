@@ -1,4 +1,4 @@
-# ASURA OS default applications (GPL-3.0)
+# Toren Linux default applications (GPL-3.0)
 [Default Applications]
 text/plain=nvim.desktop
 text/markdown=nvim.desktop

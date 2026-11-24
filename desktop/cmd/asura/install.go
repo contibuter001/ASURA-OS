@@ -10,12 +10,12 @@ import (
 
 const installUsage = `Usage: asura install [target-disk]
 
-Launches the Asura OS system installer to partition and install
-Asura OS onto a specified drive (e.g. /dev/nvme0n1 or /dev/vda).
+Launches the Toren Linux system installer to partition and install
+Toren Linux onto a specified drive (e.g. /dev/nvme0n1 or /dev/vda).
 `
 
 func init() {
-	register("install", "launch guided Asura OS system installer", asuraInstall)
+	register("install", "launch guided Toren Linux system installer", asuraInstall)
 }
 
 func asuraInstall(args []string) int {

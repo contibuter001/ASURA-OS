@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const usage = `asura-agent: Asura OS local coding agent harness integration
+const usage = `asura-agent: Toren Linux local coding agent harness integration
 
 Usage:
   asura-agent wire [agent]      Symlink the Asura skill suite into all or specified agent

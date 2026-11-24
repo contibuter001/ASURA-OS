@@ -34,7 +34,7 @@ func (xbpsProvider) Category() Category {
 		ID:          "apps",
 		Name:        "Apps",
 		Group:       "find",
-		Description: "Native packages from Asura OS repositories, managed with XBPS.",
+		Description: "Native packages from Toren Linux repositories, managed with XBPS.",
 	}
 }
 

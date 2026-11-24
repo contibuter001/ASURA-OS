@@ -2,7 +2,7 @@
   "id": "media-hud",
   "name": "Media HUD",
   "version": "1.0.0",
-  "author": "ASURA OS Core Team <core@asura-os.org>",
+  "author": "Toren Linux Core Team <core@torenlinux.org>",
   "description": "Wayland now-playing media controller with track progress and playback controls.",
   "license": "GPL-3.0",
   "official": false,

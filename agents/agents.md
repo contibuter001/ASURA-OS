@@ -1,4 +1,4 @@
-# ASURA OS — Agent Guidelines
+# Toren Linux — Agent Guidelines
 
 ASURA's master agent contract. `AGENTS.md`, `CLAUDE.md` and `GEMINI.md` are pointers to this
 file. Everything below is binding unless it says otherwise.
