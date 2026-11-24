@@ -1,25 +1,42 @@
-# Trademark Policy
+# Toren™ Trademark Policy
 
-This document explains the trademark policy for Toren Linux and Toren OS.
+## 1. Purpose
 
-Open-source licenses (such as GPL-3.0, LGPL-3.0, and Apache-2.0) grant rights to the software code itself, but they do not grant trademark rights. Copyright and trademark are distinct legal instruments: copyright governs the software and its distribution, while trademarks identify the origin and authenticity of the operating system.
+The source code of **Toren Linux** (also referred to as **Toren OS**) is released under an open-source license, which grants you broad rights to use, modify, and redistribute the software. However, an open-source license does **not** grant rights to use the project's trademarks, names, or logos.
 
-## The Toren Brand
+This policy explains how you may and may not use the Toren trademarks so that users can always tell the difference between official releases and third-party forks or modifications.
 
-"Toren", "Toren Linux", "Toren OS", and the associated Toren logos, wordmarks, and branding assets are trademarks identifying the official Toren project and its maintainers.
+## 2. Covered Marks
 
-## What You May Do
+The following are trademarks of the Toren Project ("the Marks"):
 
-- **Fork and modify the code:** You are completely free to fork, study, modify, adapt, build, and redistribute the source code under the terms of its open-source licenses (see [LICENSING.md](LICENSING.md)).
-- **Redistribute official ISOs:** You may redistribute unmodified, official Toren Linux / Toren OS ISO images and installer packages without changes.
-- **Truthful statements:** You may truthfully state that your software is based on or compatible with Toren Linux or Toren OS (for example, "built for Toren Linux", "compatible with Toren OS", or "derived from Toren Linux").
+* The wordmarks **Toren™**, **Toren Linux™**, and **Toren OS™**
+* All official Toren logos, icons, and visual brand assets
 
-## What Requires Rebranding
+## 3. Permitted Uses (No Permission Needed)
 
-If you build or distribute a modified version of the operating system, or produce modified ISO images:
+You may use the Marks without prior written permission to:
 
-1. **Remove the Toren name and branding:** Modified ISOs and custom builds must not be distributed under the names "Toren", "Toren Linux", or "Toren OS", and must not display official Toren logos, wordmarks, boot splash graphics, or artwork.
-2. **Choose a distinct identity:** Select a unique name and distinct visual branding so users are not confused about the origin or maintenance of the build.
-3. **No implied endorsement:** Do not use the "Toren", "Toren Linux", or "Toren OS" names or trademarks in a way that suggests endorsement, affiliation, certification, or official sponsorship by the project or its core team.
+* **Refer to the project:** Discuss, review, teach, or write documentation and tutorials about Toren.
+* **Distribute unmodified releases:** Mirror or redistribute official, unmodified Toren ISOs and packages, provided you do not alter them or imply official partnership.
+* **State factual origin or compatibility:** Accurately describe software, themes, or derivatives using truthful, non-confusing phrases such as *"Built for Toren OS"* or *"Based on Toren Linux."*
 
-For permissions or trademark inquiries, contact the maintainers via the official project repository.
+## 4. Restricted Uses (Permission Required)
+
+You may **not**, without prior written permission:
+
+* **Distribute modified builds or forks under the Toren name:** If you fork the repository or build a modified ISO, you must remove all Toren logos and branding and distribute it under a distinct, non-confusing name.
+* **Imply official endorsement:** Use the Marks in any way that suggests your project, service, or product is officially endorsed by, affiliated with, or sponsored by the Toren Project.
+* **Register confusing domains or handles:** Register domain names, GitHub organizations, package namespaces, or social media handles that impersonate or are confusingly similar to official Toren channels.
+* **Commercial use:** Sell merchandise, paid support, or commercial products featuring the Marks.
+
+## 5. Third-Party Trademarks
+
+**Linux®** is the registered trademark of Linus Torvalds in the U.S. and other countries. All other trademarks, service marks, and logos mentioned in this repository are the property of their respective owners.
+
+## 6. Contact & Reporting
+
+To request permission for a use not covered above, or to report suspected trademark misuse, contact:
+
+* **Email:** mohitjoe.r@gmail.com
+* **Repository:** https://github.com/toren-linux
