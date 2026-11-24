@@ -30,11 +30,11 @@ asura recovery
 
 ```
 ============================================================
-                ASURA System Recovery                       
+                Toren System Recovery                       
 ============================================================
 1) Run Doctor (system diagnostics & configuration drift)
 2) Reset Desktop (restore defaults, back up current files)
-3) Reinstall ASURA (re-apply files for installed commit)
+3) Reinstall Toren (re-apply files for installed commit)
 4) System Snapshots (list & restore Btrfs root snapshots)
 5) Safe-Mode Session (start minimal recovery desktop)
 6) Show Logs (inspect recent session and shell error logs)

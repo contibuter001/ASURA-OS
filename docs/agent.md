@@ -17,13 +17,13 @@ the machine.
 # Report detection in PATH and skill wiring status for all supported agents
 asura-agent status [--json]
 
-# Symlink the Asura skill suite into all or a specific agent
+# Symlink the Toren skill suite into all or a specific agent
 asura-agent wire [agent]
 
 # Wire every supported agent that is installed (asura-session runs this at login)
 asura-agent wire --installed
 
-# Remove the Asura skill symlink from all or a specific agent
+# Remove the Toren skill symlink from all or a specific agent
 asura-agent unwire [agent]
 ```
 

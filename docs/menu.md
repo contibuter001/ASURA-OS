@@ -17,7 +17,7 @@ categories and leaves, and strict compliance with Toren's monochrome design syst
 - **Command Line**: Run `asura menu` from any terminal or script to dispatch the menu toggle over IPC.
 
 ```sh
-# Open or toggle the ASURA menu from the CLI
+# Open or toggle the Toren menu from the CLI
 asura menu
 ```
 

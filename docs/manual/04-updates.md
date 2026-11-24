@@ -1,7 +1,7 @@
 # Updates and going back
 
 ```sh
-asura update            # ASURA and the desktop
+asura update            # Toren and the desktop
 sudo asura update       # also every system package, with a snapshot first
 asura update --check    # is there anything new?
 ```

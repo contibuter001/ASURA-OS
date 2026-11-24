@@ -327,7 +327,7 @@ import qs.PluginKit.Singletons   // the kit's tokens: Theme, Motion
 Item {
     id: root
 
-    // ASURA sets these; you only read them.
+    // Toren sets these; you only read them.
     property var pluginApi
     property string density: "full"
     property real widthBudget: 0
