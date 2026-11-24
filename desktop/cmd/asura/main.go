@@ -22,6 +22,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 var version = "0.1.0-beta.1"
@@ -89,18 +90,26 @@ func run(args []string) int {
 		if extra, registered := extraCommands[args[0]]; registered {
 			return extra.run(args[1:])
 		}
-		fmt.Fprintf(os.Stderr, "asura: unknown command %q\n\n", args[0])
+		fmt.Fprintf(os.Stderr, "%s: unknown command %q\n\n", toolName(), args[0])
 		usage(os.Stderr)
 		return exitUsage
 	}
 	return command(args[1:])
 }
 
+func toolName() string {
+	if len(os.Args) > 0 && filepath.Base(os.Args[0]) == "asura" {
+		return "asura"
+	}
+	return "toren"
+}
+
 func usage(w *os.File) {
-	fmt.Fprintf(w, `asura %s — Toren Linux control tool
+	name := toolName()
+	fmt.Fprintf(w, `%s %s — Toren Linux control tool
 
 Usage:
-  asura <command> [flags]
+  %s <command> [flags]
 
 Commands:
   hardware      read this machine, and the profile database
@@ -108,7 +117,7 @@ Commands:
   rollback      re-materialize the previous revision
   materialize   re-lay the base, clobbering shipped content
   reset PATH    drop one user edit back to the base
-  config        read and write Asura's settings
+  config        read and write Toren's settings
   apps          the applications on this machine, as JSON, for the launcher
   binds         the keybinding catalogue, as JSON, for the cheat sheet
   ipc           call the running shell's IPC surface, as the keybinds do
@@ -118,9 +127,9 @@ Commands:
   state         live desktop state as JSON, for the sidebar
   windows       switchable windows, most recently focused first
   version       print the version
-`, version)
+`, name, version, name)
 	printExtraUsage(w)
-	fmt.Fprint(w, "\nRun \"asura <command> --help\" for that command's own usage.\n")
+	fmt.Fprintf(w, "\nRun \"%s <command> --help\" for that command's own usage.\n", name)
 }
 
 // helpText is each command's usage, for `asura <command> --help`. A command

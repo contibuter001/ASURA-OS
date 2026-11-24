@@ -192,6 +192,12 @@ if [ "$BUILD" -eq 1 ]; then
 			mv -f "$ROOT/usr/bin/.$(basename "$b").new" "$ROOT/usr/bin/$(basename "$b")"
 		done || log "the Go build failed; the installed tools are unchanged"
 		rm -rf "$out"
+		for tool in asura asura-store asura-shell asura-wallpaper asura-hubd asura-sysd asura-userd asura-agent asura-vm asura-vm-mon asura-vm-ssh asura-vmd; do
+			toren_tool=$(echo "$tool" | sed 's/^asura/toren/')
+			if [ -e "$ROOT/usr/bin/$tool" ]; then
+				ln -sf "$tool" "$ROOT/usr/bin/$toren_tool"
+			fi
+		done
 	else
 		log "go is not installed; the Go tools are unchanged"
 	fi
@@ -217,6 +223,11 @@ if commit=$(git -c safe.directory='*' -C "$REPO" rev-parse HEAD 2>/dev/null); th
 	# And where it came from: asura update follows that checkout next time
 	# instead of searching for one.
 	printf '%s\n' "$REPO" >"$ROOT/usr/share/asura/applied-source"
+fi
+
+# Transitional symlink for /usr/share/toren <-> /usr/share/asura
+if [ -d "$ROOT/usr/share/asura" ] && [ ! -e "$ROOT/usr/share/toren" ]; then
+	ln -sfn asura "$ROOT/usr/share/toren"
 fi
 
 # ── Make the system notice ──────────────────────────────────────────────────

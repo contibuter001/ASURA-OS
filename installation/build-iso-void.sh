@@ -695,6 +695,18 @@ echo "build-iso-void: building Asura Go binaries..."
 find "$INCLUDE_DIR/usr/bin" -type f -exec chmod 0755 {} +
 # Symlinks
 ln -sf asura "$INCLUDE_DIR/usr/bin/os-ctl"
+ln -sf asura "$INCLUDE_DIR/usr/bin/toren"
+for tool in asura-store asura-shell asura-wallpaper asura-hubd asura-sysd asura-userd asura-agent asura-vm asura-vm-mon asura-vm-ssh asura-vmd; do
+	toren_tool=$(echo "$tool" | sed 's/^asura/toren/')
+	if [ -e "$INCLUDE_DIR/usr/bin/$tool" ]; then
+		ln -sf "$tool" "$INCLUDE_DIR/usr/bin/$toren_tool"
+	fi
+done
+
+# Transitional symlink for /usr/share/toren <-> /usr/share/asura
+if [ -d "$INCLUDE_DIR/usr/share/asura" ] && [ ! -e "$INCLUDE_DIR/usr/share/toren" ]; then
+	ln -sfn asura "$INCLUDE_DIR/usr/share/toren"
+fi
 
 # Pre-seed user skeleton configuration and XDG user directories
 mkdir -p "$INCLUDE_DIR/etc/skel/.config/asura" \
@@ -707,6 +719,7 @@ mkdir -p "$INCLUDE_DIR/etc/skel/.config/asura" \
          "$INCLUDE_DIR/etc/skel/Pictures" \
          "$INCLUDE_DIR/etc/skel/Videos"
 cp -a "$INCLUDE_DIR/usr/share/asura"/* "$INCLUDE_DIR/etc/skel/.config/asura/"
+ln -sfn asura "$INCLUDE_DIR/etc/skel/.config/toren"
 
 # Pre-seed Ghostty terminal configuration in skeleton
 cat >"$INCLUDE_DIR/etc/skel/.config/ghostty/config" <<'EOF'
