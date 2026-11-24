@@ -85,28 +85,18 @@ jobs:
           rm -f build/signing-key.pem
           sudo chown -R "$(id -u):$(id -g)" build
 
-      # The log needs a sign-in to read; annotations and the summary do not.
-      - name: Show why the build failed
-        if: failure()
-        run: |
-          rm -f build/signing-key.pem
-          [ -f build/container.log ] || exit 0
-          tail -n 40 build/container.log | sed 's/\x1b\[[0-9;]*m//g' > build/tail.log
-          { echo '### The last lines of the build'; echo '```'; cat build/tail.log; echo; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
-          sed 's/%/%25/g' build/tail.log | awk '{ m = m (NR > 1 ? "%0A" : "") $0 } END { print "::error title=Last lines of the build::" m }'
-
       - name: Install the package in a clean Void container
         run: |
           docker run --rm -v "$PWD/build/repo/current":/repo:ro \
             ghcr.io/void-linux/void-glibc-full:latest sh -euc '
-              xbps-install -Syu xbps >/dev/null
+              xbps-install -Syu xbps >/dev/null && xbps-install -yu >/dev/null
               xbps-install -Sy \
                 --repository=/repo \
                 asura
               xbps-query asura | sed -n "s/^pkgver: //p"
               test -x /usr/bin/asura
               test -f /usr/share/asura/shell-desktop/shell.qml
-              /usr/bin/asura version'
+              /usr/bin/asura version' 2>&1 | tee build/install.log
 
       - name: Upload the repository
         uses: actions/upload-artifact@v6
@@ -121,6 +111,19 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/repo/
+
+      # The log needs a sign-in to read; annotations and the summary do not.
+      - name: Show why the job failed
+        if: failure()
+        run: |
+          rm -f build/signing-key.pem
+          # The install log if the install ran, else the build log.
+          log=build/install.log
+          [ -f "$log" ] || log=build/container.log
+          [ -f "$log" ] || exit 0
+          tail -n 40 "$log" | sed 's/\x1b\[[0-9;]*m//g' > build/tail.log
+          { echo "### The last lines of $log"; echo '```'; cat build/tail.log; echo; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
+          sed 's/%/%25/g' build/tail.log | awk -v f="$log" '{ m = m (NR > 1 ? "%0A" : "") $0 } END { print "::error title=Last lines of " f "::" m }'
 
   publish:
     name: XBPS — publish to GitHub Pages
