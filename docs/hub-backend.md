@@ -1,6 +1,6 @@
 # The Hub backend
 
-`asura-hubd` is the data plane of ASURA Settings. The Hub's QML never edits a file: it runs
+`asura-hubd` is the data plane of Toren Settings. The Hub's QML never edits a file: it runs
 `asura-hubd <verb>`, which prints JSON or changes one store, and that is the only writer of
 what it edits. It was originally ported from another project's hub with the same verbs and the same shapes;
 `desktop/cmd/asura-hubd/CONTRACT.md` lists every place that differs and every verb that is
@@ -15,7 +15,7 @@ dropped, and is what the Hub pages are written against.
 
 ## From a setting to the compositor
 
-The original project ran a provider binary per compositor and rendered Lua. ASURA runs Hyprland 0.53 only, so
+The original project ran a provider binary per compositor and rendered Lua. Toren runs Hyprland 0.53 only, so
 the provider is the `wm` package, called in process, and it renders hyprlang. A save writes
 `desktop.json`, renders it to `settings.conf` and `rebinds.conf`, mirrors both into
 `user_edits/hyprland/` so `asura materialize` cannot replace them with the packaged seeds, and

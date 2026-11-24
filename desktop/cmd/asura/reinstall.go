@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	register("reinstall", "re-apply ASURA files for currently installed commit", asuraReinstall)
+	register("reinstall", "re-apply Toren files for currently installed commit", asuraReinstall)
 }
 
 // reinstallPlan returns the command that will be executed to apply the commit.
@@ -70,12 +70,12 @@ func asuraReinstall(args []string) int {
 		}
 	}
 
-	fmt.Printf("==> Reinstalling ASURA files at commit %s\n", short(commit))
+	fmt.Printf("==> Reinstalling Toren files at commit %s\n", short(commit))
 	if err := reinstallApply(repoDir, *root); err != nil {
 		fmt.Fprintf(os.Stderr, "asura reinstall: apply-repo failed: %v\n", err)
 		return exitFail
 	}
 
-	fmt.Printf("reinstalled ASURA files at commit %s\n", short(commit))
+	fmt.Printf("reinstalled Toren files at commit %s\n", short(commit))
 	return exitOK
 }

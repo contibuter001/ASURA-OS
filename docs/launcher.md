@@ -55,7 +55,7 @@ more, so a 1024 px PNG is not decoded to draw a small icon.
 
 `asura apps` reads the desktop entries in the specification's order (the user's first, then
 Flatpak's export directories, then `XDG_DATA_DIRS`) and applies `Hidden`, `NoDisplay`,
-`OnlyShowIn` and `NotShowIn` against `XDG_CURRENT_DESKTOP` (`ASURA` in an ASURA session) and
+`OnlyShowIn` and `NotShowIn` against `XDG_CURRENT_DESKTOP` (`Toren` in an Toren session) and
 `TryExec`. The launcher itself lists Quickshell's `DesktopEntries` and honours `NoDisplay`
 only, so a GNOME-only entry that does not set it still appears. Launch counts, which rank
 results, are kept in `~/.local/state/asura/launcher-usage.json`.

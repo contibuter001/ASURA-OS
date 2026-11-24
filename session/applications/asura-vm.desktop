@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Asura VM
+Name=Toren VM
 GenericName=Virtual Machines
 Comment=Create and run virtual machines, and open SSH connections to servers
 Exec=asura-vm

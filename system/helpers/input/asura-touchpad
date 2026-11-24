@@ -7,7 +7,7 @@
 # flag goes with the login session: a new login starts with the pad on.
 flag="${XDG_RUNTIME_DIR:-/tmp}/asura/touchpad-off"
 
-toast() { command -v notify-send >/dev/null 2>&1 && notify-send -a Asura Touchpad "$1"; return 0; }
+toast() { command -v notify-send >/dev/null 2>&1 && notify-send -a "Toren Touchpad" "$1"; return 0; }
 
 # Flip every touchpad. Returns 1 when there is none, 2 when Hyprland cannot be
 # asked and 3 when it refuses the change: it prints the reason and still exits 0,

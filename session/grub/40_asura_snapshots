@@ -52,7 +52,7 @@ fi
 for snap in $(ls -1 "$prefix" 2>/dev/null | sort -r); do
     [ -d "$prefix/$snap" ] || continue
     cat <<EOF
-menuentry "Asura OS (snapshot $snap)" --class asura --class gnu-linux --class gnu --class os {
+menuentry "Toren Linux (snapshot $snap)" --class asura --class gnu-linux --class gnu --class os {
     load_video
     set gfxpayload=keep
     insmod gzio

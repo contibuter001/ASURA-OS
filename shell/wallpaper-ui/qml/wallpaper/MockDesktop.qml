@@ -124,7 +124,7 @@ Item {
                 Text { text: I18n.tr("\u276f fastfetch"); color: mock.cFg; font.family: Style.fontFamilyMono; font.pixelSize: 10 * mock.s }
             }
             Repeater {
-                model: ["OS    Asura Linux", "WM    Hyprland", "SH    fish"]
+                model: ["OS    Toren Linux", "WM    Hyprland", "SH    fish"]
                 delegate: Row {
                     required property var modelData
                     Text { text: modelData.substring(0, 6); color: mock.cYellow; font.family: Style.fontFamilyMono; font.pixelSize: 9 * mock.s }

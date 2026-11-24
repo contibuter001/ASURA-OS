@@ -1,6 +1,6 @@
-# Adopting ASURA on an existing machine (Legacy — Ubuntu/APT design)
+# Adopting Toren on an existing machine (Legacy — Ubuntu/APT design)
 
-`asura adopt` switches a stock machine's desktop over to the ASURA shell, in place, without
+`asura adopt` switches a stock machine's desktop over to the Toren shell, in place, without
 reinstalling and without touching the kernel, the bootloader or the user's data. This document
 is the design for that feature: what it is, what it refuses to do, how it stays reversible at
 every step, and how a user gets back to a working GNOME desktop if anything goes wrong.
@@ -18,36 +18,36 @@ there; this document does not reopen any of it.
 
 ## What adoption is
 
-A user runs one command and, at the next login, can choose **ASURA** from the session list at
+A user runs one command and, at the next login, can choose **Toren** from the session list at
 their existing display manager. Nothing has been uninstalled. Nothing has been repartitioned.
 If they do not like it, they pick the other session in the login screen and their machine is
 exactly as it was.
 
-What they get is the ASURA shell:
+What they get is the Toren shell:
 
 - Hyprland as the compositor
-- ASURA's Quickshell-drawn shell — bar, dock, launcher, popouts, widgets
+- Toren's Quickshell-drawn shell — bar, dock, launcher, popouts, widgets
 - `asura`, `asura-shell` and `asura-hub` as the control tools and the only writers of `org.asura.*`
-- ASURA's portal stack — `xdg-desktop-portal-hyprland` and `xdg-desktop-portal-gtk`
-- Ghostty, zsh, Zed, and the rest of ASURA's runtime stack
+- Toren's portal stack — `xdg-desktop-portal-hyprland` and `xdg-desktop-portal-gtk`
+- Ghostty, zsh, Zed, and the rest of Toren's runtime stack
 
-The distribution's base layer is unchanged. ASURA's packages are installed on top of it,
-exactly as they are on an ASURA OS install, and they obey the same rule they obey everywhere else:
+The distribution's base layer is unchanged. Toren's packages are installed on top of it,
+exactly as they are on an Toren Linux install, and they obey the same rule they obey everywhere else:
 
-> **ASURA's packages write only to `/usr/share/asura/` and `/etc/asura/`. Never to another package's
+> **Toren's packages write only to `/usr/share/asura/` and `/etc/asura/`. Never to another package's
 > files.**
 
 Adoption does not break that rule. It adds **two** things that are not already sanctioned by
 it — a session registration and a runit user service registration — and both are listed in
 [the registrations](#registrations-outside-asuras-two-directories). They have to be discoverable
-by a binary that is not ASURA's, and there is nowhere else to put them.
+by a binary that is not Toren's, and there is nowhere else to put them.
 
 ## What adoption is not
 
 This is the distinction the whole feature rests on, so it is stated plainly and not hedged:
-**adoption gives you the ASURA shell, not an ASURA OS installation.**
+**adoption gives you the Toren shell, not an Toren Linux installation.**
 
-Adoption is a funnel. It exists so a person who is curious about ASURA can run it on the laptop
+Adoption is a funnel. It exists so a person who is curious about Toren can run it on the laptop
 already on their desk, at the cost of one command and one reboot, and can undo it in the time
 it takes to pick a different session in a login screen. Every design decision below follows
 from that: nothing is removed unless asked, the first step is the smallest reversible thing
@@ -55,17 +55,17 @@ that can possibly work, and the machine is never in a state that cannot be recov
 
 | Adoption does not give you | Why | Where you get it |
 |---|---|---|
-| An ASURA OS installation | Adoption is a session, not an image. | Install ASURA OS. |
-| ASURA's pinned kernel fleet | The kernel is the user's and stays the user's. Adoption never writes `/boot`, an initramfs or a kernel cmdline. | Install ASURA OS. |
-| ASURA's GRUB EFI boot chain | Boot-chain surgery is how a distribution gets bricked. Adoption has no such operation at all. | Install ASURA OS. |
-| The curated package set — no GNOME, no snapd, no software centre | That is a property of the image, decided at build time. | Install ASURA OS. |
-| Install-time hardware profile selection and tier defaults | Profiles are matched by the installer at install time. | Install ASURA OS, or run `asura hardware match` afterwards to see where the machine lands. |
-| A support tier | A tier is a claim about a machine ASURA has been run on. An adopted machine is *tier unknown* until someone submits a profile. | Run `asura hardware report` and open a pull request. |
-| snapd removal | snapd may be holding the user's applications. Adoption leaves it running. | Install ASURA OS. |
+| An Toren Linux installation | Adoption is a session, not an image. | Install Toren Linux. |
+| Toren's pinned kernel fleet | The kernel is the user's and stays the user's. Adoption never writes `/boot`, an initramfs or a kernel cmdline. | Install Toren Linux. |
+| Toren's GRUB EFI boot chain | Boot-chain surgery is how a distribution gets bricked. Adoption has no such operation at all. | Install Toren Linux. |
+| The curated package set — no GNOME, no snapd, no software centre | That is a property of the image, decided at build time. | Install Toren Linux. |
+| Install-time hardware profile selection and tier defaults | Profiles are matched by the installer at install time. | Install Toren Linux, or run `asura hardware match` afterwards to see where the machine lands. |
+| A support tier | A tier is a claim about a machine Toren has been run on. An adopted machine is *tier unknown* until someone submits a profile. | Run `asura hardware report` and open a pull request. |
+| snapd removal | snapd may be holding the user's applications. Adoption leaves it running. | Install Toren Linux. |
 | A display manager change | GDM works perfectly well as a chooser. Touching the display manager is opt-in and comes last. | `asura adopt --display-manager sddm`. |
 
 An adopted machine that needs a kernel cmdline change, a firmware blob or a bootloader edit is
-outside the funnel. `--check` says so and points at an ASURA OS install, because the whole value
+outside the funnel. `--check` says so and points at an Toren Linux install, because the whole value
 proposition of adoption is that the user's system was not modified.
 
 ---
@@ -89,7 +89,7 @@ already back where it started.
 Everything after step one is opt-in and separately reversible, and nothing after step one has
 to happen for the user to be able to get back.
 
-### Registrations outside ASURA's two directories
+### Registrations outside Toren's two directories
 
 The base-layer rule is the reason rollback works, so adoption writes its exceptions down
 instead of quietly accumulating them. Of the three registrations below, GSettings schemas are
@@ -102,7 +102,7 @@ The other two are new.
 | `~/.config/service/asura-shell`, `~/.config/service/asura-portal` | **No — new** | User service registration | runit user supervisor loads services from `~/.config/service/` |
 | `/usr/share/glib-2.0/schemas/org.asura.*.gschema.xml` | Yes — "a GSettings schema" | GSettings schema | GLib compiles schemas from the fixed schema directory. |
 
-These are registrations — pointers a third-party binary must find — not ASURA-owned content. The
+These are registrations — pointers a third-party binary must find — not Toren-owned content. The
 content stays at `/usr/share/asura/session/`, `/usr/share/asura/shell/` and
 `/usr/share/asura/schemas/`; the registration is materialized from it, and `asura doctor` reports
 drift between the two the same way it reports drift everywhere else.
@@ -143,7 +143,7 @@ rather than by care:
    `undo.sh` is generated before the first write happens.
 4. Every package operation is **simulated first** with `apt-get -s` and the result is checked
    against the approved set.
-5. If the ASURA session fails to start, `asura-session` **never reaches `exec Hyprland`**, and the
+5. If the Toren session fails to start, `asura-session` **never reaches `exec Hyprland`**, and the
    display manager returns the user to the login screen. A broken session that exits before the
    compositor is a safe failure mode by construction.
 6. `Ctrl+Alt+F3` reaches a TTY that depends on none of the above.
@@ -163,7 +163,7 @@ Two display managers are in scope, and they are not interchangeable.
 | Greeter | Runs its own `gnome-shell` in `gdm` session mode | Independent of any desktop |
 | Lists foreign sessions | Yes — every `.desktop` in `/usr/share/wayland-sessions/` | Yes |
 | Depends on `gnome-shell` | **Yes**, the package `gdm3` depends on `gnome-shell` and `gnome-session-bin` for its greeter | No |
-| In an ASURA OS image | No | Yes — it is ASURA's login manager |
+| In an Toren Linux image | No | Yes — it is Toren's login manager |
 | Blocks pruning GNOME | Yes | No |
 
 **Adoption does not change the display manager.** GDM is coupled to GNOME — not philosophically,
@@ -201,12 +201,12 @@ user likes.
 | Check | Reads | Fail condition |
 |---|---|---|
 | Base release | `/etc/os-release` | Not `ID=void` (Void Linux rolling) |
-| Desktop session | `$XDG_CURRENT_DESKTOP` | Not GNOME — a non-GNOME session is already an ASURA session or something else entirely |
+| Desktop session | `$XDG_CURRENT_DESKTOP` | Not GNOME — a non-GNOME session is already an Toren session or something else entirely |
 | Display manager | `/etc/X11/default-display-manager` | Neither `gdm3` nor `sddm` |
 | GNOME version | `dpkg-query -W gnome-shell` | Not installed; there is nothing to switch away from |
 | GPU and driver | `lspci -nnk`, `/sys/class/drm/card*/device/driver` | Report only. Warns loudly on NVIDIA discrete, hybrid mux and PRIME. |
 | Composite support | `ls /dev/dri/render*`, `glxinfo -B` | No render node |
-| Portal backends available | `xbps-query -Rs xdg-desktop-portal-hyprland xdg-desktop-portal-gtk` | Either is not installable — this is a hard blocker, ASURA's shell has no portal backend |
+| Portal backends available | `xbps-query -Rs xdg-desktop-portal-hyprland xdg-desktop-portal-gtk` | Either is not installable — this is a hard blocker, Toren's shell has no portal backend |
 | Disk space | `statvfs /usr` | Less than 2 GiB free |
 | XBPS health | `xbps-check`, `/var/lib/xbps/lock` | A held lock or a broken package — a hard blocker |
 | Third-party extensions | `~/.local/share/gnome-shell/extensions/`, `gsettings get org.gnome.shell enabled-extensions` | Report only |
@@ -258,7 +258,7 @@ touched.
 | Step | Action | Writes | Root |
 |---|---|---|---|
 | 0 | Re-run the preflight. Abort on any blocker. | — | no |
-| 1 | Install ASURA's APT keyring and sources. | `/etc/apt/keyrings/asura.gpg`, `/etc/apt/sources.list.d/asura.sources` | yes |
+| 1 | Install Toren's APT keyring and sources. | `/etc/apt/keyrings/asura.gpg`, `/etc/apt/sources.list.d/asura.sources` | yes |
 | 2 | Install `asura-shell` and its dependencies. | packages | yes |
 | 3 | Install and compile the GSettings schemas. | `/usr/share/glib-2.0/schemas/org.asura.*.gschema.xml` | yes |
 | 4 | Install the portal preference for this user. | `~/.config/xdg-desktop-portal/portals.conf` | no |
@@ -269,7 +269,7 @@ touched.
 | 9 | Seed `~/.config/asura/`, `user_edits/`, and `~/.local/share/asura/plugins/`. | user | no |
 | 10 | Apply the four Ghostty defaults. | dconf, `/usr/bin/x-terminal-emulator`, `~/.zshrc` | mixed |
 | 11 | Write the state file and the generated undo script. | `/etc/asura/adopt/` | yes |
-| — | Print the next action: log out, pick ASURA. | — | — |
+| — | Print the next action: log out, pick Toren. | — | — |
 
 Elevation happens once. `asura adopt` runs unprivileged, prints the plan, and then re-executes
 the system-writing steps under `pkexec` so the user types one password instead of four.
@@ -453,7 +453,7 @@ update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /
 #   fi
 ```
 
-Ghostty is not rebuilt by ASURA — it is the base layer's `ghostty` package, installed as-is. See
+Ghostty is not rebuilt by Toren — it is the base layer's `ghostty` package, installed as-is. See
 [`architecture.md`](architecture.md#terminal-ghostty) for why. That matters here in one concrete
 way: the shell integration this block sources is **already on the machine** as part of that
 package, so adoption configures the terminal and never installs, builds or replaces it.
@@ -465,7 +465,7 @@ there is nothing to install for declaration four, and the `[ -f ... ]` guard abo
 file being absent from an older package, not about a package being unpacked first.
 
 The `update-alternatives` call needs no `--slave`: Ghostty's package registers no alternatives
-of its own, so ASURA registers the only one and nothing shadows it later.
+of its own, so Toren registers the only one and nothing shadows it later.
 
 The `org.gnome.desktop.default-applications.terminal` write takes effect at the next GNOME
 login too, so `asura` records the previous value and `--undo` restores it. The
@@ -474,7 +474,7 @@ login too, so `asura` records the previous value and `--undo` restores it. The
 
 ### Importing, not sharing
 
-Step 7 reads GNOME's GSettings keys and writes ASURA's. It **never writes back to
+Step 7 reads GNOME's GSettings keys and writes Toren's. It **never writes back to
 `org.gnome.*`**, it never overwrites an `org.asura.*` value the user has already set, and it logs
 every write. GNOME's values are untouched and remain valid the moment the user logs back into
 GNOME.
@@ -539,25 +539,25 @@ The gate is not hard-coded. It re-derives the blocking set from
 `apt-cache depends $(basename "$(readlink -f /etc/X11/default-display-manager)")"` at run time,
 so a future `gdm3` that drops a dependency unblocks the matching prune entry automatically.
 
-An adopted machine with GDM still installed is a perfectly good ASURA machine. Pruning is for the
+An adopted machine with GDM still installed is a perfectly good Toren machine. Pruning is for the
 user who wants the disk space back, and it is available only once they have already proved the
-ASURA session works.
+Toren session works.
 
 ### The removal set
 
 | Package | Why removal is safe |
 |---|---|
-| `xdg-desktop-portal-gnome` | ASURA's portal stack does not use it. [`architecture.md`](architecture.md#the-portal-seam) records that this backend reads `GDK_BACKEND` and silently drops interfaces when it decides it is not on a real GNOME session — the whole reason ASURA ships no GNOME. |
-| `gnome-shell` | Replaced by Hyprland and the ASURA shell. `--undo` reinstalls it from the archive's `packages.removed` list. |
+| `xdg-desktop-portal-gnome` | Toren's portal stack does not use it. [`architecture.md`](architecture.md#the-portal-seam) records that this backend reads `GDK_BACKEND` and silently drops interfaces when it decides it is not on a real GNOME session — the whole reason Toren ships no GNOME. |
+| `gnome-shell` | Replaced by Hyprland and the Toren shell. `--undo` reinstalls it from the archive's `packages.removed` list. |
 | `gnome-session`, `gnome-session-bin` | Only starts the GNOME session, which is no longer the session. |
-| `gnome-settings-daemon`, `gnome-settings-daemon-common` | The colour, power, input and notification roles ASURA needs are carried by `power-profiles-daemon`, `colord`, `switcheroo-control`, and the ASURA shell. |
+| `gnome-settings-daemon`, `gnome-settings-daemon-common` | The colour, power, input and notification roles Toren needs are carried by `power-profiles-daemon`, `colord`, `switcheroo-control`, and the Toren shell. |
 | `gnome-control-center` | Settings live in `asura-hub`, which is the sole writer of `org.asura.desktop`. |
 | `gnome-shell-extension-prefs` | The extension manager for a shell that no longer exists. |
 | `gnome-shell-extension-ubuntu-dock` | The dock is `org.asura.shell`. |
 | `gnome-shell-extension-desktop-icons-ng` | Icons on the desktop are the shell's job. |
-| `gnome-shell-extension-appindicator` | The ASURA shell hosts `StatusNotifierItem` itself. Removing this is the single most likely thing to surprise a user, so it is listed last and warned about. |
-| `gnome-software`, `gnome-software-common` | Nothing on a GNOME session. **Removed only with `--prune --apply` and only if the user asks; a software centre is not required to run ASURA and some people use it.** |
-| `yaru`, `yaru-icon-theme`, `yaru-cursor-theme`, `yaru-theme-gtk` | Purely cosmetic, and ASURA is monochrome. Optional; kept by default. |
+| `gnome-shell-extension-appindicator` | The Toren shell hosts `StatusNotifierItem` itself. Removing this is the single most likely thing to surprise a user, so it is listed last and warned about. |
+| `gnome-software`, `gnome-software-common` | Nothing on a GNOME session. **Removed only with `--prune --apply` and only if the user asks; a software centre is not required to run Toren and some people use it.** |
+| `yaru`, `yaru-icon-theme`, `yaru-cursor-theme`, `yaru-theme-gtk` | Purely cosmetic, and Toren is monochrome. Optional; kept by default. |
 | `ubuntu-desktop` (metapackage) | Pulls GNOME back in on the next install. Replaced with `asura` + `ubuntu-desktop-minimal`. |
 
 A note on metapackages, because this is where prune usually goes wrong. `apt-get remove
@@ -571,7 +571,7 @@ emits exactly that sequence and the simulation gate checks it.
 
 | Kept | Why |
 |---|---|
-| `gnome-keyring` | The name says GNOME and it is not GNOME. It is the backing store for the Secret portal on every ASURA session. See [`architecture.md`](architecture.md#the-portal-seam). |
+| `gnome-keyring` | The name says GNOME and it is not GNOME. It is the backing store for the Secret portal on every Toren session. See [`architecture.md`](architecture.md#the-portal-seam). |
 | `gdm3` | Only ever removed by an explicit `sudo apt-get purge gdm3`, never by prune. It is the way back. |
 | `snapd`, flatpak, any `deb` the user installed | These hold the user's applications. Adoption is not the ISO. |
 | `xwayland` | Required by GTK4, Qt5 and most of the user's applications. |
@@ -608,18 +608,18 @@ promise.
 
 | Thing | Status |
 |---|---|
-| `~/.config/**` | Untouched. ASURA writes only `~/.config/asura/` and the one portal preference file, and archives the latter. |
+| `~/.config/**` | Untouched. Toren writes only `~/.config/asura/` and the one portal preference file, and archives the latter. |
 | `~/Documents`, `~/Pictures`, `~/Music`, `~/Videos`, everything in `~` | Untouched. Adoption reads `~` and never writes a user's data. |
 | Applications installed by `apt` | Installed and still installed. Adoption adds packages; it does not remove them. |
 | Applications installed by `flatpak` | Untouched. |
 | Applications installed by `snap` | Untouched, and snapd is left running. |
 | `~/.local/share/gnome-shell/extensions/` | **Copied, never moved.** The originals stay where they are. |
 | `org.gnome.desktop.*` GSettings | Read at most. Never written, except the terminal default, which is recorded and restored. |
-| `/usr/share/backgrounds/` | Untouched, and one of them is imported as the ASURA wallpaper. |
+| `/usr/share/backgrounds/` | Untouched, and one of them is imported as the Toren wallpaper. |
 
 ### What becomes inert
 
-None of these is deleted; they simply have no reader in an ASURA session.
+None of these is deleted; they simply have no reader in an Toren session.
 
 | Schema and key | Why it is inert |
 |---|---|
@@ -746,7 +746,7 @@ Keywords=Hyprland;Quickshell;
 
 `Type=Application` and `DesktopNames=ASURA`, not `GNOME`. `DesktopNames` is what GDM and SDDM use
 to group and label the session; setting it to `GNOME` is what would make a display manager treat
-an ASURA session as one of its own. If a menu-driven picker fails to notice the new file,
+an Toren session as one of its own. If a menu-driven picker fails to notice the new file,
 `sudo update-desktop-database` is the fallback.
 
 `/etc/asura/session/asura.desktop` overrides the packaged base, and `~/.config/asura/session/` — via
@@ -830,8 +830,8 @@ After=graphical-session.target
 Wants=asura-portal.service asura-shell.service
 ```
 
-The target is ASURA's own rather than the compositor's. Upstream Hyprland ships one and
-ASURA's units used to attach to it with a drop-in; Ubuntu's build of Hyprland ships no
+The target is Toren's own rather than the compositor's. Upstream Hyprland ships one and
+Toren's units used to attach to it with a drop-in; Ubuntu's build of Hyprland ships no
 systemd units at all, so the drop-in had a target to attach to on some machines and not on
 others, and on the others the shell never started. A unit that requires a target which does
 not exist is a unit that cannot start.
@@ -858,7 +858,7 @@ fails and the shell refuses to start.
 | 2 | `wireplumber.service` | the session | Audio policy, so the shell's volume widget has something to talk to |
 | 3 | `asura-portal.service` | the session target above | Starts `xdg-desktop-portal` and lets it D-Bus-activate the backends on demand |
 | 4 | `asura-shell.service` | the session target above, ordered after portals | The Quickshell shell |
-| 5 | `asura-shell.service` children | ASURA | Lock screen, quick settings, notification server — inside the shell, not separate units |
+| 5 | `asura-shell.service` children | Toren | Lock screen, quick settings, notification server — inside the shell, not separate units |
 
 ```ini
 # /usr/lib/systemd/user/asura-shell.service
@@ -906,7 +906,7 @@ WantedBy=asura-session.target
 Everything GNOME Shell used to provide is now the shell's job or the compositor's job, and
 every row here is a row in the verification checklist.
 
-| Capability | GNOME Shell provided it via | ASURA provides it as | Verified by |
+| Capability | GNOME Shell provided it via | Toren provides it as | Verified by |
 |---|---|---|---|
 | Notification server | `org.freedesktop.Notifications` on the session bus, implemented inside gnome-shell | The shell hosts the server itself. No backend implements the Notifications portal, so if the shell is not up, **nothing** is notified and there is no fallback. | The [Notify probe](#the-probes) |
 | Global shortcuts | `org.gnome.Shell` accelerators, plus GNOME's own keybindings | Compositor bindings for compositor-level keys; the shell owns everything else directly, which is both simpler and faster than a portal round-trip | `hyprctl binds` |
@@ -941,7 +941,7 @@ applications still run" is a checklist row and not a formality.
 
 On a GNOME session, `xdg-desktop-portal` reads its backend preference from
 `~/.config/xdg-desktop-portal/portals.conf`, which says `use=gnome;`, and D-Bus-activates
-`xdg-desktop-portal-gnome.service`. On an ASURA session it must say `use=hyprland;` and activate
+`xdg-desktop-portal-gnome.service`. On an Toren session it must say `use=hyprland;` and activate
 the Hyprland and GTK backends instead.
 
 `asura adopt` step 4 archives the existing file and writes this one. It is the **user** file
@@ -989,7 +989,7 @@ directly; see [`architecture.md`](architecture.md#the-portal-seam).
 The single most common way this goes wrong is a stale preference. If anything at
 `~/.config/xdg-desktop-portal/portals.conf` still says `use=gnome;` — left over from the
 session the user came from, or written by an app that has opinions — the dispatcher never loads
-the Hyprland backends, and every failure looks like an ASURA bug: file choosers hang, screen
+the Hyprland backends, and every failure looks like an Toren bug: file choosers hang, screen
 sharing says "no available source", and the print dialog never appears.
 
 ```bash
@@ -1029,7 +1029,7 @@ Secret portal and has nothing to do with GNOME Shell — see
 
 | Portal | How to exercise it | Pass |
 |---|---|---|
-| FileChooser | `zenity --file-selection --title "portal probe"` | A GTK file chooser opens, and it looks like the ASURA shell's, not a GTK default |
+| FileChooser | `zenity --file-selection --title "portal probe"` | A GTK file chooser opens, and it looks like the Toren shell's, not a GTK default |
 | OpenURI | Open a `file://` link in the browser | The user's file manager opens it |
 | Print | `lpstat -r`, then print from any GTK app | `lpstat -r` says the printer is ready; the print dialog opens |
 | Secret | Ask an app for a stored credential | The keyring prompt appears and the credential is remembered |
@@ -1039,7 +1039,7 @@ Secret portal and has nothing to do with GNOME Shell — see
 
 **Known gaps, stated up front.** The `Settings` portal — `org.gnome.impl.portal.Settings`,
 which reports the system colour scheme and accent colour — is implemented only by the GNOME
-backend. It is not implemented on ASURA, and an application that asks for dark mode through the
+backend. It is not implemented on Toren, and an application that asks for dark mode through the
 portal rather than through GSettings will see the default. libadwaita and GTK4 do not do this,
 so the blast radius is small, but it is real and it is in the checklist. Similarly,
 `xdg-desktop-portal-hyprland`'s screen capture is a `wlr-screencopy` implementation, which is
@@ -1051,7 +1051,7 @@ capture path is usually better than the portal one.
 ## Verification
 
 `asura adopt --verify` runs everything scriptable and prints the rest. It reads; it changes
-nothing; it needs no root. It runs inside the ASURA session, and it is the gate in front of
+nothing; it needs no root. It runs inside the Toren session, and it is the gate in front of
 `--display-manager` and in front of `--prune`.
 
 ```
@@ -1136,7 +1136,7 @@ fails is worth stopping at.
 
 | Check | How | Pass |
 |---|---|---|
-| Login at the display manager | Log out, pick ASURA at the greeter | The session starts and the shell appears |
+| Login at the display manager | Log out, pick Toren at the greeter | The session starts and the shell appears |
 | Existing applications still run | Launch one GTK app, one Qt app, one Electron app, one flatpak, one snap | All five start and render at the right scale |
 | Audio | Play something | Sound comes out the right sink, and the shell's volume widget tracks it |
 | Suspend and resume | Close the lid. Or `systemctl suspend`. | The machine sleeps and comes back to the locked shell, with no black screen and no lost session |
@@ -1179,7 +1179,7 @@ sudo rm -f /usr/share/wayland-sessions/asura.desktop    # ASURA session gone, GN
 sudo bash /etc/asura/adopt/undo.sh                      # or: sudo asura adopt --undo
 ```
 
-`asura adopt --undo` refuses to run while `$XDG_CURRENT_DESKTOP` is `ASURA`, because removing the
+`asura adopt --undo` refuses to run while `$XDG_CURRENT_DESKTOP` is `Toren`, because removing the
 session file out from under a running session is a bad idea. Log out first, or pass `--force`
 if you are already at a TTY.
 
@@ -1187,8 +1187,8 @@ if you are already at a TTY.
 
 | What the user sees | What actually happened | What they run | How they get back |
 |---|---|---|---|
-| No **ASURA** entry in the greeter's session wheel | The registration was not materialized, or `Exec` is not executable | `ls -l /usr/share/wayland-sessions/asura.desktop /usr/share/asura/session/asura-session` | Pick GNOME. Re-run `sudo asura adopt`. |
-| ASURA appears but the wheel is still missing | The picker is menu-driven rather than session-driven | `sudo update-desktop-database` | Pick GNOME |
+| No **Toren** entry in the greeter's session wheel | The registration was not materialized, or `Exec` is not executable | `ls -l /usr/share/wayland-sessions/asura.desktop /usr/share/asura/session/asura-session` | Pick GNOME. Re-run `sudo asura adopt`. |
+| Toren appears but the wheel is still missing | The picker is menu-driven rather than session-driven | `sudo update-desktop-database` | Pick GNOME |
 | Login, then straight back to the login screen | `asura-session` failed before `exec Hyprland` — bad `/etc/asura/session/asura-session.env`, unreadable schema, full disk | `cat ~/.local/state/asura/session.log` | Pick GNOME. Fix the line, log back in. |
 | Black screen with a moving cursor | Hyprland started, `asura-shell.service` did not | `Ctrl+Alt+F3`, then `journalctl --user -u asura-shell.service -b` | `systemctl --user daemon-reload` then `systemctl --user restart asura-shell` from the TTY, or pick GNOME |
 | Shell flickers and restarts in a loop | A Quickshell load error, almost always | `journalctl --user -u asura-shell.service -b --no-pager -n 40` | `systemctl --user stop asura-shell.service`, log out to GNOME, reinstall `asura-shell` |
@@ -1237,14 +1237,14 @@ variation, `--help` is the reference, and nothing writes a setting another comma
 
 | Command | What it does | Needs root | Reversible |
 |---|---|---|---|
-| `asura adopt` | Preflight, plan, then steps 0–11. Adds the ASURA session and the shell. Removes nothing. | Yes, once, via `pkexec` | Yes — `asura adopt --undo` |
+| `asura adopt` | Preflight, plan, then steps 0–11. Adds the Toren session and the shell. Removes nothing. | Yes, once, via `pkexec` | Yes — `asura adopt --undo` |
 | `asura adopt --check` | Report what would change. Changes nothing. | No | Nothing to reverse |
 | `asura adopt --check --json` | The same report, machine-readable. | No | Nothing to reverse |
 | `asura adopt --apply` | The default. Present for symmetry with `--prune`. | Yes | Yes |
-| `asura adopt --verify` | Post-login verification inside an ASURA session. Read-only. | No | Nothing to reverse |
+| `asura adopt --verify` | Post-login verification inside an Toren session. Read-only. | No | Nothing to reverse |
 | `asura adopt --verify --json` | The same results, machine-readable. | No | Nothing to reverse |
 | `asura adopt --undo` | Reinstall what prune removed, remove every registration, restore every file and dconf value adoption wrote, restore the archived extensions and portal preference. | Yes | Yes — it is the thing everything else is reversible by |
-| `asura adopt --undo --force` | The same, while an ASURA session is running. | Yes | Yes |
+| `asura adopt --undo --force` | The same, while an Toren session is running. | Yes | Yes |
 | `asura adopt --prune` | **Dry run by default.** Lists every package it would remove and why each is safe. | No | Nothing to reverse |
 | `asura adopt --prune --apply` | Remove them. Simulates first; refuses if APT wants to remove anything unclassified. | Yes | Yes — `asura adopt --undo` reinstalls the recorded set |
 | `asura adopt --prune --purge` | Also remove conffiles. Rarely wanted. | Yes | **No.** Outside the reversibility promise, by design |
@@ -1261,7 +1261,7 @@ Consistency rules with the existing surface:
 - `asura reset` and `asura materialize` do not touch registrations. A materialized registration is
   repainted by `asura adopt --apply --refresh`, not by `asura materialize`, because the registration
   is not a base file with an overlay — it is a derived copy.
-- **No flag writes an `org.asura.*` key.** One writer per setting means ASURA's own settings go
+- **No flag writes an `org.asura.*` key.** One writer per setting means Toren's own settings go
   through `asura-shell` and `asura-hub`, and `asura adopt` is no exception: step 7's import is a one-time
   seeding of unset keys, which `asura-shell` then owns. `asura adopt` writes `org.gnome.*` dconf
   values in exactly two places — the imported values and the terminal default — and records every
@@ -1280,9 +1280,9 @@ Consistency rules with the existing surface:
 
 ## Ubuntu runtime dependencies
 
-Adoption installs ASURA's own packages from its signed APT repository (`asura-shell`, `asura-hub`,
+Adoption installs Toren's own packages from its signed APT repository (`asura-shell`, `asura-hub`,
 `quickshell`, `hyprland`, and the session/portal stack). The rest of the desktop runs on Ubuntu
-26.04 base-layer packages. The table below lists every base-layer package the ASURA session
+26.04 base-layer packages. The table below lists every base-layer package the Toren session
 visibly depends on, what breaks without it, and the `apt` line to restore it.
 
 All of these are in `main` or `universe` on Ubuntu 26.04. Install with `--no-install-recommends`
@@ -1318,19 +1318,19 @@ to avoid pulling GNOME metapackages.
 | `switcheroo-control` | Hybrid GPU mux switching | Hybrid laptops stuck on wrong GPU | `sudo apt install --no-install-recommends switcheroo-control` |
 | `rtkit` | Real-time scheduling for PipeWire | Audio crackles under load | `sudo apt install --no-install-recommends rtkit` |
 | `accountsservice` | User enumeration for SDDM greeter | Login screen shows empty/uneditable user field | `sudo apt install --no-install-recommends accountsservice` |
-| `sddm` | Login manager (ASURA OS default) | No graphical login; adoption leaves GDM in place unless `--display-manager sddm` | `sudo apt install --no-install-recommends sddm` |
+| `sddm` | Login manager (Toren Linux default) | No graphical login; adoption leaves GDM in place unless `--display-manager sddm` | `sudo apt install --no-install-recommends sddm` |
 
-### ASURA-provided packages (not in Ubuntu archive)
+### Toren-provided packages (not in Ubuntu archive)
 
-These come from ASURA's own signed repository and are installed by `asura adopt` automatically.
+These come from Toren's own signed repository and are installed by `asura adopt` automatically.
 If the repository is not yet configured, `asura adopt --check` will report it as a blocker.
 
 | Package | Purpose | Visible degradation without it |
 |---|---|---|
-| `asura-shell` | Quickshell engine (built by ASURA) | No shell at all — bar, dock, launcher, notifications, idle, quick settings, status icons all absent; ~700+/min `ServerNotFoundError` noise in logs |
+| `asura-shell` | Quickshell engine (built by Toren) | No shell at all — bar, dock, launcher, notifications, idle, quick settings, status icons all absent; ~700+/min `ServerNotFoundError` noise in logs |
 | `asura-hub` | Settings application (Go) | No settings UI; `asura-hub` command missing |
-| `asura-session` | Session entry point + `asura-activate` | ASURA session doesn't appear in greeter or fails to start |
-| `quickshell` | QML runtime engine (built by ASURA) | Shell cannot start; `asura-shell.service` fails immediately |
+| `asura-session` | Session entry point + `asura-activate` | Toren session doesn't appear in greeter or fails to start |
+| `quickshell` | QML runtime engine (built by Toren) | Shell cannot start; `asura-shell.service` fails immediately |
 | `asurad` | State daemon (socket at `$XDG_RUNTIME_DIR/asura-shell.sock`) | Sidebar sections (audio, network, bluetooth, display, media) show stale data or nothing; no live updates |
 
 ### One-line restore for the common missing set
@@ -1349,16 +1349,16 @@ sudo apt update && sudo apt install --no-install-recommends \
 
 > **Note:** `asura-shell`, `asura-hub`, `asura-session`, `quickshell`, and `asurad` are not in the
 > Ubuntu archive — they come from `packages.asura.sh`. The command above restores only base-layer
-> dependencies. Run `asura adopt` to install the ASURA packages.
+> dependencies. Run `asura adopt` to install the Toren packages.
 
 ## What is still open
 
 | Question | Why it matters here |
 |---|---|
-| Whether `asura adopt` is offered at all, or only as a standalone download | A machine on stock Ubuntu has no ASURA packages and no reason to add a repository until the user chooses to. The first-run experience decides this more than the code does. |
-| Whether adoption contributes hardware profiles | A community-confirmed profile from an adopted machine is worth as much as one from an ASURA OS install. The difference is that an ASURA OS install already ran the installer against `system/hardware/profiles/`, and an adopted machine did not — so the report has less context to attach. |
-| NVIDIA screen capture under `xdg-desktop-portal-hyprland` | Already listed as open in [`architecture.md`](architecture.md#open-questions) for portal coverage. Adoption sharpens it: an adopted machine keeps whatever driver its user already had, so it will hit this sooner than a curated ASURA image. |
-| Whether prune should also handle `snapd` | ASURA OS does not. Adoption deliberately does not either, because snapd may hold the user's applications. Whether an *opt-in* `asura adopt --prune --snaps` is ever worth having is undecided. |
+| Whether `asura adopt` is offered at all, or only as a standalone download | A machine on stock Ubuntu has no Toren packages and no reason to add a repository until the user chooses to. The first-run experience decides this more than the code does. |
+| Whether adoption contributes hardware profiles | A community-confirmed profile from an adopted machine is worth as much as one from an Toren Linux install. The difference is that an Toren Linux install already ran the installer against `system/hardware/profiles/`, and an adopted machine did not — so the report has less context to attach. |
+| NVIDIA screen capture under `xdg-desktop-portal-hyprland` | Already listed as open in [`architecture.md`](architecture.md#open-questions) for portal coverage. Adoption sharpens it: an adopted machine keeps whatever driver its user already had, so it will hit this sooner than a curated Toren image. |
+| Whether prune should also handle `snapd` | Toren Linux does not. Adoption deliberately does not either, because snapd may hold the user's applications. Whether an *opt-in* `asura adopt --prune --snaps` is ever worth having is undecided. |
 | The `Settings` portal | No backend implements it on a non-GNOME stack. The mitigation is GSettings, and whether that is sufficient for real applications has not been measured. |
 
 Related documents: [`architecture.md`](architecture.md) for the settled decisions this

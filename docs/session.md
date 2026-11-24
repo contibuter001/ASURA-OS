@@ -1,14 +1,14 @@
 # The session path
 
-ASURA from power-on to a desktop, and back down again. This document fixes the order of
+Toren from power-on to a desktop, and back down again. This document fixes the order of
 everything on that path and names the owner of each step. A desktop with two owners for one
 job is a desktop that breaks in ways nobody can reproduce, so every stage below has exactly
 one owner and the reason for every ordering is written next to it.
 
 Three rules run through the whole document:
 
-- **One owner per stage.** Where a base-layer component owns a step, ASURA does not
-  duplicate it. Where no base-layer component owns it, ASURA does.
+- **One owner per stage.** Where a base-layer component owns a step, Toren does not
+  duplicate it. Where no base-layer component owns it, Toren does.
 - **Order is a dependency, not a preference.** Where two things must happen in a particular
   sequence, the failure that the sequence avoids is named.
 - **Everything is a file.** Every unit, config file and desktop entry named here is a file
@@ -20,9 +20,9 @@ Where this document repeats a decision, it repeats the reason with it.
 
 ---
 
-## Where ASURA's files live
+## Where Toren's files live
 
-ASURA's packages write to `/usr/share/asura/` and `/etc/asura/`, and to nothing else that
+Toren's packages write to `/usr/share/asura/` and `/etc/asura/`, and to nothing else that
 belongs to another package. A handful of files have to sit outside those two directories
 anyway, because the components that read them look nowhere else. Listing them is the point:
 a boundary that is not written down gets crossed by accident.
@@ -34,10 +34,10 @@ a boundary that is not written down gets crossed by accident.
 | `/usr/share/glib-2.0/schemas/org.asura.*.gschema.xml` | GSettings schema | GLib compiles schemas from the fixed schema directory |
 | `/usr/share/xdg-desktop-portal/asura-portals.conf` | Portal backend preference | The dispatcher reads it from a fixed directory. On the sanctioned list in [`architecture.md`](architecture.md#the-sanctioned-list-outside-the-boundary) |
 | `/usr/bin/asura`, `/usr/bin/asura-*` and the bare-name helpers | The executables, and the scripts the shell and the compositor call by name | `PATH` resolution looks nowhere else, and the user manager's `PATH` has no `~/.local/bin`. Same list |
-| `/usr/share/applications/asura-*.desktop`, `asura-mimeapps.list` | Desktop entries, and the default applications for ASURA sessions | The desktop-entry and mime-apps lookups scan `XDG_DATA_DIRS/applications` and nowhere else. Same list |
+| `/usr/share/applications/asura-*.desktop`, `asura-mimeapps.list` | Desktop entries, and the default applications for Toren sessions | The desktop-entry and mime-apps lookups scan `XDG_DATA_DIRS/applications` and nowhere else. Same list |
 | `/boot/grub/grub.cfg` | Boot configuration | The boot loader reads its configuration from the boot volume, which the installer writes via `grub-mkconfig` |
 
-These are registrations — pointers a third-party binary must find — not ASURA-owned content.
+These are registrations — pointers a third-party binary must find — not Toren-owned content.
 The content stays at `/usr/share/asura/session/`, `/usr/share/asura/shell/`,
 `/usr/share/asura/portal/` and `/usr/share/asura/schemas/`, and `asura doctor` reports
 drift between the two the same way it reports drift everywhere else.
@@ -45,18 +45,18 @@ drift between the two the same way it reports drift everywhere else.
 **Runtime state is not a registration.** The state daemon's socket is at
 `$XDG_RUNTIME_DIR/asura-shell.sock`, and the wallpaper daemon's and the agent's sit beside
 it, and none of them is on the list because it is not a file a package installs. Each daemon
-creates its socket at run time, in the per-user runtime directory, which no ASURA package
+creates its socket at run time, in the per-user runtime directory, which no Toren package
 writes to, and it is removed when the session ends. A path that exists only while the session
 does cannot be a registration, and a registration is by definition a path that exists on
 every boot.
 
-And the list of things ASURA deliberately does **not** touch:
+And the list of things Toren deliberately does **not** touch:
 
 - `/etc/sddm.conf` and `/etc/sddm.conf.d/` — the login manager's configuration. No package
   writes it; the opt-in `10-asura.conf` drop-in is installed by the user, with the command
   `asura greeter enable` prints.
 - `/etc/pam.d/` — the PAM stack. The keyring is unlocked by the base layer's own PAM module.
-- `/etc/dracut.conf` — the initramfs configuration. ASURA's copy lives in
+- `/etc/dracut.conf` — the initramfs configuration. Toren's copy lives in
   `/etc/asura/initramfs/`.
 - `/usr/share/xdg-desktop-portal/portals/` — the dispatcher's backend directory.
 - `/usr/lib/udev/rules.d/`, `/etc/NetworkManager/`, and every other package's configuration.
@@ -72,13 +72,13 @@ settings before booting the ISO (see [`system-services.md`](system-services.md#s
 
 ### Stages and owners
 
-| Stage | Owner | What it owns | ASURA's part |
+| Stage | Owner | What it owns | Toren's part |
 |---|---|---|---|
 | Firmware | The machine | Secure Boot verification, the EFI variable store, the boot order | Nothing |
 | Secure Boot shim | Base layer (Void-shipped GRUB shim) | First-stage verification, the MOK manager, the chainloader slot | Nothing |
 | GRUB | Base layer | The boot menu, loading the kernel and the initramfs, the boot parameters | The installer writes `/boot/grub/grub.cfg` |
 | Kernel | Base layer, pinned by `system/kernel/` | Drivers, the initramfs unpacker, early microcode | The fleet, the initramfs contents |
-| initramfs | Base layer's dracut integration, tuned by ASURA | Root discovery, the microcode blob, zram | The config directory, the module list |
+| initramfs | Base layer's dracut integration, tuned by Toren | Root discovery, the microcode blob, zram | The config directory, the module list |
 | runit | Base layer | The system manager and the user-level service supervisor | The service files (`/etc/sv/`, `~/.config/service/`) |
 
 ### The boot volume
@@ -95,7 +95,7 @@ applies it before unpacking the real initramfs.
 
 ### The initramfs
 
-The base layer's dracut integration builds the initramfs. ASURA customises it through
+The base layer's dracut integration builds the initramfs. Toren customises it through
 `/etc/asura/initramfs/`.
 
 zram is configured by `zramen` in `/etc/sv/zramen/conf`.
@@ -108,7 +108,7 @@ The system side first, then the user side.
 
 ### The system instance
 
-runit (system services in `/etc/sv/`) starts the base layer. ASURA adds:
+runit (system services in `/etc/sv/`) starts the base layer. Toren adds:
 
 - `asura-sysd` (`system/runit/services/asura-sysd/run`) — root daemon at `/run/asura/sysd.sock`
 - `scx-lavd` (`system/runit/services/scx-lavd/run`) — sched_ext LAVD scheduler
@@ -135,7 +135,7 @@ The session is not a system service. It is a set of user-level runit services su
 
 So the session owns its anchor, and starts it once the compositor is up:
 
-### The services ASURA ships
+### The services Toren ships
 
 The runit service scripts (`system/runit/user-services/*/run`) are the units. Whichever
 daemon each one runs is fixed by its `run` script. The shell's QML is read by
@@ -146,7 +146,7 @@ The daemon listens on a Unix socket at `$XDG_RUNTIME_DIR/asura-shell.sock` and s
 per-user runtime directory rather than under `/usr/share/asura/`, because it is created at
 run time by a process, and a path a process creates is not a file a package installs.
 
-The base layer's portal dispatcher and ASURA's cannot both run. Two dispatchers on one bus
+The base layer's portal dispatcher and Toren's cannot both run. Two dispatchers on one bus
 is one dispatcher that wins the name and one that loses it, and the loser exits — the name
 is taken from the bus, not from the service, so the second instance terminates with "dbus
 name was lost" and takes the session's portal with it. Only one portal service directory
@@ -156,7 +156,7 @@ should be supervised.
 
 ## The login manager and the session file
 
-The login manager is the base layer's, and ASURA uses it as shipped.
+The login manager is the base layer's, and Toren uses it as shipped.
 
 ### What it does
 
@@ -165,9 +165,9 @@ The login manager is the base layer's, and ASURA uses it as shipped.
 3. Starts the session file the user selected, as that user, with the session's environment.
 
 The greeter is a **Wayland** surface. The base layer's login manager has no Wayland greeter of
-its own, so ASURA supplies one: `DisplayServer=wayland` in a drop-in under `/etc/sddm.conf.d/`,
+its own, so Toren supplies one: `DisplayServer=wayland` in a drop-in under `/etc/sddm.conf.d/`,
 with `CompositorCommand` pointing at `asura-greeter`, which runs `weston --shell=kiosk` to hold
-the DRM card and hosts ASURA's own login surface on it. The package manifest therefore excludes
+the DRM card and hosts Toren's own login surface on it. The package manifest therefore excludes
 the Xorg metapackage and ships XWayland, and nothing is needed for the login screen at all —
 which is the point. XWayland remains the compositor serving X11 applications inside the session;
 it is not a second session type, and it is not what draws the login screen.
@@ -196,11 +196,11 @@ Keywords=Hyprland;Quickshell;
 
 Three lines carry the design:
 
-- **`Exec=/usr/share/asura/session/asura-session`.** The session entry point is ASURA's
+- **`Exec=/usr/share/asura/session/asura-session`.** The session entry point is Toren's
   own script, and it runs from the packaged base rather than from a copy in the user's home.
 - **`DesktopNames=ASURA`**, not `GNOME`. The login manager uses this to group and label
   the session, and the portal dispatcher derives its per-desktop configuration file name
-  from it. Setting it to anything else would make a display manager treat an ASURA session
+  from it. Setting it to anything else would make a display manager treat an Toren session
   as one of its own.
 - **The file lives in `/usr/share/wayland-sessions/`, not `/usr/share/xsessions/`.** The
   directory is what decides the session type: the login manager sets
@@ -267,7 +267,7 @@ echo "asura-session: env ok, starting Hyprland"
 exec /usr/bin/Hyprland -c /usr/share/asura/hyprland/hyprland.conf
 ```
 
-The compositor is started with ASURA's own configuration, because the keybinds live there
+The compositor is started with Toren's own configuration, because the keybinds live there
 and nowhere else. It is the only place the keyboard is described: a bind names the shell's
 IPC target and the shell decides what the key means, so the compositor never has to know
 what a launcher is. A compositor started without that file runs on Hyprland's own
@@ -290,18 +290,18 @@ Two details in the script are load-bearing beyond the obvious:
 
 - **`XDG_CURRENT_DESKTOP=ASURA` and `XDG_SESSION_DESKTOP=asura` are different strings,
   and both are deliberate.** The dispatcher lower-cases the current desktop to derive its
-  per-desktop configuration file name, so `ASURA` finds `asura-portals.conf`. The session
+  per-desktop configuration file name, so `Toren` finds `asura-portals.conf`. The session
   desktop is the lower-case name the login manager records in `loginctl show-session`.
 
 ### How this differs from a stock desktop session
 
-| | A stock desktop session | The ASURA session |
+| | A stock desktop session | The Toren session |
 |---|---|---|
 | Session file | `/usr/share/wayland-sessions/<desktop>.desktop` | The same mechanism, `asura.desktop` |
 | `Exec=` | A session manager that owns a private list of what a session is | A shell script that sets the environment and hands over to the compositor |
 | Services | Started by the session manager from a private list | runit user services with the user-level supervisor |
 | The display | The session manager talks to the compositor | The compositor is the session's anchor |
-| The display name | The stock desktop's own name | `ASURA`, which is what every library branches on |
+| The display name | The stock desktop's own name | `Toren`, which is what every library branches on |
 
 ---
 
@@ -361,8 +361,8 @@ started has no effect on it.
 base layer's GTK backend implements `org.freedesktop.impl.portal.Notification`, and the
 Hyprland backend does not. With no explicit configuration, the dispatcher resolves the
 Notification interface to the GTK backend, and a portal notification is rendered by a GTK
-window instead of by the shell's own surface. The notification server ASURA does not ship
-is replaced by one ASURA did not ask for, and nothing in the interface says so.
+window instead of by the shell's own surface. The notification server Toren does not ship
+is replaced by one Toren did not ask for, and nothing in the interface says so.
 
 **The shell's first interaction with the portal races the dispatcher's activation.** The
 shell draws a launcher with an "open file" action, a screen-share entry point and a print
@@ -375,13 +375,13 @@ that the file chooser could not be opened. The shell is the first thing the user
 it must not be the thing that triggers an activation.
 
 Ordering the dispatcher first removes both failures: the backend set is resolved from an
-environment that already names ASURA, and the dispatcher is already on the bus when the
+environment that already names Toren, and the dispatcher is already on the bus when the
 user first clicks something.
 
 ### The portal configuration
 
 The dispatcher reads its backend preference from a per-desktop file whose name is derived
-from `XDG_CURRENT_DESKTOP`, lower-cased. For an ASURA session that is `asura-portals.conf`.
+from `XDG_CURRENT_DESKTOP`, lower-cased. For an Toren session that is `asura-portals.conf`.
 The packaged base lives at `/usr/share/asura/portal/asura-portals.conf` and is
 materialized to the registration path, so the overlay rules apply to it like everything
 else.
@@ -459,7 +459,7 @@ Two bus names reach the shell, and they are not the same name:
 - **`org.freedesktop.portal.Notification`** is the portal path, and the dispatcher routes
   it to a backend that implements the corresponding implementation interface. The GTK
   backend implements it, so by default a portal client gets a GTK window rather than the
-  shell's surface. Routing that path to the shell needs an ASURA-owned portal backend, which
+  shell's surface. Routing that path to the shell needs an Toren-owned portal backend, which
   is a decision the portal seam has not made yet.
 
 The shell also owns the *ordering* of notifications, their grouping, their urgency styling
@@ -553,13 +553,13 @@ So the division is the one recorded in
 `asura-shell lock` is the one command every trigger runs (the bind, hypridle's lock stage,
 `loginctl lock-session`, before sleep). That command runs `hyprlock`, and the shell only draws
 the dim scrim (`Idle.qml`). The base layer carries hyprlock, so under the base-layer rule
-ASURA does not repackage it. Every competing locker is excluded, so the image has exactly one
+Toren does not repackage it. Every competing locker is excluded, so the image has exactly one
 and which one is in front never depends on start order. [`lock.md`](lock.md) has the details.
 
 The `org.freedesktop.ScreenSaver` interface on the session bus is no longer the shell's. Its
 `Inhibit` and `UnInhibit` methods are what the base layer's portal Inhibit backend calls,
 so an application that asks the portal to hold the screensaver while a video plays holds
-ASURA's lock as well — and the interface belongs to the locker, because the locker is the
+Toren's lock as well — and the interface belongs to the locker, because the locker is the
 thing that can authenticate. What the design fixes is only that the shell is not the thing
 answering it.
 
@@ -615,7 +615,7 @@ The greeter's power buttons call the display manager's own halt and reboot comma
 go through logind, which runs the shutdown inhibitors, and then the system stops.
 
 Nothing in the display manager's configuration has to change for this, which is the reason
-it is worth checking: a change there would mean writing outside the two directories ASURA
+it is worth checking: a change there would mean writing outside the two directories Toren
 owns.
 
 ---
@@ -707,7 +707,7 @@ sv status ~/.config/service/portal
 busctl --user list | grep -i portal
 ```
 
-To see who implements what on the image, and to check that ASURA's own preference file is
+To see who implements what on the image, and to check that Toren's own preference file is
 the one in play:
 
 ```bash
@@ -789,7 +789,7 @@ journalctl -b -u sddm.service
 cat ~/.local/state/asura/session.log
 ```
 
-The last one is ASURA's own session log, written by `asura-session` before it execs
+The last one is Toren's own session log, written by `asura-session` before it execs
 anything. It is the first thing to read, because it records the session's environment
 hand-off and the moment the compositor was started.
 
@@ -823,7 +823,7 @@ command.
 
 | Question | Why it matters |
 |---|---|
-| ~~The login screen's display server~~ | **Settled** — SDDM in Wayland greeter mode with a Weston kiosk compositor hosted by ASURA. The package manifest keeps the Xorg metapackage excluded. See [architecture.md](architecture.md#what-draws-the-login-screen). |
+| ~~The login screen's display server~~ | **Settled** — SDDM in Wayland greeter mode with a Weston kiosk compositor hosted by Toren. The package manifest keeps the Xorg metapackage excluded. See [architecture.md](architecture.md#what-draws-the-login-screen). |
 | ~~The Secret portal~~ | **Settled** — `xdg-desktop-portal-lxqt`, named for Secret in `asura-portals.conf`; see [the portal seam](architecture.md#the-portal-seam). [The secret gap](#the-secret-gap) is the failure mode if it reopens. |
 | The shell as a portal backend | The shell owns `org.freedesktop.Notifications`, so every ordinary application is served. The portal's own Notification interface still resolves to the GTK backend, because the shell is not a registered portal backend. Whether it becomes one decides whether a portal client sees the shell's surface or a GTK window. |
 | The `asura-session` script's scope | It is the session entry point today. Whether it also owns the pre-flight checks — the portal preference file, the PAM stack, the keyring — is not decided. The failure modes above are all "something was wrong and nobody was told", and that is the argument for it. |

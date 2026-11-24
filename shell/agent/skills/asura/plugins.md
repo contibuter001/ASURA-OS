@@ -1,11 +1,11 @@
 # Shell Plugins Guide
 
-> **ASURA's own shell only.** This guide applies when
+> **Toren's own shell only.** This guide applies when
 > `gsettings get org.asura.shell desktop-shell` is `'asura'`. The default
 > desktop is: see [`desktop.md`](desktop.md).
 
 A shell plugin is a native widget extension running inside Quickshell. You author the logic and views;
-Asura provides the design system tokens, placement framework, and settings persistence so every plugin
+Toren provides the design system tokens, placement framework, and settings persistence so every plugin
 feels like a native element of the OS.
 
 ---

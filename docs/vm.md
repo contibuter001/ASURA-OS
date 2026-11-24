@@ -28,7 +28,7 @@ Terminals (`connect`, `ssh` into a machine, the install button) are opened with 
 
 `asura-vm caps` reports it; the window turns each gap into a message and never fails silently.
 
-- **KVM.** `/dev/kvm` must be readable and writable by your account. If the device is missing the window says virtualization is off in the firmware. If it is there and your account cannot open it, the window explains that the device belongs to the `kvm` group and that joining gives your account direct use of the virtualization hardware. ASURA does not change groups for you.
+- **KVM.** `/dev/kvm` must be readable and writable by your account. If the device is missing the window says virtualization is off in the firmware. If it is there and your account cannot open it, the window explains that the device belongs to the `kvm` group and that joining gives your account direct use of the virtualization hardware. Toren does not change groups for you.
 - **quickemu and OVMF** (the UEFI firmware). The banner names whichever is missing, and its button runs `asura-vm setup`, which installs `quickemu ovmf` through `apm` (a polkit prompt, no sudo, no terminal needed). A machine can still be imported and configured without them; it cannot be launched.
 - **A SPICE viewer** (`spicy`, which quickemu pulls in, or `remote-viewer`) for the Console button.
 
@@ -40,7 +40,7 @@ Nothing is fetched when the window opens. The catalogue (`quickget --list-json`,
 
 Ported as it was: create from the catalogue, Instant (prebuilt cloud images with cloud-init), import from an ISO, launch in a window / SPICE / headless, disposable runs, seal and restore, snapshots, resize, rename, USB and port forwards, the live monitor, and the whole Remotes plate (including Proxmox guests and tunnels).
 
-Changed because Void or ASURA forces it:
+Changed because Void or Toren forces it:
 
 - `setup` installs with `xbps-install` through `apm` instead of pacman and an AUR helper.
 - The conf keys the engine stamps are `asura_vm_*`. quickemu sources the conf as shell, so a key with a hyphen would be a syntax error.
@@ -50,7 +50,7 @@ Changed because Void or ASURA forces it:
 
 Dropped:
 
-- **Looking Glass** (the GPU-passthrough plate). Its backend is the Hub's `gpu vm`, which ASURA does not set up.
+- **Looking Glass** (the GPU-passthrough plate). Its backend is the Hub's `gpu vm`, which Toren does not set up.
 - **`asura-vm-fetch`**, the original project's parallel downloader, is not built. Its fast path gave quickget an image nothing had checked; without the helper the engine already falls back to quickget's own download, which verifies the hash. Create from the catalogue is therefore a single stream with a log line instead of a progress bar.
 
 Known and left alone: the VirtIO driver CD that a Windows import fetches, and the Instant cloud images, are downloaded over HTTPS from their publishers with no published hash to check against.

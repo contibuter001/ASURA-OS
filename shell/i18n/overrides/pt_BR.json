@@ -140,7 +140,7 @@
   "RX": "RX",
   "HARBOUR": "HARBOUR",
   "HARBOUR · PASS": "HARBOUR · PASS",
-  "ASURA-HARBOUR-": "HARBOUR-HARBOUR-",
+  "TOREN-HARBOUR-": "HARBOUR-HARBOUR-",
   "Ricelin": "Ricelin",
   "S": "S",
   "SAVE": "SALVAR",
@@ -180,11 +180,11 @@
   "Widgets": "Widgets",
   "X": "X",
   "Y": "Y",
-  "ASURA": "ASURA",
-  "ASURA RENDERS ON": "ASURA RENDERIZA EM",
-  "ASURA WALLS": "ASURA WALLS",
+  "TOREN": "TOREN",
+  "TOREN RENDERS ON": "TOREN RENDERIZA EM",
+  "TOREN WALLS": "TOREN WALLS",
   "ZOOM": "ZOOM",
-  "Asura": "Asura",
+  "Toren": "Toren",
   "\\\"\\\"": "\\\"\\\"",
   "__header": "__header",
   "add_photo_alternate": "add_photo_alternate",
@@ -301,6 +301,6 @@
   "ΛVΛLON": "ΛVΛLON",
   "⏎  ENTER": "⏎  ENTER",
   "❯ fastfetch": "❯ fastfetch",
-  "ASURA STORE": "ASURA STORE",
-  "Asura Store": "Asura Store"
+  "TOREN STORE": "TOREN STORE",
+  "Toren Store": "Toren Store"
 }

@@ -1,4 +1,4 @@
-# Asura OS Diagnostics & Crash Triage Playbook
+# Toren Linux Diagnostics & Crash Triage Playbook
 
 ## 0. Start here
 
@@ -31,18 +31,18 @@ sv status ~/.config/service/quickshell
   a terminal to see its error.
 
 The rest of this playbook (sections 1-3) covers runit services, logs, and
-ASURA's own shell.
+Toren's own shell.
 
 ---
 
 This playbook provides actionable steps for diagnosing and resolving Quickshell errors,
-daemon failures, QML binding issues, and broken user configurations on Asura OS.
+daemon failures, QML binding issues, and broken user configurations on Toren Linux.
 
 ---
 
 ## 1. Checking Service & Crash Logs (Void Linux `runit`)
 
-Asura OS uses `runit` for process supervision. There is no `systemctl` or `journalctl`.
+Toren Linux uses `runit` for process supervision. There is no `systemctl` or `journalctl`.
 
 ### Inspecting User and System Services
 Session services run under the user's `runsvdir` instance:
@@ -83,7 +83,7 @@ quickshell -p /usr/share/asura/shell
 # Or test against a local repository checkout
 quickshell -p shell/
 
-# Test the Asura Hub independently
+# Test the Toren Hub independently
 quickshell -p /usr/share/asura/shell/hub.qml
 ```
 
@@ -116,7 +116,7 @@ sh tests/contract/qml.sh
 ```
 Ensures zero new syntax-class errors or malformed property declarations.
 
-### 3. Asura Doctor Diagnostic (`asura doctor`)
+### 3. Toren Doctor Diagnostic (`asura doctor`)
 Validates system state, schema keys, keybindings, and portal compatibility:
 ```bash
 # Human-readable report

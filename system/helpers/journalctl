@@ -1,5 +1,5 @@
 #!/bin/sh
-# Asura OS journalctl compatibility bridge for runit/svlogd
+# Toren Linux journalctl compatibility bridge for runit/svlogd
 
 UNIT=""
 FOLLOW=0
@@ -27,7 +27,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --help|-h)
-            echo "journalctl [OPTIONS...] (Asura OS runit/svlogd compatibility shim)"
+            echo "journalctl [OPTIONS...] (Toren Linux runit/svlogd compatibility shim)"
             echo "  -u, --unit <name>    Show logs for specified service"
             echo "  -f, --follow         Follow log output in real time"
             echo "  -n, --lines <num>    Number of journal entries to show (default: 100)"

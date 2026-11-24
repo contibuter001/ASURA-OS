@@ -1,7 +1,7 @@
-# Welcome to ASURA OS
+# Welcome to Toren Linux
 
-ASURA OS is Void Linux with the Hyprland compositor and a custom Quickshell desktop, set
-up for you and kept up to date by ASURA's own tools. Windows tile next to each
+Toren Linux is Void Linux with the Hyprland compositor and a custom Quickshell desktop, set
+up for you and kept up to date by Toren's own tools. Windows tile next to each
 other instead of overlapping, and almost everything has a keyboard shortcut.
 
 ## Your first five minutes
@@ -16,7 +16,7 @@ other instead of overlapping, and almost everything has a keyboard shortcut.
 ## This manual
 
 Read it any time with `asura manual` (a list of chapters), `asura manual
-NAME` (one chapter, e.g. `asura manual updates`), or **ASURA Manual** in the
+NAME` (one chapter, e.g. `asura manual updates`), or **Toren Manual** in the
 launcher.
 
 | Chapter | About |

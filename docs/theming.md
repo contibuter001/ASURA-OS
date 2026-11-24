@@ -1,7 +1,7 @@
 # Theming
 
 How a wallpaper becomes colours, which file carries them, and who writes it. The generator is
-ASURA's own, in `desktop/internal/theme`: there is no matugen on the machine, so `asura theme` makes
+Toren's own, in `desktop/internal/theme`: there is no matugen on the machine, so `asura theme` makes
 the scheme matugen would and fills the templates itself.
 
 ## The pipeline
@@ -29,7 +29,7 @@ The daemon (`asura-shell`) runs this on every wallpaper change, in matugen's ord
 | `~/.config/asura/shell.json` | `themePalette`, the fixed named scheme that outranks the wallpaper | the daemon | the singletons above |
 
 `colors.json` is a flat string map on purpose: the shell parses it from raw text and the daemon's
-tests unmarshal it into `map[string]string`. Nothing else goes in it. The old ASURA shape
+tests unmarshal it into `map[string]string`. Nothing else goes in it. The old Toren shape
 (`background`, `surface`, `text`, `accent`, ...) is gone; nothing reads it.
 
 ## Where hue is allowed
@@ -110,7 +110,7 @@ Each block prints `wrote`, `unchanged`, `left alone: <why>` or `error: <why>`.
 daemon filters it by the roster. The shipped `apps/ghostty/colors` is a static default; a render
 replaces it, and `asura materialize` puts the static one back until the next render.
 
-Dropped, because ASURA does not ship the app: kitty, fish, yazi, KDE, cava, zathura, tmux, micro,
+Dropped, because Toren does not ship the app: kitty, fish, yazi, KDE, cava, zathura, tmux, micro,
 alacritty, OBS, Zed, Discord (vesktop, equibop), Steam, Telegram, Heroic, Obsidian, Sidra and
 asura-tunes. Papirus folders are gone too (the package is excluded, `papirus-folders` is not in the
 archive). Two more blocks of the upstream set have no reader here: the Hyprland border file (the daemon recolours the

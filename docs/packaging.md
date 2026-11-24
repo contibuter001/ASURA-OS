@@ -1,6 +1,6 @@
 # Packaging & XBPS Repository Architecture
 
-ASURA OS uses the native **XBPS (X Binary Package System)** package manager from Void Linux.
+Toren Linux uses the native **XBPS (X Binary Package System)** package manager from Void Linux.
 System components, desktop shells, and tools are built and distributed as XBPS binary packages.
 
 The packaging infrastructure resides in `packaging/xbps/`.

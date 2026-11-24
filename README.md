@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="public/asura-logo.svg" alt="ASURA OS" width="180">
+  <img src="public/asura-logo.svg" alt="Toren Linux" width="180">
 </p>
 
-# ASURA OS
+# Toren Linux
 
 <p align="center">
   <img src="public/asura-logo-on-dark.svg" alt="" width="96">
@@ -18,12 +18,12 @@ Nothing reaches up to touch it. That is the standard the project holds itself to
 why the base layer is treated as substrate and never as identity — see
 [the base-layer boundary](docs/architecture.md#the-base-layer-boundary).
 
-ASURA is a Linux distribution. Its **primary base layer** is Void Linux x86_64 (glibc). Everything above
-that line is ASURA's own — its compositor configuration, its shell drawn in Quickshell, its
+Toren is a Linux distribution. Its **primary base layer** is Void Linux x86_64 (glibc). Everything above
+that line is Toren's own — its compositor configuration, its shell drawn in Quickshell, its
 control tools, its hardware matrix, its updater, and its supervised session daemons.
 
-ASURA is not a Void spin. Void supplies the minimalist, lightning-fast substrate and nothing else. ASURA is the
-distribution; Void Linux is what ASURA is built on top of.
+Toren is not a Void spin. Void supplies the minimalist, lightning-fast substrate and nothing else. Toren is the
+distribution; Void Linux is what Toren is built on top of.
 
 > **Status: Beta.** Live bootable ISO images (`asura-os-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/ASURA-OS/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`asura install` / `asura-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
 
@@ -31,7 +31,7 @@ distribution; Void Linux is what ASURA is built on top of.
 
 ## Install
 
-ASURA is in beta. Install it on a machine you can afford to wipe, and back up anything you
+Toren is in beta. Install it on a machine you can afford to wipe, and back up anything you
 care about first.
 
 ### What you need
@@ -40,7 +40,7 @@ care about first.
 |---|---|
 | CPU | 64-bit x86 (x86_64), Intel or AMD |
 | Memory | 4 GB minimum, 8 GB or more recommended (the live session boots in 2 GB) |
-| Storage | A whole disk for ASURA (the installer erases it), 32 GB or more recommended, SSD preferred |
+| Storage | A whole disk for Toren (the installer erases it), 32 GB or more recommended, SSD preferred |
 | Firmware | UEFI or legacy BIOS. **Secure Boot must be turned off** in the firmware settings; it is [not supported yet](docs/system-services.md#secure-boot) |
 | USB stick | 4 GB or larger, for the installer image |
 | Network | Optional for the install, needed for updates |
@@ -91,7 +91,7 @@ Any of these work:
 - **[Ventoy](https://www.ventoy.net/)**: copy the ISO onto a Ventoy stick and pick it from
   Ventoy's menu.
 - **[Fedora Media Writer](https://github.com/FedoraQt/MediaWriter)** (Windows, macOS, Linux):
-  choose "Select .iso file" and pick the ASURA ISO.
+  choose "Select .iso file" and pick the Toren ISO.
 
 ### 4. Boot the live session
 
@@ -102,7 +102,7 @@ Any of these work:
 
 ### 5. Install
 
-Open **Install Asura OS** from the launcher, or run this in a terminal:
+Open **Install Toren Linux** from the launcher, or run this in a terminal:
 
 ```bash
 asura install
@@ -121,9 +121,9 @@ can [contribute](CONTRIBUTING.md), so the next person with the same laptop gets 
 
 ---
 
-## What ASURA is
+## What Toren is
 
-Most Linux desktops are a distribution's defaults plus whatever you can find. ASURA is a
+Most Linux desktops are a distribution's defaults plus whatever you can find. Toren is a
 single coherent opinion: a curated package set, one design language applied everywhere, a
 hardware profile for your specific machine, and an updater that can roll back.
 
@@ -133,11 +133,11 @@ hardware profile for your specific machine, and an updater that can roll back.
 | Init System | runit (system daemons) + user-level runit supervisor (`asura-user-services`) |
 | Seat Management | seatd (`LIBSEAT_BACKEND=seatd`) / elogind |
 | Compositor | Hyprland (Wayland) |
-| Desktop shell | Quickshell (QML) — bar, dock, launcher, popouts, widgets. The engine is built by ASURA; the surfaces are vendored open-source components, re-themed to ASURA's monochrome design language |
+| Desktop shell | Quickshell (QML) — bar, dock, launcher, popouts, widgets. The engine is built by Toren; the surfaces are vendored open-source components, re-themed to Toren's monochrome design language |
 | Control tools | Go — `asura`, `asura-sysd` (root daemon at `/run/asura/sysd.sock`), `asura-userd` (session daemon), `asura-shell`, `asura-hubd`, `asura-wallpaper`, and `apm` |
 | Settings store | GSettings schemas + dconf, one writer per setting |
 | GPU & Power | `asura gpu` (PCI inspection & `prime-run` offload), `asura power` (profiles & NVIDIA RTX 3050 D3cold management) |
-| Terminal | Ghostty — strictly supported, configured by ASURA, never kitty |
+| Terminal | Ghostty — strictly supported, configured by Toren, never kitty |
 | User shell | zsh + starship |
 | Editor | Neovim |
 | Boot chain | GRUB EFI |
@@ -145,26 +145,26 @@ hardware profile for your specific machine, and an updater that can roll back.
 | Desktop services | pipewire + wireplumber, tlp, NetworkManager, seatd |
 | Portals | `xdg-desktop-portal-hyprland` + `-gtk`, and `-lxqt` for Secret interface |
 | Package manager | XBPS, with first-party repository `asura-xbps-repo`, plus `apm` package manager frontend |
-| Software Store | [Asura Store](https://github.com/ASURA-OS/asura-store) — Graphical showroom window & Go data plane (`asura-store`), multi-provider XBPS/plugin/theme catalogue |
-| Resource Monitor | `btop` — Real-time telemetry, process manager & task manager with Asura adaptive color theming |
-| Agent layer | OpenCode with the ASURA skills wired in (`asura-agent`) |
+| Software Store | [Toren Store](https://github.com/ASURA-OS/asura-store) — Graphical showroom window & Go data plane (`asura-store`), multi-provider XBPS/plugin/theme catalogue |
+| Resource Monitor | `btop` — Real-time telemetry, process manager & task manager with Toren adaptive color theming |
+| Agent layer | OpenCode with the Toren skills wired in (`asura-agent`) |
 
 ### Why Void Linux is the base layer
 
 Void Linux provides a clean, bloat-free foundation:
 
 1. **glibc x86_64**: Complete binary compatibility with NVIDIA proprietary drivers, Steam, Electron, and modern developer toolchains.
-2. **runit init system**: Fast, predictable service supervision without systemd overhead, paired with ASURA's user-level session supervisor (`asura-user-services`).
+2. **runit init system**: Fast, predictable service supervision without systemd overhead, paired with Toren's user-level session supervisor (`asura-user-services`).
 3. **XBPS package manager**: Fast package installation and native binary package generation (`xbps-create`, `xbps-rindex`).
 4. **Hardware reach**: Direct support for hybrid graphics offloading (`prime-run`) and fine-grained power management.
 
 ### No GNOME
 
-ASURA contains no GNOME — not GNOME Shell, not the GNOME daemons, not the GNOME portal backend.
+Toren contains no GNOME — not GNOME Shell, not the GNOME daemons, not the GNOME portal backend.
 It draws its own shell on Hyprland and owns the surfaces a stock desktop used to provide:
 notifications, global shortcuts, locking, idle handling, and quick settings.
 
-What this costs: ASURA writes those surfaces itself. What it simplifies: there is no
+What this costs: Toren writes those surfaces itself. What it simplifies: there is no
 `xdg-desktop-portal-gnome` to convince, and no GNOME daemon stack to fight. See
 [`docs/architecture.md`](docs/architecture.md) for the portal arrangement, and
 [`agents/agents.md`](agents/agents.md) for the archived GNOME Shell notes.
@@ -173,7 +173,7 @@ What this costs: ASURA writes those surfaces itself. What it simplifies: there i
 
 ## Hardware support
 
-ASURA publishes support tiers rather than claiming universal support, because no Linux
+Toren publishes support tiers rather than claiming universal support, because no Linux
 distribution supports every laptop. Every machine falls into one of these.
 
 | Tier | Meaning |
@@ -192,7 +192,7 @@ one. A machine that boots successfully emits a candidate profile via `asura hard
 contributors attach it to a pull request; merged profiles ship in the next ISO and are
 selected automatically at install time.
 
-This is the single most important mechanism in ASURA. It turns an unbounded hardware problem
+This is the single most important mechanism in Toren. It turns an unbounded hardware problem
 into a union of working setups that grows without anyone owning a hardware lab.
 
 ---
@@ -225,7 +225,7 @@ The four design documents, and what each one decides:
 |---|---|
 | [`docs/architecture.md`](docs/architecture.md) | The stack and the reasoning behind it — settled decisions, rejected options, the base-layer boundary, the portal seam |
 | [`docs/hardware.md`](docs/hardware.md) | Hardware compatibility matrix, supported laptop families, support levels, and submission workflow |
-| [`docs/hardware-detection.md`](docs/hardware-detection.md) | The subsystem that decides whether ASURA works on someone else's laptop — probes, matching, PII stripping, tier assignment |
+| [`docs/hardware-detection.md`](docs/hardware-detection.md) | The subsystem that decides whether Toren works on someone else's laptop — probes, matching, PII stripping, tier assignment |
 | [`docs/session.md`](docs/session.md) | The boot and login chain — GRUB through runit to Hyprland, the session entry point, what starts in what order, and who owns logout, suspend and shutdown |
 | [`docs/menu.md`](docs/menu.md) | `asura menu` — the unified "do everything" menu on Super+Alt+Space coordinating apps, setup, themes, updates and power |
 | [`docs/adopting-asura.md`](docs/adopting-asura.md) | `asura adopt` (Legacy — Ubuntu/APT design) — historical in-place adoption design; current installation uses the live ISO and `asura install` |
@@ -299,7 +299,7 @@ milestone is done when its code has merged forward, not when it is written.
 
 ## Design system
 
-ASURA's visual language is monochrome by construction: black, grey and white, with accent
+Toren's visual language is monochrome by construction: black, grey and white, with accent
 colour never carrying meaning. The rules live in [`agents/agents.md`](agents/agents.md) and
 are binding, not advisory:
 
@@ -319,7 +319,7 @@ Aesthetic character comes from material, shape and rhythm — never from hue.
 
 ## Contributing
 
-ASURA is open source and contributions are the point. **Hardware profiles are the most valuable
+Toren is open source and contributions are the point. **Hardware profiles are the most valuable
 contribution and the easiest for a new person to make** — you need one machine and no code.
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to contribute, including hardware profiles
@@ -333,17 +333,17 @@ Contributions are made under the Developer Certificate of Origin.
 
 ## Licence
 
-ASURA is free software, but not under one licence, and not entirely free of proprietary code on
+Toren is free software, but not under one licence, and not entirely free of proprietary code on
 disk. Both facts matter, so both are documented:
 
-- ASURA's own code and ASURA's own repository are **GPL-3.0** and entirely free.
+- Toren's own code and Toren's own repository are **GPL-3.0** and entirely free.
 - The shell's **engine** is Quickshell, **LGPL-3.0-only**, shipped unmodified. The shell's
   **surfaces** are a vendored open-source Quickshell configuration —
   [`end-4/dots-hyprland`](https://github.com/end-4/dots-hyprland)'s "ii" config under
   GPL-3.0 and [`end-4/rounded-polygon-qmljs`](https://github.com/end-4/rounded-polygon-qmljs)
-  under Apache-2.0 — kept byte-identical to their pinned commits and re-themed to ASURA's
+  under Apache-2.0 — kept byte-identical to their pinned commits and re-themed to Toren's
   design language. The composed shell is GPL-3.0.
-- Some laptop hardware needs proprietary firmware. ASURA references the base layer's
+- Some laptop hardware needs proprietary firmware. Toren references the base layer's
   `linux-firmware-*` packages rather than redistributing firmware itself, and declares per
   machine what is needed.
 

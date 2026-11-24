@@ -6,7 +6,7 @@ the ASUS TUF Gaming F15 (FX507ZC4) they were checked against.
 
 ## Brightness and the keyboard backlight
 
-`/sys/class/backlight/*/brightness` is group `video` and mode `0664`. ASURA does not
+`/sys/class/backlight/*/brightness` is group `video` and mode `0664`. Toren does not
 rely on `elogind`/`logind` for brightness control. Instead, `asura brightness` makes
 a multi-tiered attempt:
 

@@ -107,7 +107,7 @@ ButtonMouseArea {
 
             StyledToolTip {
                 extraVisibleCondition: logoMouse.containsMouse
-                text: Translation.tr("ASURA Menu (Super)")
+                text: Translation.tr("TOREN Menu (Super)")
             }
         }
 

@@ -1,13 +1,13 @@
 # Installation, Dual-Boot & Adoption Guide
 
-This document covers all three installation paths in ASURA OS, unattended deployments,
+This document covers all three installation paths in Toren Linux, unattended deployments,
 and converting existing Void Linux systems via `asura adopt`.
 
 ---
 
 ## 1. Installation Paths Overview
 
-ASURA OS supports three distinct ways to get the desktop running:
+Toren Linux supports three distinct ways to get the desktop running:
 
 | Path | Command | Use Case | Disk Changes |
 |---|---|---|---|
@@ -71,7 +71,7 @@ sudo asura install --alongside /dev/nvme0n1
 
 ## 4. Unattended Installation (`--config FILE`)
 
-Deploy ASURA OS non-interactively using an answer file. Passwords can be supplied as pre-hashed
+Deploy Toren Linux non-interactively using an answer file. Passwords can be supplied as pre-hashed
 shadow strings (`$6$...`) or plain strings. Passwords and passphrases are **never logged in cleartext**.
 
 ### Sample Answer File (`asura-answer.yaml` / properties)
@@ -102,7 +102,7 @@ sudo asura install --config /path/to/asura-answer.yaml
 
 ## 5. Converting an Existing Void Linux Install (`asura adopt`)
 
-`asura adopt` installs the ASURA desktop shell, portal graph, and services in-place onto an
+`asura adopt` installs the Toren desktop shell, portal graph, and services in-place onto an
 existing Void Linux glibc x86_64 system without reinstalling, repartitioning, or touching the kernel.
 
 ### Commands
@@ -128,4 +128,4 @@ sudo asura adopt --undo
 - **Architecture Check**: Strictly requires `x86_64`.
 - **C Library Check**: Strictly requires `glibc`. Musl installations are refused.
 - **Reversibility**: Generates `/etc/asura/adopt/backup/<timestamp>/restore.sh` and `/etc/asura/adopt/state.json`.
-  Running `asura adopt --undo` restores all replaced files byte-for-byte and unregisters ASURA session components.
+  Running `asura adopt --undo` restores all replaced files byte-for-byte and unregisters Toren session components.

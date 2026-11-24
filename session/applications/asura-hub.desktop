@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Asura Settings
+Name=Toren Settings
 GenericName=Settings
-Comment=Configure the Asura desktop: appearance, bar, inputs, keybinds and more
+Comment=Configure the Toren desktop: appearance, bar, inputs, keybinds and more
 Exec=asura-shell hub open
 Terminal=false
 Icon=preferences-system

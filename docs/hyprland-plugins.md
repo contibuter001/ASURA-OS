@@ -5,7 +5,7 @@ compositor process space. They provide deep compositor-level capabilities that s
 widgets cannot provide on their own: window title bars (`hyprbars`), acrylic / glass effects
 (`hyprgrass`), window focus flashes (`hyprfocus`), dynamic cursors, and keyboard sounds.
 
-This document describes how Hyprland plugins are built, supervised, and configured in ASURA OS.
+This document describes how Hyprland plugins are built, supervised, and configured in Toren Linux.
 For shell plugins written in QML / JavaScript that run inside Quickshell, see
 [`docs/plugins.md`](plugins.md).
 
@@ -17,7 +17,7 @@ Hyprland plugins are strictly ABI-locked to the exact build and git hash of the 
 Hyprland compositor. When Hyprland updates via XBPS, any previously compiled plugin `.so`
 built against a prior Hyprland version will fail to load until recompiled against the new headers.
 
-ASURA manages this lifecycle through:
+Toren manages this lifecycle through:
 1. **The Hub Backend (`asura-hubd`)**: `asura-hubd desktop plugins list` interrogates the
    installed plugins, checks their build hashes against the current compositor hash, and reports
    ABI status (`compatible`, `mismatch`, or `unbuilt`).
@@ -32,7 +32,7 @@ ASURA manages this lifecycle through:
 
 ## Included & Curated Plugins
 
-ASURA OS supports standard curated Hyprland plugins:
+Toren Linux supports standard curated Hyprland plugins:
 
 | Plugin | Repository | Description |
 |---|---|---|
@@ -45,7 +45,7 @@ ASURA OS supports standard curated Hyprland plugins:
 
 ## Configuration & Settings Flow
 
-Compositor plugin settings ride ASURA's hypr draft system:
+Compositor plugin settings ride Toren's hypr draft system:
 1. When a plugin loads, its configuration keys are exported by the compositor.
 2. In Settings Hub (*Plugins*), controls adjust properties (e.g. `plugin:hyprbars:bar_height`,
    `plugin:hyprbars:bar_color`).
@@ -60,5 +60,5 @@ Compositor plugin settings ride ASURA's hypr draft system:
 To add a new Hyprland plugin:
 1. In the Settings Hub, open **Plugins** and click **Add from Git**.
 2. Enter the URL of a Git repository containing a valid `hyprpm.toml`.
-3. ASURA invokes the build chain, verifies header compatibility, and generates the `.so`.
+3. Toren invokes the build chain, verifies header compatibility, and generates the `.so`.
 4. Once built, the plugin appears in the plugins roster and can be enabled or configured immediately.

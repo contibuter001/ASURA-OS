@@ -1,7 +1,7 @@
 # Installing apps, themes, bar styles and plugins
 
-`asura-store` is ASURA's store, with a window and a command line. It installs
-Void packages (XBPS), Flatpaks, and ASURA catalogue items (themes, bar styles,
+`asura-store` is Toren's store, with a window and a command line. It installs
+Void packages (XBPS), Flatpaks, and Toren catalogue items (themes, bar styles,
 plugins).
 
 ## Commands
@@ -36,7 +36,7 @@ sudo xbps-install -S NAME         # install
 sudo xbps-remove NAME             # remove
 ```
 
-`apm` is ASURA's shorthand for the same verbs (`apm install NAME`).
+`apm` is Toren's shorthand for the same verbs (`apm install NAME`).
 
 ## Optional services
 
@@ -50,7 +50,7 @@ asura enable docker               # then log out and in for the docker group
 asura disable docker              # stop it; the package stays
 ```
 
-Installing packages through ASURA's helper (`asura-pkg-add`) takes a system
+Installing packages through Toren's helper (`asura-pkg-add`) takes a system
 snapshot first, so a bad install can be undone with
 `sudo asura rollback --system NAME` (`asura snapshot` lists them).
 

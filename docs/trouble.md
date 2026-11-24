@@ -1,6 +1,6 @@
-# ASURA OS Troubleshooting and Recovery Guide
+# Toren Linux Troubleshooting and Recovery Guide
 
-When a machine fails to boot graphically, displays a blank screen, or has broken desktop settings, ASURA provides a complete set of safe, reversible recovery mechanisms designed to get you back into a working environment quickly.
+When a machine fails to boot graphically, displays a blank screen, or has broken desktop settings, Toren provides a complete set of safe, reversible recovery mechanisms designed to get you back into a working environment quickly.
 
 ---
 
@@ -11,7 +11,7 @@ If the graphical desktop or login greeter fails to start, crash loops, or hangs:
 1. Press **`Ctrl + Alt + F2`** (or **`Ctrl + Alt + F3`** through **`F6`**).
 2. The display switches immediately to a text virtual console (TTY).
 3. Log in with your username and password.
-4. From here, you have full terminal access and can run all ASURA recovery tools.
+4. From here, you have full terminal access and can run all Toren recovery tools.
 
 To switch back to the graphical session when working:
 - Press **`Ctrl + Alt + F1`** (or **`Ctrl + Alt + F7`** depending on the display manager).
@@ -89,12 +89,12 @@ asura reinstall
 
 ---
 
-## 5. ASURA (Safe Mode) Session
+## 5. Toren (Safe Mode) Session
 
 If you need a graphical desktop to troubleshoot but your custom Hyprland configuration or shell is crashing:
 
 1. At the login screen (SDDM/GDM), select the session menu.
-2. Select **`ASURA (safe mode)`**.
+2. Select **`Toren Linux (safe mode)`**.
 3. Log in.
 
 ### What Safe Mode provides:

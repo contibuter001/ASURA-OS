@@ -8,7 +8,7 @@ imports resolve only from the shell's root.
 
 | Window | Started by | Compositor sees |
 |---|---|---|
-| Welcome tour | `asura-welcome [--if-first-run]` | window titled `Welcome to ASURA` (float + centre rule in `fragments/W14.conf`) |
+| Welcome tour | `asura-welcome [--if-first-run]` | window titled `Welcome to Toren` (float + centre rule in `fragments/W14.conf`) |
 | Pinned shots | `asura-pin` (from `asura-shot`) | layer surface, namespace `asura-pin`, top layer |
 | Reload cover | `asura-reload-cover begin\|finish\|fail` | layer surface, namespace `asura-reload-cover`, overlay layer |
 

@@ -7,8 +7,8 @@
 
 [Desktop Entry]
 Type=Application
-Name=ASURA (safe mode)
-Comment=ASURA minimal recovery session
+Name=Toren Linux (safe mode)
+Comment=Toren Linux minimal recovery session
 TryExec=/usr/share/asura/session/asura-session-safe
 Exec=/usr/share/asura/session/asura-session-safe
 DesktopNames=Asura

@@ -4,7 +4,7 @@
   "category": "plugins",
   "summary": "Compact CPU, memory, and thermal telemetry HUD for the bar and desktop",
   "description": "Native status monitoring plugin that connects with asura-sysmon to display real-time processor load, RAM allocation, GPU telemetry, and thermal gauges.",
-  "author": "ASURA OS Core Team <core@asura-os.org>",
+  "author": "Toren Linux Core Team <core@torenlinux.org>",
   "version": "1.0.0",
   "license": "GPL-3.0",
   "kind": "bar",
@@ -14,6 +14,6 @@
   "metadata": {
     "hosts": ["topbarGlyph", "desktopWidget"],
     "verified": true,
-    "provider": "ASURA Core"
+    "provider": "Toren Core"
   }
 }

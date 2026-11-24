@@ -27,7 +27,7 @@ Incoming files trigger a desktop notification when received.
 
 ## User Extension Hooks
 
-You can run custom scripts when Asura lifecycle events occur by placing executable scripts in:
+You can run custom scripts when Toren lifecycle events occur by placing executable scripts in:
 
 ```sh
 ~/.config/asura/hooks/<event>/
@@ -40,7 +40,7 @@ Supported events:
 - `post-login`: runs when logging in to the graphical desktop session
 
 Hooks run in alphabetical order as your user with a 30s timeout, logged to `~/.local/state/asura/hooks.log`.
-A failing hook is reported but never aborts Asura's own operations.
+A failing hook is reported but never aborts Toren's own operations.
 Environment variables passed: `ASURA_EVENT`, `ASURA_HOOK_DIR`, `ASURA_USER`.
 
 ## The firewall

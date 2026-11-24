@@ -1,5 +1,5 @@
 #!/bin/sh
-# Asura OS Guided System Installer
+# Toren Linux Guided System Installer
 # Sleek, interactive system installer with automatic drive detection,
 # Btrfs/ext4 support, subvolume setup, and hybrid UEFI/BIOS bootloader.
 set -eu
@@ -214,7 +214,7 @@ clear 2>/dev/null || true
 
 cat <<EOF
 ${WHITE}╭──────────────────────────────────────────────────────────────╮
-│                           ${BOLD}ASURA OS${RESET}${WHITE}                           │
+│                         ${BOLD}TOREN LINUX${RESET}${WHITE}                          │
 │                   Guided System Installer                    │
 ╰──────────────────────────────────────────────────────────────╯${RESET}
 
@@ -687,10 +687,10 @@ fi
 if [ -z "$CONFIG_ARG" ]; then
 	if [ "$DUAL_BOOT" -eq 1 ]; then
 		printf "${YELLOW}${BOLD}⚠  Dual-Boot Confirmation: Installing alongside existing operating systems on %s.${RESET}\n" "$TARGET_DISK"
-		printf "${WHITE}Type ${BOLD}'YES'${RESET}${WHITE} to partition free space and install Asura OS: ${RESET}"
+		printf "${WHITE}Type ${BOLD}'YES'${RESET}${WHITE} to partition free space and install Toren Linux: ${RESET}"
 	else
 		printf "${RED}${BOLD}⚠  CRITICAL WARNING: ALL EXISTING DATA ON %s WILL BE ERASED!${RESET}\n" "$TARGET_DISK"
-		printf "${WHITE}Type ${BOLD}'YES'${RESET}${WHITE} to format disk and install Asura OS: ${RESET}"
+		printf "${WHITE}Type ${BOLD}'YES'${RESET}${WHITE} to format disk and install Toren Linux: ${RESET}"
 	fi
 	read -r CONFIRM
 	if [ "$CONFIRM" != "YES" ]; then
@@ -866,7 +866,7 @@ if [ "$IS_UEFI" -eq 1 ]; then
 fi
 printf "${GREEN}✓ Filesystems ready and mounted.${RESET}\n"
 
-printf "${WHITE}${BOLD}[3/5] Deploying Asura OS system image (rootfs)...${RESET}\n"
+printf "${WHITE}${BOLD}[3/5] Deploying Toren Linux system image (rootfs)...${RESET}\n"
 rsync -aAX --info=progress2 \
 	--exclude='/dev/*' \
 	--exclude='/proc/*' \
@@ -918,14 +918,14 @@ if [ "$IS_UEFI" -eq 1 ]; then
 	fi
 	if [ "$FS_TYPE" = "btrfs" ]; then
 		cat >"$TARGET_DIR/etc/fstab" <<EOF
-# /etc/fstab: static file system information for Asura OS
+# /etc/fstab: static file system information for Toren Linux
 UUID=$ROOT_UUID / btrfs defaults,noatime,compress=zstd:1,subvol=@ 0 0
 UUID=$ROOT_UUID /home btrfs defaults,noatime,compress=zstd:1,subvol=@home 0 0
 UUID=$ROOT_UUID /.snapshots btrfs defaults,noatime,compress=zstd:1,subvol=@snapshots 0 0
 EOF
 	else
 		cat >"$TARGET_DIR/etc/fstab" <<EOF
-# /etc/fstab: static file system information for Asura OS
+# /etc/fstab: static file system information for Toren Linux
 UUID=$ROOT_UUID / ext4 defaults,noatime 0 1
 EOF
 	fi
@@ -941,14 +941,14 @@ EOF
 else
 	if [ "$FS_TYPE" = "btrfs" ]; then
 		cat >"$TARGET_DIR/etc/fstab" <<EOF
-# /etc/fstab: static file system information for Asura OS
+# /etc/fstab: static file system information for Toren Linux
 UUID=$ROOT_UUID / btrfs defaults,noatime,compress=zstd:1,subvol=@ 0 0
 UUID=$ROOT_UUID /home btrfs defaults,noatime,compress=zstd:1,subvol=@home 0 0
 UUID=$ROOT_UUID /.snapshots btrfs defaults,noatime,compress=zstd:1,subvol=@snapshots 0 0
 EOF
 	else
 		cat >"$TARGET_DIR/etc/fstab" <<EOF
-# /etc/fstab: static file system information for Asura OS
+# /etc/fstab: static file system information for Toren Linux
 UUID=$ROOT_UUID / ext4 defaults,noatime 0 1
 EOF
 	fi
@@ -966,8 +966,8 @@ fi
 printf '%s\n' "$HOSTNAME_INPUT" > "$TARGET_DIR/etc/hostname"
 
 cat >"$TARGET_DIR/etc/os-release" <<'EOF'
-NAME="Asura OS"
-PRETTY_NAME="Asura OS Beta 001"
+NAME="Toren Linux"
+PRETTY_NAME="Toren Linux Beta 001"
 ID=asura
 ID_LIKE="linux"
 VERSION_ID="0.1"
@@ -1046,7 +1046,7 @@ rm -rf "$TARGET_DIR/tmp"/* "$TARGET_DIR/var/tmp"/*
 
 # Replace live MOTD, issue, and issue.net with installed system banners
 cat >"$TARGET_DIR/etc/motd" <<'MOTD'
-       #                    #         Asura OS Beta 001
+       #                    #         Toren Linux Beta 001
      %##                    ##%       https://asuraos.dev
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -1068,7 +1068,7 @@ cat >"$TARGET_DIR/etc/motd" <<'MOTD'
 MOTD
 
 cat >"$TARGET_DIR/etc/issue" <<'ISSUE'
-       #                    #         Asura OS Beta 001 (\m)
+       #                    #         Toren Linux Beta 001 (\m)
      %##                    ##%       Kernel \r on an \m (\l)
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -1148,7 +1148,7 @@ rm -f "$TARGET_DIR/etc/ld.so.preload"
 # Configure GRUB bootloader identity
 mkdir -p "$TARGET_DIR/etc/default"
 cat >"$TARGET_DIR/etc/default/grub" <<'GRUBDEF'
-GRUB_DISTRIBUTOR="Asura OS"
+GRUB_DISTRIBUTOR="Toren Linux"
 GRUB_DEFAULT=saved
 GRUB_SAVEDEFAULT=true
 GRUB_TIMEOUT=3
@@ -1339,16 +1339,16 @@ fi
 cat <<EOF
 
 ${GREEN}╭──────────────────────────────────────────────────────────────╮
-│              ✓ ASURA OS Successfully Installed!              │
+│            ✓ TOREN LINUX Successfully Installed!             │
 │                                                              │
-│   Asura OS has been deployed to your storage drive.          │
+│   Toren Linux has been deployed to your storage drive.       │
 │   The installer has been automatically deleted.              │
 │   You can now safely reboot into your new installation.      │
 ╰──────────────────────────────────────────────────────────────╯${RESET}
 
 EOF
 
-printf "Would you like to reboot into Asura OS now? [Y/n]: "
+printf "Would you like to reboot into Toren Linux now? [Y/n]: "
 read -r REBOOT_CHOICE || REBOOT_CHOICE="y"
 [ -z "$REBOOT_CHOICE" ] && REBOOT_CHOICE="y"
 

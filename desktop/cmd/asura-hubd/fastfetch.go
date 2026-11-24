@@ -851,7 +851,7 @@ func defaultFastfetchModel() ffModel {
 			PaddingTop:   2,
 		},
 		Rows: []ffRow{
-			{Kind: "tagline", Enabled: true, Text: "ASURA OS", Label: "Tagline"},
+			{Kind: "tagline", Enabled: true, Text: "TOREN LINUX", Label: "Tagline"},
 			{Kind: "break", Enabled: true, Label: "Spacer"},
 			{Kind: "header", Enabled: true, Text: "SYSTEM", Label: "Section header"},
 			mk("os", "OS"),

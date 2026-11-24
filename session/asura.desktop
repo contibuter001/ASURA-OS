@@ -17,8 +17,8 @@
 #                     is wayland for a file here and x11 for one in xsessions.
 [Desktop Entry]
 Type=Application
-Name=Asura
-Comment=Asura desktop
+Name=Toren Linux
+Comment=Toren Linux desktop
 TryExec=/usr/share/asura/session/asura-session
 Exec=/usr/share/asura/session/asura-session
 DesktopNames=Asura

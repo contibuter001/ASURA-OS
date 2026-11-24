@@ -1,6 +1,6 @@
-# ASURA Store
+# Toren Store
 
-ASURA Store is the package and customization showroom window and CLI data plane for Asura OS. It provides browsing, discovery, and management of native packages, plugins, themes, and UI customizations, with privilege escalation safely handled through polkit.
+Toren Store is the package and customization showroom window and CLI data plane for Toren Linux. It provides browsing, discovery, and management of native packages, plugins, themes, and UI customizations, with privilege escalation safely handled through polkit.
 
 The canonical standalone repository is hosted at **[github.com/ASURA-OS/asura-store](https://github.com/ASURA-OS/asura-store)**.
 The tree in this repository keeps byte-identical mirrors of the standalone store:
@@ -30,7 +30,7 @@ Applications are native packages.
 5. `asura-store` ignores `SIGPIPE` and `SIGHUP` to ensure background package transactions finish cleanly even if the window closes.
 
 ### 2. Plugins (`plugins`)
-Plugins extend Asura OS capabilities:
+Plugins extend Toren Linux capabilities:
 1. The catalogue entry references the canonical upstream repository.
 2. The store runs `asura plugin install <upstream> --yes` (removal runs `asura plugin remove <id>`), matching the Hub Add-ons manager.
 3. Installed plugins reside in `~/.local/share/asura/plugins`.
@@ -41,7 +41,7 @@ Themes modify desktop styling and colors:
 2. Removal protects the currently active theme, refusing to delete active configurations.
 
 ### 4. Bar Styles (`barstyles`)
-Bar styles (`top`, `side`) are built directly into Asura OS shell. The store provides style discovery, preview, and selection via Bar Studio.
+Bar styles (`top`, `side`) are built directly into Toren Linux shell. The store provides style discovery, preview, and selection via Bar Studio.
 
 ## CLI Commands
 
@@ -57,7 +57,7 @@ asura-store settings CATEGORY [ID]                 Navigates Settings Hub (asura
 
 ### Catalog Categories
 - `apps`: Curated desktop applications with summaries, descriptions, and install status queryable via `xbps-query`.
-- `plugins`: Antigravity and Asura OS plugins from verified upstreams.
+- `plugins`: Antigravity and Toren Linux plugins from verified upstreams.
 - `themes`: Local and curated desktop themes.
 - `barstyles`: Built-in bar styles for desktop customization.
 
@@ -75,7 +75,7 @@ Every freshly built catalog computes a deterministic revision hash (SHA-256 over
 ## Deep Links & Settings Navigation
 
 - `asura-store open [section]` activates or raises the single-instance store window and navigates to the target section (`discover`, `library`, `apps`, etc.).
-- `asura-store settings CATEGORY [ID]` directly opens the relevant section in Asura Settings Hub (`asura-shell hub open`).
+- `asura-store settings CATEGORY [ID]` directly opens the relevant section in Toren Settings Hub (`asura-shell hub open`).
 
 ## Test Suite
 

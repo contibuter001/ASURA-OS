@@ -43,13 +43,13 @@ hl.window_rule({
     center = true,
 })
 hl.window_rule({
-    match = { title = "^Asura Settings$" },
+    match = { title = "^Toren Settings$" },
     float = true,
     size = "100% calc(100% - 33px)",
     move = "0 33",
 })
 hl.window_rule({
-    match = { title = "^(Asura Store)$" },
+    match = { title = "^(Toren Store)$" },
     float = true,
     size = "61% 70%",
     center = true,
@@ -80,13 +80,13 @@ hl.window_rule({
     center = true,
 })
 hl.window_rule({
-    match = { title = "^(Welcome to Asura)$" },
+    match = { title = "^(Welcome to Toren)$" },
     float = true,
     size = "1180 760",
     center = true,
 })
 hl.window_rule({
-    match = { title = "^(Asura OS Installer)$" },
+    match = { title = "^(Toren Linux Installer)$" },
     float = true,
     size = "960 680",
     center = true,

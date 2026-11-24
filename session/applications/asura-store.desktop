@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Asura Store
+Name=Toren Store
 GenericName=Software
 Comment=Find and install software
 Exec=asura-store open discover

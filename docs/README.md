@@ -1,6 +1,6 @@
-# ASURA OS Documentation Index
+# Toren Linux Documentation Index
 
-This directory contains the complete technical documentation for **ASURA OS**, detailing
+This directory contains the complete technical documentation for **Toren Linux**, detailing
 architecture, subsystems, developer contracts, and operational guides.
 
 ---
@@ -52,6 +52,6 @@ architecture, subsystems, developer contracts, and operational guides.
 ## Settings & Standalone Applications
 
 - [`hub-backend.md`](hub-backend.md): `asura-hubd` Settings Hub data plane and compositor settings renderer.
-- [`store.md`](store.md): ASURA Software Store: showroom UI, XBPS integration, and polkit privilege escalation.
-- [`sysmon.md`](sysmon.md): ASURA Resource Monitor: telemetry data plane, process manager, and system gauges.
+- [`store.md`](store.md): Toren Software Store: showroom UI, XBPS integration, and polkit privilege escalation.
+- [`sysmon.md`](sysmon.md): Toren Resource Monitor: telemetry data plane, process manager, and system gauges.
 - [`agent.md`](agent.md): Coding assistant integration harness (`asura-agent`), skill suites, and knowledge vault.
