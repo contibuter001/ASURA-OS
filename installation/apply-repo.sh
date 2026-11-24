@@ -68,6 +68,7 @@ put session/hyprland /usr/share/asura/hyprland
 put session/safe-mode /usr/share/asura/safe-mode
 put apps /usr/share/asura/apps
 put_as apps/mimeapps/asura-mimeapps.list /usr/share/applications/asura-mimeapps.list
+put_as apps/mimeapps/toren-mimeapps.list /usr/share/applications/toren-mimeapps.list
 put shell/agent/skills /usr/share/asura/skills
 put docs/manual /usr/share/doc/asura/manual
 # One-time fixes for installed machines; asura update runs the new ones

@@ -228,7 +228,7 @@ The four design documents, and what each one decides:
 | [`docs/hardware-detection.md`](docs/hardware-detection.md) | The subsystem that decides whether Toren works on someone else's laptop — probes, matching, PII stripping, tier assignment |
 | [`docs/session.md`](docs/session.md) | The boot and login chain — GRUB through runit to Hyprland, the session entry point, what starts in what order, and who owns logout, suspend and shutdown |
 | [`docs/menu.md`](docs/menu.md) | `asura menu` — the unified "do everything" menu on Super+Alt+Space coordinating apps, setup, themes, updates and power |
-| [`docs/adopting-asura.md`](docs/adopting-asura.md) | `asura adopt` (Legacy — Ubuntu/APT design) — historical in-place adoption design; current installation uses the live ISO and `asura install` |
+| [`docs/adopting-toren.md`](docs/adopting-toren.md) | `asura adopt` (Legacy — Ubuntu/APT design) — historical in-place adoption design; current installation uses the live ISO and `asura install` |
 
 [`docs/roadmap.md`](docs/roadmap.md) orders the work.
 
@@ -281,7 +281,7 @@ matched — an answer, not a failure.
 The one rule the overlay model exists to keep: **a user's override wins at its mirrored path,
 and no update can clobber it.**
 
-The legacy in-place adoption design (`asura adopt`) is documented in [`docs/adopting-asura.md`](docs/adopting-asura.md); current installation is driven by the bootable ISO and `asura install`.
+The legacy in-place adoption design (`asura adopt`) is documented in [`docs/adopting-toren.md`](docs/adopting-toren.md); current installation is driven by the bootable ISO and `asura install`.
 
 ## Branches
 

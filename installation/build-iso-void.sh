@@ -434,6 +434,7 @@ tar -xzf "$OPENCODE_ARCHIVE" -O package/bin/opencode > "$INCLUDE_DIR/usr/bin/ope
 chmod 755 "$INCLUDE_DIR/usr/bin/opencode"
 if [ -d "$REPO_ROOT/apps/mimeapps" ]; then
 	cp "$REPO_ROOT/apps/mimeapps"/asura-mimeapps.list "$INCLUDE_DIR/usr/share/applications/" 2>/dev/null || true
+	cp "$REPO_ROOT/apps/mimeapps"/toren-mimeapps.list "$INCLUDE_DIR/usr/share/applications/" 2>/dev/null || true
 fi
 
 # Copy Asura apps (ghostty, starship, zsh configurations)

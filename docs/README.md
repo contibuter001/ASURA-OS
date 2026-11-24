@@ -8,7 +8,7 @@ architecture, subsystems, developer contracts, and operational guides.
 ## Architecture & System Overview
 
 - [`architecture.md`](architecture.md): Master design document, core technology choices (Void Linux, Hyprland, Quickshell, runit), layer boundaries, and rejected alternatives.
-- [`adopting-asura.md`](adopting-asura.md): Migration and adoption design document.
+- [`adopting-toren.md`](adopting-toren.md): Migration and adoption design document.
 - [`roadmap.md`](roadmap.md): Milestone tracker, deliverables, and release status across development phases.
 - [`cli.md`](cli.md): Reference manual for the `asura` control CLI binary (`desktop/cmd/asura/`).
 - [`trouble.md`](trouble.md): Troubleshooting, TTY emergency login, desktop reset, reinstall, and recovery.
