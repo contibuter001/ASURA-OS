@@ -52,10 +52,10 @@ RippleButton {
         if (name.includes("removable drives")) return Translation.tr("Media & Storage Device Manager");
         if (name.includes("volume") || name.includes("pavucontrol")) return Translation.tr("Audio & Mixer Settings");
         if (name.includes("mpv")) return Translation.tr("High Performance Media Player");
-        if (name.includes("asura vm")) return Translation.tr("Virtual Machine Manager");
-        if (name.includes("asura store")) return Translation.tr("App & Package Store");
-        if (name.includes("asura settings")) return Translation.tr("System Settings & Rice Hub");
-        if (name.includes("install asura")) return Translation.tr("Live OS Installer");
+        if (name.includes("asura vm") || name.includes("toren vm")) return Translation.tr("Virtual Machine Manager");
+        if (name.includes("asura store") || name.includes("toren store")) return Translation.tr("App & Package Store");
+        if (name.includes("asura settings") || name.includes("toren settings")) return Translation.tr("System Settings & Rice Hub");
+        if (name.includes("install asura") || name.includes("install toren")) return Translation.tr("Live OS Installer");
         if (name.includes("network")) return Translation.tr("Network Configuration & VPN");
         if (root.itemType && root.itemType !== Translation.tr("App") && root.itemType !== "App") {
             return root.itemType;

@@ -162,7 +162,7 @@ Item {
                 Accessible.ignored: true
             }
             Text {
-                text: I18n.tr("ASURA STORE")
+                text: I18n.tr("TOREN STORE")
                 color: Tokens.ink
                 font.family: Tokens.mono
                 font.pixelSize: 15

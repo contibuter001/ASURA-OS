@@ -60,7 +60,7 @@ Singleton {
     // and offers no way to set one per config. The title is the only thing
     // that tells them apart, so it maps to the desktop entry id the dock
     // groups, launches and draws them by; anything else keeps its class.
-    readonly property var quickshellApps: ({ "Asura Settings": "asura-hub", "Asura Store": "asura-store", "asura-vm": "asura-vm" })
+    readonly property var quickshellApps: ({ "Toren Settings": "asura-hub", "Toren Store": "asura-store", "asura-vm": "asura-vm", "Asura Settings": "asura-hub", "Asura Store": "asura-store" })
     function classOf(w) {
         if (!w) return "";
         const cls = w.appId;
