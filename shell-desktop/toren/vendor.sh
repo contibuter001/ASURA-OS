@@ -113,14 +113,20 @@ modules/ii/overview/OverviewWidget.qml
 modules/ii/sidebarLeft/anime/BooruImage.qml
 modules/waffle/taskView/TaskViewContent.qml
 modules/waffle/taskView/TaskViewWindow.qml
+modules/ii/cheatsheet/Cheatsheet.qml
 "
 
-# Upstream's paths Toren leaves out: the desktop's own Settings app. Toren has
-# one settings window, the Hub (toren-shell hub open), which carries those
-# options on its Desktop page. A path ending in / leaves out the directory.
+# Upstream's paths Toren leaves out: the desktop's own Settings app (Toren has
+# one settings window, the Hub, toren-shell hub open, which carries those
+# options on its Desktop page) and the cheatsheet's periodic table page
+# (modules/ii/cheatsheet/Cheatsheet.qml shows the keybindings only). A path
+# ending in / leaves out the directory.
 REMOVED="
 settings.qml
 modules/settings/
+modules/ii/cheatsheet/CheatsheetPeriodicTable.qml
+modules/ii/cheatsheet/ElementTile.qml
+modules/ii/cheatsheet/periodic_table.js
 "
 
 log() { printf '%s\n' "$*" >&2; }
