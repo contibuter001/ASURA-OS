@@ -104,6 +104,7 @@ Item {
         for (var i = 0; i < DesktopShellSchema.rows.length; i++) {
             var r = DesktopShellSchema.rows[i];
             if (r.store === "gtk-corners") { view[r.key] = pg.gtkRounded; continue; }
+            if (r.store === "action") continue;
             var v = pg.getPath(d, r.key);
             view[r.key] = pg.shown(r, v === undefined ? r.def : v);
         }

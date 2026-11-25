@@ -479,6 +479,8 @@ Item {
                                                 // on the desktop, which no slider in here can be.
                                                 if (srow.r.key === "vizPlace")
                                                     Spawn.run(["toren-shell", "visualizer-place"]);
+                                                else if (srow.r.run && srow.r.run.length)
+                                                    Spawn.run(srow.r.run); // a row naming its own command
                                             }
                                         }
                                     }
