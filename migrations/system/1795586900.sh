@@ -1,5 +1,5 @@
 #!/bin/sh
-# Enable system services added for the beta (socklog, earlyoom, maintenance, thermald).
+echo "Enable beta system services (socklog, earlyoom, maintenance, thermald)"
 
 enable_svc() {
 	svc="$1"
