@@ -163,6 +163,7 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: desktop/go.mod
+          cache-dependency-path: desktop/go.mod
       - name: Keybindings are the same in the hyprlang and Lua configs
         working-directory: desktop
         run: go test -count=1 -run TestBindsParityBetweenHyprlangAndLua ./internal/shell
