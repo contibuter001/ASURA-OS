@@ -794,6 +794,19 @@ var rows = [
     },
     {
         "tab": "System",
+        "group": "CHARGING",
+        "key": "toren.chargeLimit",
+        "ctl": "step",
+        "label": "Charge limit",
+        "desc": "Stops charging at this level to keep the battery healthy; kept across reboots. Asks for your password",
+        "store": "charge-limit",
+        "unit": "%",
+        "from": 50,
+        "to": 100,
+        "def": 80
+    },
+    {
+        "tab": "System",
         "group": "WARNINGS",
         "key": "battery.full",
         "ctl": "step",

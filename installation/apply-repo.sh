@@ -124,7 +124,7 @@ for hdir in audio display input perf pkg; do
 		put_bin "${f#"$REPO"/}" "/usr/bin/$(basename "$f")"
 	done
 done
-for h in prime-run fan-profile systemctl journalctl toren-gpu with-mimalloc; do
+for h in prime-run fan-profile systemctl journalctl toren-gpu with-mimalloc toren-charge-limit-apply; do
 	put_bin "system/helpers/$h" "/usr/bin/$h"
 done
 put_bin installation/toren-installer.sh /usr/bin/toren-installer

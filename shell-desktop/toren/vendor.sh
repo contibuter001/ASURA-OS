@@ -51,7 +51,7 @@ SHAPES_DEST="modules/common/widgets/shapes"
 # services/GlobalFocusGrab.qml keeps the bar in the focus grab, so a sidebar
 # opened from the bar is not closed by the grab at once.
 # panelFamilies/IllogicalImpulseFamily.qml loads end-4's panels without the
-# left sidebar (AI chat, anime). welcome.qml, modules/settings/About.qml and
+# left sidebar (AI chat, anime). welcome.qml and
 # modules/common/widgets/LightDarkPreferenceButton.qml show the ASURA desktop
 # and links instead of upstream's previews and third-party links.
 OVERLAYS="
@@ -66,14 +66,9 @@ modules/ii/bar/Resources.qml
 modules/ii/bar/Resource.qml
 modules/ii/bar/BatteryIndicator.qml
 modules/ii/bar/BarGroup.qml
-modules/settings/InterfaceConfig.qml
-modules/settings/GeneralConfig.qml
-modules/settings/ServicesConfig.qml
-modules/settings/BarConfig.qml
 services/GlobalFocusGrab.qml
 panelFamilies/IllogicalImpulseFamily.qml
 welcome.qml
-modules/settings/About.qml
 modules/common/widgets/LightDarkPreferenceButton.qml
 GlobalStates.qml
 modules/ii/bar/ClockWidget.qml
@@ -88,7 +83,6 @@ modules/ii/bar/StyledPopupValueRow.qml
 modules/ii/bar/BatteryPopup.qml
 modules/ii/bar/ResourcesPopup.qml
 modules/ii/background/Background.qml
-modules/settings/BackgroundConfig.qml
 modules/common/Config.qml
 scripts/colors/applycolor.sh
 scripts/colors/switchwall.sh
@@ -115,14 +109,31 @@ modules/waffle/actionCenter/mainPage/MainPageFooter.qml
 modules/waffle/bar/StartButton.qml
 matugen/templates/gtk-3.0/gtk.css
 matugen/templates/gtk-4.0/gtk.css
-modules/settings/QuickConfig.qml
 modules/ii/overview/OverviewWidget.qml
 modules/ii/sidebarLeft/anime/BooruImage.qml
 modules/waffle/taskView/TaskViewContent.qml
 modules/waffle/taskView/TaskViewWindow.qml
 "
 
+# Upstream's paths Toren leaves out: the desktop's own Settings app. Toren has
+# one settings window, the Hub (toren-shell hub open), which carries those
+# options on its Desktop page. A path ending in / leaves out the directory.
+REMOVED="
+settings.qml
+modules/settings/
+"
+
 log() { printf '%s\n' "$*" >&2; }
+
+is_removed() {
+	for r in $REMOVED; do
+		case "$r" in
+			*/) case "$1" in "$r"*) return 0 ;; esac ;;
+			*) [ "$r" = "$1" ] && return 0 ;;
+		esac
+	done
+	return 1
+}
 
 is_overlay() {
 	for o in $OVERLAYS; do [ "$o" = "$1" ] && return 0; done
@@ -153,6 +164,7 @@ cmd_sync() {
 			*) rel=${path#"$UPSTREAM_PATH"/} ;;
 		esac
 		is_overlay "$rel" && continue
+		is_removed "$rel" && continue
 		mkdir -p "$TREE/$(dirname "$rel")"
 		git -C "$CACHE" cat-file blob "$blob" >"$TREE/$rel"
 		[ "$mode" = 100755 ] && chmod 755 "$TREE/$rel"
@@ -206,6 +218,9 @@ $(grep -v '^#' "$MANIFEST")
 LIST
 	for o in $OVERLAYS; do
 		[ -f "$TREE/$o" ] || { log "MISSING  overlay $o"; bad=$((bad + 1)); }
+	done
+	for r in $REMOVED; do
+		[ -e "$TREE/${r%/}" ] && { log "REMOVED  $r is left out of Toren but is there"; bad=$((bad + 1)); }
 	done
 	if [ "$bad" -eq 0 ]; then
 		log "ok - $total desktop files are byte-identical to $COMMIT"

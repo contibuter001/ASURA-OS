@@ -883,6 +883,7 @@ EOF
 
 # Stage Layer 3: mimalloc opt-in runner helper (avoid global ld.so.preload)
 cp "$REPO_ROOT/system/helpers/with-mimalloc" "$INCLUDE_DIR/usr/bin/with-mimalloc"
+install -m 0755 "$REPO_ROOT/system/helpers/toren-charge-limit-apply" "$INCLUDE_DIR/usr/bin/toren-charge-limit-apply"
 chmod 0755 "$INCLUDE_DIR/usr/bin/with-mimalloc"
 rm -f "$INCLUDE_DIR/etc/ld.so.preload"
 
