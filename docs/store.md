@@ -2,7 +2,7 @@
 
 Toren Store is the package and customization showroom window and CLI data plane for Toren Linux. It provides browsing, discovery, and management of native packages, plugins, themes, and UI customizations, with privilege escalation safely handled through polkit.
 
-The canonical standalone repository is hosted at **[github.com/ASURA-OS/asura-store](https://github.com/ASURA-OS/asura-store)**.
+The canonical standalone repository is hosted at **[github.com/Toren-Linux/asura-store](https://github.com/Toren-Linux/asura-store)**.
 The tree in this repository keeps byte-identical mirrors of the standalone store:
 - `desktop/cmd/toren-store/` mirrors `cmd/asura-store/`
 - `shell/store/` and `shell/store.qml` mirror `ui/`

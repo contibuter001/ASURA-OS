@@ -25,7 +25,7 @@ Item {
         { "name": "rounded-polygon-qmljs", "by": "end-4", "role": I18n.tr("shape kit (Apache-2.0)"), "url": "https://github.com/end-4/rounded-polygon-qmljs" },
         { "name": "Quickshell",   "by": "outfoxxed",      "role": I18n.tr("the shell engine (LGPL-3.0)"), "url": "https://quickshell.org" },
         { "name": "Hyprland",     "by": "hyprwm",         "role": I18n.tr("the compositor"),       "url": "https://github.com/hyprwm/Hyprland" },
-        { "name": "Asura OS",    "by": "the Asura contributors", "role": I18n.tr("session, settings, packaging (GPL-3.0)"), "url": "https://github.com/mohitjoer/Asura-OS" },
+        { "name": "Toren Linux", "by": "the Toren contributors", "role": I18n.tr("session, settings, packaging (GPL-3.0)"), "url": "https://github.com/mohitjoer/Toren-Linux" },
         { "name": "qylock",       "by": "Darkkal44",      "role": I18n.tr("lockscreen"),          "url": "https://github.com/Darkkal44/qylock" },
         { "name": "caelestia",    "by": "caelestia-dots", "role": I18n.tr("Quickshell craft, motion + browser theming"), "url": "https://github.com/caelestia-dots/shell" },
         { "name": "dusky",        "by": "dusklinux",      "role": I18n.tr("recolor templates + animation presets"), "url": "https://github.com/dusklinux/dusky" },

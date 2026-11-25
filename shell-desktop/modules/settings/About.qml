@@ -99,7 +99,7 @@ ContentPage {
                     font.pixelSize: Appearance.font.pixelSize.title
                 }
                 StyledText {
-                    text: "https://github.com/ASURA-OS"
+                    text: "https://github.com/Toren-Linux"
                     font.pixelSize: Appearance.font.pixelSize.normal
                     textFormat: Text.MarkdownText
                     onLinkActivated: (link) => {
@@ -118,7 +118,7 @@ ContentPage {
                 materialIcon: "auto_stories"
                 mainText: Translation.tr("Documentation")
                 onClicked: {
-                    Qt.openUrlExternally("https://github.com/ASURA-OS")
+                    Qt.openUrlExternally("https://github.com/Toren-Linux")
                 }
             }
             RippleButtonWithIcon {
@@ -126,14 +126,14 @@ ContentPage {
                 materialIconFill: false
                 mainText: Translation.tr("Issues")
                 onClicked: {
-                    Qt.openUrlExternally("https://github.com/mohitjoer/ASURA-OS/issues")
+                    Qt.openUrlExternally("https://github.com/mohitjoer/Toren-Linux/issues")
                 }
             }
             RippleButtonWithIcon {
                 materialIcon: "forum"
                 mainText: Translation.tr("Community")
                 onClicked: {
-                    Qt.openUrlExternally("https://github.com/ASURA-OS")
+                    Qt.openUrlExternally("https://github.com/Toren-Linux")
                 }
             }
         }

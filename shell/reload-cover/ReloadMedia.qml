@@ -108,7 +108,7 @@ Item {
     Text {
         anchors.centerIn: parent
         visible: root.showingDefault && root.markLettering
-        text: "ASURA"
+        text: "TOREN"
         color: Tokens.keycapOnDark
         font.family: Tokens.ui
         font.weight: Font.DemiBold

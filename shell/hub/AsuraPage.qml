@@ -111,7 +111,7 @@ Item {
         StyledText {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
-            text: "Asura's settings could not be read"
+            text: "Toren's settings could not be read"
             font.pixelSize: Common.Appearance.font.pixelSize.large
             font.weight: Font.Medium
         }
@@ -129,7 +129,7 @@ Item {
     StyledText {
         anchors.centerIn: parent
         visible: root.loaded && root.loadError === "" && root.pages.length === 0
-        text: "Asura has no settings"
+        text: "Toren has no settings"
         color: Common.Appearance.colors.colSubtext
         font.pixelSize: Common.Appearance.font.pixelSize.normal
     }

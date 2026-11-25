@@ -25,7 +25,7 @@ control tools, its hardware matrix, its updater, and its supervised session daem
 Toren is not a Void spin. Void supplies the minimalist, lightning-fast substrate and nothing else. Toren is the
 distribution; Void Linux is what Toren is built on top of.
 
-> **Status: Beta.** Live bootable ISO images (`asura-os-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/ASURA-OS/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`asura install` / `asura-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
+> **Status: Beta.** Live bootable ISO images (`asura-os-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/Toren-Linux/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`asura install` / `asura-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
 
 ---
 
@@ -51,7 +51,7 @@ profile get conservative defaults (support tier 3) and may need manual fixes.
 ### 1. Download
 
 Get these files from the latest release on the
-[Releases page](https://github.com/mohitjoer/ASURA-OS/releases):
+[Releases page](https://github.com/mohitjoer/Toren-Linux/releases):
 
 - `asura-os-<version>-x86_64.iso`: the installer image
 - `SHA256SUMS`: its checksum
@@ -145,7 +145,7 @@ hardware profile for your specific machine, and an updater that can roll back.
 | Desktop services | pipewire + wireplumber, tlp, NetworkManager, seatd |
 | Portals | `xdg-desktop-portal-hyprland` + `-gtk`, and `-lxqt` for Secret interface |
 | Package manager | XBPS, with first-party repository `asura-xbps-repo`, plus `apm` package manager frontend |
-| Software Store | [Toren Store](https://github.com/ASURA-OS/asura-store) — Graphical showroom window & Go data plane (`asura-store`), multi-provider XBPS/plugin/theme catalogue |
+| Software Store | [Toren Store](https://github.com/Toren-Linux/asura-store) — Graphical showroom window & Go data plane (`asura-store`), multi-provider XBPS/plugin/theme catalogue |
 | Resource Monitor | `btop` — Real-time telemetry, process manager & task manager with Toren adaptive color theming |
 | Agent layer | OpenCode with the Toren skills wired in (`asura-agent`) |
 
