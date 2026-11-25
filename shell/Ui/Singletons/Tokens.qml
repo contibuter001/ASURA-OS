@@ -112,10 +112,12 @@ Singleton {
     // fixed attention red so a badge always reads as an alert ─────────────────
     readonly property color sun: role("primary", "#e2342a")
     readonly property color sunDeep: Qt.darker(sun, 1.3)
+    // text and icons drawn on a filled accent (a selected segment, a switch knob)
+    readonly property color onSun: role("onPrimary", light ? "#ffffff" : "#1a1a1a")
     readonly property color alert: "#e2342a"
 
     // ── type ─────────────────────────────────────────────────────────────
-    readonly property string display: "Space Grotesk"
+    property string display: "Space Grotesk"
     property string ui: "Space Grotesk"
     property string mono: "JetBrainsMono Nerd Font"
     readonly property string jp: "Noto Sans CJK JP"
@@ -155,6 +157,12 @@ Singleton {
 
     // ── geometry ─────────────────────────────────────────────────────────
     readonly property int radius: px(6)
+    // The settings window's card look: each setting a soft filled card, groups
+    // unframed, the accent colour on selections and switches. The settings
+    // window (hub.qml) turns it on for its own process; the shell keeps the
+    // framed sheet.
+    property bool cards: false
+    readonly property int radiusCard: px(10)
     readonly property real border: 1
     readonly property int rowH: px(48)
     readonly property int cellH: px(104)
