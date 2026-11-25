@@ -19,7 +19,7 @@ for i in $(seq 1 30); do
         seatd_ok=1
     fi
 
-    if [ -S /run/asura/sysd.sock ] || sv status asura-sysd 2>/dev/null | grep -q "^run:"; then
+    if [ -S /run/asura/sysd.sock ] || sv status toren-sysd 2>/dev/null | grep -q "^run:"; then
         sysd_ok=1
     fi
 
