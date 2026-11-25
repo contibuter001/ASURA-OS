@@ -3,9 +3,9 @@
 #
 # Usage: installation/build-iso-void.sh [build-directory]
 #
-# ASURA_VERSION=0.1.0-beta.1 names the image asura-os-0.1.0-beta.1-x86_64.iso
+# ASURA_VERSION=0.1.0-beta.1 names the image toren-linux-0.1.0-beta.1-x86_64.iso
 # and records IMAGE_VERSION in /etc/os-release. Unset, the image is
-# asura-os-x86_64.iso. The file name never names the base layer.
+# toren-linux-x86_64.iso. The file name never names the base layer.
 #
 set -eu
 
@@ -21,9 +21,9 @@ case "$ASURA_VERSION" in
 		;;
 esac
 if [ -n "$ASURA_VERSION" ]; then
-	ISO_NAME="asura-os-${ASURA_VERSION}-x86_64"
+	ISO_NAME="toren-linux-${ASURA_VERSION}-x86_64"
 else
-	ISO_NAME=asura-os-x86_64
+	ISO_NAME=toren-linux-x86_64
 fi
 ISO_TITLE="Toren Linux x86_64"
 export GOWORK=off
@@ -168,7 +168,7 @@ if [ -n "$ASURA_VERSION" ]; then
 	printf 'IMAGE_VERSION=%s\n' "$ASURA_VERSION" >>"$INCLUDE_DIR/etc/os-release"
 fi
 
-printf 'asura-os\n' >"$INCLUDE_DIR/etc/hostname"
+printf 'toren-linux\n' >"$INCLUDE_DIR/etc/hostname"
 
 cat >"$INCLUDE_DIR/etc/issue" <<'EOF'
        #                    #         Toren Linux Beta 001 (\m)
@@ -719,9 +719,12 @@ echo "build-iso-void: building Toren Go binaries..."
 find "$INCLUDE_DIR/usr/bin" -type f -exec chmod 0755 {} +
 # Symlinks
 ln -sf toren "$INCLUDE_DIR/usr/bin/os-ctl"
-for tool in toren toren-store toren-shell toren-wallpaper toren-hubd toren-sysd toren-userd toren-agent toren-vm-mon toren-vm-ssh toren-vmd; do
-	asura_tool=$(echo "$tool" | sed 's/^toren/asura/')
-	ln -sf "$tool" "$INCLUDE_DIR/usr/bin/$asura_tool"
+ln -sf toren "$INCLUDE_DIR/usr/bin/asura"
+for f in "$INCLUDE_DIR/usr/bin"/toren-*; do
+	[ -e "$f" ] || continue
+	base=$(basename "$f")
+	asura_base=$(echo "$base" | sed 's/^toren/asura/')
+	[ -e "$INCLUDE_DIR/usr/bin/$asura_base" ] || ln -sf "$base" "$INCLUDE_DIR/usr/bin/$asura_base"
 done
 for f in "$INCLUDE_DIR/usr/share/asura/session"/toren-*; do
 	[ -e "$f" ] || continue
@@ -967,7 +970,7 @@ fi
 
 # Patch dracut vmklive module to use asura-os hostname, asura user, and include _seatd/input/asura-hw groups
 if [ -f "$MKLIVE_DIR/dracut/vmklive/adduser.sh" ]; then
-	sed -i 's/echo void-live >/echo asura-os >/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
+	sed -i 's/echo void-live >/echo toren-linux >/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
 	sed -i 's/-G audio,video,wheel/-G audio,video,wheel,_seatd,input,tty,storage,network,asura-hw/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
 	sed -i 's/USERNAME=anon/USERNAME=asura/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
 	sed -i 's/voidlinux/asura/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
@@ -1387,16 +1390,16 @@ if [ -f "$ROOTFS/etc/rc.local" ]; then
 	fi
 fi
 
-# Set Asura OS hostname and network identity
-printf 'asura-os\n' > "$ROOTFS/etc/hostname"
+# Set Toren Linux hostname and network identity
+printf 'toren-linux\n' > "$ROOTFS/etc/hostname"
 if [ -f "$ROOTFS/etc/rc.conf" ]; then
-	sed -i 's/^#\?HOSTNAME=.*/HOSTNAME="asura-os"/' "$ROOTFS/etc/rc.conf"
+	sed -i 's/^#\?HOSTNAME=.*/HOSTNAME="toren-linux"/' "$ROOTFS/etc/rc.conf"
 	if ! grep -q '^HOSTNAME=' "$ROOTFS/etc/rc.conf"; then
-		echo 'HOSTNAME="asura-os"' >> "$ROOTFS/etc/rc.conf"
+		echo 'HOSTNAME="toren-linux"' >> "$ROOTFS/etc/rc.conf"
 	fi
 fi
 if [ -f "$ROOTFS/etc/hosts" ]; then
-	sed -i 's/void-live/asura-os/g' "$ROOTFS/etc/hosts"
+	sed -i 's/void-live/toren-linux/g' "$ROOTFS/etc/hosts"
 fi
 
 # Update all TTY greeting messages (/etc/issue, /etc/issue.net, /etc/motd) to show Asura OS wordmark and logo
@@ -1512,6 +1515,13 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ -z "$DISPLAY" ] && [ "$(tty 2>/dev/null)" = "/
 fi
 PROFILE
 chmod 0755 "$ROOTFS/etc/profile.d/asura-autologin.sh"
+# zsh login shells do not read /etc/profile.d/*.sh unless /etc/zsh/zprofile sources it
+mkdir -p "$ROOTFS/etc/zsh"
+if [ ! -f "$ROOTFS/etc/zsh/zprofile" ] || ! grep -q 'asura-autologin.sh' "$ROOTFS/etc/zsh/zprofile"; then
+	cat >>"$ROOTFS/etc/zsh/zprofile" <<'ZPROFILE'
+[ -r /etc/profile.d/asura-autologin.sh ] && emulate sh -c '. /etc/profile.d/asura-autologin.sh'
+ZPROFILE
+fi
 exit 0
 EOF
 chmod +x "$POSTSETUP_SCRIPT"

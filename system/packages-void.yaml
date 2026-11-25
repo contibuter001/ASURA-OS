@@ -66,6 +66,17 @@ desktop:
   packages:
     # Wayland Compositor & helpers
     - hyprland
+    - muparser # libmuparser.so.2 required by Hyprland 0.57
+    - lua55 # liblua5.5.so.5.5 required by Hyprland 0.57
+    - glslang
+    - iniparser
+    - libei
+    - lcms2
+    - libcanberra
+    - pugixml
+    - sdbus-c++
+    - tomlplusplus
+    - udis86
     # Void's own package (0.3.2 at the time of writing), built with the Polkit,
     # PAM, PipeWire, Hyprland and screencopy integrations the shell needs.
     # ASURA does not build its own Quickshell.

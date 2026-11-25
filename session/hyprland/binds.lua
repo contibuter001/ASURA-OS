@@ -228,7 +228,6 @@ hl.bind("SUPER + SHIFT + KP_Insert", hl.dsp.exec_cmd("asura-workspace movesilent
 -- print key and its XF86 twin are bound: keyboards differ on which the Fn row
 -- emits.
 hl.bind("Print", hl.dsp.exec_cmd("asura-shot"))
-hl.bind("XF86Print", hl.dsp.exec_cmd("asura-shot"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("asura-shot"))
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd("env ASURA_SHOT_MODE=monitor asura-shot"))
 hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("asura-cmd-color-picker"))

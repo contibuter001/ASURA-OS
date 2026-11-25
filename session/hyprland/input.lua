@@ -16,8 +16,6 @@ hl.config({
         },
     },
     gestures = {
-        workspace_swipe = true,
-        workspace_swipe_fingers = 3,
         workspace_swipe_distance = 300,
         workspace_swipe_invert = true,
         workspace_swipe_min_speed_to_force = 30,
@@ -29,6 +27,8 @@ hl.config({
         no_hardware_cursors = false,
     },
 })
+
+hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 -- Hyprland enables every touchpad again when it rereads its config, and `exec`
 -- (unlike exec-once) runs on every reload, so a pad turned off with the Fn key

@@ -637,9 +637,6 @@
       "action": "asura-shot",
       "also": [
         {
-          "chord": "XF86Print"
-        },
-        {
           "chord": "SUPER + SHIFT + S"
         }
       ]

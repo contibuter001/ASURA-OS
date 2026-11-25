@@ -75,7 +75,7 @@ hl.animation({ leaf = "zoomFactor", enabled = true, speed = 3, bezier = "standar
 
 hl.layer_rule({ match = { namespace = ".*" }, xray = 1 })
 hl.layer_rule({ match = { namespace = "quickshell:.*" }, blur_popups = true, blur = true, ignore_alpha = 0.79 })
-hl.layer_rule({ match = { namespace = "quickshell:background" }, unset = true })
+hl.layer_rule({ match = { namespace = "quickshell:background" }, xray = 0, blur = false })
 hl.layer_rule({ match = { namespace = "quickshell:bar" }, animation = "slide" })
 hl.layer_rule({ match = { namespace = "quickshell:actionCenter" }, no_anim = true })
 hl.layer_rule({ match = { namespace = "quickshell:cheatsheet" }, animation = "slide bottom" })

@@ -306,7 +306,6 @@ hl.config({
     },
     animations = { enabled = false },
     misc = {
-        vfr = true,
         disable_hyprland_logo = true,
         disable_splash_rendering = true,
         allow_session_lock_restore = true,
@@ -320,8 +319,8 @@ hl.env("WLR_NO_HARDWARE_CURSORS", "1")
 VMCFGLUA
 fi
 
-# Detect compositor executable: on Void Linux the packaged binary is Hyprland,
-# while some distributions package a start-hyprland watchdog wrapper.
+# Detect compositor executable: on Void Linux, prefer start-hyprland (the
+# official Hyprland 0.57 launcher) and fall back to Hyprland directly.
 COMPOSITOR="${ASURA_COMPOSITOR:-}"
 if [ -z "$COMPOSITOR" ]; then
     if command -v start-hyprland >/dev/null 2>&1; then

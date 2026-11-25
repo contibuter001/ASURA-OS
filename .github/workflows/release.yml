@@ -97,7 +97,7 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -eu
-          expected="asura-os-${VERSION}-x86_64.iso"
+          expected="toren-linux-${VERSION}-x86_64.iso"
           if [ "$(basename "$ISO")" != "$expected" ]; then
             echo "::error::built $(basename "$ISO"), expected $expected"
             exit 1
