@@ -586,7 +586,7 @@ FocusScope {
 
                     Text {
                         width: parent.width - communityWarningMark.width - parent.spacing
-                        text: I18n.tr("Community plugin. Asura does not review or maintain it: it runs inside your shell with your permissions, so inspect its code before you trust it.")
+                        text: I18n.tr("Community plugin. Toren does not review or maintain it: it runs inside your shell with your permissions, so inspect its code before you trust it.")
                         color: Tokens.inkDim
                         font.family: Tokens.ui
                         font.pixelSize: Tokens.fSmall
