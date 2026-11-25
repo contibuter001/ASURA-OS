@@ -7,6 +7,7 @@ import qs.Ui
 import qs.Ui.Singletons
 import "Singletons"
 import "schema/DesktopPage.js" as DesktopSchema
+import "schema/DesktopShellPage.js" as DesktopShellSchema
 import "schema/BarStudioPage.js" as BarStudioSchema
 import "schema/WindowSettings.js" as WindowSettingsSchema
 import "schema/InputPage.js" as InputSchema
@@ -76,6 +77,13 @@ Rectangle {
         hub.section = target;
     }
     property bool navigated: false
+    // the last section, read back from hub config, was reopened
+    property bool restored: false
+    // The page the Hub opens on when none was asked for: the running
+    // desktop's own settings.
+    function homeSection() {
+        return hub.desktopShell === "toren" ? "bar-studio" : "desktop-shell";
+    }
     property string query: ""
     // Which desktop runs: "desktop" (the default) or "toren" (Toren's own
     // shell). TOREN_DESKTOP_SHELL overrides it, for tests.
@@ -89,7 +97,8 @@ Rectangle {
                 if (v === "toren" || v === "desktop") hub.desktopShell = v;
                 // a section opened before this answer that the shell cannot
                 // back moves to one it can
-                if (!hub.sectionAvailable(hub.section)) hub.section = "windowmanager";
+                if ((!hub.navigated && !hub.restored) || !hub.sectionAvailable(hub.section))
+                    hub.section = hub.homeSection();
             }
         }
     }
@@ -112,6 +121,10 @@ Rectangle {
     // stays calm until asked. Compositor-owned pages sit together under one group
     // so a compositor's settings live in one place, not sprinkled through the list.
     readonly property var groups: [
+        { name: "DESKTOP", items: [
+            { key: "desktop-shell", name: "Desktop", needs: { shell: "desktop" } },
+            { key: "bar-studio", name: "Bar Studio", wired: true, needs: { shell: "toren" } }, { key: "desktop", name: "Desktop", wired: true, needs: { shell: "toren" } },
+            { key: "widgets", name: "Widgets", needs: { shell: "toren" } }, { key: "launcher", name: "App Launcher", needs: { shell: "toren" } } ] },
         { name: "OVERVIEW", items: [ { key: "profile", name: "Profile", needs: { shell: "toren" } }, { key: "global", name: "General", needs: { shell: "toren" } }, { key: "updates", name: "Updates" } ] },
         { name: "DEVICES", items: [
             { key: "displays", name: "Displays", needs: { cap: "monitorConfig" } }, { key: "connections", name: "Connections" },
@@ -120,9 +133,6 @@ Rectangle {
             { key: "animations", name: "Animations" }, { key: "lockscreen", name: "Lockscreen" } ] },
         { name: "COMPOSITOR", items: [
             { key: "windowmanager", name: "Window Manager", needs: { provider: true } } ] },
-        { name: "DESKTOP", items: [
-            { key: "bar-studio", name: "Bar Studio", wired: true, needs: { shell: "toren" } }, { key: "desktop", name: "Desktop", wired: true, needs: { shell: "toren" } },
-            { key: "widgets", name: "Widgets", needs: { shell: "toren" } }, { key: "launcher", name: "App Launcher", needs: { shell: "toren" } } ] },
         { name: "KEYS & APPS", items: [
             { key: "keybinds", name: "Keybinds" }, { key: "appoverrides", name: "App Overrides", adv: true },
             { key: "windowrules", name: "Window Rules", adv: true } ] },
@@ -146,7 +156,7 @@ Rectangle {
         "widgets": "", "lockscreen": "", "animations": "",
         "addons": "", "windowrules": "", "appoverrides": "",
         "session": "", "performance": "",
-        "updates": "", "credits": "", "global": "", "import": "", "windowmanager": ""
+        "updates": "", "credits": "", "global": "", "import": "", "windowmanager": "", "desktop-shell": ""
     })
 
     // Extra search vocabulary per section: the words a user actually types that
@@ -165,6 +175,7 @@ Rectangle {
         "windowmanager": "compositor window manager wm wayland switch change swap session provider window windows rounding corners softness gaps border borders thickness colour tiling layout opacity transparency transparent dim blur shadow float snap resize animation spread offset",
         "bar-studio": "bar frame rails zones widgets menus surfaces style catalogue layout framebars sidebar dock dockapps pinned pin magnify autohide auto-hide media chip peek labels edge taskbar",
         "desktop": "desktop brand logo mark name widget board wallpaper",
+        "desktop-shell": "desktop bar dock panel taskbar weather colours colors scheme palette transparency clock time 12-hour 24-hour seconds notifications popup osd lock screen battery warning suspend night light warmth blue sound volume overview workspaces rounded corners",
         "launcher": "launcher spotlight command palette greeting weather home",
         "fastfetch": "fetch neofetch terminal system info logo ascii emblem readout",
         "widgets": "desktop widget clock calendar weather face overlay wallpaper",
@@ -187,7 +198,7 @@ Rectangle {
     // section -> its schema rows, the one source for both global search and the
     // compositor-driving classification, so the two cannot drift apart.
     readonly property var sectionRows: ({
-        "bar-studio": BarStudioSchema.rows, "desktop": DesktopSchema.rows, "windowmanager": WindowSettingsSchema.rows,
+        "bar-studio": BarStudioSchema.rows, "desktop": DesktopSchema.rows, "desktop-shell": DesktopShellSchema.rows, "windowmanager": WindowSettingsSchema.rows,
         "input": InputSchema.rows, "keybinds": KeybindsSchema.rows,
         "displays": DisplaysSchema.rows, "gpu": GpuSchema.rows,
         "recording": RecordingSchema.rows,
@@ -497,7 +508,7 @@ Rectangle {
         return (prov && prov.length) ? base.concat(prov) : base;
     }
     function pageFile(s) {
-        var map = { "profile": "ProfilePage", "bar-studio": "BarStudioPage", "desktop": "DesktopPage", "session": "SessionPage", "windowrules": "WindowRulesPage", "appoverrides": "AppOverridesPage", "animations": "AnimationsPage", "input": "InputPage", "keybinds": "KeybindsPage", "displays": "DisplaysPage", "connections": "ConnectionsPage", "gpu": "GpuPage", "updates": "UpdatesPage", "recording": "RecordingPage", "performance": "PerformancePage", "launcher": "LauncherPage", "lockscreen": "LockscreenPage", "fastfetch": "FastfetchPage", "addons": "AddonsPage", "widgets": "WidgetsPage", "credits": "CreditsPage" };
+        var map = { "desktop-shell": "DesktopShellPage", "profile": "ProfilePage", "bar-studio": "BarStudioPage", "desktop": "DesktopPage", "session": "SessionPage", "windowrules": "WindowRulesPage", "appoverrides": "AppOverridesPage", "animations": "AnimationsPage", "input": "InputPage", "keybinds": "KeybindsPage", "displays": "DisplaysPage", "connections": "ConnectionsPage", "gpu": "GpuPage", "updates": "UpdatesPage", "recording": "RecordingPage", "performance": "PerformancePage", "launcher": "LauncherPage", "lockscreen": "LockscreenPage", "fastfetch": "FastfetchPage", "addons": "AddonsPage", "widgets": "WidgetsPage", "credits": "CreditsPage" };
         map.global = "GlobalPage";
         map["import"] = "ImportPage";
         map.windowmanager = "WindowManagerPage";
@@ -844,7 +855,7 @@ Rectangle {
                 if (hub.navigated)
                     return;
                 var s = hub.canonicalSection(this.text.trim());
-                if (s && hub.pageFile(s) !== "" && hub.sectionAvailable(s)) hub.section = s;
+                if (s && hub.pageFile(s) !== "" && hub.sectionAvailable(s)) { hub.section = s; hub.restored = true; }
             }
         }
     }
