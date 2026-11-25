@@ -621,6 +621,14 @@ func gitSnapshot(paths overlay.Paths) error {
 		return err
 	}
 
+	gitDir := filepath.Join(paths.Config, ".git")
+	if fi, err := os.Stat(gitDir); err == nil && fi.IsDir() {
+		if !canWriteRepo(paths.Config) && os.Geteuid() != 0 {
+			// .git exists but is not writable by current user (e.g. root-owned from earlier run)
+			return nil
+		}
+	}
+
 	for _, args := range [][]string{
 		{"init", "--quiet"},
 		{"config", "user.email", "toren@localhost"},
@@ -628,13 +636,10 @@ func gitSnapshot(paths overlay.Paths) error {
 		{"add", "--all", "."},
 		{"commit", "--allow-empty", "--quiet", "-m", "toren: snapshot before update"},
 	} {
-		command := exec.Command("git", args...)
-		command.Dir = paths.Config
+		command := repoGit(paths.Config, args...)
 		// The snapshot must never stop an update: a failure here is worth
 		// reporting but it is not worth refusing to update over, and the base
 		// preservation that follows is what makes an update recoverable anyway.
-		command.Env = append(os.Environ(),
-			"GIT_DIR="+filepath.Join(paths.Config, ".git"))
 		if output, err := command.CombinedOutput(); err != nil {
 			fmt.Fprintf(os.Stderr, "toren update: git %v: %v\n%s\n",
 				args, err, output)
