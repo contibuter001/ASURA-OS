@@ -111,6 +111,7 @@ modules/common/functions/Session.qml
 modules/common/widgets/AppIcon.qml
 modules/ii/sessionScreen/SessionScreen.qml
 modules/waffle/looks/WAppIcon.qml
+modules/settings/QuickConfig.qml
 "
 
 log() { printf '%s\n' "$*" >&2; }
