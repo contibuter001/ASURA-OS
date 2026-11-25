@@ -502,7 +502,7 @@ func createBtrfsSnapshotAs(prefix string) (string, error) {
 	return snapPath, nil
 }
 
-const defaultGitRepoURL = "https://github.com/mohitjoer/ASURA-OS.git"
+const defaultGitRepoURL = "https://github.com/mohitjoer/Toren-Linux.git"
 
 // appliedCommitFile records the commit installation/apply-repo.sh last
 // applied to this system, so an update knows whether there is anything new.
@@ -734,9 +734,9 @@ func findOrCloneRepo(branch string) (string, error) {
 	// 3. Check well-known local paths
 	home := os.Getenv("HOME")
 	candidates := []string{
-		filepath.Join(home, "code", "ASURA-OS"),
-		filepath.Join(home, "code", "asura", "ASURA-OS"),
-		filepath.Join(home, "ASURA-OS"),
+		filepath.Join(home, "code", "Toren-Linux"),
+		filepath.Join(home, "code", "asura", "Toren-Linux"),
+		filepath.Join(home, "Toren-Linux"),
 		filepath.Join(home, ".cache", "asura", "source"),
 		"/usr/src/asura",
 		"/usr/share/asura",
@@ -745,9 +745,9 @@ func findOrCloneRepo(branch string) (string, error) {
 	if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" && sudoUser != "root" {
 		userHome := filepath.Join("/home", sudoUser)
 		candidates = append([]string{
-			filepath.Join(userHome, "code", "ASURA-OS"),
-			filepath.Join(userHome, "code", "asura", "ASURA-OS"),
-			filepath.Join(userHome, "ASURA-OS"),
+			filepath.Join(userHome, "code", "Toren-Linux"),
+			filepath.Join(userHome, "code", "asura", "Toren-Linux"),
+			filepath.Join(userHome, "Toren-Linux"),
 		}, candidates...)
 	}
 	// A checkout this user cannot write (a root-owned clone left by an

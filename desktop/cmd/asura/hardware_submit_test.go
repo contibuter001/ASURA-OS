@@ -27,7 +27,7 @@ func TestHardwareReportSubmit(t *testing.T) {
 		t.Fatal("expected browser to be opened with an issue URL, but got empty URL")
 	}
 
-	if !strings.Contains(openedURL, "https://github.com/mohitjoer/ASURA-OS/issues/new") {
+	if !strings.Contains(openedURL, "https://github.com/mohitjoer/Toren-Linux/issues/new") {
 		t.Errorf("URL does not point to new issue: %s", openedURL)
 	}
 

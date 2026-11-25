@@ -43,7 +43,7 @@ func runLook(args []string) error {
 func listLooks() error {
 	candidates := []string{
 		"/usr/share/asura/shell-desktop/asura/themes.json",
-		filepath.Join(os.Getenv("HOME"), "code/asura/ASURA-OS/shell-desktop/asura/themes.json"),
+		filepath.Join(os.Getenv("HOME"), "code/asura/Toren-Linux/shell-desktop/asura/themes.json"),
 	}
 	var catPath string
 	for _, c := range candidates {

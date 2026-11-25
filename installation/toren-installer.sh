@@ -974,7 +974,7 @@ VERSION_ID="0.1"
 VERSION_CODENAME=beta-001
 HOME_URL="https://asuraos.dev/"
 SUPPORT_URL="https://asuraos.dev/support"
-BUG_REPORT_URL="https://github.com/mohitjoer/ASURA-OS/issues"
+BUG_REPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 EOF
 
 # Purge live installer artifacts and markers

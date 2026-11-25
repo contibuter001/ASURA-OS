@@ -30,7 +30,7 @@ hyprlock
 hyprpicker
 "
 
-# If a local void-packages directory wasn't provided, clone ASURA-OS/void-packages
+# If a local void-packages directory wasn't provided, clone Toren-Linux/void-packages
 WORK_DIR=""
 if [ -z "$VOID_PACKAGES_DIR" ] || [ ! -d "$VOID_PACKAGES_DIR" ]; then
 	WORK_DIR=$(mktemp -d -t asura-void-packages-XXXXXX)
