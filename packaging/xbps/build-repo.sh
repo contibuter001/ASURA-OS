@@ -15,6 +15,7 @@ set -eu
 
 OUT_DIR=${1:?usage: build-repo.sh OUT_DIR STAGE_DIR}
 STAGE=${2:?usage: build-repo.sh OUT_DIR STAGE_DIR}
+STAGE=$(CDPATH='' cd -- "$STAGE" && pwd)
 REPO_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/../.." && pwd)
 ARCH=x86_64
 
