@@ -732,12 +732,6 @@ for f in "$INCLUDE_DIR/usr/share/asura/session"/toren-*; do
 		ln -sf "/usr/share/asura/session/$base" "$INCLUDE_DIR/usr/bin/$asura_base"
 	fi
 done
-for tool in asura-store asura-shell asura-wallpaper asura-hubd asura-sysd asura-userd asura-agent asura-vm asura-vm-mon asura-vm-ssh asura-vmd; do
-	toren_tool=$(echo "$tool" | sed 's/^asura/toren/')
-	if [ -e "$INCLUDE_DIR/usr/bin/$tool" ]; then
-		ln -sf "$tool" "$INCLUDE_DIR/usr/bin/$toren_tool"
-	fi
-done
 
 # Transitional symlink for /usr/share/toren <-> /usr/share/asura
 if [ -d "$INCLUDE_DIR/usr/share/asura" ] && [ ! -e "$INCLUDE_DIR/usr/share/toren" ]; then
