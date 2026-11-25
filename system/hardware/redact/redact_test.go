@@ -513,3 +513,24 @@ func TestReaderPolicyCoversTheClassifiedFields(t *testing.T) {
 		}
 	}
 }
+
+// TestSweepShortHostnameWholeWord covers a short hostname: it must not trip on
+// those letters inside other words, but must still refuse a real occurrence.
+func TestSweepShortHostnameWholeWord(t *testing.T) {
+	context := Context{Hostname: "vm"}
+
+	if findings := Verify([]byte("summary: overview of the system\n"), context); len(findings) != 0 {
+		t.Errorf("short hostname matched inside another word: %v", findings)
+	}
+
+	findings := Verify([]byte("hostname: vm\n"), context)
+	found := false
+	for _, f := range findings {
+		if f.Rule == "hostname" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("real short hostname was allowed through: %v", findings)
+	}
+}

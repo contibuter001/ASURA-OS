@@ -2,7 +2,7 @@
   "id": "sysmon-glance",
   "name": "Sysmon Glance",
   "version": "1.0.0",
-  "author": "Toren Linux Core Team <core@torenlinux.org>",
+  "author": "mohitjoer <mohitjoe.r@gmail.com>",
   "description": "Real-time CPU, RAM, GPU, and thermal telemetry HUD for the bar and desktop.",
   "license": "GPL-3.0",
   "official": false,
@@ -30,9 +30,7 @@
     "label": "Sysmon Glance"
   },
   "dependencies": {
-    "commands": [
-      "asura-sysmon"
-    ]
+    "commands": []
   },
   "metadata": {
     "settings": [
