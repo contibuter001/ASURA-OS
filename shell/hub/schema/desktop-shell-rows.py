@@ -151,6 +151,9 @@ row("Lock screen", "SECURITY", "lock.security.unlockKeyring", "sw", "Unlock the 
 
 row("System", "NOTIFICATIONS", "notifications.forceMonitor.enable", "sw", "One screen only", "Shows notifications on the screen named below")
 row("System", "NOTIFICATIONS", "notifications.forceMonitor.name", "text", "Screen", "The screen's name, as Displays lists it", eg="eDP-1")
+row("System", "CHARGING", "toren.chargeLimit", "step", "Charge limit",
+    "Stops charging at this level to keep the battery healthy; kept across reboots. Asks for your password",
+    store="charge-limit", unit="%", **{"from": 50, "to": 100, "def": 80})
 row("System", "WARNINGS", "battery.full", "step", "Full battery notice", "Tells you when the battery reaches this level (101 = never)", unit="%", **{"from": 50, "to": 101})
 row("System", "SUSPEND", "battery.suspend", "step", "Suspend at", "The level at which the computer suspends", unit="%", **{"from": 1, "to": 15})
 row("System", "VOLUME", "audio.protection.maxAllowedIncrease", "step", "Largest jump", "The most the volume can rise in one step", unit="%", **{"from": 1, "to": 50})

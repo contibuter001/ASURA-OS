@@ -19,7 +19,6 @@ import "schema/LauncherPage.js" as LauncherSchema
 import "schema/FastfetchPage.js" as FastfetchSchema
 import "schema/WidgetsPage.js" as WidgetsSchema
 import "schema/LockscreenPage.js" as LockscreenSchema
-import "schema/AnimationsPage.js" as AnimationsSchema
 import "schema/AddonsPage.js" as AddonsSchema
 import "schema/WindowRulesPage.js" as WindowRulesSchema
 import "schema/AppOverridesPage.js" as AppOverridesSchema
@@ -130,7 +129,7 @@ Rectangle {
             { key: "displays", name: "Displays", needs: { cap: "monitorConfig" } }, { key: "connections", name: "Connections" },
             { key: "input", name: "Input" }, { key: "gpu", name: "Graphics & Power" } ] },
         { name: "LOOK", items: [
-            { key: "animations", name: "Animations" }, { key: "lockscreen", name: "Lockscreen" } ] },
+            { key: "lockscreen", name: "Lockscreen" } ] },
         { name: "COMPOSITOR", items: [
             { key: "windowmanager", name: "Window Manager", needs: { provider: true } } ] },
         { name: "KEYS & APPS", items: [
@@ -153,7 +152,7 @@ Rectangle {
         "profile": "", "displays": "", "input": "", "keybinds": "",
         "connections": "", "gpu": "", "recording": "",
         "bar-studio": "", "desktop": "", "launcher": "", "fastfetch": "",
-        "widgets": "", "lockscreen": "", "animations": "",
+        "widgets": "", "lockscreen": "",
         "addons": "", "windowrules": "", "appoverrides": "",
         "session": "", "performance": "",
         "updates": "", "about": "", "global": "", "import": "", "windowmanager": "", "desktop-shell": ""
@@ -180,7 +179,6 @@ Rectangle {
         "fastfetch": "fetch neofetch terminal system info logo ascii emblem readout",
         "widgets": "desktop widget clock calendar weather face overlay wallpaper",
         "lockscreen": "lock screensaver signin greeter skin theme login",
-        "animations": "animation animations motion transition bezier curve speed feel wobbly disable enable toggle",
         "addons": "installed plugin addon extension manage enable remove update widget bundle extras store marketplace browse",
         "windowrules": "window rule float pin size place opacity class title override",
         "appoverrides": "app override per-app opacity blur corner class inherit opaque transparent",
@@ -204,7 +202,7 @@ Rectangle {
         "recording": RecordingSchema.rows,
         "launcher": LauncherSchema.rows, "fastfetch": FastfetchSchema.rows,
         "widgets": WidgetsSchema.rows, "lockscreen": LockscreenSchema.rows,
-        "animations": AnimationsSchema.rows, "addons": AddonsSchema.rows,
+        "addons": AddonsSchema.rows,
         "windowrules": WindowRulesSchema.rows, "appoverrides": AppOverridesSchema.rows,
         "session": SessionSchema.rows,
         "performance": PerformanceSchema.rows,
@@ -300,7 +298,7 @@ Rectangle {
         "mouse": "input pointer", "pointer": "input", "keyboard": "input", "touchpad": "input trackpad", "trackpad": "input touchpad",
         "clock": "widgets desktop",
         "update": "updates upgrade", "upgrade": "updates", "blur": "windows glass", "rounding": "windows corners", "corners": "windows rounding",
-        "animation": "animations motion", "motion": "animations", "gpu": "graphics", "graphics": "gpu"
+        "animation": "windowmanager motion", "motion": "windowmanager", "animations": "windowmanager", "gpu": "graphics", "graphics": "gpu"
     })
     // a query word expands to itself plus its synonyms, so a term is satisfied by
     // any one of them (and never dilutes multi-word coverage).
@@ -418,7 +416,7 @@ Rectangle {
     // `framed` pages keep the rail + bottom action bar; `ledger` pages also get
     // the right write-ledger column. Everything else is full-bleed.
     readonly property var framedSet: ({
-        "bar-studio": true, "desktop": true, "input": true, "animations": true, "global": true, "windowmanager": true,
+        "bar-studio": true, "desktop": true, "input": true, "global": true, "windowmanager": true,
         "windowrules": true, "appoverrides": true,
         "session": true
     })
@@ -508,7 +506,7 @@ Rectangle {
         return (prov && prov.length) ? base.concat(prov) : base;
     }
     function pageFile(s) {
-        var map = { "desktop-shell": "DesktopShellPage", "profile": "ProfilePage", "bar-studio": "BarStudioPage", "desktop": "DesktopPage", "session": "SessionPage", "windowrules": "WindowRulesPage", "appoverrides": "AppOverridesPage", "animations": "AnimationsPage", "input": "InputPage", "keybinds": "KeybindsPage", "displays": "DisplaysPage", "connections": "ConnectionsPage", "gpu": "GpuPage", "updates": "UpdatesPage", "recording": "RecordingPage", "performance": "PerformancePage", "launcher": "LauncherPage", "lockscreen": "LockscreenPage", "fastfetch": "FastfetchPage", "addons": "AddonsPage", "widgets": "WidgetsPage", "about": "AboutPage" };
+        var map = { "desktop-shell": "DesktopShellPage", "profile": "ProfilePage", "bar-studio": "BarStudioPage", "desktop": "DesktopPage", "session": "SessionPage", "windowrules": "WindowRulesPage", "appoverrides": "AppOverridesPage", "input": "InputPage", "keybinds": "KeybindsPage", "displays": "DisplaysPage", "connections": "ConnectionsPage", "gpu": "GpuPage", "updates": "UpdatesPage", "recording": "RecordingPage", "performance": "PerformancePage", "launcher": "LauncherPage", "lockscreen": "LockscreenPage", "fastfetch": "FastfetchPage", "addons": "AddonsPage", "widgets": "WidgetsPage", "about": "AboutPage" };
         map.global = "GlobalPage";
         map["import"] = "ImportPage";
         map.windowmanager = "WindowManagerPage";
