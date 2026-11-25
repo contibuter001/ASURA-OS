@@ -13,4 +13,9 @@ else
 	echo "no session bus at $_bus after 10 s; starting without it"
 fi
 # Start the unprivileged Toren user daemon (state authority + telemetry bridge)
+# Software rendering in a virtual machine (one shared check):
+GFX=/usr/share/toren/session/toren-graphics-env
+# shellcheck source=/dev/null
+if [ -r "$GFX" ]; then . "$GFX"; fi
+
 exec /usr/bin/toren-userd

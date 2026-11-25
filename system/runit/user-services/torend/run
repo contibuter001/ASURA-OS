@@ -43,6 +43,11 @@ if [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && [ -d "$RUNTIME_DIR/hypr" ]; then
 	done
 fi
 
+# Software rendering in a virtual machine (one shared check):
+GFX=/usr/share/toren/session/toren-graphics-env
+# shellcheck source=/dev/null
+if [ -r "$GFX" ]; then . "$GFX"; fi
+
 LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/toren"
 mkdir -p "$LOG_DIR"
 exec >>"$LOG_DIR/torend.log" 2>&1

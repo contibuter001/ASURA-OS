@@ -93,6 +93,7 @@ put_as session/toren-safe.desktop /usr/share/toren/session/toren-safe.desktop
 put_as session/toren-safe.desktop /usr/share/wayland-sessions/toren-safe.desktop
 put_as session/binds.json /usr/share/toren/session/binds.json
 put_as session/runit/toren-user-services /usr/share/toren/session/toren-user-services
+put_as session/toren-graphics-env /usr/share/toren/session/toren-graphics-env
 put_bin session/runit/toren-user-services /usr/bin/toren-user-services
 put_as session/toren-store /usr/share/toren/session/toren-store
 put_as session/toren-portals.conf /usr/share/xdg-desktop-portal/toren-portals.conf
