@@ -719,9 +719,12 @@ echo "build-iso-void: building Toren Go binaries..."
 find "$INCLUDE_DIR/usr/bin" -type f -exec chmod 0755 {} +
 # Symlinks
 ln -sf toren "$INCLUDE_DIR/usr/bin/os-ctl"
-for tool in toren toren-store toren-shell toren-wallpaper toren-hubd toren-sysd toren-userd toren-agent toren-vm-mon toren-vm-ssh toren-vmd; do
-	asura_tool=$(echo "$tool" | sed 's/^toren/asura/')
-	ln -sf "$tool" "$INCLUDE_DIR/usr/bin/$asura_tool"
+ln -sf toren "$INCLUDE_DIR/usr/bin/asura"
+for f in "$INCLUDE_DIR/usr/bin"/toren-*; do
+	[ -e "$f" ] || continue
+	base=$(basename "$f")
+	asura_base=$(echo "$base" | sed 's/^toren/asura/')
+	[ -e "$INCLUDE_DIR/usr/bin/$asura_base" ] || ln -sf "$base" "$INCLUDE_DIR/usr/bin/$asura_base"
 done
 for f in "$INCLUDE_DIR/usr/share/asura/session"/toren-*; do
 	[ -e "$f" ] || continue
