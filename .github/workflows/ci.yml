@@ -362,8 +362,22 @@ jobs:
           path: iso
       - name: Install from the ISO, then check the result
         run: |
+          set -o pipefail   # the test's exit status, not tee's
           iso="$(find iso -name '*.iso' -print -quit)"
-          sh installation/ci/installer-e2e.sh "$iso" "${{ matrix.mode }}" "$RUNNER_TEMP/installer-e2e"
+          mkdir -p "$RUNNER_TEMP/installer-e2e"
+          sh installation/ci/installer-e2e.sh "$iso" "${{ matrix.mode }}" "$RUNNER_TEMP/installer-e2e" 2>&1 |
+            tee "$RUNNER_TEMP/installer-e2e/test.log"
+      # The logs need a sign-in to read; annotations and the summary do not.
+      - name: Show why the installer test failed
+        if: failure()
+        run: |
+          dir="$RUNNER_TEMP/installer-e2e"
+          for f in test.log install.log serial.log; do
+            [ -s "$dir/$f" ] || continue
+            sudo cat "$dir/$f" | tail -n 30 | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' > "$dir/tail-$f"
+            { echo "### The last lines of $f"; echo '```'; cat "$dir/tail-$f"; echo; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
+            sed 's/%/%25/g' "$dir/tail-$f" | awk -v f="$f" '{ m = m (NR > 1 ? "%0A" : "") $0 } END { print "::error title=Last lines of " f "::" m }'
+          done
       - name: Upload the install log and serial console
         if: always()
         uses: actions/upload-artifact@v6
