@@ -70,6 +70,7 @@ jobs:
 
       - name: Build the package and the index (Void container)
         run: |
+          set -o pipefail   # docker's exit status, not tee's
           key=""
           [ -f build/signing-key.pem ] && key=/workspace/build/signing-key.pem
           # --privileged: xbps-src's uchroot needs it, as in Void's own CI. The
@@ -87,6 +88,7 @@ jobs:
 
       - name: Install the package in a clean Void container
         run: |
+          set -o pipefail   # docker's exit status, not tee's
           docker run --rm -v "$PWD/build/repo/current":/repo:ro \
             ghcr.io/void-linux/void-glibc-full:latest sh -euc '
               xbps-install -Syu xbps >/dev/null && xbps-install -yu >/dev/null
