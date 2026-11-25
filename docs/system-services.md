@@ -1,6 +1,6 @@
 # System services
 
-The system-level services every ASURA install ships with and starts at boot. Packages are
+The system-level services every Toren install ships with and starts at boot. Packages are
 listed in [`system/packages-void.yaml`](../system/packages-void.yaml). Services are linked
 into `/etc/runit/runsvdir/default` by the same loop in
 [`installation/build-iso-void.sh`](../installation/build-iso-void.sh) (live ISO) and
@@ -10,7 +10,7 @@ into `/etc/runit/runsvdir/default` by the same loop in
 | Need | Package | Runit service | Notes |
 |---|---|---|---|
 | Clock sync | `chrony` | `chronyd` | Without it the clock drifts until TLS, `asura update` and package signature checks fail |
-| Inbound firewall | `nftables` | `nftables` | Loads `/etc/nftables.conf`, ASURA's ruleset below |
+| Inbound firewall | `nftables` | `nftables` | Loads `/etc/nftables.conf`, Toren's ruleset below |
 | Removable media | `udisks2` | none (D-Bus activated) | Lets Thunar and gvfs mount USB drives and SD cards without root |
 | Firmware updates | `fwupd` | none (D-Bus activated) | `fwupdmgr refresh && fwupdmgr update` updates BIOS, SSD and dock firmware from LVFS |
 | Printing | `cups`, `cups-filters` | `cupsd` | Add printers at <http://localhost:631> |
@@ -37,7 +37,7 @@ accept a service from the network, enable it and add an `accept` rule for its po
 chain.
 
 The `nftables` package ships no `/etc/nftables.conf` of its own, so package updates never
-replace ASURA's file.
+replace Toren's file.
 
 ## Secure Boot
 

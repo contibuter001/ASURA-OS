@@ -76,7 +76,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Fprintf(os.Stderr, `asura-sysd — Asura OS Privileged System Daemon
+	fmt.Fprintf(os.Stderr, `asura-sysd — Toren Linux Privileged System Daemon
 
 Usage:
   asura-sysd run           run the daemon listening on %s

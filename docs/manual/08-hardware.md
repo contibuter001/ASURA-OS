@@ -1,10 +1,10 @@
 # Hardware
 
 - Consult the [Hardware Compatibility Matrix](../hardware.md) for full laptop line support levels, component details, and how to submit new profiles.
-- `asura hardware report`: what ASURA found in your machine.
+- `asura hardware report`: what Toren found in your machine.
   `asura hardware report --submit` prepares a redacted report and opens a pre-filled GitHub issue in your browser.
   `asura hardware report --profile` writes a profile you can share when you
-  report a problem; it helps ASURA support your model.
+  report a problem; it helps Toren support your model.
 - **Two graphics cards** (laptops): `asura gpu status` shows them;
   `asura gpu run APP` (or `prime-run APP`) runs an app on the faster one.
 - **Power**: `asura power status`; `asura power profile balanced|performance|battery`.

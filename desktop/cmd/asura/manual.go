@@ -92,7 +92,7 @@ func asuraManual(args []string) int {
 		return exitFail
 	}
 	if len(args) == 0 {
-		fmt.Println("ASURA OS manual. Read a chapter with asura manual NAME:")
+		fmt.Println("Toren Linux manual. Read a chapter with asura manual NAME:")
 		for _, c := range chapters {
 			fmt.Printf("  %s  %-10s %s\n", strings.TrimLeft(c.Num, "0"), c.Name, c.Title)
 		}

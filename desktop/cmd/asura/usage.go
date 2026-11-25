@@ -50,8 +50,8 @@ fixture cannot contain a serial.
 const updateUsage = `Usage: asura update [flags]
        sudo asura update [flags]
 
-Updates ASURA desktop packages and configuration. When run as a normal user,
-it updates ASURA packages, overlays, and git code. When run as root (or with sudo),
+Updates Toren desktop packages and configuration. When run as a normal user,
+it updates Toren packages, overlays, and git code. When run as root (or with sudo),
 it also updates all base system packages (XBPS) and creates a Btrfs snapshot.
 
   --root DIR       operate on a tree under this directory
@@ -61,17 +61,17 @@ it also updates all base system packages (XBPS) and creates a Btrfs snapshot.
   --branch NAME    specify a git branch to pull code updates from
   --channel NAME   update channel (stable, unstable)
   --system         update all system packages (XBPS) even when unprivileged
-  --asura-only     only update ASURA packages and components (skip XBPS)
-  --check          only report whether a newer ASURA is available (exit 3 if so)
+  --asura-only     only update Toren packages and components (skip XBPS)
+  --check          only report whether a newer Toren is available (exit 3 if so)
   --force          take the tip of the branch without checking CI, and reapply
                    even when it is already the applied commit
   --wait           wait for CI still running on the newest commit instead of
                    taking the last one that passed
 
-Order: system packages (as root), then ASURA from its branch (dev-unstable by
+Order: system packages (as root), then Toren from its branch (dev-unstable by
 default), Flatpaks, and a refresh of the running desktop.
 
-ASURA follows the branch safely: the fetch is bounded and never prompts (offline,
+Toren follows the branch safely: the fetch is bounded and never prompts (offline,
 the copy fetched before is used); the target is the newest commit whose GitHub
 checks all passed, not the tip; a target older than the applied commit is never
 applied; the update's own clone resets to the target, while a developer's
@@ -116,7 +116,7 @@ const resetUsage = `Usage: asura reset <path> [flags]
 Drops user edits and restores defaults.
 
   <path>              drop one user edit and restore that file from the base
-  --desktop           reset desktop configuration back to ASURA defaults (desktop config.json,
+  --desktop           reset desktop configuration back to Toren defaults (desktop config.json,
                       Hyprland user files, shell state), backing up current files to a dated folder
   --restore BACKUP    restore a previous desktop configuration backup byte-for-byte
   --root DIR          operate on a tree under this directory
@@ -124,7 +124,7 @@ Drops user edits and restores defaults.
 
 const reinstallUsage = `Usage: asura reinstall [flags]
 
-Re-apply the ASURA files for the commit already installed, to repair deleted
+Re-apply the Toren files for the commit already installed, to repair deleted
 or edited shipped files without updating to anything newer.
 
   --root DIR   operate on a tree under this directory
@@ -134,13 +134,13 @@ const recoveryUsage = `Usage: asura recovery
 
 A guided text menu that works on a TTY (no desktop needed) to diagnose and
 repair system issues: run doctor, reset desktop configuration, reinstall
-ASURA files, list and restore snapshots, launch safe-mode session, or inspect logs.
+Toren files, list and restore snapshots, launch safe-mode session, or inspect logs.
 `
 
 const doctorUsage = `Usage: asura doctor [flags]
 
 Reports drift between the base and the config tree. It changes nothing unless
-asked to: --fix renames the values Asura has renamed in your shell.json.
+asked to: --fix renames the values Toren has renamed in your shell.json.
 
   --root DIR   operate on a tree under this directory
   --fix        apply the renames the Config section offers

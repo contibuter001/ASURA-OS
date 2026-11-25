@@ -1,11 +1,11 @@
-# The Asura GUI & Hub Architecture
+# The Toren GUI & Hub Architecture
 
-> **ASURA's own shell only.** This guide applies when
+> **Toren's own shell only.** This guide applies when
 > `gsettings get org.asura.shell desktop-shell` is `'asura'`. The default
 > desktop is: see [`desktop.md`](desktop.md).
 
-Asura OS provides a graphical interface for almost every system setting.
-The primary surface is **Asura Hub** (`shell/hub/Hub.qml`), backed by **QS Bar Settings**
+Toren Linux provides a graphical interface for almost every system setting.
+The primary surface is **Toren Hub** (`shell/hub/Hub.qml`), backed by **QS Bar Settings**
 and the **Wallpaper Picker**.
 
 When users ask how to modify a configuration, prioritize the GUI route first, followed by
@@ -15,7 +15,7 @@ the direct command-line invocation (`SKILL.md` "Answer Policy: GUI First").
 
 ## Hub Architecture & Schema Pages (`shell/hub/`)
 
-Asura Hub is built on dynamic, data-driven schema pages:
+Toren Hub is built on dynamic, data-driven schema pages:
 - **`SchemaPage.qml` & `SettingsSheet.qml`**: Rather than writing custom QML forms for every setting, Hub pages define declarative schemas binding keys to controls (toggles, sliders, option pickers).
 - **Zero Polling IPC**: `shell/hub/Singletons/Settings.qml` connects to `$XDG_RUNTIME_DIR/asura-shell.sock` and executes `subscribe settings`. The full configuration tree streams as JSON frames on startup and whenever any setting changes. Edits are pushed back as one-shot `settings.patch` calls.
 - **Compositor Gating**: The daemon advertises active compositor capabilities (`caps`). Pages or controls gating on unsupported features (e.g. animation curves or specific window manager rules when not on Hyprland) hide themselves automatically via `supports(cap)`.
@@ -24,7 +24,7 @@ Asura Hub is built on dynamic, data-driven schema pages:
 
 ## Accessing the Hub
 
-- **Global Keybind**: Press `Super + comma` (`Super+,`) to open Asura Hub.
+- **Global Keybind**: Press `Super + comma` (`Super+,`) to open Toren Hub.
 - **Direct Deep-Linking**:
   ```bash
   asura-shell hub open <key>

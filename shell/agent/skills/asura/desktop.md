@@ -1,11 +1,11 @@
 # The default desktop (shell-desktop)
 
 When `gsettings get org.asura.shell desktop-shell` is `'desktop'` (the default),
-the desktop is ASURA's Quickshell desktop, shipped at
+the desktop is Toren's Quickshell desktop, shipped at
 `/usr/share/asura/shell-desktop/` and started by the runit user service
 `~/.config/service/quickshell` (`quickshell -p /usr/share/asura/shell-desktop`).
 
-## What the user sees (ASURA's layout)
+## What the user sees (Toren's layout)
 
 - **Bar** (top, 30 px, plain): workspaces on the left (only the ones that
   exist; the active one underlined, an empty one a dot), media while a player
@@ -45,7 +45,7 @@ btop and GTK apps.
 opens the picker, `asura-wallpaper wallpaper random` picks one. The palette is
 written to `~/.local/state/quickshell/user/generated/colors.json`.
 
-**Hyprland** (gaps, borders, rules, monitors, input): ASURA's config is
+**Hyprland** (gaps, borders, rules, monitors, input): Toren's config is
 `/usr/share/asura/hyprland/hyprland.conf`; put changes in
 `~/.config/asura/hyprland/user.conf`. The desktop's look (blur, animations, layer
 rules) is `/usr/share/asura/shell-desktop/asura/hyprland.conf`, loaded through
@@ -60,11 +60,11 @@ Keybindings run `asura ipc call asura <function>`, answered by
 `closeSwitcher`, `toggleCheatsheet`, `session`, `ocr`, `toggleScreenshot`,
 `toggleSurface <name>`, `reloadSettings`. Test one by running the same command.
 
-## How ASURA changes the desktop (for code changes, not user requests)
+## How Toren changes the desktop (for code changes, not user requests)
 
-`shell-desktop/` in the ASURA repository is the upstream tree **byte for byte** at a
+`shell-desktop/` in the Toren repository is the upstream tree **byte for byte** at a
 pinned commit; `sh shell-desktop/asura/vendor.sh verify` checks it and CI runs
-it. A file ASURA changes becomes an **overlay**: listed in `OVERLAYS` in
+it. A file Toren changes becomes an **overlay**: listed in `OVERLAYS` in
 `shell-desktop/asura/vendor.sh` and removed from `shell-desktop/asura/manifest.txt`.
 Editing a vendored file without that fails CI, and `asura update` then keeps
 every machine on the last commit that passed. Every change must also load:

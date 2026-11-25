@@ -1,7 +1,7 @@
 # NOTICE
 
 The desktop shell in `shell/` is a port of the upstream project (https://github.com/upstream/shell),
-which is GPL-3.0. ASURA is GPL-3.0 as well, so the licence is compatible, and this
+which is GPL-3.0. Toren is GPL-3.0 as well, so the licence is compatible, and this
 notice is the honest ledge for where the code came from.
 
 - Source: upstream, under GPL-3.0.
@@ -9,7 +9,7 @@ notice is the honest ledge for where the code came from.
   the launcher, the desktop, the wallpaper engine, the services, the ui kit).
 - What did not come across: upstream name, its redistributable installers, its
   usage dashboards, and its welcome/pin/screenshot client configs.
-- Branding in the running desktop says "ASURA". The library names inside the
+- Branding in the running desktop says "Toren". The library names inside the
   tree are the ones the imports resolve through.
 - First-party audio and image assets were not copied. The unlicensed third-party
   display fonts in `shell/assets/fonts/` have been replaced with open-licensed equivalents
@@ -27,7 +27,7 @@ across, so the "did not come across" line above no longer holds for them.
   0.75.5-beta.20, codename "Onogoro". Upstream is GPL-3.0, and so is everything below
   that came from it, except the portions named under "Third-party code".
 - How: `tools/port.py SRC DST` copies text files from a upstream checkout, applies the
-  rename rules (upstream names and QML module names to ASURA's), never overwrites a
+  rename rules (upstream names and QML module names to Toren's), never overwrites a
   file, skips binary assets, leaves any line that carries a copyright, SPDX or credit
   marker untouched, and prints every mention of the old name it left. Go imports and
   everything Arch-specific were then fixed by hand. A re-port is that one command
@@ -44,31 +44,31 @@ across, so the "did not come across" line above no longer holds for them.
 | `shell/shell.qml`, `Services/`, `Ui/`, `components/`, `utils/`, `Barkit/`, `FrameBars/`, `modules/` (bar, capture, clipboard, confirm, desktop, dock, launcher, notifications, osd, overview, stage, visualizer, wallpaper) | `upstream/shell/quickshell/shell/`, `upstream/ui/`, `upstream/shell/framebars/` | The first port, adapted since |
 | `shell/Blobs-src/` | `upstream/shell/plugin/` | The frame-blob renderer: C++ sources and shaders |
 | `shell/PluginKit/`, `shell/plugins/`, `shell/scripts/asura-plugins-place` | `upstream/shell/quickshell/plugins/` | The plugin kit, runtime and placement script |
-| `shell/hub.qml`, `shell/hub/` | `upstream/hub/quickshell/` | ASURA Settings. `Asura.qml`, `AsuraPage.qml`, `PageView.qml`, `Editor.qml`, `GVariant.qml` and `Controls/` are ASURA's own |
+| `shell/hub.qml`, `shell/hub/` | `upstream/hub/quickshell/` | Toren Settings. `Asura.qml`, `AsuraPage.qml`, `PageView.qml`, `Editor.qml`, `GVariant.qml` and `Controls/` are Toren's own |
 | `shell/shot.qml`, `shell/shot/` | `upstream/shell/quickshell/asura-shot/` | The screenshot tool, without the beautify editor |
 | `shell/pin.qml`, `shell/welcome.qml`, `shell/reload-cover.qml` and the directories of the same names | `upstream/shell/quickshell/asura-pin/`, `welcome/`, `reload-cover/` | Pinned shots, the first-run tour, the restart curtain |
 | `shell/store.qml`, `shell/store/` | `upstream/apps/asura-store/quickshell/` | The store window |
 | `shell/vm.qml`, `shell/vm/` | `upstream/apps/asura-vm/quickshell/` | The VM manager window |
 | `shell/wallpaper-ui.qml`, `shell/wallpaper-ui/` | `upstream/shell/asura-wallpaper/wall-ui/` | The wallpaper picker (skwd-wall's, below) |
 | `shell/agent/skills/` | `upstream/rashin/skills/upstream/` | Skills shipped to the agent's engine |
-| `shell/matugen/` | `upstream/shell/matugen/` | Templates only; those for apps ASURA does not ship are gone |
+| `shell/matugen/` | `upstream/shell/matugen/` | Templates only; those for apps Toren does not ship are gone |
 | `shell/scripts/`, `shell/bin/` | `upstream/shell/scripts/`, `upstream/shell/bin/` | Helper scripts and the three usage collectors |
 | `shell/i18n/data/`, `shell/i18n/overrides/` | `upstream/i18n/catalog/`, `catalog/overrides/`, `langs.json` | upstream machine translations (34 languages besides English), rebranded. Its extractor, translator and runtimes did not come across |
 | `desktop/cmd/asura-shell/`, `desktop/internal/wm/` | `upstream/shell/ipc/`, `upstream/wm/` | The shell daemon and its CLI (`asura-shell`), and the compositor seam, Hyprland only |
 | `desktop/cmd/asura-hubd/` | `upstream/hub/backend/`, and the Hyprland provider and `settings.lua` generator of `upstream/wm/` | The Hub's data plane (`asura-hubd`); compositor settings are written as hyprlang |
 | `desktop/cmd/asura-wallpaper/` | `upstream/shell/asura-wallpaper/daemon/` | The wallpaper daemon (`asura-wallpaper`) |
-| `desktop/cmd/asura-agent/` | `upstream/rashin/backend/` | ASURA Agent (Rashin). Its resident engine is not part of it; the engine is the user's own (`docs/agent.md`) |
+| `desktop/cmd/asura-agent/` | `upstream/rashin/backend/` | Toren Agent (Rashin). Its resident engine is not part of it; the engine is the user's own (`docs/agent.md`) |
 | `desktop/cmd/asura-store/` | `upstream/apps/asura-store/backend/` | apt and Void's xbps; the local `catalog/` instead of the registry. The 1.0.7 sync below adds the revision, `check` and the window-manager gate |
 | `desktop/cmd/asura-vm/` | `upstream/apps/asura-vm/` (`bin/asura-vm`, `mon/`, `remote/`) | `asura-vmd`, `asura-vm-mon`, `asura-vm-ssh` |
 | `desktop/cmd/asura/plugin*.go`, `plugin_template/`, `wm.go` | `upstream/cli/` | `asura plugin` and `asura wm`. `icons.go`, `status_live.go` and `reconcile.go` follow upstream lookup order, field names and doctor pattern |
-| `desktop/internal/theme/scheme.go` | `upstream/shell/ipc/matugen.go` | `shellRoleKeys` and `baseSixteen`. The generator itself is ASURA's: it replaces the matugen binary and is not matugen's arithmetic |
+| `desktop/internal/theme/scheme.go` | `upstream/shell/ipc/matugen.go` | `shellRoleKeys` and `baseSixteen`. The generator itself is Toren's: it replaces the matugen binary and is not matugen's arithmetic |
 | `desktop/internal/backlight/` tests | `system/hardware/display/asura-hw-backlight` | The panel-selection cases |
 | `session/hyprland/*.conf` | `upstream/hyprland/` (`hyprland.lua`, `modules/`, `keyboard.lua`, `monitors.lua`, `shaders/`) | Translated from Lua to hyprlang for Hyprland 0.53; the shaders are copied |
 | `session/scripts/asura-workspace`, `asura-monitor` | `upstream/hyprland/scripts/asura-workspace`, `asura-monitor` | |
 | `session/units/asurad.service`, `asura-wallpaper.service`, `asura-idle.service`, `asura-agent.service`, `asura-ai-usage.*` | `upstream/shell/systemd/user/`, `upstream/rashin/systemd/` | From `asura-shell`, `asura-wallpaper`, `asura-idle`, `asura-agent` and `asura-ai-usage` |
 | `apps/` | `upstream/apps/` (`ghostty`, `zsh`, `starship`, `wireplumber`, `mimeapps.list`) | Adapted to ghostty, zsh and starship as the defaults |
 | `system/helpers/` | `system/hardware/audio/`, `system/hardware/display/`, `system/extras/asura-pkg-add` | `asura-volume`, `asura-restart-audio`, `asura-hw-backlight`, and `asura-pkg-add`/`-remove` rewritten for Void and polkit. |
-| `system/helpers/tools/tests/`, `shell/reload-cover/reload_cover_test.sh`, `session/scripts/monitor_test.sh` | `tests/` (`calc-eval.sh`, `radio-engine.sh`, `game-mode.sh`, `stash-install.sh`, `reload-cover.sh`, `monitor-persist.sh`) | Hermetic script tests, rewritten where they assumed Arch. The other tests in those directories are ASURA's own |
+| `system/helpers/tools/tests/`, `shell/reload-cover/reload_cover_test.sh`, `session/scripts/monitor_test.sh` | `tests/` (`calc-eval.sh`, `radio-engine.sh`, `game-mode.sh`, `stash-install.sh`, `reload-cover.sh`, `monitor-persist.sh`) | Hermetic script tests, rewritten where they assumed Arch. The other tests in those directories are Toren's own |
 | `docs/plugins.md` | `docs/plugins.md` | The plugin author's guide |
 
 The vendored `shell/modules/common/`, `shell/modules/ii/` and `shell/services/` and the
@@ -88,7 +88,7 @@ shapes kit are end-4's, not upstream. They are recorded in `shell/vendor/manifes
 - `system/hardware/` tuning: the udev rules, NetworkManager, Bluetooth, GPU, power and
   input drivers and rules. This is deliberate. The hardware profile system owns
   machine-specific tuning, and the base-layer boundary forbids those paths.
-- Features with no backend in the Ubuntu archive, or that ASURA decided against:
+- Features with no backend in the Ubuntu archive, or that Toren decided against:
   wallpaper upscaling (`waifu2x-ncnn-vulkan`), the C live-wallpaper player, rice
   publishing, voxtype dictation, GPU mux and passthrough, QMK lighting, the store's
   remote catalogue, the VM parallel downloader, the screenshot beautify editor and

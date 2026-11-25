@@ -1,12 +1,12 @@
-# The ASURA Menu (`asura menu`)
+# The Toren Menu (`asura menu`)
 
-The ASURA Menu is the single "do everything" command palette on **Super+Alt+Space**:
+The Toren Menu is the single "do everything" command palette on **Super+Alt+Space**:
 one unified menu tree that coordinates applications, system setup, styling, package
 management, system updates, screen capture, and session power controls.
 
 It is built directly into the existing Quickshell desktop launcher as a dedicated
 `menu` mode, ensuring zero visual drift, full keyboard navigability, fuzzy search across all
-categories and leaves, and strict compliance with ASURA's monochrome design system.
+categories and leaves, and strict compliance with Toren's monochrome design system.
 
 ---
 
@@ -17,7 +17,7 @@ categories and leaves, and strict compliance with ASURA's monochrome design syst
 - **Command Line**: Run `asura menu` from any terminal or script to dispatch the menu toggle over IPC.
 
 ```sh
-# Open or toggle the ASURA menu from the CLI
+# Open or toggle the Toren menu from the CLI
 asura menu
 ```
 
@@ -25,7 +25,7 @@ asura menu
 
 ## Menu Tree & Capabilities
 
-Every leaf in the menu routes to a native tool or deep-links into the relevant Asura Hub settings page.
+Every leaf in the menu routes to a native tool or deep-links into the relevant Toren Hub settings page.
 If a tool is not installed on the running system, the entry is visibly marked as unavailable rather
 than failing silently.
 
@@ -33,7 +33,7 @@ than failing silently.
 |---|---|---|---|
 | **Apps** | Applications | Mode `all` in launcher | Switch directly to the full desktop applications grid |
 | **Learn** | Keybindings Cheatsheet | `asura ipc call asura toggleCheatsheet` | Interactive keyboard shortcuts reference legend |
-| | ASURA Documentation | `asura-app browser https://asuraos.dev/docs` | System architecture records and user guides |
+| | Toren Documentation | `asura-app browser https://asuraos.dev/docs` | System architecture records and user guides |
 | **Style** | Theme & Palette | `asura-shell hub open desktop` | Monochromatic themes, light/dark variants, and accent tuning |
 | | Wallpaper Picker | `asura-wallpaper wallpaper ui` | Interactive graphical wallpaper selector |
 | | Toggle Wallpaper Colors | `asura-wallpaper wallpaper random` | Match desktop palette dynamically to active wallpaper |
@@ -46,7 +46,7 @@ than failing silently.
 | | Keyboard & Touchpad | `asura-shell hub open input` | Keyboard layouts, repeat delays, and touchpad gestures |
 | **Install / Remove** | Software Store | `asura-store` | Visual showroom for desktop applications, themes, and plugins |
 | | Package Manager | `ghostty -e apm` | Fast terminal-based package search and installation via `apm` |
-| **Update** | ASURA Update | `ghostty -e sh -c "asura update; ..."` | Supervised system snapshot, overlay update, and rematerialize |
+| **Update** | Toren Update | `ghostty -e sh -c "asura update; ..."` | Supervised system snapshot, overlay update, and rematerialize |
 | | Full System Update | `ghostty -e sh -c "sudo xbps-install -Syu; asura update; ..."` | Complete base system update through XBPS package manager |
 | | System Rollback | `ghostty -e sh -c "asura rollback; ..."` | Instantly roll back to previous snapshot revision |
 | | System Diagnostics | `ghostty -e sh -c "asura doctor; ..."` | Run doctor health checks and report base-to-overlay drift |

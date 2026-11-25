@@ -301,7 +301,7 @@ func TestSweepStillRefusesARealMACAmongIdentifiers(t *testing.T) {
 // policy says must pass.
 func TestSweepAllowsACleanReport(t *testing.T) {
 	rendered := []byte(strings.Join([]string{
-		"# Asura hardware report",
+		"# Toren hardware report",
 		"dmi:",
 		"  sys_vendor: ASUSTeK COMPUTER INC.",
 		"  product_name: ASUS TUF Gaming F15 FX507ZC4_FX507ZC4",

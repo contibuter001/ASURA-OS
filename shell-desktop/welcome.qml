@@ -34,7 +34,7 @@ ApplicationWindow {
     readonly property int totalSteps: stepList.length
 
     visible: true
-    title: Translation.tr("ASURA OS Welcome")
+    title: Translation.tr("Toren Linux Welcome")
 
     minimumWidth: 840
     minimumHeight: 580
@@ -50,7 +50,7 @@ ApplicationWindow {
     onClosing: {
         Quickshell.execDetached([
             "notify-send",
-            Translation.tr("Welcome to Asura OS"),
+            Translation.tr("Welcome to Toren Linux"),
             Translation.tr("Enjoy! Reopen the welcome guide any time with <tt>Super+Shift+Alt+/</tt>. Open Settings with <tt>Super+I</tt>"),
             "-a", "Shell"
         ]);
@@ -330,7 +330,7 @@ ApplicationWindow {
                     }
 
                     StyledText {
-                        text: "ASURA"
+                        text: "TOREN"
                         font.pixelSize: Appearance.font.pixelSize.medium
                         font.weight: Font.Bold
                         color: Appearance.colors.colOnLayer0
@@ -508,7 +508,7 @@ ApplicationWindow {
                                         font.weight: Font.Black
                                     }
                                     StyledText {
-                                        text: "ASURA"
+                                        text: "TOREN"
                                         font.pixelSize: 28
                                         font.weight: Font.Bold
                                         color: Appearance.colors.colOnLayer0
@@ -565,7 +565,7 @@ ApplicationWindow {
                             Item { Layout.fillHeight: true }
 
                             StyledText {
-                                text: Translation.tr("Welcome to Asura OS")
+                                text: Translation.tr("Welcome to Toren Linux")
                                 font.pixelSize: 32
                                 font.weight: Font.Bold
                                 color: Appearance.colors.colOnLayer0
@@ -762,7 +762,7 @@ ApplicationWindow {
 
                                 NoticeBox {
                                     Layout.fillWidth: true
-                                    text: Translation.tr("Tip: You can customize panel widgets, sound, and CPU monitors anytime in Asura Settings.")
+                                    text: Translation.tr("Tip: You can customize panel widgets, sound, and CPU monitors anytime in Toren Settings.")
                                 }
                             }
 
@@ -818,7 +818,7 @@ ApplicationWindow {
                                                     visible: !Config.options.bar.vertical
                                                     spacing: 6
                                                     Text { text: "//"; color: "#ffffff"; font.pixelSize: 8; font.weight: Font.Bold }
-                                                    Text { text: "ASURA OS"; color: "#ffffff"; font.pixelSize: 8; font.weight: Font.Bold }
+                                                    Text { text: "TOREN LINUX"; color: "#ffffff"; font.pixelSize: 8; font.weight: Font.Bold }
                                                 }
                                             }
 
@@ -876,7 +876,7 @@ ApplicationWindow {
                                 color: Appearance.colors.colOnLayer0
                             }
                             StyledText {
-                                text: Translation.tr("ASURA OS includes a complete desktop suite and modern developer environment out of the box.")
+                                text: Translation.tr("Toren Linux includes a complete desktop suite and modern developer environment out of the box.")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colSubtext
                             }
@@ -949,7 +949,7 @@ ApplicationWindow {
 
                                 AppToolCard {
                                     iconName: "shopping_bag"
-                                    titleText: "Asura Store"
+                                    titleText: "Toren Store"
                                     badgeText: Translation.tr("Store")
                                     descText: Translation.tr("Package manager, components & shell extensions")
                                     command: ["asura-store"]
@@ -957,7 +957,7 @@ ApplicationWindow {
 
                                 AppToolCard {
                                     iconName: "settings"
-                                    titleText: "Asura Settings"
+                                    titleText: "Toren Settings"
                                     badgeText: Translation.tr("Control")
                                     descText: Translation.tr("System preferences, displays, audio & keybinds")
                                     command: ["asura-shell", "hub", "open"]
@@ -1108,7 +1108,7 @@ ApplicationWindow {
 
                             ShortcutCard {
                                 comboText: "Super + I"
-                                titleText: Translation.tr("Asura Settings")
+                                titleText: Translation.tr("Toren Settings")
                                 descText: Translation.tr("System preferences & devices")
                                 command: ["asura-shell", "hub", "open"]
                             }
@@ -1175,7 +1175,7 @@ ApplicationWindow {
                                     font.weight: Font.Black
                                 }
                                 StyledText {
-                                    text: "ASURA OS"
+                                    text: "TOREN LINUX"
                                     font.pixelSize: 32
                                     font.weight: Font.Bold
                                     color: Appearance.colors.colOnLayer0
@@ -1193,7 +1193,7 @@ ApplicationWindow {
 
                             StyledText {
                                 Layout.fillWidth: true
-                                text: Translation.tr("You are all set! You can reopen this guide anytime with <tt>Super+Shift+Alt+/</tt>, or customize displays, power profiles, and keybinds in Asura Settings (<tt>Super+I</tt>).")
+                                text: Translation.tr("You are all set! You can reopen this guide anytime with <tt>Super+Shift+Alt+/</tt>, or customize displays, power profiles, and keybinds in Toren Settings (<tt>Super+I</tt>).")
                                 font.pixelSize: Appearance.font.pixelSize.medium
                                 horizontalAlignment: Text.AlignHCenter
                                 wrapMode: Text.WordWrap

@@ -1,3 +1,1 @@
-#!/bin/sh
-# Remove apt packages with polkit's authority; see asura-pkg-add.
-exec asura-pkg-add --remove "$@"
+toren-pkg-remove

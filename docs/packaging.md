@@ -1,6 +1,6 @@
 # Packaging & XBPS Repository Architecture
 
-ASURA OS uses the native **XBPS (X Binary Package System)** package manager from Void Linux.
+Toren Linux uses the native **XBPS (X Binary Package System)** package manager from Void Linux.
 System components, desktop shells, and tools are built and distributed as XBPS binary packages.
 
 The packaging infrastructure resides in `packaging/xbps/`.
@@ -31,17 +31,17 @@ The build workflow is driven by `packaging/xbps/build-repo.sh`.
 2. **Directory Staging**: Files are placed into target staging roots following Void filesystem hierarchy (`/usr/bin/`, `/usr/share/asura/`, `/etc/sv/`).
 3. **Metadata Specification**:
    - `architecture`: `x86_64`
-   - `maintainer`: `ASURA OS Team <team@asura-os.org>`
+   - `maintainer`: `Toren Linux Team <team@asura-os.org>`
    - `license`: `GPL-3.0-only`
    - `pkgname` and `version`
 4. **Package Creation**:
    ```sh
-   xbps-create -A x86_64 -m "ASURA OS Team" -l "GPL-3.0-only" -s "Short summary" -V "0.1.0_1" destdir
+   xbps-create -A x86_64 -m "Toren Linux Team" -l "GPL-3.0-only" -s "Short summary" -V "0.1.0_1" destdir
    ```
 5. **Repository Indexing**:
    ```sh
    xbps-rindex -a *.xbps
-   xbps-rindex --sign --signedby "ASURA OS Signing Key" *.xbps
+   xbps-rindex --sign --signedby "Toren Linux Signing Key" *.xbps
    ```
 
 ---

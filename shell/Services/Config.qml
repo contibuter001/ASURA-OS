@@ -246,7 +246,7 @@ Singleton {
             property string markText: "A"
             property string markImage: ""
             property bool markTint: true
-            property string name: "Asura"
+            property string name: "Toren"
         }
     }
 

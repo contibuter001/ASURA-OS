@@ -50,7 +50,7 @@ func runCmd(name string, args ...string) error {
 }
 
 func enableGamerRole() int {
-	fmt.Println("[*] Provisioning Asura OS Gaming Stack (Steam, Gamemode, MangoHud, Gamescope)...")
+	fmt.Println("[*] Provisioning Toren Linux Gaming Stack (Steam, Gamemode, MangoHud, Gamescope)...")
 
 	// Ensure native package manager is configured
 	if _, err := exec.LookPath("xbps-install"); err == nil {
@@ -62,12 +62,12 @@ func enableGamerRole() int {
 		}
 	}
 
-	fmt.Println("[+] Asura OS Gaming Stack enabled successfully.")
+	fmt.Println("[+] Toren Linux Gaming Stack enabled successfully.")
 	return exitOK
 }
 
 func enableHackerRole() int {
-	fmt.Println("[*] Provisioning Asura OS Security Researcher & BlackArch Tool Bridge...")
+	fmt.Println("[*] Provisioning Toren Linux Security Researcher & BlackArch Tool Bridge...")
 
 	if _, err := exec.LookPath("xbps-install"); err == nil {
 		_ = runCmd("sudo", "xbps-install", "-Sy", "podman", "distrobox", "nmap", "wireshark-qt", "aircrack-ng")
@@ -84,7 +84,7 @@ func enableHackerRole() int {
 }
 
 func enableDevRole() int {
-	fmt.Println("[*] Provisioning Asura OS Developer Toolchain & AUR Bridge...")
+	fmt.Println("[*] Provisioning Toren Linux Developer Toolchain & AUR Bridge...")
 
 	if _, err := exec.LookPath("xbps-install"); err == nil {
 		_ = runCmd("sudo", "xbps-install", "-Sy", "git", "base-devel", "podman", "distrobox", "nodejs", "python3", "rustup", "lazygit")
@@ -101,7 +101,7 @@ func enableDevRole() int {
 }
 
 func showRoleStatus() int {
-	fmt.Println("Asura OS Role Profiles:")
+	fmt.Println("Toren Linux Role Profiles:")
 	fmt.Println("  • gamer   - Steam, Gamemode, MangoHud, Gamescope, low-latency BORE kernel tuning")
 	fmt.Println("  • hacker  - BlackArch / Kali native container bridge (podman + distrobox)")
 	fmt.Println("  • dev     - Full compilation toolchain (Go, Rust, Node, C/C++) & AUR bridge")

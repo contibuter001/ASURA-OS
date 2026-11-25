@@ -1,4 +1,4 @@
-# Asura session registration.
+# Toren session registration.
 #
 # Packaged at /usr/share/asura/session/asura.desktop and materialized to
 # /usr/share/wayland-sessions/asura.desktop, which is a registration on the
@@ -17,9 +17,9 @@
 #                     is wayland for a file here and x11 for one in xsessions.
 [Desktop Entry]
 Type=Application
-Name=Asura
-Comment=Asura desktop
+Name=Toren
+Comment=Toren Linux desktop
 TryExec=/usr/share/asura/session/asura-session
 Exec=/usr/share/asura/session/asura-session
 DesktopNames=Asura
-Keywords=Hyprland;Quickshell;
+Keywords=Hyprland;Quickshell;Toren;

@@ -64,7 +64,7 @@ echo "build-repo: creating $PKGVER"
 	xbps-create \
 		-A "$ARCH" \
 		-n "$PKGVER" \
-		-s "ASURA OS: the desktop, its tools, and its system configuration" \
+		-s "Toren Linux: the desktop, its tools, and its system configuration" \
 		-m "mohitjoer <mohitjoe.r@gmail.com>" \
 		-l "GPL-3.0-only" \
 		-H "https://github.com/mohitjoer/ASURA-OS" \
@@ -111,7 +111,7 @@ xbps-rindex -r "$OUT_DIR"
 
 if [ -n "${XBPS_SIGNING_KEY:-}" ]; then
 	echo "build-repo: signing the repository and the package"
-	xbps-rindex --sign --signedby "ASURA OS" --privkey "$XBPS_SIGNING_KEY" "$OUT_DIR"
+	xbps-rindex --sign --signedby "Toren Linux" --privkey "$XBPS_SIGNING_KEY" "$OUT_DIR"
 	xbps-rindex --sign-pkg --privkey "$XBPS_SIGNING_KEY" "$OUT_DIR/$PKGVER.$ARCH.xbps"
 else
 	echo "build-repo: XBPS_SIGNING_KEY is not set; the repository is unsigned (not publishable)"

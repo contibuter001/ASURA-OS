@@ -44,4 +44,4 @@
 | Ctrl + Alt + Delete | log out, restart, shut down |
 | Ctrl + Shift + Escape | system monitor (btop) |
 | Super + Shift + A | restart audio |
-| Super + comma | ASURA settings (the Hub) |
+| Super + comma | Toren settings (the Hub) |

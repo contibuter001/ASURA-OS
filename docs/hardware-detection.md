@@ -1,6 +1,6 @@
 # Hardware detection
 
-How ASURA identifies a machine, matches it to a profile, and decides what to install. Read this
+How Toren identifies a machine, matches it to a profile, and decides what to install. Read this
 before touching `system/hardware/` or writing a probe. The tier definitions, the profile
 schema and the loop that grows the matrix live in
 [`../system/hardware/README.md`](../system/hardware/README.md) and
@@ -12,9 +12,9 @@ implementation record for the part between the kernel and the profile.
 ## Why detection is load-bearing
 
 Detection is the only subsystem whose failure mode is *no machine at all*. Everything else in
-ASURA degrades into a lesser desktop. Detection getting it wrong means a machine that will not
+Toren degrades into a lesser desktop. Detection getting it wrong means a machine that will not
 boot, or will boot without a network and no way to recover, which is indistinguishable from
-ASURA not supporting the machine at all.
+Toren not supporting the machine at all.
 
 One detection result decides nearly everything the installer does:
 
@@ -25,7 +25,7 @@ One detection result decides nearly everything the installer does:
 | Hybrid mux mode | profile + vendor tool detection | External display dead, or suspend broken |
 | Firmware packages | probe + profile | Network device present, never comes up |
 | Microcode | DMI CPU family, PCI | Subtle corruption, or an early boot failure |
-| Support tier | profile database | A promise ASURA cannot keep |
+| Support tier | profile database | A promise Toren cannot keep |
 | Offline rescue set | probe | The machine cannot install at all |
 
 Five things therefore have to be true, and they are the acceptance criteria for any change to
@@ -417,7 +417,7 @@ often turns into a conflict once someone adds a third.
 ### Resolution output
 
 The resolution is written to `/etc/asura/hardware/resolution.yaml` at install time, which is
-inside the only directory structure ASURA owns outright, so nothing is written outside
+inside the only directory structure Toren owns outright, so nothing is written outside
 `/usr/share/asura/` and `/etc/asura/`. `asura hardware match` reads it and answers the two questions a
 user actually has: which tier am I, and what would change it.
 
@@ -530,7 +530,7 @@ Including `field_name` in the MAC input means a token cannot be lifted from one 
 another — the DMI UUID token and the EDID serial token for the same machine differ, which is
 correct, because they are different fields that happen to be equal.
 
-Both salt locations are ones ASURA already owns: a user-state path from the ownership model, and
+Both salt locations are ones Toren already owns: a user-state path from the ownership model, and
 `/etc/asura/`. Nothing is written to `~` by a package and nothing is written outside
 `/usr/share/asura/` and `/etc/asura/` by anything shipped.
 
@@ -670,7 +670,7 @@ is the single most common way a correct profile fails to select its own machine.
 
 The failure this section exists for: **a laptop whose wireless adapter needs a driver cannot
 fetch that driver over the network it does not have.** This is the wall every distribution hits,
-and it is the single largest source of "ASURA does not support my machine" reports. It is also
+and it is the single largest source of "Toren does not support my machine" reports. It is also
 the hardest failure to detect, because the machine that cannot report its problem is the
 machine with the problem.
 
@@ -755,7 +755,7 @@ anything useful to say, which is the only condition under which the bundle matte
 Verification is not optional, because firmware loaded from removable media is an untrusted
 input path and [`SECURITY.md`](../SECURITY.md) scopes it accordingly. `BUNDLE.IDX` is verified
 against the public key at `/usr/share/asura/hardware/keys/firmware-bundle.pub` — inside the
-directory ASURA owns outright, so the key ships with the image and cannot be replaced by a
+directory Toren owns outright, so the key ships with the image and cannot be replaced by a
 mounted stick. Every `.xbps` is checked against the digest in the verified repository index (`xbps-rindex`) before it is
 installed. A failed signature aborts the whole load; there is no partial-apply path.
 
@@ -848,9 +848,9 @@ Four things in that output are deliberate and are each load-bearing:
 
 Worth stating because it looks like a violation and is not. `asura-firmware load` runs `xbps-install`
 on packages from the base layer and its firmware archive. Those packages write to `/lib/firmware`
-and `/usr/lib/modules`, which ASURA does not own. The boundary rule constrains *ASURA's* packages
+and `/usr/lib/modules`, which Toren does not own. The boundary rule constrains *Toren's* packages
 to `/usr/share/asura/` and `/etc/asura/`; installing a base-layer package is the base layer
-writing its own files. ASURA installs the package and never touches its contents.
+writing its own files. Toren installs the package and never touches its contents.
 
 ---
 

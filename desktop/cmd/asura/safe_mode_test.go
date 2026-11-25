@@ -91,8 +91,8 @@ func TestSafeModeDesktopEntry(t *testing.T) {
 		t.Fatalf("reading asura-safe.desktop: %v", err)
 	}
 	d := string(b)
-	if !strings.Contains(d, "Name=ASURA (safe mode)") {
-		t.Errorf("desktop entry missing Name=ASURA (safe mode)")
+	if !strings.Contains(d, "Name=Toren Linux (safe mode)") {
+		t.Errorf("desktop entry missing Name=Toren Linux (safe mode)")
 	}
 	if !strings.Contains(d, "Exec=/usr/share/asura/session/asura-session-safe") {
 		t.Errorf("desktop entry missing correct Exec path")

@@ -1,7 +1,7 @@
-# Writing an ASURA shell plugin
+# Writing an Toren shell plugin
 
-A plugin is a small widget you write that the **user** drops into the ASURA
-desktop. You write the *content and the logic*. **ASURA owns everything about how
+A plugin is a small widget you write that the **user** drops into the Toren
+desktop. You write the *content and the logic*. **Toren owns everything about how
 it looks, moves, sizes, and where it lives.** That split is the whole point: a
 plugin always looks and behaves like a native part of the shell, because the
 shell - not you - draws the surface around it.
@@ -100,7 +100,7 @@ to check, and one to install:
 
 ## Who does what
 
-| You (the contributor) write... | ASURA (the shell) handles for you... |
+| You (the contributor) write... | Toren (the shell) handles for you... |
 |---|---|
 | The **logic**: fetch data, hold state, run commands (`service/Main.qml`). | **Where the widget lives** (frame popout, desktop widget) and letting the user choose and move it. |
 | **One view** of your widget (`content/Widget.qml`) - the labels, buttons, grid, etc. | The **card / popout surface** behind your view: background, rounded corners, shadow, hairline. |
@@ -110,7 +110,7 @@ to check, and one to install:
 
 **The golden rule:** never set your own position, never draw your own window
 chrome, never assume your size. You declare *how big your content naturally
-wants to be*; ASURA does the rest. Break this rule and your plugin will look
+wants to be*; Toren does the rest. Break this rule and your plugin will look
 bolted-on instead of native.
 
 ---
@@ -135,14 +135,14 @@ bolted-on instead of native.
 
 ## The three hosts a user can choose
 
-When a user enables your plugin they pick **one** of these in ASURA Settings →
-Plugins. Your *same* `content/Widget.qml` is used for all three - ASURA just
+When a user enables your plugin they pick **one** of these in Toren Settings →
+Plugins. Your *same* `content/Widget.qml` is used for all three - Toren just
 renders it differently.
 
 ### 1. Desktop widget - a tile on the wallpaper
 
 It sits on the wallpaper next to the clock and weather, and behaves **exactly
-like them**, because ASURA gives it the identical machinery:
+like them**, because Toren gives it the identical machinery:
 
 - **Left-drag** to move it anywhere (snaps to a grid).
 - **Right-click** it for its menu (Lock to freeze it, Hide to turn it off).
@@ -150,7 +150,7 @@ like them**, because ASURA gives it the identical machinery:
 - It's drawn on a **card** (rounded, translucent, soft shadow) matching the
   clock/weather.
 
-**You do nothing to get any of that.** You just write the content; ASURA wraps it
+**You do nothing to get any of that.** You just write the content; Toren wraps it
 in the draggable, resizable, right-clickable card. The only thing you owe it: a
 content root that reports its natural size (see "Sizing" below), so the card can
 size itself around you.
@@ -160,7 +160,7 @@ size itself around you.
 It melts out of the frame border on hover (like the volume mixer and power
 menu), fused into the same blob. The user picks the **edge** (top / right /
 bottom / left) and where along it the popout sits (`start`, `center`, `end`), by
-dragging the popout chip around a mock of their screen in ASURA Settings.
+dragging the popout chip around a mock of their screen in Toren Settings.
 
 Dropped in the **middle** of that screen instead, the popout becomes a centred
 surface: it floats in the middle of the display, all four corners rounded, with
@@ -170,7 +170,7 @@ for a modal view. It shares the middle of the screen with quick settings
 (`Super+Escape`) and the stash (`Super+S`), but the shell only ever shows one
 surface at a time, so they take turns rather than overlap.
 
-- ASURA handles the **hover trigger, the open/close animation, and the fuse into
+- Toren handles the **hover trigger, the open/close animation, and the fuse into
   the frame**.
 - **Dimensions & Sizing**:
   - By default, edge popouts use a compact `360px` width budget and grow vertically
@@ -179,8 +179,8 @@ surface at a time, so they take turns rather than overlap.
     a custom width and height:
     - **In manifest defaults**: declare `"width"` and/or `"height"` under `defaults.framePopout`.
     - **In plugin settings**: declare `"width"` and/or `"height"` controls in `metadata.settings`.
-      ASURA Settings will expose them directly to users, and the popout will resize live.
-    - **Implicit fallback**: if no fixed setting is set, ASURA respects your root
+      Toren Settings will expose them directly to users, and the popout will resize live.
+    - **Implicit fallback**: if no fixed setting is set, Toren respects your root
       `implicitWidth` (falling back to standard 680px for centered popouts).
 - **Dismissal & Lifecycle**:
   - **Edge hover popouts** auto-retract after the pointer leaves (`autoDismiss: true`).
@@ -196,11 +196,11 @@ surface at a time, so they take turns rather than overlap.
 It rides the top bar as its own module, in a section you choose (left, centre or
 right) and at the position in that lane you drag it to. Your content is rendered
 at `glyph` density on the bar's axis, so it must stay small: report a mark-sized
-`implicitWidth`/`implicitHeight` (roughly the bar's inner height) and ASURA
+`implicitWidth`/`implicitHeight` (roughly the bar's inner height) and Toren
 centres it and reserves exactly that much room; in solid form it gets its own
 island.
 
-- ASURA handles the **island pill, spacing, and the bar's width arithmetic**.
+- Toren handles the **island pill, spacing, and the bar's width arithmetic**.
 - A bar glyph **is a layout entry**, the same kind of entry as a built-in widget:
   it lives in `shell.json` `top.layout`, so a user drags it between lanes in QS
   Bar Settings' Layout route or moves it from a terminal with `asura-shell bar
@@ -256,7 +256,7 @@ the bar stays your `content/Widget.qml`; the panel is what opens beneath it.
 `Panel.qml` receives the same host-set properties as `content/Widget.qml`, at
 `full` density:
 
-| Property ASURA sets | Value on `Panel.qml` |
+| Property Toren sets | Value on `Panel.qml` |
 | --- | --- |
 | `pluginApi` | your handle (the reference below) |
 | `density` | `"full"` |
@@ -303,10 +303,10 @@ changes anything.
 
 ## Writing `content/Widget.qml`
 
-This is your view. ASURA sets a few properties on its root **for you to read** -
+This is your view. Toren sets a few properties on its root **for you to read** -
 **never assign them**:
 
-| Property ASURA sets | What it means | What you do with it |
+| Property Toren sets | What it means | What you do with it |
 |---|---|---|
 | `pluginApi` | handle to your service + settings + folder | read `pluginApi.mainInstance` for your live `service/Main.qml` |
 | `density` | `"glyph"`, `"compact"`, or `"full"` | lay out smaller/larger for the space you're given |
@@ -316,7 +316,7 @@ This is your view. ASURA sets a few properties on its root **for you to read** -
 
 ### Sizing - the one thing you MUST get right
 
-**Declare your content's natural size; never hardcode geometry.** ASURA reads
+**Declare your content's natural size; never hardcode geometry.** Toren reads
 your root's `implicitWidth` / `implicitHeight` to size the card or grow the
 popout. If you don't report a size, your widget collapses to nothing.
 
@@ -327,7 +327,7 @@ import qs.PluginKit.Singletons   // the kit's tokens: Theme, Motion
 Item {
     id: root
 
-    // ASURA sets these; you only read them.
+    // Toren sets these; you only read them.
     property var pluginApi
     property string density: "full"
     property real widthBudget: 0
@@ -356,7 +356,7 @@ Rules that keep it native:
   nested layouts (that leaves width-derived heights at zero and your widget
   collapses).
 - **Reflow with `Column` / `Row` / `Grid` / `Flow`** so you adapt to the width
-  ASURA gives you. Don't position with absolute `x`/`y`.
+  Toren gives you. Don't position with absolute `x`/`y`.
 - **Three densities**: `glyph` = an icon (+ optional badge); `compact` = a small
   summary; `full` = the rich panel. Lay out for whichever `density` you're handed.
 
@@ -379,18 +379,18 @@ shell is monochrome: the accent is the ink itself, so show emphasis with weight
 and position, and reserve colour for an error or warning state.
 
 Your **settings are not QML** - you declare them as a `metadata.settings` schema
-in the manifest (below) and ASURA renders native controls for them, both in
-ASURA Settings and in the desktop widget's right-click menu.
+in the manifest (below) and Toren renders native controls for them, both in
+Toren Settings and in the desktop widget's right-click menu.
 
 ---
 
 ## `service/Main.qml` - your logic
 
 A non-visual `QtObject`/`Item` that holds state and does the work (HTTP, running
-your `bin/` scripts, parsing results). ASURA keeps one instance alive and hands
+your `bin/` scripts, parsing results). Toren keeps one instance alive and hands
 it to your content as `pluginApi.mainInstance`.
 Declare user options as a `metadata.settings` schema in your manifest (below).
-ASURA renders the controls, seeds your defaults when the plugin is enabled, and
+Toren renders the controls, seeds your defaults when the plugin is enabled, and
 persists changes to `plugins.json`; read the live values from
 `pluginApi.pluginSettings`. Read every key behind its default anyway: a plugin
 enabled before a setting existed, or a settings block a user trimmed, has no
@@ -453,13 +453,13 @@ value for it, and `undefined` must not become your poll interval.
   Layout route moves it from there, and that choice is kept). `icon` is a
   Material Symbols Rounded ligature name (`vpn_lock`, `extension`, ...), the
   mark menus and pickers show for the plugin.
-- `official` - leave `false`. Only first-party ASURA plugins set `true`; every
+- `official` - leave `false`. Only first-party Toren plugins set `true`; every
   other plugin lists on the bar's Community page under the community warning.
-- **A plugin never gets a keybind of its own.** ASURA has no plugins-menu leader
+- **A plugin never gets a keybind of its own.** Toren has no plugins-menu leader
   and reads no `key` field from your manifest; do not ship one, and do not tell
   users a chord opens your plugin. A frame popout opens on hover at its edge, or
   through `asura-shell plugin <id>`, which the user can bind to whatever chord
-  they like in Settings → Keybinds. The shipped bind table stays ASURA's.
+  they like in Settings → Keybinds. The shipped bind table stays Toren's.
 - `files` - any extra files the plugin ships beyond its entry points and
   `commands` (helper QML a view imports, images, data). Install fetches the entry
   points, `commands`, `README.md`, and everything listed here; a file you forget
@@ -527,7 +527,7 @@ URL it finds.
 A plugin written for the prior project needs these renames, and `asura plugin audit` reports
 each one with the fix:
 
-| Prior project | ASURA |
+| Prior project | Toren |
 |---|---|
 | `import <prior>.PluginKit` | `import qs.PluginKit` |
 | `import <prior>.PluginKit.Singletons` | `import qs.PluginKit.Singletons` |
@@ -539,7 +539,7 @@ The kit keeps every token name it had (`Theme.verm`, `Theme.flameInk` ...) so th
 plugin still loads, but the values are greys: the design system has no accent
 hue, and a plugin that leaned on one will look plainer, not break.
 
-Publishing a plugin to a catalogue (`export`, `share`) is not part of ASURA's
+Publishing a plugin to a catalogue (`export`, `share`) is not part of Toren's
 `asura plugin`.
 
 ---

@@ -2,10 +2,10 @@
 
 Milestones in order. Each one is bootable or testable on its own — a milestone that runs
 on a developer machine is finished — and none of them depends on work that has not landed.
-The order is deliberate: hardware reach comes early because it decides whether ASURA is
+The order is deliberate: hardware reach comes early because it decides whether Toren is
 usable by anyone but its author.
 
-The product today is the ASURA session on the Void Linux Live ISO (M4): the installer is
+The product today is the Toren session on the Void Linux Live ISO (M4): the installer is
 `asura install`, and `asura update` snapshots `~/.config` to git and creates a Btrfs root
 snapshot before updating packages.
 
@@ -73,7 +73,7 @@ fixture tree cannot hold, and it is fixed. The machine's candidate profile now c
 of the report, with the two things detection cannot decide — the kernel flavour and the
 display mux — left for a human.*
 
-The subsystem that decides whether ASURA works on someone else's laptop.
+The subsystem that decides whether Toren works on someone else's laptop.
 
 - [x] Detection: DMI, PCI, USB, ACPI, EDID, device tree, network chips, GPU topology
 - [x] Every reader takes a filesystem root, enforced by an AST test, so a captured machine is a
@@ -120,13 +120,13 @@ confirm.
 - [x] Hybrid GPU management: `asura gpu`, `system/helpers/prime-run`, and `asura power` for NVIDIA RTX 3050 D3cold power management
 - [x] Daily-driver services ([`docs/system-services.md`](system-services.md)): clock sync (`chrony`), a default inbound firewall (`nftables`, `system/nftables/nftables.conf`), removable-media mounting (`udisks2`), firmware updates (`fwupd`) and printing (`cups`), installed and enabled on the live ISO and on installed systems
 - [ ] Installer end to end in CI (`installation/ci/installer-e2e.sh`, the `installer-e2e` job): install the freshly built ISO onto a disk image, boot the plain install to runit stage 2, unlock the encrypted one and check its crypttab, fstab and GRUB. Non-blocking until it has passed on `dev-unstable`; booting the encrypted install (passphrase over serial) is the next step
-- [x] ~~Zed updates~~: Zed was removed from the ISO (Neovim is the default editor), so there is nothing to carry. Was: the ISO installs Zed's prebuilt release (`ZED_VERSION` in `build-iso-void.sh`) into `/usr/lib/zed`. Void has no Zed package, `asura update` does not touch it, and Zed's own updater cannot write to `/usr/lib/zed`, so an install keeps the Zed it shipped with. Repackage the release as an XBPS package in ASURA's repository, so `asura update` carries new versions
-- [x] The Quickshell desktop ships as `shell-desktop/` and is the default shell (`org.asura.shell desktop-shell`): byte-identical to its pin, Lua dispatches rewritten for Hyprland 0.49, and every ASURA keybinding answered by `shell-desktop/asura/AsuraBridge.qml`. ASURA's own shell runs only when chosen; it is never switched to automatically. See `shell-desktop/asura/README.md`
-- [x] The desktop's colours follow the wallpaper (matugen, ASURA's template config), the dock is on at first login, and Super+W / Super+Shift+W open the wallpaper picker. `asura update` applies a pulled `dev-unstable` through `installation/apply-repo.sh`, which `apply-repo_test.sh` keeps equal to the ISO build
+- [x] ~~Zed updates~~: Zed was removed from the ISO (Neovim is the default editor), so there is nothing to carry. Was: the ISO installs Zed's prebuilt release (`ZED_VERSION` in `build-iso-void.sh`) into `/usr/lib/zed`. Void has no Zed package, `asura update` does not touch it, and Zed's own updater cannot write to `/usr/lib/zed`, so an install keeps the Zed it shipped with. Repackage the release as an XBPS package in Toren's repository, so `asura update` carries new versions
+- [x] The Quickshell desktop ships as `shell-desktop/` and is the default shell (`org.asura.shell desktop-shell`): byte-identical to its pin, Lua dispatches rewritten for Hyprland 0.49, and every Toren keybinding answered by `shell-desktop/asura/AsuraBridge.qml`. Toren's own shell runs only when chosen; it is never switched to automatically. See `shell-desktop/asura/README.md`
+- [x] The desktop's colours follow the wallpaper (matugen, Toren's template config), the dock is on at first login, and Super+W / Super+Shift+W open the wallpaper picker. `asura update` applies a pulled `dev-unstable` through `installation/apply-repo.sh`, which `apply-repo_test.sh` keeps equal to the ISO build
 - [ ] Hyprland version (after 0.1.0-beta.1): the ISO ships prebuilt Hyprland 0.49.0 from `Makrennel/hyprland-void`, and the session configuration is written for it (`windowrulev2`, `layerrule`); the beta ships on 0.49. To move to a newer Hyprland, build the Hyprland stack (`hyprutils`, `hyprlang`, `hyprcursor`, `hyprgraphics`, `aquamarine`, `hyprland`, `xdg-desktop-portal-hyprland`, `hypridle`, `hyprlock`) from `packaging/xbps/` and switch the ISO to it
 - [ ] Secure Boot — not supported yet; the ISO and installed systems boot only with Secure Boot disabled (see [`docs/system-services.md`](system-services.md#secure-boot))
 
-Exit criterion: an ASURA ISO boots on a clean machine into the live Wayland desktop session with functional display, audio, and network, and the guided installer can partition a drive and lay down a bootable system image.
+Exit criterion: an Toren ISO boots on a clean machine into the live Wayland desktop session with functional display, audio, and network, and the guided installer can partition a drive and lay down a bootable system image.
 
 ## M5 — Session and portals
 
@@ -185,7 +185,7 @@ lower-cased. A session that does not declare itself correctly finds no
 `asura-portals.conf`, falls back to the system `portals.conf`, and quietly uses
 whatever that names — on a machine adopted from GNOME, a dispatcher activating a
 backend that is not installed. Nothing is printed and nothing fails. The symptom
-is a file chooser that is wrong, reported as "ASURA's file chooser is broken"
+is a file chooser that is wrong, reported as "Toren's file chooser is broken"
 rather than as a session identity problem, and `asura doctor` now names it.
 
 Two details in that resolution are pinned by tests because both look like
@@ -195,7 +195,7 @@ non-issues and neither is:
   strings.** The dispatcher lower-cases the first to derive the file name, so the
   capitalisation is load-bearing. A session that swaps them still resolves a
   filename — just the wrong one.
-- **Lower-casing means `asura` finds the same file `ASURA` does.** The
+- **Lower-casing means `asura` finds the same file `Toren` does.** The
   configuration is read either way, and the identity is still wrong. The report
   says so rather than passing on the strength of the file being found.
 
@@ -210,7 +210,7 @@ ignore its exit code.
 *Status: the shell's source exists — the schema, the entry point, the widget
 catalogue, the notification server and the settings bridge — and it is packaged.
 The surfaces it draws are a vendored upstream Quickshell configuration, pinned to
-a commit and kept byte-identical to it, and re-themed to ASURA's design system
+a commit and kept byte-identical to it, and re-themed to Toren's design system
 rather than forked. It has still never been run, because Quickshell is built from
 source and is not in the archive, so there is no quickshell here to run and no
 qmllint to check the QML with. What is checked instead is everything checkable
@@ -218,7 +218,7 @@ without an engine, and that check found four real faults while it was being
 written. The vendored tree is exempt from it by declaration, and that exemption
 has a price: the bridges into the tree are a contract that nothing checks.*
 
-- `asura-greeter`, which runs `weston --shell=kiosk` and hosts ASURA's own login
+- `asura-greeter`, which runs `weston --shell=kiosk` and hosts Toren's own login
   surface. It had no owner until the SDDM drop-in made the dependency explicit:
   the drop-in points at it, so the login screen cannot ship without it. M6 owns it
   because it is a Quickshell surface like everything else on the desktop.
@@ -226,12 +226,12 @@ has a price: the bridges into the tree are a contract that nothing checks.*
   The keys adoption imports into — `wallpaper-path`, `wallpaper-path-dark`,
   `favorites`, `dock-position` — keep the names and types
   [adopting-asura.md](adopting-asura.md) already uses
-- [x] The ASURA "do everything" menu (`asura menu`, `SUPER ALT, Space`), built directly into the launcher as a native mode coordinating apps, keybindings cheatsheet, styling, settings deep-links, package management, updates, screenshots, and session controls. Documented in [`docs/menu.md`](menu.md).
+- [x] The Toren "do everything" menu (`asura menu`, `SUPER ALT, Space`), built directly into the launcher as a native mode coordinating apps, keybindings cheatsheet, styling, settings deep-links, package management, updates, screenshots, and session controls. Documented in [`docs/menu.md`](menu.md).
 - [x] The bar, the dock, the launcher and the popover surfaces, taken from a
   vendored upstream component at a pinned commit and re-themed, rather than
   written from nothing. Since the port the running shell draws ported
   components for these, adapted in place (see [`NOTICE.md`](../NOTICE.md))
-- [x] The widget catalogue, ASURA's own, driven by `org.asura.shell`
+- [x] The widget catalogue, Toren's own, driven by `org.asura.shell`
 - [x] The vendored tree itself, held byte-identical to its upstream commit.
   `sh shell/vendor/vendor.sh verify` hashes every vendored file against the
   manifest and fails on a file that was edited by hand, which is the only check
@@ -289,13 +289,13 @@ has a price: the bridges into the tree are a contract that nothing checks.*
   empty list and showed nothing. Empty `launcher-apps` means every launchable
   application, which is the correct default rather than a fallback
 
-## M7 — ASURA Hub
+## M7 — Toren Hub
 
 *Status: the settings catalogue and the page registry exist, and the invariant
 between them is checked by `asura doctor` rather than asserted. The Hub's window
 is a ported Hub (a grouped rail, a global search and a page per area of the
 desktop), drawn with the shell's own component kit, and the settings catalogue is its
-**ASURA** group; `asura-hubd` is its data plane for the compositor and the machine.*
+**Toren** group; `asura-hubd` is its data plane for the compositor and the machine.*
 
 - `asura config` — `list`, `get`, `set`, `reset`, `pages`. Values are validated
   against the key's type, range and enum *before* the write, because a value that
@@ -357,14 +357,14 @@ and the preflight has never been run against a machine that was about to be swit
 
 **Note:** This milestone documents the Ubuntu/APT-based adoption design. A Void/XBPS-based
 adoption would follow the same principles but with different package manager commands and
-no GDM dependency (ASURA uses SDDM). The design in [`adopting-asura.md`](adopting-asura.md)
+no GDM dependency (Toren uses SDDM). The design in [`adopting-asura.md`](adopting-asura.md)
 is preserved for reference.
 
-Switching an existing GNOME desktop on the base layer over to the ASURA shell, in place,
+Switching an existing GNOME desktop on the base layer over to the Toren shell, in place,
 without reinstalling and without touching the user's data. Designed in
 [`adopting-asura.md`](adopting-asura.md).
 
-This is also the project's growth path: it is how someone decides whether they want ASURA
+This is also the project's growth path: it is how someone decides whether they want Toren
 before they commit to installing it. That is worth more than a landing page.
 
 - [x] `asura adopt --check` — preflight. Reports what would change and changes nothing, needs
@@ -426,18 +426,18 @@ else's codebase.*
 
 **What is deliberately not being copied.** The project this shell was inspired by is an
 Arch distribution whose desktop runs on Hyprland or niri, and whose base is rolling.
-ASURA keeps its Void Linux base layer and its single Hyprland compositor, and the
+Toren keeps its Void Linux base layer and its single Hyprland compositor, and the
 reasons are already recorded: the base layer is what gives the project its hardware
 reach, and a second compositor is a second session to keep tested rather than a
 feature. Those two are settled and are not revisited here.
 
 **What is not taken from the vendored upstream.** Vendoring a component is not taking
 all of it. The upstream is a complete desktop configuration, and most of that
-configuration is not ASURA's desktop: its Material theme loader and the palette
+configuration is not Toren's desktop: its Material theme loader and the palette
 derivation behind it, its AI assistant, its booru image service, its weather
 service, its Google Cloud translation and vision services, its JSON settings store,
 and its Hyprland Lua configuration are all either in the tree or upstream of it, and
-none of them is part of ASURA. The reason they are not removed is structural rather
+none of them is part of Toren. The reason they are not removed is structural rather
 than diplomatic: dropping a file from a vendored tree is an edit to it, and an edit to
 it is the one thing a vendored tree does not allow. So the rule is that a component
 that is present and unused is inert, and a component that is absent is a diff against
@@ -449,29 +449,29 @@ it is the answer.
 - [x] **Vendored upstream components.** The shell's surfaces are a vendored
   open-source Quickshell configuration, held byte-identical to a pinned upstream
   commit and re-themed rather than forked. The decision is a trade, and the trade is
-  recorded rather than implied: ASURA gives up writing a bar, a dock and a
+  recorded rather than implied: Toren gives up writing a bar, a dock and a
   launcher from nothing, and takes on a dependency it does not control, pinned to a
   commit it has to re-vendor and re-check when upstream moves. What makes the trade
   worth taking is the byte-identical rule. The tree is upstream's; every change is a
   configuration value, an overlay or a patch; and the shell's design system reaches
   the components through three overlay files at upstream's own paths, so the desktop
-  looks like ASURA's without a vendored file being edited. The cost is stated
+  looks like Toren's without a vendored file being edited. The cost is stated
   rather than discovered: a re-vendor is a re-theme event, because the bridges are a
   contract that no linter checks. Adoptions are one surface at a time, and the first
   is the region selector's text recognition: a rectangle or a circle drawn on the
   screen, the words inside it read with `tesseract-ocr` and copied to the clipboard,
   on Super+Shift+T. Upstream's entry point registers an IPC handler and a shortcut
-  for each of its five actions; ASURA's overlay registers none of them and reaches
+  for each of its five actions; Toren's overlay registers none of them and reaches
   the one action through the shell's own IPC bridge, because a chord registered
   inside a vendored file is a chord the keybinding catalogue does not know. The
   selector's drawing options — what a selection snaps to, the aim lines, the stroke
-  and the padding — are schema keys behind a Hub page, and the actions ASURA does
+  and the padding — are schema keys behind a Hub page, and the actions Toren does
   not reach yet are not registered: an entry point for a missing command is a
   control that runs nothing.
 - [x] **The monochrome re-theme.** Strict monochrome is now the whole desktop's rule
   and not only the shell's own surfaces. The vendored components are monochrome by
   configuration and not by exception: a token bridge answers upstream's Material
-  property names with ASURA's greys, and the handful of colours upstream hard-codes
+  property names with Toren's greys, and the handful of colours upstream hard-codes
   in its own files are a patch to make rather than an exception to grant. The
   wallpaper palette is namespaced and kept as the record of what the wallpaper would
   have said rather than as something the desktop draws with. The decision recorded
@@ -539,7 +539,7 @@ it is the answer.
   a Btrfs root snapshot (`.snapshots/pre-update-<timestamp>`) before updating
   packages, and `asura rollback --system` lists and restores them.
 - [ ] **The agent.** M10: a local knowledge vault, an index over the machine, and
-  a dashboard. The daemon, the vault and the dashboard are built as ASURA Agent
+  a dashboard. The daemon, the vault and the dashboard are built as Toren Agent
   (`asura-agent`, off until the user switches it on; [`agent.md`](agent.md)), but no
   engine ships, so this stays open until one is wired to its `engine.command` seam
 - [ ] **The installer.** Blocked on M4 and on root. Recorded here so the scope is

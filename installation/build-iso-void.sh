@@ -25,7 +25,7 @@ if [ -n "$ASURA_VERSION" ]; then
 else
 	ISO_NAME=asura-os-x86_64
 fi
-ISO_TITLE="Asura OS x86_64"
+ISO_TITLE="Toren Linux x86_64"
 export GOWORK=off
 
 # Pinned binary versions and checksum verification file
@@ -154,8 +154,8 @@ EOF
 
 # Setup OS identity
 cat >"$INCLUDE_DIR/etc/os-release" <<'EOF'
-NAME="Asura OS"
-PRETTY_NAME="Asura OS Beta 001"
+NAME="Toren Linux"
+PRETTY_NAME="Toren Linux Beta 001"
 ID=asura
 ID_LIKE="linux"
 VERSION_ID="0.1"
@@ -171,7 +171,7 @@ fi
 printf 'asura-os\n' >"$INCLUDE_DIR/etc/hostname"
 
 cat >"$INCLUDE_DIR/etc/issue" <<'EOF'
-       #                    #         Asura OS Beta 001 (\m)
+       #                    #         Toren Linux Beta 001 (\m)
      %##                    ##%       Kernel \r on an \m (\l)
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -194,7 +194,7 @@ cat >"$INCLUDE_DIR/etc/issue" <<'EOF'
 EOF
 
 cat >"$INCLUDE_DIR/etc/issue.net" <<'EOF'
-       #                    #         Asura OS Beta 001
+       #                    #         Toren Linux Beta 001
      %##                    ##%       https://asuraos.dev
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -217,7 +217,7 @@ cat >"$INCLUDE_DIR/etc/issue.net" <<'EOF'
 EOF
 
 cat >"$INCLUDE_DIR/etc/motd" <<'EOF'
-       #                    #         Asura OS Beta 001
+       #                    #         Toren Linux Beta 001
      %##                    ##%       https://asuraos.dev
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -434,6 +434,7 @@ tar -xzf "$OPENCODE_ARCHIVE" -O package/bin/opencode > "$INCLUDE_DIR/usr/bin/ope
 chmod 755 "$INCLUDE_DIR/usr/bin/opencode"
 if [ -d "$REPO_ROOT/apps/mimeapps" ]; then
 	cp "$REPO_ROOT/apps/mimeapps"/asura-mimeapps.list "$INCLUDE_DIR/usr/share/applications/" 2>/dev/null || true
+	cp "$REPO_ROOT/apps/mimeapps"/toren-mimeapps.list "$INCLUDE_DIR/usr/share/applications/" 2>/dev/null || true
 fi
 
 # Copy Asura apps (ghostty, starship, zsh configurations)
@@ -694,6 +695,18 @@ echo "build-iso-void: building Asura Go binaries..."
 find "$INCLUDE_DIR/usr/bin" -type f -exec chmod 0755 {} +
 # Symlinks
 ln -sf asura "$INCLUDE_DIR/usr/bin/os-ctl"
+ln -sf asura "$INCLUDE_DIR/usr/bin/toren"
+for tool in asura-store asura-shell asura-wallpaper asura-hubd asura-sysd asura-userd asura-agent asura-vm asura-vm-mon asura-vm-ssh asura-vmd; do
+	toren_tool=$(echo "$tool" | sed 's/^asura/toren/')
+	if [ -e "$INCLUDE_DIR/usr/bin/$tool" ]; then
+		ln -sf "$tool" "$INCLUDE_DIR/usr/bin/$toren_tool"
+	fi
+done
+
+# Transitional symlink for /usr/share/toren <-> /usr/share/asura
+if [ -d "$INCLUDE_DIR/usr/share/asura" ] && [ ! -e "$INCLUDE_DIR/usr/share/toren" ]; then
+	ln -sfn asura "$INCLUDE_DIR/usr/share/toren"
+fi
 
 # Pre-seed user skeleton configuration and XDG user directories
 mkdir -p "$INCLUDE_DIR/etc/skel/.config/asura" \
@@ -706,6 +719,7 @@ mkdir -p "$INCLUDE_DIR/etc/skel/.config/asura" \
          "$INCLUDE_DIR/etc/skel/Pictures" \
          "$INCLUDE_DIR/etc/skel/Videos"
 cp -a "$INCLUDE_DIR/usr/share/asura"/* "$INCLUDE_DIR/etc/skel/.config/asura/"
+ln -sfn asura "$INCLUDE_DIR/etc/skel/.config/toren"
 
 # Pre-seed Ghostty terminal configuration in skeleton
 cat >"$INCLUDE_DIR/etc/skel/.config/ghostty/config" <<'EOF'
@@ -758,7 +772,7 @@ cat >"$INCLUDE_DIR/etc/skel/.config/fastfetch/config.jsonc" <<'EOF'
   },
   "modules": [
     {
-      "format": "\u001b[32m■\u001b[0m \u001b[1;37mASURA OS\u001b[0m",
+      "format": "\u001b[32m■\u001b[0m \u001b[1;37mTOREN LINUX\u001b[0m",
       "type": "custom"
     },
     "break",
@@ -942,7 +956,7 @@ TIMEOUT 30
 ONTIMEOUT linux
 
 MENU TABMSG Press ENTER to boot or TAB to edit boot options
-MENU AUTOBOOT Asura OS starts in # second{,s}...
+MENU AUTOBOOT Toren Linux starts in # second{,s}...
 MENU BACKGROUND @@SPLASHIMAGE@@
 MENU WIDTH 78
 MENU MARGIN 4
@@ -961,12 +975,12 @@ MENU COLOR timeout      * #ffffffff #00000000 none
 MENU COLOR tabmsg       * #66666666 #00000000 none
 
 LABEL linux
-MENU LABEL Asura OS (Live Session)
+MENU LABEL Toren Linux (Live Session)
 KERNEL /boot/vmlinuz
 APPEND initrd=/boot/initrd root=live:CDLABEL=ASURA_LIVE init=/sbin/init ro rd.luks=0 rd.md=0 rd.dm=0 vconsole.unicode=1 vconsole.keymap=@@KEYMAP@@ locale.LANG=@@LOCALE@@ vga=current @@BOOT_CMDLINE@@
 
 LABEL linuxram
-MENU LABEL Asura OS (Copy to RAM)
+MENU LABEL Toren Linux (Copy to RAM)
 
 KERNEL /boot/vmlinuz
 APPEND initrd=/boot/initrd root=live:CDLABEL=ASURA_LIVE init=/sbin/init ro rd.luks=0 rd.md=0 rd.dm=0 vconsole.unicode=1 vconsole.keymap=@@KEYMAP@@ locale.LANG=@@LOCALE@@ vga=current @@BOOT_CMDLINE@@ rd.live.ram
@@ -1077,7 +1091,7 @@ fi
 
 cat >"$ROOTFS/usr/bin/void-docs" <<'DOCS'
 #!/bin/sh
-echo "Asura OS documentation is available at: https://asuraos.dev"
+echo "Toren Linux documentation is available at: https://asuraos.dev"
 DOCS
 chmod 0755 "$ROOTFS/usr/bin/void-docs"
 
@@ -1298,8 +1312,8 @@ PY
 
 # Overwrite OS identity inside ROOTFS
 cat >"$ROOTFS/etc/os-release" <<'OSREL'
-NAME="Asura OS"
-PRETTY_NAME="Asura OS Beta 001"
+NAME="Toren Linux"
+PRETTY_NAME="Toren Linux Beta 001"
 ID=asura
 ID_LIKE="linux"
 VERSION_ID="0.1"
@@ -1315,9 +1329,9 @@ fi
 # Branding replacement: Change Welcome to Void! to Welcome to Asura OS! in the boot sequence
 for runit_file in "$ROOTFS/etc/runit/1" "$ROOTFS/etc/runit/2" "$ROOTFS/etc/runit/3" "$ROOTFS/etc/rc.local"; do
 	if [ -f "$runit_file" ]; then
-		sed -i 's/Welcome to Void!/Welcome to Asura OS!/g' "$runit_file"
-		sed -i 's/Welcome to Void Linux!/Welcome to Asura OS!/g' "$runit_file"
-		sed -i 's/Void Linux/Asura OS/g' "$runit_file"
+		sed -i 's/Welcome to Void!/Welcome to Toren Linux!/g' "$runit_file"
+		sed -i 's/Welcome to Void Linux!/Welcome to Toren Linux!/g' "$runit_file"
+		sed -i 's/Void Linux/Toren Linux/g' "$runit_file"
 	fi
 done
 
@@ -1350,7 +1364,7 @@ fi
 
 # Update all TTY greeting messages (/etc/issue, /etc/issue.net, /etc/motd) to show Asura OS wordmark and logo
 cat >"$ROOTFS/etc/issue" <<'ISSUE'
-       #                    #         Asura OS Beta 001 (\m)
+       #                    #         Toren Linux Beta 001 (\m)
      %##                    ##%       Kernel \r on an \m (\l)
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -1373,7 +1387,7 @@ cat >"$ROOTFS/etc/issue" <<'ISSUE'
 ISSUE
 
 cat >"$ROOTFS/etc/issue.net" <<'ISSUENET'
-       #                    #         Asura OS Beta 001
+       #                    #         Toren Linux Beta 001
      %##                    ##%       https://asuraos.dev
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -1396,7 +1410,7 @@ cat >"$ROOTFS/etc/issue.net" <<'ISSUENET'
 ISSUENET
 
 cat >"$ROOTFS/etc/motd" <<'MOTD'
-       #                    #         Asura OS Beta 001
+       #                    #         Toren Linux Beta 001
      %##                    ##%       https://asuraos.dev
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
@@ -1449,7 +1463,7 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ -z "$DISPLAY" ] && [ "$(tty 2>/dev/null)" = "/
 			echo "    3. Check 'Enable 3D Acceleration' and set Video Memory >= 128MB."
 			echo
 		else
-			echo "  Asura graphical desktop session exited."
+			echo "  Toren graphical desktop session exited."
 			echo "  Log available at: ~/.local/state/asura/session.log"
 			echo
 		fi

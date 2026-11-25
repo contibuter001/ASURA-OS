@@ -137,7 +137,7 @@ func hubAlive() bool { return hubIPC("nav", "section").Run() == nil }
 // hubRaise brings the Hub window to the focused workspace. Every Quickshell
 // window shares one app id, so the fixed window title is the handle.
 func (d *daemon) hubRaise() {
-	_ = d.wmc.Act(wm.ActionWindowSummon, "Asura Settings")
+	_ = d.wmc.Act(wm.ActionWindowSummon, "Toren Settings")
 }
 
 func (d *daemon) hub(sub, section string) string {

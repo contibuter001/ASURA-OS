@@ -94,10 +94,10 @@ RippleButton {
                         }
                     }
 
-                    // Center: ASURA OS
+                    // Center: TOREN
                     Text {
                         anchors.centerIn: parent
-                        text: "ASURA OS"
+                        text: "TOREN"
                         color: lightDarkButtonRoot.dark ? "#888894" : "#777770"
                         font.family: Appearance.font.family.main
                         font.pixelSize: 9

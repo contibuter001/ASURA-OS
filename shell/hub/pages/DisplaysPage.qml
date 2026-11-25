@@ -1104,7 +1104,7 @@ Item {
                         anchors.left: parent.left; anchors.right: parent.right
                         divider: true
                         label: I18n.tr("SHOW BAR")
-                        desc: I18n.tr("Show the active Asura bar style on this display.")
+                        desc: I18n.tr("Show the active Toren bar style on this display.")
                         source: "shell.json"
                         controlWidth: 54
                         Sw {

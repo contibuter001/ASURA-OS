@@ -147,7 +147,7 @@ PY
 	# Sign repository and packages if key is set
 	if [ -n "${XBPS_SIGNING_KEY:-}" ]; then
 		echo "build-stack: signing repository and packages..."
-		xbps-rindex --sign --signedby "ASURA OS" --privkey "$XBPS_SIGNING_KEY" "$OUT_DIR"
+		xbps-rindex --sign --signedby "Toren Linux" --privkey "$XBPS_SIGNING_KEY" "$OUT_DIR"
 		for pkg in "$OUT_DIR"/*.xbps; do
 			[ -e "$pkg" ] || continue
 			xbps-rindex --sign-pkg --privkey "$XBPS_SIGNING_KEY" "$pkg"

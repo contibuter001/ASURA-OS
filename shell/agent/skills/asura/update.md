@@ -1,6 +1,6 @@
-# Updating ASURA
+# Updating Toren
 
-`asura update` brings the machine to the newest ASURA. "The newest" means the
+`asura update` brings the machine to the newest Toren. "The newest" means the
 newest commit on the `dev-unstable` branch **that passed CI**, not simply the
 newest commit.
 
@@ -8,7 +8,7 @@ newest commit.
 
 ```sh
 asura update --check        # report only: "up to date" or "update available: old -> new"
-asura update                # ASURA (no root needed; sudo is asked for when it installs)
+asura update                # Toren (no root needed; sudo is asked for when it installs)
 sudo asura update           # also the Void system packages (XBPS), with a Btrfs snapshot
 asura update --wait         # wait for CI still running on the newest commit
 asura update --force        # take the newest commit without checking CI (risky)
@@ -23,14 +23,14 @@ asura version --commit      # the commit this machine runs
    -Su`. When a third-party repository lags a library change ("broken,
    unresolvable shlib"), the affected packages are held for that run and
    released afterwards; everything else updates.
-2. **ASURA**: fetch `dev-unstable` (30 s limit; offline it uses the last
+2. **Toren**: fetch `dev-unstable` (30 s limit; offline it uses the last
    fetch), choose the newest commit whose GitHub checks all passed, and apply
    it with `installation/apply-repo.sh` (files, Go tools, new packages). A
    commit older than the one applied is never applied. What changed is listed.
 3. **Flatpaks**.
 4. **Refresh**: the running desktop picks up the change without a logout
    (`asura refresh`: user services re-synced, Hyprland reloaded, the shell and
-   ASURA's daemons restarted).
+   Toren's daemons restarted).
 
 ## Reading the output
 
@@ -40,7 +40,7 @@ asura version --commit      # the commit this machine runs
   stays on the last good commit. `--force` would install the broken one.
 - "could not read CI results from GitHub" — offline or rate-limited; nothing is
   applied. `GITHUB_TOKEN` raises the rate limit.
-- "the installed ASURA (X) is newer than Y" — nothing to do.
+- "the installed Toren (X) is newer than Y" — nothing to do.
 
 ## Channels, firmware, cleanup
 
@@ -56,10 +56,10 @@ asura version --commit      # the commit this machine runs
 
 ## Going back
 
-- `asura rollback` — the previous config revision (ASURA keeps the three newest
+- `asura rollback` — the previous config revision (Toren keeps the three newest
   in `~/.local/state/asura/revisions/`).
 - `asura snapshot` — list system snapshots: when, why (before an update, before
-  installing packages, by hand) and which ASURA each holds.
+  installing packages, by hand) and which Toren each holds.
   `asura snapshot create` takes one by hand.
 - `sudo asura rollback --system <snapshot>` — make a pre-update Btrfs snapshot
   the root at the next reboot (`asura rollback --system` lists them; the five

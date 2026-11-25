@@ -575,7 +575,7 @@ ShellRoot {
     // spawn drive the identical transition. Names match the compositor binds.
     CustomShortcut {
         name: "barToggle"
-        description: I18n.tr("Toggle the Asura frame bar on the active monitor")
+        description: I18n.tr("Toggle the Toren frame bar on the active monitor")
         onPressed: root.toggleSurface("barToggle")
     }
     CustomShortcut {

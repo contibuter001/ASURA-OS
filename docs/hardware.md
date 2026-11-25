@@ -1,6 +1,6 @@
 # Hardware Compatibility & Support Matrix
 
-ASURA OS is built on Void Linux x86_64, runit, Hyprland, and a customized Quickshell desktop.
+Toren Linux is built on Void Linux x86_64, runit, Hyprland, and a customized Quickshell desktop.
 Hardware support is managed through a layered engine (`generic` &rarr; `vendor` &rarr; `family` &rarr; `model` &rarr; `component`). Fixes are applied narrowly using DMI strings, PCI/USB vendor:device IDs, and loaded kernel modules so that every fix is safe on machines that do not need it.
 
 ---
@@ -120,13 +120,13 @@ Hardware support is managed through a layered engine (`generic` &rarr; `vendor` 
 |---|---|---|---|
 | **Intel MacBooks (pre-2018, non-T2)** | **Works with Notes** | `applesmc`, `hid-apple` | Apple SMC fan and keyboard backlight work out of the box. Broadcom Wi-Fi uses open `brcmfmac` or non-free `broadcom-wl`. |
 | **Intel MacBooks (2018–2020, T2 chip)** | **Not Supported** | Mainline kernel | T2 security chip laptops require an extensive out-of-tree kernel patchset for internal keyboard, trackpad, audio, and Wi-Fi. Void Linux does not ship these patches. External USB input/networking works as a fallback. |
-| **Apple Silicon (M1/M2/M3/M4)** | **Not Supported** | N/A | ASURA OS targets x86_64 architecture. |
+| **Apple Silicon (M1/M2/M3/M4)** | **Not Supported** | N/A | Toren Linux targets x86_64 architecture. |
 
 ---
 
 ## Component Layers
 
-In addition to maker and family profiles, ASURA matches modular components:
+In addition to maker and family profiles, Toren matches modular components:
 
 ### Graphics
 - **NVIDIA dGPU**: PCIe RTD3 runtime power management (`D3cold`), `nvidia-drm.modeset=1`, dynamic hybrid GPU switching via `asura gpu switch [hybrid | integrated | discrete]`.

@@ -1,11 +1,11 @@
 # The login screen
 
-ASURA's login screen is an SDDM theme, `session/sddm/themes/asura`. SDDM runs it
+Toren's login screen is an SDDM theme, `session/sddm/themes/asura`. SDDM runs it
 inside the kiosk Weston that `session/asura-greeter` starts. The theme logs in
 through SDDM's own API (`sddm.login`), so PAM does the authenticating exactly as
-it does for any SDDM theme and ASURA touches nothing under `/etc/pam.d`.
+it does for any SDDM theme and Toren touches nothing under `/etc/pam.d`.
 
-It shows the users, a password field, the sessions with ASURA first and
+It shows the users, a password field, the sessions with Toren first and
 preselected, and Sleep, Restart and Shut down when the daemon allows them. That is
 all it does.
 
@@ -13,7 +13,7 @@ all it does.
 
 The package ships the SDDM settings as `/usr/share/asura/session/sddm/asura.conf`
 and installs them nowhere. A login screen that does not come up leaves nobody able
-to log in, so the one file that turns ASURA's on is copied by you, with sudo.
+to log in, so the one file that turns Toren's on is copied by you, with sudo.
 
 1. `sudo xbps-install -S sddm weston`. Keep the current display manager until the
    later steps have worked.
@@ -29,7 +29,7 @@ to log in, so the one file that turns ASURA's on is copied by you, with sudo.
 
 Switch to a text console with Ctrl+Alt+F3, log in, and run
 `sudo rm /etc/sddm.conf.d/10-asura.conf`. SDDM's own default is an X11 greeter,
-and ASURA carries no X server, so if SDDM still does not come up, stop the sddm runit
+and Toren carries no X server, so if SDDM still does not come up, stop the sddm runit
 service (`sudo sv stop sddm`) and start whichever display manager you had.
 
 To find out why: `journalctl -b -u sddm`. "Fallback to embedded theme" followed by
@@ -50,4 +50,4 @@ lands on whichever Weston activates.
 No clock, blur, Caps Lock hint or keyboard-layout indicator, and no "other user"
 field for accounts SDDM hides. SDDM's keyboard model is empty under Wayland, so the
 last two would need guessing from key events. SDDM's remembered last session is
-ignored: ASURA is always preselected, and one click picks another.
+ignored: Toren is always preselected, and one click picks another.

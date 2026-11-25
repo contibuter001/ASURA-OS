@@ -1,6 +1,6 @@
-# ASURA's package repository
+# Toren's package repository
 
-ASURA is built into one XBPS package, `asura`, holding everything
+Toren is built into one XBPS package, `asura`, holding everything
 `installation/apply-repo.sh` installs: the Go tools, the desktop, the session,
 the migrations and the system configuration. The `xbps-repo` workflow builds it
 and publishes a signed repository.
@@ -17,9 +17,9 @@ and publishes a signed repository.
      update.
    - `/etc/nftables.conf` and `/etc/turnstile/turnstile.conf` belong to other
      Void packages, so they stay out of the package; `apply-repo.sh` still
-     installs ASURA's copies.
+     installs Toren's copies.
 3. The package is installed in a clean Void container, with the Hyprland
-   repository ASURA uses, so a broken package fails CI.
+   repository Toren uses, so a broken package fails CI.
 
 Every pull request that touches the packaging, and every `dev-unstable` commit
 whose `ci` workflow passed, runs this. The built repository is kept as the
@@ -54,9 +54,9 @@ Once the repository is published:
   signed sync on any machine, copy its key file from `/var/db/xbps/keys/` into
   the repository, and install it with the ISO build and a migration.
 - Add a migration that writes the repository line on existing machines, then
-  `sudo xbps-install -Su` updates ASURA like any other package.
+  `sudo xbps-install -Su` updates Toren like any other package.
 
-Until then, `asura update` installs ASURA from `dev-unstable` as it does now.
+Until then, `asura update` installs Toren from `dev-unstable` as it does now.
 
 ## When it publishes
 

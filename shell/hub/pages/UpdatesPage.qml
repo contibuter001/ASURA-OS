@@ -378,10 +378,10 @@ Item {
                         Text {
                             visible: true
                             text: Updates.currentName !== ""
-                                ? ("ASURA " + Updates.currentName
+                                ? ("Toren " + Updates.currentName
                                   + (Updates.available && Updates.latestName !== "" && Updates.latestName !== Updates.currentName
                                      ? "  \u2192  " + Updates.latestName : ""))
-                                : "ASURA OS"
+                                : "Toren Linux"
                             color: Tokens.ink; font.family: Tokens.display
                             font.pixelSize: Tokens.fHero; font.weight: Font.Medium
                         }

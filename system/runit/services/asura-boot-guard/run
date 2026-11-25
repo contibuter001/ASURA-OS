@@ -55,7 +55,7 @@ else
         fi
         if [ -n "$latest" ] && command -v grub-reboot >/dev/null 2>&1; then
             echo "asura-boot-guard: rolling back to snapshot: $latest"
-            grub-reboot "Asura OS (snapshot $latest)" 2>/dev/null || true
+            grub-reboot "Toren Linux (snapshot $latest)" 2>/dev/null || true
             # Reboot into the selected snapshot
             if command -v reboot >/dev/null 2>&1; then
                 reboot

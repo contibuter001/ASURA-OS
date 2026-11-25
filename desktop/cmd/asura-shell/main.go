@@ -139,7 +139,7 @@ func usage(w io.Writer) {
   bar <top|bottom|left|right|all> <toggle|reveal|hide>
   barstyle <id>                            pick a bar style
   dock <show|hide|edge|autohide|pin|unpin|list>
-  hub open [page] | hub close              Asura Settings
+  hub open [page] | hub close              Toren Settings
   stage <set-effect|set-layer|add-layer|cut-layer|remove-layer|refresh|cancel|clear|status|models>
   audio <up|down|mute> | brightness <up|down>
   sound <event>                            play a cue (shutter, volume-change, ...)

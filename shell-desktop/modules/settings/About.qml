@@ -95,7 +95,7 @@ ContentPage {
                 Layout.alignment: Qt.AlignVCenter
                 // spacing: 10
                 StyledText {
-                    text: Translation.tr("ASURA OS")
+                    text: Translation.tr("Toren Linux")
                     font.pixelSize: Appearance.font.pixelSize.title
                 }
                 StyledText {
@@ -126,7 +126,7 @@ ContentPage {
                 materialIconFill: false
                 mainText: Translation.tr("Issues")
                 onClicked: {
-                    Qt.openUrlExternally("https://github.com/ASURA-OS/ASURA-OS/issues")
+                    Qt.openUrlExternally("https://github.com/mohitjoer/ASURA-OS/issues")
                 }
             }
             RippleButtonWithIcon {

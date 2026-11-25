@@ -39,8 +39,8 @@ func asuraUpdate(args []string) int {
 		branch     = set.String("branch", "", "git branch to pull code updates from (default: dev-unstable)")
 		channel    = set.String("channel", "", "channel to update from (stable, unstable, dev-unstable)")
 		system     = set.Bool("system", false, "force update of all system packages (XBPS)")
-		asuraOnly  = set.Bool("asura-only", false, "only update ASURA packages and desktop components")
-		check      = set.Bool("check", false, "only report whether a newer ASURA is available")
+		asuraOnly  = set.Bool("asura-only", false, "only update Toren packages and desktop components")
+		check      = set.Bool("check", false, "only report whether a newer Toren is available")
 		force      = set.Bool("force", false, "take the tip of the branch without checking CI, and reapply even when already applied")
 		wait       = set.Bool("wait", false, "wait for CI still running on the newest commit instead of taking the last one that passed")
 	)
@@ -125,10 +125,10 @@ func asuraUpdate(args []string) int {
 			if b == "" {
 				b = "dev-unstable"
 			}
-			fmt.Printf("==> Step 2/4: Updating ASURA to the latest '%s'...\n", b)
+			fmt.Printf("==> Step 2/4: Updating Toren to the latest '%s'...\n", b)
 			if err := pullGitUpdates(b, *root); err != nil {
 				asuraErr = err
-				fmt.Fprintf(os.Stderr, "asura update: ASURA was not updated: %v\n", err)
+				fmt.Fprintf(os.Stderr, "asura update: Toren was not updated: %v\n", err)
 			}
 			// The one-time fixes this machine has not had yet, run by the
 			// binary just applied, so a migration added in this update runs
@@ -190,20 +190,20 @@ func asuraUpdate(args []string) int {
 	}
 
 	if asuraErr != nil {
-		fmt.Fprintln(os.Stderr, "\n==> ASURA update FAILED:", asuraErr)
+		fmt.Fprintln(os.Stderr, "\n==> Toren update FAILED:", asuraErr)
 		fmt.Fprintln(os.Stderr, "==> The desktop was refreshed, but runs the code it had before. `asura doctor` checks the system.")
 		return exitFail
 	}
 	if !updateSystemPkgs && !*asuraOnly {
 		fmt.Println("\n--------------------------------------------------------------------------------")
-		fmt.Println("==> ASURA packages and desktop components are up to date.")
+		fmt.Println("==> Toren packages and desktop components are up to date.")
 		fmt.Println("==> Recommendation: To update all base system packages (XBPS) and OS, run:")
 		fmt.Println("    sudo asura update")
 		fmt.Println("--------------------------------------------------------------------------------")
 	} else if *asuraOnly {
-		fmt.Println("\n==> ASURA update complete.")
+		fmt.Println("\n==> Toren update complete.")
 	} else {
-		fmt.Println("\n==> Full system and ASURA update complete.")
+		fmt.Println("\n==> Full system and Toren update complete.")
 		reportRebootNeeded()
 	}
 
@@ -574,14 +574,14 @@ func followBranch(repoDir, branch string) (string, error) {
 		// Without the gate nothing may be taken: an unchecked tip is exactly
 		// what the gate keeps off machines.
 		fmt.Printf("    could not read CI results from GitHub (%v)\n", err)
-		fmt.Println("    keeping the installed ASURA; `asura update --force` takes the tip unchecked")
+		fmt.Println("    keeping the installed Toren; `asura update --force` takes the tip unchecked")
 		return "", nil
 	}
 	if note != "" {
 		fmt.Println("    " + note)
 	}
 	if target == "" {
-		fmt.Println("    keeping the installed ASURA")
+		fmt.Println("    keeping the installed Toren")
 	}
 	return target, nil
 }
@@ -602,11 +602,11 @@ func pullGitUpdates(branch string, root string) error {
 	applied := appliedCommit(root)
 	if applied != "" && !updateForce && gitOut(repoDir, "cat-file", "-t", applied) == "commit" {
 		if gitOut(repoDir, "rev-parse", target) == gitOut(repoDir, "rev-parse", applied) {
-			fmt.Printf("    ASURA is already at the latest checked commit %s\n", short(applied))
+			fmt.Printf("    Toren is already at the latest checked commit %s\n", short(applied))
 			return nil
 		}
 		if isAncestorIn(repoDir, target, applied) {
-			fmt.Printf("    the installed ASURA (%s) is newer than %s; nothing was applied\n", short(applied), short(target))
+			fmt.Printf("    the installed Toren (%s) is newer than %s; nothing was applied\n", short(applied), short(target))
 			return nil
 		}
 	}
@@ -618,7 +618,7 @@ func pullGitUpdates(branch string, root string) error {
 		fmt.Println("    " + note)
 	}
 	if head == applied && !updateForce {
-		fmt.Printf("    ASURA is already at %s\n", short(head))
+		fmt.Printf("    Toren is already at %s\n", short(head))
 		return nil
 	}
 	if applied != "" && applied != head {
@@ -772,7 +772,7 @@ func findOrCloneRepo(branch string) (string, error) {
 		}
 	}
 	if _, err := os.Stat(filepath.Join(cacheDir, ".git")); os.IsNotExist(err) {
-		fmt.Printf("==> Cloning Asura OS repository (%s) into %s...\n", branch, cacheDir)
+		fmt.Printf("==> Cloning Toren Linux repository (%s) into %s...\n", branch, cacheDir)
 		args := []string{"sh", "-c", `mkdir -p "$(dirname "$1")" && git clone --depth 1 --branch "$2" "$3" "$1"`, "sh", cacheDir, branch, defaultGitRepoURL}
 		if cloneAs != "" {
 			args = append([]string{"sudo", "-u", cloneAs}, args...)

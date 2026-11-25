@@ -1,10 +1,10 @@
 # The Top/Side Bar and Dock Architecture
 
-> **ASURA's own shell only.** This guide applies when
+> **Toren's own shell only.** This guide applies when
 > `gsettings get org.asura.shell desktop-shell` is `'asura'`. The default
 > desktop is: see [`desktop.md`](desktop.md).
 
-The Asura desktop bar is the **Top Bar** (`top`) or **Side Bar** (`side`), rendered by Quickshell. It is driven by data
+The Toren desktop bar is the **Top Bar** (`top`) or **Side Bar** (`side`), rendered by Quickshell. It is driven by data
 and reactive event streaming, never by polling subprocesses.
 
 ---
@@ -57,7 +57,7 @@ Bar configuration lives in `~/.config/asura/shell.json` under the `top` or `side
 
 ## Reactive Binding vs. Polling (Zero Subprocess Polling)
 
-A core rule of Asura OS shell development is: **Never poll subprocesses or run timers in QML for system state.**
+A core rule of Toren Linux shell development is: **Never poll subprocesses or run timers in QML for system state.**
 Repeated `Quickshell.execDetached` or `Process` loops burn CPU and introduce frame latency.
 
 Instead, the shell uses reactive IPC topics served by `asura-shell daemon` over `$XDG_RUNTIME_DIR/asura-shell.sock`:
