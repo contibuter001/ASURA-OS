@@ -91,7 +91,7 @@ func TestAppsDefaultsAppliesWhatTheUserOwnsAndOnlyPrintsTheRest(t *testing.T) {
 	for _, want := range []string{
 		"sudo update-alternatives --set x-terminal-emulator " + defaultsGhostty,
 		"config-file = ?~/.config/asura/apps/ghostty/config",
-		`. "$HOME/.config/asura/apps/zsh/asura.zsh"`,
+		`. "$HOME/.config/asura/apps/zsh/toren.zsh"`,
 	} {
 		if !strings.Contains(shown, want) {
 			t.Errorf("output lacks %q:\n%s", want, shown)
@@ -111,7 +111,7 @@ func TestAppsDefaultsAppliesWhatTheUserOwnsAndOnlyPrintsTheRest(t *testing.T) {
 		}
 	}
 	write(filepath.Join(home, ".config", "ghostty", "config"), "config-file = ?~/.config/asura/apps/ghostty/config\n")
-	write(filepath.Join(home, ".zshrc"), `. "$HOME/.config/asura/apps/zsh/asura.zsh"`+"\n")
+	write(filepath.Join(home, ".zshrc"), `. "$HOME/.config/asura/apps/zsh/toren.zsh"`+"\n")
 	out.Reset()
 	runAppsDefaults(&out, false)
 	if strings.Contains(out.String(), "add this line") {

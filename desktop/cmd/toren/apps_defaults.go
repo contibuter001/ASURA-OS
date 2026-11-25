@@ -154,8 +154,8 @@ func runAppsDefaults(w io.Writer, check bool) int {
 	}
 	defaultsHook(say, w, []string{filepath.Join(cfg, "ghostty", "config"), filepath.Join(cfg, "ghostty", "config.ghostty")},
 		"asura/apps/ghostty/config", "config-file = ?~/.config/asura/apps/ghostty/config")
-	defaultsHook(say, w, []string{zshrc}, "asura/apps/zsh/asura.zsh",
-		`[ -r "$HOME/.config/asura/apps/zsh/asura.zsh" ] && . "$HOME/.config/asura/apps/zsh/asura.zsh"`)
+	defaultsHook(say, w, []string{zshrc}, "asura/apps/zsh/toren.zsh",
+		`[ -r "$HOME/.config/asura/apps/zsh/toren.zsh" ] && . "$HOME/.config/asura/apps/zsh/toren.zsh"`)
 
 	if failed {
 		return exitFail

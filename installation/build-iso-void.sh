@@ -769,7 +769,7 @@ fi
 # Pre-seed zsh configuration in skeleton
 cat >"$INCLUDE_DIR/etc/skel/.zshrc" <<'EOF'
 # Asura OS Zsh configuration
-[ -r "$HOME/.config/asura/apps/zsh/asura.zsh" ] && . "$HOME/.config/asura/apps/zsh/asura.zsh"
+[ -r "$HOME/.config/asura/apps/zsh/toren.zsh" ] && . "$HOME/.config/asura/apps/zsh/toren.zsh"
 EOF
 
 # Pre-seed fastfetch ASCII logo and configuration
