@@ -285,6 +285,7 @@ cp "$REPO_ROOT/session/toren-safe.desktop" "$INCLUDE_DIR/usr/share/toren/session
 cp "$REPO_ROOT/session/toren-safe.desktop" "$INCLUDE_DIR/usr/share/wayland-sessions/toren-safe.desktop"
 cp "$REPO_ROOT/session/binds.json" "$INCLUDE_DIR/usr/share/toren/session/binds.json"
 cp "$REPO_ROOT/session/runit/toren-user-services" "$INCLUDE_DIR/usr/share/toren/session/toren-user-services"
+cp "$REPO_ROOT/session/toren-graphics-env" "$INCLUDE_DIR/usr/share/toren/session/toren-graphics-env"
 cp "$REPO_ROOT/session/runit/toren-user-services" "$INCLUDE_DIR/usr/bin/toren-user-services"
 
 # Copy session store wrapper, portal configuration, and session CLI scripts
