@@ -46,20 +46,20 @@ def row(tab, group, key, ctl, label, desc, **kw):
     r = {"tab": tab, "group": group, "key": key, "ctl": ctl, "label": label, "desc": desc, "def": dv}
     r.update(kw); R.append(r)
 
-row("Bar", "POSITION", "bar.bottom", "sw", "Bar at the bottom", "Moves the bar from the top edge to the bottom edge")
-row("Bar", "POSITION", "bar.autoHide.enable", "sw", "Hide the bar", "The bar slides away and comes back when the pointer reaches its edge")
-row("Bar", "SHAPE", "bar.cornerStyle", "seg", "Shape", "Hug: the bar meets the screen corners. Float: a raised strip. Plain: a flat rectangle",
+row("Bar & dock", "POSITION", "bar.bottom", "sw", "Bar at the bottom", "Moves the bar from the top edge to the bottom edge")
+row("Bar & dock", "POSITION", "bar.autoHide.enable", "sw", "Hide the bar", "The bar slides away and comes back when the pointer reaches its edge")
+row("Bar & dock", "SHAPE", "bar.cornerStyle", "seg", "Shape", "Hug: the bar meets the screen corners. Float: a raised strip. Plain: a flat rectangle",
     opts=["Hug", "Float", "Plain"], map={"Hug": 0, "Float": 1, "Plain": 2})
-row("Bar", "SHAPE", "bar.showBackground", "sw", "Background", "Draws the bar's background; off leaves the items over the wallpaper")
-row("Bar", "SHAPE", "bar.floatStyleShadow", "sw", "Shadow", "A shadow under the bar when its shape is Float")
-row("Bar", "WEATHER", "bar.weather.enable", "sw", "Weather in the bar", "Shows the temperature and conditions next to the clock")
-row("Bar", "WEATHER", "bar.weather.enableGPS", "sw", "Find my location", "Uses the network location; turn off to name a city below")
-row("Bar", "WEATHER", "bar.weather.city", "text", "City", "Used when finding the location is off", eg="Berlin")
-row("Bar", "WEATHER", "bar.weather.useUSCS", "sw", "Fahrenheit", "US units instead of Celsius")
+row("Bar & dock", "SHAPE", "bar.showBackground", "sw", "Background", "Draws the bar's background; off leaves the items over the wallpaper")
+row("Bar & dock", "SHAPE", "bar.floatStyleShadow", "sw", "Shadow", "A shadow under the bar when its shape is Float")
+row("Bar & dock", "WEATHER", "bar.weather.enable", "sw", "Weather in the bar", "Shows the temperature and conditions next to the clock")
+row("Bar & dock", "WEATHER", "bar.weather.enableGPS", "sw", "Find my location", "Uses the network location; turn off to name a city below")
+row("Bar & dock", "WEATHER", "bar.weather.city", "text", "City", "Used when finding the location is off", eg="Berlin")
+row("Bar & dock", "WEATHER", "bar.weather.useUSCS", "sw", "Fahrenheit", "US units instead of Celsius")
 
-row("Dock", "DOCK", "dock.enable", "sw", "Dock", "The app dock at the bottom of the screen")
-row("Dock", "DOCK", "dock.pinnedOnStartup", "sw", "Always show", "Keeps the dock on screen instead of hiding it while a window is focused")
-row("Dock", "DOCK", "dock.monochromeIcons", "sw", "Monochrome icons", "Tints the dock's icons to the colour scheme")
+row("Bar & dock", "DOCK", "dock.enable", "sw", "Dock", "The app dock at the bottom of the screen")
+row("Bar & dock", "DOCK", "dock.pinnedOnStartup", "sw", "Always show", "Keeps the dock on screen instead of hiding it while a window is focused")
+row("Bar & dock", "DOCK", "dock.monochromeIcons", "sw", "Monochrome icons", "Tints the dock's icons to the colour scheme")
 
 row("Look", "COLOURS", "appearance.palette.type", "seg", "Colour scheme", "How colours are taken from the wallpaper",
     opts=["Auto", "Tonal", "Neutral", "Vibrant", "Expressive", "Monochrome"],
@@ -81,25 +81,29 @@ row("Clock", "DESKTOP CLOCK", "background.widgets.clock.enable", "sw", "Clock on
 row("Clock", "DESKTOP CLOCK", "background.widgets.clock.style", "seg", "Style", "Analogue dial or digits",
     opts=["Analogue", "Digital"], map={"Analogue": "cookie", "Digital": "digital"})
 
-row("Notifications", "POPUPS", "notifications.timeout", "step", "Notification time", "How long a notification stays on screen", unit="ms", **{"from": 1000, "to": 30000})
-row("Notifications", "POPUPS", "osd.timeout", "step", "Volume and brightness popup", "How long the volume or brightness popup stays", unit="ms", **{"from": 500, "to": 5000})
+row("System", "NOTIFICATIONS", "notifications.timeout", "step", "Notification time", "How long a notification stays on screen", unit="ms", **{"from": 1000, "to": 30000})
+row("System", "NOTIFICATIONS", "osd.timeout", "step", "Volume and brightness popup", "How long the volume or brightness popup stays", unit="ms", **{"from": 500, "to": 5000})
 
 row("Lock screen", "LOCK SCREEN", "lock.centerClock", "sw", "Clock in the centre", "Puts the lock screen clock in the middle of the screen")
 row("Lock screen", "LOCK SCREEN", "lock.blur.enable", "sw", "Blur the wallpaper", "Blurs the wallpaper behind the lock screen")
 row("Lock screen", "LOCK SCREEN", "lock.showLockedText", "sw", "\"Locked\" label", "Shows a Locked label above the password field")
 row("Lock screen", "SECURITY", "lock.security.requirePasswordToPower", "sw", "Password to shut down", "Asks for the password before shutting down or restarting from the lock screen")
 
-row("Battery", "WARNINGS", "battery.low", "step", "Low battery warning", "Warns when the battery falls to this level", unit="%", **{"from": 5, "to": 50})
-row("Battery", "WARNINGS", "battery.critical", "step", "Critical battery warning", "Warns again at this level", unit="%", **{"from": 1, "to": 20})
-row("Battery", "WARNINGS", "sounds.battery", "sw", "Warning sound", "Plays a sound with the battery warnings")
-row("Battery", "SUSPEND", "battery.automaticSuspend", "sw", "Suspend when empty", "Suspends the computer when the battery is nearly empty")
+row("System", "WARNINGS", "battery.low", "step", "Low battery warning", "Warns when the battery falls to this level", unit="%", **{"from": 5, "to": 50})
+row("System", "WARNINGS", "battery.critical", "step", "Critical battery warning", "Warns again at this level", unit="%", **{"from": 1, "to": 20})
+row("System", "WARNINGS", "sounds.battery", "sw", "Warning sound", "Plays a sound with the battery warnings")
+row("System", "SUSPEND", "battery.automaticSuspend", "sw", "Suspend when empty", "Suspends the computer when the battery is nearly empty")
 
-row("Night light", "NIGHT LIGHT", "light.night.automatic", "sw", "On a schedule", "Warms the screen colours between the times below")
-row("Night light", "NIGHT LIGHT", "light.night.from", "text", "From", "24-hour time", eg="19:00")
-row("Night light", "NIGHT LIGHT", "light.night.to", "text", "To", "24-hour time", eg="06:30")
-row("Night light", "NIGHT LIGHT", "light.night.colorTemperature", "step", "Warmth", "Lower is warmer", unit="K", **{"from": 2500, "to": 6500})
+row("Look", "NIGHT LIGHT", "light.night.automatic", "sw", "On a schedule", "Warms the screen colours between the times below")
+row("Look", "NIGHT LIGHT", "light.night.from", "text", "From", "24-hour time", eg="19:00")
+row("Look", "NIGHT LIGHT", "light.night.to", "text", "To", "24-hour time", eg="06:30")
+row("Look", "NIGHT LIGHT", "light.night.colorTemperature", "step", "Warmth", "Lower is warmer", unit="K", **{"from": 2500, "to": 6500})
 
-row("Sound", "PROTECTION", "audio.protection.enable", "sw", "Limit volume jumps", "Stops the volume from jumping up suddenly")
+row("System", "VOLUME", "audio.protection.enable", "sw", "Limit volume jumps", "Stops the volume from jumping up suddenly")
+
+# tabs in this order; rows keep their order inside a tab
+TABS = ["Bar & dock", "Look", "Clock", "Lock screen", "System"]
+R.sort(key=lambda r: TABS.index(r["tab"]))
 
 out = ".pragma library\n\n"
 out += "// The default desktop's settings (~/.config/illogical-impulse/config.json),\n"
