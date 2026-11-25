@@ -21,7 +21,7 @@ the desktop is Toren's Quickshell desktop, shipped at
 ## Changing it
 
 **User settings** live in `~/.config/illogical-impulse/config.json`, which the
-desktop watches and reloads. The Settings app (from the control menu) edits the
+desktop watches and reloads. Settings (Super+, or the control menu's gear; its Desktop page) edits the
 same file. Useful keys:
 
 | Key                           | What it does                                                             |
@@ -35,7 +35,7 @@ same file. Useful keys:
 | `sidebar.quickSliders.enable` | volume/brightness sliders in the control menu                            |
 
 Edit it with a JSON tool that keeps the rest of the file (e.g. `jq`), or point
-the user to the Settings app.
+the user to Settings (Super+,), Desktop page.
 
 **Looks:** `toren theme set` lists named looks (wallpaper, light or dark,
 colours); `toren theme set NAME` applies one, recolouring the shell, terminal,
