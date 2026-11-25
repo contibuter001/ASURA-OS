@@ -614,7 +614,7 @@ rm -rf "$INCLUDE_DIR/usr/lib/plymouth"
 
 # Pre-trust ASURA repository keys if provided in system/xbps.d or keys directory
 mkdir -p "$INCLUDE_DIR/var/db/xbps/keys"
-for keydir in "$REPO_ROOT/system/xbps.d/keys" "$REPO_ROOT/system/keys"; do
+for keydir in "$REPO_ROOT/system/xbps-keys" "$REPO_ROOT/system/xbps.d/keys" "$REPO_ROOT/system/keys"; do
 	if [ -d "$keydir" ]; then
 		cp -f "$keydir"/*.plist "$INCLUDE_DIR/var/db/xbps/keys/" 2>/dev/null || true
 	fi

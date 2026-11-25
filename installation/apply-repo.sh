@@ -165,6 +165,10 @@ put system/tlp.d /etc/tlp.d
 put system/sysctl.d /etc/sysctl.d
 put_as system/xbps.d/asura.conf /etc/xbps.d/asura.conf
 put_as system/xbps.d/asura.conf /etc/xbps.d/00-repository-main.conf
+# Toren Linux repository signing key (installed only where missing is handled
+# by the migration; here we always refresh from the checkout).
+put system/xbps-keys /usr/share/asura/xbps/keys
+put system/xbps-keys /var/db/xbps/keys
 put_as system/nftables/nftables.conf /etc/nftables.conf
 put system/ananicy /etc/ananicy-cpp
 for svc in "$REPO"/system/runit/services/*; do
