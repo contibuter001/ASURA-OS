@@ -492,7 +492,7 @@ func TestConfigurationLocations(t *testing.T) {
 // The shipped configuration is what doctor reads on a real machine: it has to
 // satisfy the check, with sections spelled as the backends declare them.
 func TestShippedPortalConfigSatisfiesTheCheck(t *testing.T) {
-	body, err := os.ReadFile("../../../session/asura-portals.conf")
+	body, err := os.ReadFile("../../../session/toren-portals.conf")
 	if err != nil {
 		t.Fatal(err)
 	}

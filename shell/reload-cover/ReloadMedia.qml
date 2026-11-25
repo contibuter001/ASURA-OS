@@ -83,7 +83,7 @@ Item {
     // duplicated into this directory where it could stop matching the original.
     readonly property var markSources: [
         "file:///usr/share/asura/branding/asura-logo-on-dark.svg",
-        Qt.resolvedUrl("../../public/asura-logo-on-dark.svg")
+        Qt.resolvedUrl("../../public/toren-logo-on-dark.svg")
     ]
     property int markTry: 0
     readonly property bool markLettering: root.markTry >= root.markSources.length

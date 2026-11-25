@@ -159,7 +159,7 @@ jobs:
       - name: shell/shell_test.sh
         run: sh shell/shell_test.sh
       - name: Desktop is byte-identical to its pin (shell-desktop)
-        run: sh shell-desktop/asura/vendor.sh verify
+        run: sh shell-desktop/toren/vendor.sh verify
       - uses: actions/setup-go@v6
         with:
           go-version-file: desktop/go.mod
@@ -172,8 +172,8 @@ jobs:
           import re, sys, xml.etree.ElementTree as ET
           from pathlib import Path
           SVG = "{http://www.w3.org/2000/svg}"
-          LIGHT = Path("public/asura-logo.svg")
-          DARK = Path("public/asura-logo-on-dark.svg")
+          LIGHT = Path("public/toren-logo.svg")
+          DARK = Path("public/toren-logo-on-dark.svg")
           problems = []
           def parse(path):
             try:

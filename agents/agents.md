@@ -168,7 +168,7 @@ sh shell/shell_test.sh
 sh session/session_test.sh
 sh session/greeter_test.sh
 sh installation/build-iso-void_test.sh
-sh installation/asura-installer_test.sh
+sh installation/toren-installer_test.sh
 
 # gofmt / vet — the control tools are Go. There is no go.mod at the
 # repository root: `desktop/` is one module and `system/hardware/` is

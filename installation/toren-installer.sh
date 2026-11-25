@@ -981,9 +981,9 @@ EOF
 rm -f "$TARGET_DIR/etc/asura-live"
 rm -f "$TARGET_DIR/usr/bin/asura-installer"
 rm -f "$TARGET_DIR/usr/bin/void-installer"
-rm -f "$TARGET_DIR/usr/share/applications/asura-installer.desktop"
-rm -f "$TARGET_DIR/home"/*/Desktop/asura-installer.desktop 2>/dev/null || true
-rm -f "$TARGET_DIR/etc/skel/Desktop/asura-installer.desktop" 2>/dev/null || true
+rm -f "$TARGET_DIR/usr/share/applications/asura-installer.desktop" "$TARGET_DIR/usr/share/applications/toren-installer.desktop"
+rm -f "$TARGET_DIR/home"/*/Desktop/asura-installer.desktop "$TARGET_DIR/home"/*/Desktop/toren-installer.desktop 2>/dev/null || true
+rm -f "$TARGET_DIR/etc/skel/Desktop/asura-installer.desktop" "$TARGET_DIR/etc/skel/Desktop/toren-installer.desktop" 2>/dev/null || true
 
 # Ensure dedicated hardware and docker groups exist on target
 chroot "$TARGET_DIR" getent group asura-hw >/dev/null 2>&1 || chroot "$TARGET_DIR" groupadd -r asura-hw
@@ -1118,7 +1118,7 @@ chmod 0440 "$TARGET_DIR/etc/sudoers.d/zz-asura-session"
 
 # Enable core system runit services
 mkdir -p "$TARGET_DIR/etc/runit/runsvdir/default"
-for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled tlp zramen ananicy-cpp chronyd nftables cupsd asura-sysd asura-boot-guard; do
+for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled tlp zramen ananicy-cpp chronyd nftables cupsd toren-sysd toren-boot-guard; do
 	if [ -d "$TARGET_DIR/etc/sv/$svc" ]; then
 		ln -sf "/etc/sv/$svc" "$TARGET_DIR/etc/runit/runsvdir/default/$svc"
 	fi
@@ -1220,7 +1220,7 @@ printf "${WHITE}${BOLD}[5/5] Installing bootloader (%s)...${RESET}\n" "$BOOT_DIS
 if [ -d "$TARGET_DIR/usr/share/asura/session/grub" ]; then
 	mkdir -p "$TARGET_DIR/etc/grub.d"
 	cp "$TARGET_DIR/usr/share/asura/session/grub"/* "$TARGET_DIR/etc/grub.d/" 2>/dev/null || true
-	chmod +x "$TARGET_DIR/etc/grub.d"/40_asura_snapshots 2>/dev/null || true
+	chmod +x "$TARGET_DIR/etc/grub.d"/40_toren_snapshots "$TARGET_DIR/etc/grub.d"/40_asura_snapshots 2>/dev/null || true
 fi
 
 if [ "$IS_UEFI" -eq 1 ]; then

@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="public/asura-logo.svg" alt="Toren Linux" width="180">
+  <img src="public/toren-logo.svg" alt="Toren Linux" width="180">
 </p>
 
 # Toren Linux
 
 <p align="center">
-  <img src="public/asura-logo-on-dark.svg" alt="" width="96">
+  <img src="public/toren-logo-on-dark.svg" alt="" width="96">
 </p>
 
 **untouchable · dominating**
@@ -311,7 +311,7 @@ are binding, not advisory:
   token values.
 - Contrast floor: 4.5:1 for body ink, 3:1 for UI shapes and indicators.
 - **Typography hierarchy**: `Space Grotesk` for display headings and section marks, `Inter` for primary UI text, and `JetBrainsMono Nerd Font` for monospace code and terminal environments.
-- **Strict white mark**: `public/asura-logo-on-dark.svg` (`#ffffff`) is exclusively used across all dark UI surfaces; colored or red logos are forbidden to preserve the clean monochrome identity.
+- **Strict white mark**: `public/toren-logo-on-dark.svg` (`#ffffff`) is exclusively used across all dark UI surfaces; colored or red logos are forbidden to preserve the clean monochrome identity.
 
 Aesthetic character comes from material, shape and rhythm — never from hue.
 

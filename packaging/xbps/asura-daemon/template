@@ -35,8 +35,8 @@ do_install() {
 	vinstall session/runit/asura-user-services 755 usr/bin
 	vinstall system/helpers/prime-run 755 usr/bin
 	vinstall installation/asura-installer.sh 755 usr/bin/asura-installer
-	vinstall session/applications/asura-installer.desktop 644 usr/share/applications
-	vinstall session/asura.desktop 644 usr/share/wayland-sessions
+	vinstall session/applications/toren-installer.desktop 644 usr/share/applications
+	vinstall session/toren.desktop 644 usr/share/wayland-sessions
 
 	# Install runit service templates
 	vmkdir usr/share/asura/runit/services

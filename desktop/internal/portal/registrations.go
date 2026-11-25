@@ -42,8 +42,8 @@ type Registration struct {
 var registrations = []Registration{
 	{
 		Name:       "session file",
-		Path:       "/usr/share/wayland-sessions/asura.desktop",
-		Target:     "/usr/share/asura/session/asura.desktop",
+		Path:       "/usr/share/wayland-sessions/toren.desktop",
+		Target:     "/usr/share/asura/session/toren.desktop",
 		Sanctioned: true,
 	},
 	{

@@ -10,7 +10,7 @@
 set -eu
 
 REPO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-SCRIPT="$REPO_ROOT/session/asura-session"
+SCRIPT="$REPO_ROOT/session/toren-session"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
@@ -268,7 +268,7 @@ if command -v systemd-analyze >/dev/null 2>&1 && [ -d "$REPO_ROOT/session/units"
         "$REPO_ROOT/session/hyprland/hyprland.conf" || rc=$?
     check "the compositor's configuration starts the session" $rc
 
-    rc=0; [ -x "$REPO_ROOT/session/asura-activate" ] || rc=$?
+    rc=0; [ -x "$REPO_ROOT/session/toren-activate" ] || rc=$?
     check "the activation script is executable" $rc
 
     # The ordering cycle, checked in the user manager where the units live.
@@ -299,9 +299,9 @@ fi
 #
 # The two paths are written in two languages, which is exactly how they came
 # apart, so they are compared rather than trusted.
-hub_schema=$(grep -o 'ASURA_SCHEMA_DIR:-[^}]*' "$REPO_ROOT/session/asura-hub" |
+hub_schema=$(grep -o 'ASURA_SCHEMA_DIR:-[^}]*' "$REPO_ROOT/session/toren-hub" |
     sed 's/.*:-//')
-tool_schema=$(grep -o 'const settingsDir = "[^"]*"'     "$REPO_ROOT/desktop/cmd/asura/config.go" | sed 's/.*"\(.*\)"/\1/')
+tool_schema=$(grep -o 'const settingsDir = "[^"]*"'     "$REPO_ROOT/desktop/cmd/toren/config.go" | sed 's/.*"\(.*\)"/\1/')
 rc=0
 if [ -z "$hub_schema" ] || [ "$hub_schema" != "$tool_schema" ]; then
     echo "  hub exports:   ${hub_schema:-<none>}"

@@ -226,8 +226,8 @@ done
 # animations in the compositor, so while it is the shell its rules are sourced
 # (shell-desktop/asura/hyprland.conf and hyprland.lua); for ASURA's shell the file is empty.
 # Rewritten every login, so switching shells takes effect at the next one.
-SHELL_LOOK=/usr/share/asura/shell-desktop/asura/hyprland.conf
-SHELL_LOOK_LUA=/usr/share/asura/shell-desktop/asura/hyprland.lua
+SHELL_LOOK=/usr/share/asura/shell-desktop/toren/hyprland.conf
+SHELL_LOOK_LUA=/usr/share/asura/shell-desktop/toren/hyprland.lua
 DESKTOP_SHELL="${ASURA_DESKTOP_SHELL:-$(gsettings get org.asura.shell desktop-shell 2>/dev/null | tr -d "'")}"
 if [ "${DESKTOP_SHELL:-desktop}" = desktop ]; then
     if [ -f "$SHELL_LOOK" ]; then

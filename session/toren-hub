@@ -45,7 +45,7 @@ fi
 # and the two are the same setting. The default here pointed at
 # $PREFIX/schemas, a directory nothing creates, so the override the wrapper
 # exists to set was an override onto a path that does not resolve.
-# Keep this equal to settingsDir in desktop/cmd/asura/config.go.
+# Keep this equal to settingsDir in desktop/cmd/toren/config.go.
 export ASURA_SCHEMA_DIR="${ASURA_SCHEMA_DIR:-/usr/share/glib-2.0/schemas}"
 
 # `asura-hub PAGE` opens on that page. The window reads it from the environment
