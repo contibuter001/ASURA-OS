@@ -84,8 +84,8 @@ mkdir -p "$INCLUDE_DIR/etc/sudoers.d" \
 
 # Configure Plymouth boot splash with logo and loading progress bar animation
 mkdir -p "$INCLUDE_DIR/usr/share/plymouth/themes/asura"
-cp -r "$REPO_ROOT/system/plymouth/asura"/* "$INCLUDE_DIR/usr/share/plymouth/themes/asura/"
-ln -sf /usr/share/plymouth/themes/asura/asura.plymouth "$INCLUDE_DIR/usr/share/plymouth/themes/default.plymouth"
+cp -r "$REPO_ROOT/system/plymouth/toren"/* "$INCLUDE_DIR/usr/share/plymouth/themes/asura/"
+ln -sf /usr/share/plymouth/themes/asura/toren.plymouth "$INCLUDE_DIR/usr/share/plymouth/themes/default.plymouth"
 
 # Pre-stage TrueType fonts and fontconfig configuration for Plymouth label rendering
 mkdir -p "$INCLUDE_DIR/usr/share/fonts/TTF" "$INCLUDE_DIR/etc/fonts"
@@ -1184,7 +1184,7 @@ chroot "$ROOTFS" chown -R asura:asura /home/asura 2>/dev/null || true
 
 # Ensure Plymouth theme and configuration are active in ROOTFS
 mkdir -p "$ROOTFS/usr/share/plymouth/themes"
-ln -sf /usr/share/plymouth/themes/asura/asura.plymouth "$ROOTFS/usr/share/plymouth/themes/default.plymouth" 2>/dev/null || true
+ln -sf /usr/share/plymouth/themes/asura/toren.plymouth "$ROOTFS/usr/share/plymouth/themes/default.plymouth" 2>/dev/null || true
 if [ -f "$ROOTFS/etc/plymouth/plymouthd.conf" ]; then
 	sed -i 's/^Theme=.*/Theme=asura/' "$ROOTFS/etc/plymouth/plymouthd.conf"
 fi

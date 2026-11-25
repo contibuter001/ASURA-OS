@@ -9,4 +9,4 @@ MonospaceFont=DejaVu Sans Mono 10
 
 [script]
 ImageDir=/usr/share/plymouth/themes/asura
-ScriptFile=/usr/share/plymouth/themes/asura/asura.script
+ScriptFile=/usr/share/plymouth/themes/asura/toren.script

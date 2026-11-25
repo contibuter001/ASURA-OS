@@ -158,7 +158,7 @@ put_as public/toren-logo-on-dark.svg /usr/share/asura/branding/asura-logo-on-dar
 put_as public/branding/toren-logo.txt /usr/share/asura/branding/fastfetch-ascii.txt
 put public/fonts /usr/share/fonts/TTF
 put public/wallpapers /usr/share/asura/backgrounds
-put system/plymouth/asura /usr/share/plymouth/themes/asura
+put system/plymouth/toren /usr/share/plymouth/themes/asura
 put_as shell/assets/toren-store.svg /usr/share/icons/hicolor/scalable/apps/asura-store.svg
 put_as shell/assets/toren-installer.svg /usr/share/icons/hicolor/scalable/apps/asura-installer.svg
 put_as shell/assets/toren-store.png /usr/share/icons/hicolor/512x512/apps/asura-store.png

@@ -9,7 +9,7 @@
 import "modules/common"
 import "services"
 import "panelFamilies"
-import "asura"
+import "toren"
 
 import QtQuick
 import QtQuick.Window
