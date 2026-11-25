@@ -15,6 +15,10 @@ into `/etc/runit/runsvdir/default` by the same loop in
 | Firmware updates | `fwupd` | none (D-Bus activated) | `fwupdmgr refresh && fwupdmgr update` updates BIOS, SSD and dock firmware from LVFS |
 | Printing | `cups`, `cups-filters` | `cupsd` | Add printers at <http://localhost:631> |
 | Device power saving | `tlp` | `tlp` | USB autosuspend, Wi-Fi power save, SATA and PCIe runtime PM. CPU governor, EPP and platform profile stay with `asura-sysd`; [`system/tlp.d/01-asura-cpu.conf`](../system/tlp.d/01-asura-cpu.conf) disables them in tlp |
+| System log | `socklog-void` | `socklog-unix`, `nanoklogd` | Kernel and daemon messages under `/var/log/socklog` |
+| Scheduled maintenance | (none) | `asura-maintenance` | Weekly fstrim, monthly btrfs scrub, no cron daemon |
+| Out-of-memory protection | `earlyoom` | `earlyoom` | Protects Hyprland and quickshell; prefers killing large apps |
+| Thermal management | `thermald` | `thermald` | Enabled only on Intel CPUs |
 
 ## Firewall
 
@@ -49,3 +53,24 @@ Until it is implemented, disable Secure Boot in the firmware settings before boo
 Implementing it means either shipping a signed shim with MOK enrolment in the installer, or
 signing GRUB and the kernel with machine-local keys (`sbctl`); the decision is open in
 [`roadmap.md`](roadmap.md).
+
+## System log (socklog)
+
+`socklog-void` provides `socklog-unix` (daemon messages) and `nanoklogd` (kernel
+messages), logging to `/var/log/socklog/`. `journalctl` on Toren reads these files;
+`asura doctor` reports their state.
+
+## Scheduled maintenance
+
+`asura-maintenance` is a runit service with a sleep loop (no cron daemon): it runs
+`fstrim -av /` weekly and `btrfs scrub` monthly on btrfs roots, skipping hardware or
+filesystems that do not support it.
+
+## Out-of-memory protection
+
+`earlyoom` runs with settings that protect the compositor (Hyprland) and the desktop
+shell (quickshell) and prefer killing large applications.
+
+## Thermal management
+
+`thermald` is enabled only on Intel CPUs, detected at install and migration time.

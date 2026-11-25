@@ -223,7 +223,7 @@ func reportRunitServices(root string) int {
 // the optional ones that are reported but never fail doctor.
 var (
 	coreServices     = []string{"dbus", "udevd", "elogind", "seatd", "turnstiled", "NetworkManager", "asura-sysd"}
-	optionalServices = []string{"scx-lavd", "ananicy-cpp", "tlp"}
+	optionalServices = []string{"scx-lavd", "ananicy-cpp", "tlp", "socklog-unix", "nanoklogd", "earlyoom", "thermald", "asura-maintenance"}
 )
 
 // svState is what `sv status` says about one service.

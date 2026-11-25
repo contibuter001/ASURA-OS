@@ -63,7 +63,9 @@ sv restart ~/.config/service/asurad
 ```
 
 ### Inspecting Crash Dumps & Logs
-Quickshell crash environments and state files are written to `~/.local/state/asura/`:
+System and kernel messages are kept by socklog under `/var/log/socklog/`
+(`journalctl` reads them). Quickshell crash environments and state files are
+written to `~/.local/state/asura/`:
 ```bash
 # List recent crash dumps and logs
 ls -la ~/.local/state/asura/

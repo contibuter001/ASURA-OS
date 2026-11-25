@@ -57,6 +57,10 @@ essential:
     - file
     - plymouth
     - plymouth-data
+    # System services (Workstream C)
+    - socklog-void
+    - earlyoom
+    - thermald
 
 desktop:
   packages:
