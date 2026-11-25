@@ -168,7 +168,7 @@ if [ -n "$ASURA_VERSION" ]; then
 	printf 'IMAGE_VERSION=%s\n' "$ASURA_VERSION" >>"$INCLUDE_DIR/etc/os-release"
 fi
 
-printf 'asura-os\n' >"$INCLUDE_DIR/etc/hostname"
+printf 'toren-linux\n' >"$INCLUDE_DIR/etc/hostname"
 
 cat >"$INCLUDE_DIR/etc/issue" <<'EOF'
        #                    #         Toren Linux Beta 001 (\m)
@@ -967,7 +967,7 @@ fi
 
 # Patch dracut vmklive module to use asura-os hostname, asura user, and include _seatd/input/asura-hw groups
 if [ -f "$MKLIVE_DIR/dracut/vmklive/adduser.sh" ]; then
-	sed -i 's/echo void-live >/echo asura-os >/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
+	sed -i 's/echo void-live >/echo toren-linux >/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
 	sed -i 's/-G audio,video,wheel/-G audio,video,wheel,_seatd,input,tty,storage,network,asura-hw/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
 	sed -i 's/USERNAME=anon/USERNAME=asura/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
 	sed -i 's/voidlinux/asura/g' "$MKLIVE_DIR/dracut/vmklive/adduser.sh"
@@ -1387,16 +1387,16 @@ if [ -f "$ROOTFS/etc/rc.local" ]; then
 	fi
 fi
 
-# Set Asura OS hostname and network identity
-printf 'asura-os\n' > "$ROOTFS/etc/hostname"
+# Set Toren Linux hostname and network identity
+printf 'toren-linux\n' > "$ROOTFS/etc/hostname"
 if [ -f "$ROOTFS/etc/rc.conf" ]; then
-	sed -i 's/^#\?HOSTNAME=.*/HOSTNAME="asura-os"/' "$ROOTFS/etc/rc.conf"
+	sed -i 's/^#\?HOSTNAME=.*/HOSTNAME="toren-linux"/' "$ROOTFS/etc/rc.conf"
 	if ! grep -q '^HOSTNAME=' "$ROOTFS/etc/rc.conf"; then
-		echo 'HOSTNAME="asura-os"' >> "$ROOTFS/etc/rc.conf"
+		echo 'HOSTNAME="toren-linux"' >> "$ROOTFS/etc/rc.conf"
 	fi
 fi
 if [ -f "$ROOTFS/etc/hosts" ]; then
-	sed -i 's/void-live/asura-os/g' "$ROOTFS/etc/hosts"
+	sed -i 's/void-live/toren-linux/g' "$ROOTFS/etc/hosts"
 fi
 
 # Update all TTY greeting messages (/etc/issue, /etc/issue.net, /etc/motd) to show Asura OS wordmark and logo
