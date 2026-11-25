@@ -1378,8 +1378,11 @@ Rectangle {
         readonly property bool full: hub.pageFile(hub.section) !== "" && !hub.framedSet[hub.section]
         anchors.top: parent.top
         anchors.bottom: pageArea.full ? parent.bottom : bar.top
-        anchors.topMargin: pageArea.full ? 0 : Tokens.s5
-        anchors.bottomMargin: pageArea.full ? 0 : Tokens.s3
+        // The card look gives every page the same breathing room: the title
+        // sits level with the sidebar's "Settings", and the last card stops
+        // short of the window's bottom edge.
+        anchors.topMargin: Tokens.cards ? Tokens.px(20) : (pageArea.full ? 0 : Tokens.s5)
+        anchors.bottomMargin: Tokens.cards ? Tokens.s5 : (pageArea.full ? 0 : Tokens.s3)
         // Framed pages fill the window beside the rail: the Hub opens
         // page-wide, and a page that refuses the width it was given wastes it.
         // Nothing needs a global cap -- a page that reads better on a shorter
