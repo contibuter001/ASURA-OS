@@ -1211,33 +1211,50 @@ Rectangle {
                             width: parent.width
                             height: !anyShown ? 0 : (grp.modelData.name === "" ? Tokens.s4 : 34)
                             visible: anyShown
-                            Row {
+                            Item {
+                                anchors.fill: parent
                                 visible: grp.modelData.name !== ""
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.bottomMargin: 2
-                                spacing: Tokens.s2
-                                // the poster's plate numerals: each group carries
-                                // its index, 01..05, in tabular mono.
-                                Text {
-                                    text: (grp.index + 1 < 10 ? "0" : "") + (grp.index + 1)
-                                    color: grp.activeGroup ? Tokens.inkDim : Tokens.inkFaint
-                                    font.family: Tokens.mono; font.pixelSize: 9
-                                    anchors.verticalCenter: parent.verticalCenter
-                                }
-                                Text {
-                                    text: I18n.tr(grp.modelData.name); color: grp.activeGroup ? Tokens.inkDim : Tokens.inkFaint
-                                    font.family: Tokens.ui; font.pixelSize: 9
-                                    font.weight: Font.Medium; font.letterSpacing: 2
-                                    anchors.verticalCenter: parent.verticalCenter
+                                Row {
+                                    id: grpLabelRow
+                                    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                                    anchors.leftMargin: Tokens.s1
+                                    spacing: Tokens.s2
+                                    // the poster's plate numerals: each group carries
+                                    // its index, 01..05, in tabular mono.
+                                    Text {
+                                        text: (grp.index + 1 < 10 ? "0" : "") + (grp.index + 1)
+                                        color: grp.activeGroup ? Tokens.inkDim : Tokens.inkFaint
+                                        font.family: Tokens.mono; font.pixelSize: 9
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    Text {
+                                        text: I18n.tr(grp.modelData.name); color: grp.activeGroup ? Tokens.inkDim : Tokens.inkFaint
+                                        font.family: Tokens.ui; font.pixelSize: 9
+                                        font.weight: Font.Medium; font.letterSpacing: 2
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
                                 }
                                 Rectangle {
-                                    width: Math.max(0, nav.width - 130); height: 1; color: Tokens.lineSoft
-                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors {
+                                        left: grpLabelRow.right
+                                        right: grpTick.left
+                                        leftMargin: Tokens.s2
+                                        rightMargin: Tokens.s2
+                                        verticalCenter: parent.verticalCenter
+                                    }
+                                    height: 1
+                                    color: Tokens.lineSoft
                                 }
                                 Rectangle {
-                                    width: 1; height: 5; color: grp.activeGroup ? Tokens.lineStrong : Tokens.line
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    anchors.verticalCenterOffset: -2
+                                    id: grpTick
+                                    anchors {
+                                        right: parent.right
+                                        rightMargin: Tokens.s3
+                                        verticalCenter: parent.verticalCenter
+                                        verticalCenterOffset: -2
+                                    }
+                                    width: 1; height: 5
+                                    color: grp.activeGroup ? Tokens.lineStrong : Tokens.line
                                 }
                             }
                         }
@@ -1274,16 +1291,20 @@ Rectangle {
                                 // the right, every item carries its kanji seal,
                                 // Latin and Japanese sitting side by side.
                                 Row {
-                                    x: Tokens.s3
-                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors {
+                                        left: parent.left
+                                        leftMargin: Tokens.s3
+                                        verticalCenter: parent.verticalCenter
+                                    }
                                     spacing: Tokens.s2
                                     Text {
                                         id: navLead
-                                        visible: navItem.sel
                                         text: "//"
+                                        opacity: navItem.sel ? 1 : 0
                                         color: Tokens.inkOnBoneDim
                                         font.family: Tokens.mono; font.pixelSize: 11
                                         anchors.verticalCenter: parent.verticalCenter
+                                        Behavior on opacity { NumberAnimation { duration: Tokens.snap } }
                                     }
                                     Text {
                                         id: navLatin
@@ -1292,8 +1313,6 @@ Rectangle {
                                         font.family: Tokens.ui; font.pixelSize: 14
                                         anchors.verticalCenter: parent.verticalCenter
                                         elide: Text.ElideRight
-                                        width: Math.max(0, navKana.x - Tokens.s2 - Tokens.s3
-                                            - (navItem.sel ? navLead.width + Tokens.s2 : 0))
                                         Behavior on color { ColorAnimation { duration: Tokens.snap } }
                                     }
                                 }
@@ -1430,10 +1449,10 @@ Rectangle {
     Item {
         id: updatesBtn
         anchors { top: parent.top; right: parent.right }
-        anchors.topMargin: Tokens.s4; anchors.rightMargin: Tokens.s6
+        anchors.topMargin: Tokens.s5 - Math.round((height - 18) / 2); anchors.rightMargin: Tokens.s6
         z: 60
         width: ubLabel.implicitWidth + Tokens.s4 * 2
-        height: 30
+        height: 26
         readonly property bool here: hub.section === "updates"
         Rectangle {
             anchors.fill: parent
@@ -1473,11 +1492,11 @@ Rectangle {
     Item {
         id: filesBtn
         anchors { top: parent.top; right: updatesBtn.left }
-        anchors.topMargin: Tokens.s4; anchors.rightMargin: Tokens.s3
+        anchors.topMargin: Tokens.s5 - Math.round((height - 18) / 2); anchors.rightMargin: Tokens.s3
         z: 60
         visible: hub.settingsFiles().length > 0
         width: fbLabel.implicitWidth + Tokens.s4 * 2
-        height: 30
+        height: 26
         Rectangle {
             anchors.fill: parent
             radius: Tokens.radius

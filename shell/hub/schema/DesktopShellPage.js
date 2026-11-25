@@ -30,18 +30,18 @@ var rows = [
         "group": "SHAPE",
         "key": "bar.cornerStyle",
         "ctl": "seg",
-        "label": "Shape",
-        "desc": "Hug: the bar meets the screen corners. Float: a raised strip. Plain: a flat rectangle",
+        "label": "Bar silhouette & corners",
+        "desc": "Hug: the bar meets the screen corners. Float: a raised strip. Rect: a flat rectangle",
         "def": 0,
         "opts": [
             "Hug",
             "Float",
-            "Plain"
+            "Rect"
         ],
         "map": {
             "Hug": 0,
             "Float": 1,
-            "Plain": 2
+            "Rect": 2
         }
     },
     {
