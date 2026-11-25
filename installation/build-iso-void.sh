@@ -1512,6 +1512,13 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ -z "$DISPLAY" ] && [ "$(tty 2>/dev/null)" = "/
 fi
 PROFILE
 chmod 0755 "$ROOTFS/etc/profile.d/asura-autologin.sh"
+# zsh login shells do not read /etc/profile.d/*.sh unless /etc/zsh/zprofile sources it
+mkdir -p "$ROOTFS/etc/zsh"
+if [ ! -f "$ROOTFS/etc/zsh/zprofile" ] || ! grep -q 'asura-autologin.sh' "$ROOTFS/etc/zsh/zprofile"; then
+	cat >>"$ROOTFS/etc/zsh/zprofile" <<'ZPROFILE'
+[ -r /etc/profile.d/asura-autologin.sh ] && emulate sh -c '. /etc/profile.d/asura-autologin.sh'
+ZPROFILE
+fi
 exit 0
 EOF
 chmod +x "$POSTSETUP_SCRIPT"
