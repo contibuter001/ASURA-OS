@@ -320,12 +320,13 @@ hl.env("WLR_NO_HARDWARE_CURSORS", "1")
 VMCFGLUA
 fi
 
-# Detect compositor executable: prefer Hyprland directly so toren-session's
-# software rasterizer fallback and non-zero exit status work reliably (the
-# start-hyprland watchdog exits 0 even when Hyprland fails to start).
+# Detect compositor executable: on Void Linux, prefer start-hyprland (the
+# official Hyprland 0.57 launcher) and fall back to Hyprland directly.
 COMPOSITOR="${ASURA_COMPOSITOR:-}"
 if [ -z "$COMPOSITOR" ]; then
-    if command -v Hyprland >/dev/null 2>&1; then
+    if command -v start-hyprland >/dev/null 2>&1; then
+        COMPOSITOR="start-hyprland"
+    elif command -v Hyprland >/dev/null 2>&1; then
         COMPOSITOR="Hyprland"
     elif command -v hyprland >/dev/null 2>&1; then
         COMPOSITOR="hyprland"
@@ -333,8 +334,6 @@ if [ -z "$COMPOSITOR" ]; then
         COMPOSITOR="/usr/bin/Hyprland"
     elif [ -x /usr/local/bin/Hyprland ]; then
         COMPOSITOR="/usr/local/bin/Hyprland"
-    elif command -v start-hyprland >/dev/null 2>&1; then
-        COMPOSITOR="start-hyprland"
     fi
 fi
 
