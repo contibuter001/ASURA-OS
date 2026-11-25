@@ -220,6 +220,21 @@ if [ "$PACKAGES" -eq 1 ] && [ "$ROOT" = "" ] && command -v xbps-query >/dev/null
 	fi
 fi
 
+# ── Beta system services ─────────────────────────────────────────────────────
+if [ "$ROOT" = "" ]; then
+	mkdir -p /etc/runit/runsvdir/default
+	for svc in socklog-unix nanoklogd earlyoom asura-maintenance; do
+		if [ -d "/etc/sv/$svc" ] && [ ! -e "/etc/runit/runsvdir/default/$svc" ]; then
+			ln -sf "/etc/sv/$svc" "/etc/runit/runsvdir/default/$svc"
+		fi
+	done
+	if grep -qi "GenuineIntel\|Intel" /proc/cpuinfo 2>/dev/null; then
+		if [ -d /etc/sv/thermald ] && [ ! -e /etc/runit/runsvdir/default/thermald ]; then
+			ln -sf /etc/sv/thermald /etc/runit/runsvdir/default/thermald
+		fi
+	fi
+fi
+
 # ── Which commit this system now runs ───────────────────────────────────────
 # asura update compares it with the branch: nothing new, nothing rebuilt.
 if commit=$(git -c safe.directory='*' -C "$REPO" rev-parse HEAD 2>/dev/null); then

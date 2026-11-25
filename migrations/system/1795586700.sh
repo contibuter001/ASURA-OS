@@ -1,5 +1,5 @@
 #!/bin/sh
-# Add the Toren Linux repository signing key if it is missing.
+echo "Add the Toren Linux repository signing key if it is missing"
 
 KEY_FP="86:9a:a2:38:85:e8:65:cb:53:36:a7:ff:b9:08:a6:05"
 KEY_FILE="/var/db/xbps/keys/${KEY_FP}.plist"
