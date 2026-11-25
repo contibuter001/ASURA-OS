@@ -1,7 +1,7 @@
 # Installation, Dual-Boot & Adoption Guide
 
 This document covers all three installation paths in Toren Linux, unattended deployments,
-and converting existing Void Linux systems via `asura adopt`.
+and converting existing Void Linux systems via `toren adopt`.
 
 ---
 
@@ -11,21 +11,21 @@ Toren Linux supports three distinct ways to get the desktop running:
 
 | Path | Command | Use Case | Disk Changes |
 |---|---|---|---|
-| **Clean Install** | `asura install` | Dedicated drive or new machine | Erases disk, creates GPT/ESP, Btrfs subvolumes |
-| **Install Alongside (Dual-Boot)** | `asura install --alongside` | Coexist with Windows or another Linux | Preserves partition table, uses unallocated free space, reuses ESP |
-| **Unattended Install** | `asura install --config FILE` | Automated lab, VM, or CI deployment | Guided by answer file, passwords never logged in plaintext |
-| **Adopt Existing Void** | `asura adopt` | Convert existing Void Linux glibc installation | In-place, reversible with `asura adopt --undo`, atomic backup |
+| **Clean Install** | `toren install` | Dedicated drive or new machine | Erases disk, creates GPT/ESP, Btrfs subvolumes |
+| **Install Alongside (Dual-Boot)** | `toren install --alongside` | Coexist with Windows or another Linux | Preserves partition table, uses unallocated free space, reuses ESP |
+| **Unattended Install** | `toren install --config FILE` | Automated lab, VM, or CI deployment | Guided by answer file, passwords never logged in plaintext |
+| **Adopt Existing Void** | `toren adopt` | Convert existing Void Linux glibc installation | In-place, reversible with `toren adopt --undo`, atomic backup |
 
 ---
 
-## 2. Guided Installer (`asura-installer.sh`)
+## 2. Guided Installer (`toren-installer.sh`)
 
-The guided system installer is located at `installation/asura-installer.sh` and launched via
-`asura install` or the application launcher shortcut.
+The guided system installer is located at `installation/toren-installer.sh` and launched via
+`toren install` or the application launcher shortcut.
 
 ### Flag Reference
 ```sh
-asura-installer [options] [TARGET_DISK]
+toren-installer [options] [TARGET_DISK]
 
 Options:
   --alongside, --dual-boot   Install into contiguous free space alongside existing OS
@@ -100,9 +100,9 @@ sudo asura install --config /path/to/asura-answer.yaml
 
 ---
 
-## 5. Converting an Existing Void Linux Install (`asura adopt`)
+## 5. Converting an Existing Void Linux Install (`toren adopt`)
 
-`asura adopt` installs the Toren desktop shell, portal graph, and services in-place onto an
+`toren adopt` installs the Toren desktop shell, portal graph, and services in-place onto an
 existing Void Linux glibc x86_64 system without reinstalling, repartitioning, or touching the kernel.
 
 ### Commands
@@ -128,4 +128,4 @@ sudo asura adopt --undo
 - **Architecture Check**: Strictly requires `x86_64`.
 - **C Library Check**: Strictly requires `glibc`. Musl installations are refused.
 - **Reversibility**: Generates `/etc/asura/adopt/backup/<timestamp>/restore.sh` and `/etc/asura/adopt/state.json`.
-  Running `asura adopt --undo` restores all replaced files byte-for-byte and unregisters Toren session components.
+  Running `toren adopt --undo` restores all replaced files byte-for-byte and unregisters Toren session components.

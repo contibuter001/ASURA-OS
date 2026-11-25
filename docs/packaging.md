@@ -13,10 +13,10 @@ Package build instructions are stored as templates in `packaging/xbps/`:
 
 | Package Template | Description |
 |---|---|
-| `asura-desktop.template` | Core desktop control binary (`asura`), configuration schemas, session launchers, and runit service scripts. |
-| `asura-shell.template` | Quickshell UI surfaces, theme tokens, widgets, icons, wallpapers, and Hub backend. |
-| `asura-installer.template` | Guided system installer script, desktop launcher, and partition utilities. |
-| `asura-store.template` | Software store CLI data plane (`asura-store`) and catalog manifests. |
+| `asura-desktop.template` | Core desktop control binary (`toren`), configuration schemas, session launchers, and runit service scripts. |
+| `toren-shell.template` | Quickshell UI surfaces, theme tokens, widgets, icons, wallpapers, and Hub backend. |
+| `toren-installer.template` | Guided system installer script, desktop launcher, and partition utilities. |
+| `toren-store.template` | Software store CLI data plane (`toren-store`) and catalog manifests. |
 
 ---
 
@@ -49,7 +49,7 @@ The build workflow is driven by `packaging/xbps/build-repo.sh`.
 ## Target System Configuration
 
 The published repository, how it is signed, and how machines are pointed at it
-are in [`package-repo.md`](package-repo.md). The package is one, `asura`:
+are in [`package-repo.md`](package-repo.md). The package is one, `toren`:
 
 ```sh
 sudo xbps-install -Su          # once the repository is configured

@@ -6,7 +6,7 @@ This document records **decisions, not aspirations**. Where a decision is settle
 and gives the reason. Where a question is open it says that too, so nobody re-litigates a
 closed question or assumes an open one is closed.
 
-Toren Linux is powered by a Void Linux x86_64 (glibc) base layer with runit service supervision and seatd seat management, paired with a bootable Live ISO (`build-iso-void.sh`) and automated installer (`asura install`).
+Toren Linux is powered by a Void Linux x86_64 (glibc) base layer with runit service supervision and seatd seat management, paired with a bootable Live ISO (`build-iso-void.sh`) and automated installer (`toren install`).
 
 ---
 
@@ -17,12 +17,12 @@ Toren Linux is powered by a Void Linux x86_64 (glibc) base layer with runit serv
 | Base | Void Linux x86_64 (glibc) | Minimalist, stable glibc substrate providing complete compatibility for NVIDIA proprietary drivers, Steam, and modern runtimes without systemd overhead. |
 | Init System & Session Supervision | runit (system services) + `asura-user-services` (user desktop services) | Deterministic, lightweight service supervision. System services live in `/etc/sv/`, supervised user desktop daemons live in `~/.config/service/`. |
 | Seat Management | seatd (`LIBSEAT_BACKEND=seatd`) with fallback to elogind | Unprivileged Wayland session DRM master and input claiming without desktop environment bloat. |
-| Filesystem & Storage | Btrfs / ext4 with guided partitioning in installer | Robust root filesystem support with automated partitioning (`installation/asura-installer.sh`). |
+| Filesystem & Storage | Btrfs / ext4 with guided partitioning in installer | Robust root filesystem support with automated partitioning (`installation/toren-installer.sh`). |
 | Disk Encryption & /boot Layout | LUKS2 (argon2id) with unencrypted /boot | Standardized LUKS2 container unlocked during early boot via dracut crypt module. A dedicated unencrypted 1 GiB /boot partition prevents dual-passphrase prompts and allows GRUB to load kernel/initramfs without Argon2 limitations. Snapshot boot entries (`40_asura_snapshots`) boot the active kernel against the restored root snapshot. If a rollback is necessitated by a broken kernel update, the previous kernel package must be held or selected. |
 | Compositor | Hyprland | Toren draws its own shell and does not need a stock one. |
 | Desktop shell | Quickshell (QML) — bar, dock, launcher, popouts, widgets; the lock screen is `hyprlock` and the login screen an SDDM theme. The **engine** is built by Toren; the **surfaces** are vendored open-source Quickshell components, re-themed to Toren's monochrome design language | Compositor-agnostic, proven, and the design language already lives in QML/CSS. The surfaces are upstream's and the re-theme is Toren's. See [the shell](#the-shell) and [vendored upstream components](#vendored-upstream-components). |
-| Control plane & State | Go — `asura`; `asura-sysd` (root daemon at `/run/asura/sysd.sock`); `asura-userd` (user session daemon); `asura-shell`; `asura-hubd`; `asura-wallpaper`; `apm` | Static binaries, cross-compiles cleanly, fast startup, with strong typing and no CGo dependencies. |
-| GPU & Power | `asura gpu` + `prime-run` offload; `asura power` for CPU governor and NVIDIA RTX 3050 D3cold power management | Low power drain on Intel Iris Xe graphics while unlocking high performance discrete NVIDIA GPU on demand. |
+| Control plane & State | Go — `toren`; `toren-sysd` (root daemon at `/run/asura/sysd.sock`); `toren-userd` (user session daemon); `toren-shell`; `toren-hubd`; `toren-wallpaper`; `apm` | Static binaries, cross-compiles cleanly, fast startup, with strong typing and no CGo dependencies. |
+| GPU & Power | `toren gpu` + `prime-run` offload; `toren power` for CPU governor and NVIDIA RTX 3050 D3cold power management | Low power drain on Intel Iris Xe graphics while unlocking high performance discrete NVIDIA GPU on demand. |
 | Terminal | Ghostty, strictly supported and configured by Toren, never kitty | GPU-accelerated and client-side rendered. Zero kitty policy. See [terminal: Ghostty](#terminal-ghostty). |
 | User shell | zsh + starship | fish ships alongside as an alternative. |
 | Editor | Zed | High-performance, GPU-accelerated code editor. |
@@ -122,12 +122,12 @@ violation until it is added:
 | `/usr/share/wayland-sessions/asura.desktop` | Session registration | The login manager scans the fixed `wayland-sessions` directory and nowhere else |
 | `/usr/share/doc/asura/` | The copyright file and the licence texts | XBPS installs package documentation under `/usr/share/doc/<package>/`, and the copyright file is read from there |
 | `/usr/share/glib-2.0/schemas/org.asura.*.gschema.xml` | GSettings schemas | GLib compiles schemas from the fixed schema directory |
-| `/etc/sv/asura-sysd`, `/etc/sv/scx-lavd`, `/etc/sv/ananicy-cpp` (and user services under `~/.config/service/`) | runit service registration | runit supervises services from `/etc/sv/` (system) and `~/.config/service/` (user), and nowhere else |
-| `/usr/share/xdg-desktop-portal/asura-portals.conf` | Portal backend preference | The dispatcher reads it from a fixed directory |
-| `/etc/sddm.conf.d/10-asura.conf` | Login manager preferences, opt-in: no package installs it, and `asura greeter enable` prints the command that does | SDDM reads its drop-ins from a fixed directory beside `/etc/sddm.conf` |
+| `/etc/sv/toren-sysd`, `/etc/sv/scx-lavd`, `/etc/sv/ananicy-cpp` (and user services under `~/.config/service/`) | runit service registration | runit supervises services from `/etc/sv/` (system) and `~/.config/service/` (user), and nowhere else |
+| `/usr/share/xdg-desktop-portal/toren-portals.conf` | Portal backend preference | The dispatcher reads it from a fixed directory |
+| `/etc/sddm.conf.d/10-asura.conf` | Login manager preferences, opt-in: no package installs it, and `toren greeter enable` prints the command that does | SDDM reads its drop-ins from a fixed directory beside `/etc/sddm.conf` |
 | `/boot/grub/grub.cfg` | Boot configuration | The boot loader reads its configuration from the boot volume, which the base layer's kernel packages already write to |
-| `/usr/bin/asura`, `/usr/bin/asura-*`, `/usr/bin/apm`, `/usr/bin/prime-run`, `/usr/bin/fan-profile`, and the helpers `/usr/bin/cliphist-thumbs.sh`, `localsend.sh`, `stash-cobalt-server.sh`, `stash-cobalt.sh`, `stash-compress.sh`, `stash-download.sh`, `stash-install.sh` | The executables: the control tools (`asura`, `asura-shell`, `asura-hubd`, `asura-wallpaper`, `asura-agent`, `asura-store`, `asura-vm`, `apm`, `prime-run`, `fan-profile`), the window launchers, and the helper scripts the shell and the compositor call by bare name | `PATH` resolution looks nowhere else, and the shell runs under a user-level runit supervisor whose `PATH` has no `~/.local/bin`. This is the same constraint the rest of this list describes — a fixed location some other thing looks in — reached from the other direction: the others are files a binary *reads*, these are files the loader *runs*. Nothing about it makes the binary a registration, and nothing about it makes it acceptable for the binaries to be owned by anything but a `asura` package. |
-| `/usr/share/applications/asura-hub.desktop`, `asura-store.desktop`, `btop.desktop`, `asura-vm.desktop` | Desktop entries for the windows Toren adds | The launcher and every other desktop-entry reader scan `XDG_DATA_DIRS/applications` and nowhere else |
+| `/usr/bin/asura`, `/usr/bin/asura-*`, `/usr/bin/apm`, `/usr/bin/prime-run`, `/usr/bin/fan-profile`, and the helpers `/usr/bin/cliphist-thumbs.sh`, `localsend.sh`, `stash-cobalt-server.sh`, `stash-cobalt.sh`, `stash-compress.sh`, `stash-download.sh`, `stash-install.sh` | The executables: the control tools (`toren`, `toren-shell`, `toren-hubd`, `toren-wallpaper`, `toren-agent`, `toren-store`, `toren-vm`, `apm`, `prime-run`, `fan-profile`), the window launchers, and the helper scripts the shell and the compositor call by bare name | `PATH` resolution looks nowhere else, and the shell runs under a user-level runit supervisor whose `PATH` has no `~/.local/bin`. This is the same constraint the rest of this list describes — a fixed location some other thing looks in — reached from the other direction: the others are files a binary *reads*, these are files the loader *runs*. Nothing about it makes the binary a registration, and nothing about it makes it acceptable for the binaries to be owned by anything but a `toren` package. |
+| `/usr/share/applications/toren-hub.desktop`, `toren-store.desktop`, `btop.desktop`, `toren-vm.desktop` | Desktop entries for the windows Toren adds | The launcher and every other desktop-entry reader scan `XDG_DATA_DIRS/applications` and nowhere else |
 | `/usr/share/applications/asura-mimeapps.list` | Default applications for Toren sessions | The XDG mime-apps lookup reads `<desktop>-mimeapps.list` from the data directories. Named for the desktop, it applies to Toren sessions only, and the user's own `mimeapps.list` still wins |
 | `/etc/xbps.d/asura.conf` | First-party XBPS repo registration | XBPS reads repository declarations from `/etc/xbps.d/` and nowhere else |
 | `/etc/udev/rules.d/80-nvidia-pm.rules`, `/etc/udev/rules.d/99-battery-threshold.rules` | Hardware power management and battery udev rules | `udevd` reads hardware event and power management rules from `/etc/udev/rules.d/` |
@@ -139,27 +139,27 @@ violation until it is added:
 
 Content stays inside the two directories: the login surface's own files belong at
 `/usr/share/asura/session/`, and everything SDDM needs to point at belongs there too. The
-login theme is exactly that: it lives at `/usr/share/asura/session/sddm/themes/asura` and the
+login theme is exactly that: it lives at `/usr/share/asura/session/sddm/themes/toren` and the
 opt-in drop-in reaches it through `ThemeDir`, so nothing is placed in SDDM's own theme
 directory. A registration is a pointer, never a place to put content — a file that grows past a
 few lines of pointer belongs under `/usr/share/asura/` with a registration pointing at it.
 
-The list used to carry `/usr/bin/asura-shell` and dropped it, because no such executable
+The list used to carry `/usr/bin/toren-shell` and dropped it, because no such executable
 existed: the shell is a QML configuration read by Quickshell, started by the user-level
 runit supervisor as `quickshell -p /usr/share/asura/shell`, and the binary that runs
-it is Quickshell's. The name has since been given to something real. `/usr/bin/asura-shell` is
+it is Quickshell's. The name has since been given to something real. `/usr/bin/toren-shell` is
 the shell's Go daemon and its command line, covered by the `asura-*` entry above; it is not
 the executable that runs the QML. See [the shell](#the-shell).
 
 **Runtime state is not a package file.** The daemon's socket lives at
-`$XDG_RUNTIME_DIR/asura-shell.sock`, and the wallpaper daemon's and the agent's sit beside it
-(`asura-wallpaper.sock`, `asura-agent.sock`), in the per-user runtime directory. They are not
+`$XDG_RUNTIME_DIR/toren-shell.sock`, and the wallpaper daemon's and the agent's sit beside it
+(`toren-wallpaper.sock`, `toren-agent.sock`), in the per-user runtime directory. They are not
 on the list because they are not files a package installs: each daemon creates its socket at
 run time, in a directory no package writes to, and it goes away when the session ends. A path
 that exists only while the session does cannot be a registration, and a registration is by
 definition a path that exists on every boot.
 
-`asura doctor` reports drift between the registrations and the content they point at, the same
+`toren doctor` reports drift between the registrations and the content they point at, the same
 way it reports drift everywhere else.
 
 ---
@@ -173,14 +173,14 @@ Toren's layers, from bottom up.
 | Kernel, firmware, boot | `system/kernel/`, installer | Pinned fleet, not a single kernel |
 | Base system | Void packages | Unmodified; Toren adds only what it needs |
 | Desktop services | Toren + non-GNOME system services | power-profiles-daemon, pipewire, wireplumber, iwd |
-| Display | Hyprland | Behind a `asura wm` seam so it can be swapped |
+| Display | Hyprland | Behind a `toren wm` seam so it can be swapped |
 | Shell surfaces | Quickshell, over a ported shell tree and a vendored upstream component | Bar, dock, launcher, popouts, widgets, notifications, global shortcuts. The ported components are from the prior project ([`NOTICE.md`](../NOTICE.md)); the vendored ones are upstream's, at a pinned commit; the theme and the settings binding are Toren's. See [vendored upstream components](#vendored-upstream-components) |
-| Shell state & session daemons | `asura-userd` (`~/.config/service/asura-userd`), `asura-shell daemon` (`~/.config/service/asura-shell`) | The user session daemons. `asura-userd` acts as the unprivileged state authority, watching `shell.json` to synchronize GTK/Qt/GSettings/Hyprland themes and bridging calls to root; `asura-shell` provides streaming shell telemetry |
-| System daemon & root control | `asura-sysd` (`/etc/sv/asura-sysd`, socket at `/run/asura/sysd.sock`) | The privileged root daemon. One Unix socket, line-framed JSON: handles hardware profiles, power states, battery charging thresholds, backlight fallback, and XBPS package transactions without sudo |
-| Settings store | GSettings / dconf, and `shell.json` | One writer per setting (`asura config set`, `asura-userd`, `asura-shell`) |
-| Control tools | `asura`, `asura-shell`, `asura-hubd`, `asura-userd`, `asura-sysd` | The only writers |
+| Shell state & session daemons | `toren-userd` (`~/.config/service/toren-userd`), `toren-shell daemon` (`~/.config/service/toren-shell`) | The user session daemons. `toren-userd` acts as the unprivileged state authority, watching `shell.json` to synchronize GTK/Qt/GSettings/Hyprland themes and bridging calls to root; `toren-shell` provides streaming shell telemetry |
+| System daemon & root control | `toren-sysd` (`/etc/sv/toren-sysd`, socket at `/run/asura/sysd.sock`) | The privileged root daemon. One Unix socket, line-framed JSON: handles hardware profiles, power states, battery charging thresholds, backlight fallback, and XBPS package transactions without sudo |
+| Settings store | GSettings / dconf, and `shell.json` | One writer per setting (`toren config set`, `toren-userd`, `toren-shell`) |
+| Control tools | `toren`, `toren-shell`, `toren-hubd`, `toren-userd`, `toren-sysd` | The only writers |
 | Portals | `xdg-desktop-portal-hyprland` + `-gtk` | See below |
-| Updates | `asura update` · `rollback` · `doctor` | Overlay model |
+| Updates | `toren update` · `rollback` · `doctor` | Overlay model |
 
 ---
 
@@ -239,7 +239,7 @@ competes with the shell.
 **The configuration had been quietly wrong the whole time.** `portals.conf` named
 `gtk` for Secret. gtk is installed, gtk's `.portal` file is present and readable,
 and gtk does not implement Secret — so every other check passed, the file read as
-though the interface were handled, and the gap stayed open. `asura doctor` now
+though the interface were handled, and the gap stayed open. `toren doctor` now
 reads each named backend's own `.portal` file and reports an interface the
 backend cannot serve.
 
@@ -249,7 +249,7 @@ An application that works on a stock desktop must work on Toren. That now holds 
 interface this desktop exposes, including Secret. A hardware report should ask contributors to
 confirm portal behaviour, and a portal regression is a distribution-wide bug, not a cosmetic one.
 
-`asura doctor` must assert that the portal configuration file is actually being read: the
+`toren doctor` must assert that the portal configuration file is actually being read: the
 per-desktop file name is derived from `XDG_CURRENT_DESKTOP`, and a session that does not
 declare itself correctly falls back to `portals.conf` and silently uses the wrong backends.
 
@@ -260,7 +260,7 @@ configuration that looked correct: `Secret` named `gtk`, which does not implemen
 
 Interfaces and portal capabilities:
 
-- **Camera.** Settled: Camera capture is PipeWire's job. Camera is not an independent backend interface: `desktop-portal/camera.c` is part of the `xdg-desktop-portal` binary itself, which implements camera streaming over PipeWire and requests consent through an **Access** backend. Because `asura-portals.conf` maps `Access=gtk`, `xdg-desktop-portal` asks GTK for user camera consent and streams camera feeds directly via PipeWire. Flatpaks and sandboxed apps prompt for camera access and work out of the box.
+- **Camera.** Settled: Camera capture is PipeWire's job. Camera is not an independent backend interface: `desktop-portal/camera.c` is part of the `xdg-desktop-portal` binary itself, which implements camera streaming over PipeWire and requests consent through an **Access** backend. Because `toren-portals.conf` maps `Access=gtk`, `xdg-desktop-portal` asks GTK for user camera consent and streams camera feeds directly via PipeWire. Flatpaks and sandboxed apps prompt for camera access and work out of the box.
 - **Notifications.** With no notification daemon in the image, the shell hosts the
   notification server.
 
@@ -311,28 +311,28 @@ rule is what makes rollback possible.
 
 | Command | Does |
 |---|---|
-| `asura update` | snapshot `~/.config` to git, pull `dev-unstable` and apply it with `installation/apply-repo.sh` (everything the ISO installs from the repo, the Go tools rebuilt, packages new in the manifest), update xbps packages, re-materialize base, repaint |
-| `asura refresh` | apply installed changes to the running session: re-sync user services, `hyprctl reload`, restart the shell and Toren's daemons (the last step of `asura update`) |
-| `asura migrate` | run the one-time fixes (`migrations/`) this machine and user have not run yet; `asura update` runs it after applying Toren (see `docs/migrations.md`) |
-| `asura rollback` | re-materialize the previous revision |
+| `toren update` | snapshot `~/.config` to git, pull `dev-unstable` and apply it with `installation/apply-repo.sh` (everything the ISO installs from the repo, the Go tools rebuilt, packages new in the manifest), update xbps packages, re-materialize base, repaint |
+| `toren refresh` | apply installed changes to the running session: re-sync user services, `hyprctl reload`, restart the shell and Toren's daemons (the last step of `toren update`) |
+| `asura migrate` | run the one-time fixes (`migrations/`) this machine and user have not run yet; `toren update` runs it after applying Toren (see `docs/migrations.md`) |
+| `toren rollback` | re-materialize the previous revision |
 | `asura snapshot` | list system (Btrfs) snapshots with their date, reason and Toren commit, or take one; taken automatically before system updates and before package installs (`asura-pkg-add`) |
-| `asura enable` / `disable` | switch an optional service (docker, bluetooth, printing, ssh, libvirt, tailscale) on or off: package, runit link, group |
-| `asura channel set` | pin what updates follow: `stable` (main) or `unstable` (dev-unstable, the default), in `/etc/asura/channel`, which updates keep |
+| `toren enable` / `disable` | switch an optional service (docker, bluetooth, printing, ssh, libvirt, tailscale) on or off: package, runit link, group |
+| `toren channel set` | pin what updates follow: `stable` (main) or `unstable` (dev-unstable, the default), in `/etc/asura/channel`, which updates keep |
 | `asura firmware` / `clean` | firmware updates through fwupd; remove orphaned packages and the package cache |
-| `asura notify-updates` | one check for the desktop notice (update available, reboot needed), run by the `asura-updates` user service every 6 hours |
+| `asura notify-updates` | one check for the desktop notice (update available, reboot needed), run by the `toren-updates` user service every 6 hours |
 | `asura bundle` | curated app sets in one command (gaming, dev, editors, apps, creative, office), with a snapshot first |
-| `asura theme set` | switch the desktop to a named look (`shell-desktop/asura/themes.json`) |
-| `asura kernel` | list, set or remove Void Linux kernel series (`linux`, `linux-lts`, `linux-mainline`), update GRUB default, keep fallback entry, and verify NVIDIA DKMS headers |
-| `asura vm` | manage virtual machines via `asura-vmd` and quickemu, including guided Windows 11 setup (`asura vm windows`) with TPM 2.0 and UEFI |
-| `asura hook` | execute user extension scripts in `~/.config/asura/hooks/<event>/` (`pre-update`, `post-update`, `post-theme`, `post-login`), logged to `~/.local/state/asura/hooks.log` |
-| `asura share` | send and receive files across Tailscale network via Taildrop with desktop notification into `~/Downloads` |
+| `toren theme set` | switch the desktop to a named look (`shell-desktop/toren/themes.json`) |
+| `toren kernel` | list, set or remove Void Linux kernel series (`linux`, `linux-lts`, `linux-mainline`), update GRUB default, keep fallback entry, and verify NVIDIA DKMS headers |
+| `toren vm` | manage virtual machines via `toren-vmd` and quickemu, including guided Windows 11 setup (`toren vm windows`) with TPM 2.0 and UEFI |
+| `toren hook` | execute user extension scripts in `~/.config/asura/hooks/<event>/` (`pre-update`, `post-update`, `post-theme`, `post-login`), logged to `~/.local/state/asura/hooks.log` |
+| `toren share` | send and receive files across Tailscale network via Taildrop with desktop notification into `~/Downloads` |
 | `asura manual` | the user manual (`docs/manual`, installed at `/usr/share/doc/asura/manual`) |
 | `asura mirror` | choose the Void mirror (`list`, `fastest`, `set`, `reset`), written to `/etc/xbps.d/00-asura-mirror.conf`, which updates keep |
-| `asura materialize <path>` | re-lay the base file, clobbering shipped content |
-| `asura reset <path>` | drop one overlay file back to the base |
-| `asura doctor` | report drift between base and overlay |
+| `toren materialize <path>` | re-lay the base file, clobbering shipped content |
+| `toren reset <path>` | drop one overlay file back to the base |
+| `toren doctor` | report drift between base and overlay |
 
-A user override always wins at its mirrored path, and `asura update` can never clobber it.
+A user override always wins at its mirrored path, and `toren update` can never clobber it.
 This is the discipline that makes the rest of the system safe to automate.
 
 ---
@@ -349,12 +349,12 @@ catalogue needs.
   desktop reads
 - `org.asura.shell` — the keys adoption imports into, among them the wallpaper paths and the
   favourites. The ported shell takes its look from `shell.json` instead, so every key of this
-  schema is on the list of unread settings in `desktop/internal/hub`; `asura-wallpaper` reads
+  schema is on the list of unread settings in `desktop/internal/hub`; `toren-wallpaper` reads
   the wallpaper paths once, to choose a fresh account's first wallpaper
 
-`asura config set` is their only writer, and it validates a value against the key's type,
+`toren config set` is their only writer, and it validates a value against the key's type,
 range and enum before it reaches dconf. Hand-editing dconf directly causes drift and
-`asura doctor` reports it.
+`toren doctor` reports it.
 
 **`~/.config/asura/shell.json`** is the shell's look and desktop styling: the theme, icon theme,
 font and size, dark mode flag, corner radius, gaps, bar style, dock position, interface scale,
@@ -362,22 +362,22 @@ and power mode.
 
 The session and system daemons form a clear division of responsibility:
 
-- **`asura-userd`** runs as the unprivileged user session daemon under `~/.config/service/asura-userd`.
+- **`toren-userd`** runs as the unprivileged user session daemon under `~/.config/service/toren-userd`.
   It acts as the single state authority for desktop appearance: it watches `shell.json` for changes
   and propagates styling synchronously to GTK3 (`~/.config/gtk-3.0/settings.ini`), GTK4
   (`~/.config/gtk-4.0/settings.ini`), Qt6 (`~/.config/kdeglobals`), GSettings schemas, and Hyprland
   appearance variables. It also serves as the IPC bridge between unprivileged shell components and
   the root system daemon.
-- **`asura-sysd`** runs as the privileged root daemon under `/etc/sv/asura-sysd`, supervised by runit.
+- **`toren-sysd`** runs as the privileged root daemon under `/etc/sv/toren-sysd`, supervised by runit.
   It listens on the root Unix domain socket at `/run/asura/sysd.sock`. Whenever the user session
-  or the `asura` CLI requests privileged hardware operations (such as switching power profiles via
+  or the `toren` CLI requests privileged hardware operations (such as switching power profiles via
   sysfs/TLP/EPP, setting battery charge thresholds, driving backlight adjustments, or triggering
-  package queries/transactions), the request is forwarded to `asura-sysd`. This allows secure,
+  package queries/transactions), the request is forwarded to `toren-sysd`. This allows secure,
   deterministic root operations without invoking `sudo` or triggering interactive polkit prompts.
-- **`asura-shell daemon`** runs under `~/.config/service/asura-shell` and streams real-time desktop
+- **`toren-shell daemon`** runs under `~/.config/service/toren-shell` and streams real-time desktop
   telemetry (volume, network status, battery, Bluetooth, workspaces) to Quickshell over
-  `$XDG_RUNTIME_DIR/asura-shell.sock`. The Hub and settings surfaces apply styling updates by
-  patching `shell.json`, which `asura-userd` immediately picks up and manifests across all toolkits.
+  `$XDG_RUNTIME_DIR/toren-shell.sock`. The Hub and settings surfaces apply styling updates by
+  patching `shell.json`, which `toren-userd` immediately picks up and manifests across all toolkits.
 
 ---
 
@@ -392,14 +392,14 @@ label and a category for every chord. The claim is the one the check exists to k
 > a function the shell's `IpcHandler` defines.
 
 A claim about two lists is only true if somebody compares them, and the comparison is
-`asura doctor`'s. It reports a catalogue chord with no bind, a bind with no catalogue entry,
+`toren doctor`'s. It reports a catalogue chord with no bind, a bind with no catalogue entry,
 and a call to a function the shell does not have. All three are silent at run time: a keybind
 that names a function the shell has not got runs, the command succeeds, and no launcher opens,
 which is what a user reports as "the shortcut stopped working" and what nothing in the journal
 explains.
 
-The catalogue is read by the shell through `asura binds` rather than off the file, for the same
-reason the settings catalogue is read through `asura config export`: a file read twice is read
+The catalogue is read by the shell through `toren binds` rather than off the file, for the same
+reason the settings catalogue is read through `toren config export`: a file read twice is read
 by two pieces of code, and the two agree until the day one of them is changed. The Go side
 owns the format, and the shell asks it.
 
@@ -423,7 +423,7 @@ same way. The separator is the compositor's constraint and not a style choice.
 > no QML PAM API and that a shell-drawn lock would accept any password, was wrong.
 >
 > So the division is: **when** locking happens is `hypridle`'s, run by the user-level
-> `asura-idle` runit service from `org.asura.desktop`'s `idle-*` keys, and `asura-shell lock`
+> `toren-idle` runit service from `org.asura.desktop`'s `idle-*` keys, and `toren-shell lock`
 > is the one command every trigger runs; `hyprlock` does the locking; the shell only draws
 > the dim scrim (`Idle.qml`).
 > hyprlock is in the archive, which under the base-layer rule settles it — the base layer
@@ -470,22 +470,22 @@ taken rather than a fork Toren has made. The two departures from the base-layer 
 now of different kinds and are recorded separately: one is a binary Toren compiles, the
 other is source Toren adopts.
 
-**`asura-shell` is the daemon; the user-level runit supervisor starts it as `asura-shell
-daemon`.** Two things in this project were called `asura-shell`, and they were not the same
+**`toren-shell` is the daemon; the user-level runit supervisor starts it as `toren-shell
+daemon`.** Two things in this project were called `toren-shell`, and they were not the same
 thing, which is the kind of collision that produces a bug report rather than a fix. The name
 was once the package that builds Quickshell; it now belongs to the shell's Go daemon.
-`/usr/bin/asura-shell` is that binary: `asura-shell daemon` is what the runit supervisor
-runs, and every other `asura-shell <verb>` (`lock`, `hub open`, `reload`, `icons`) is a
+`/usr/bin/toren-shell` is that binary: `toren-shell daemon` is what the runit supervisor
+runs, and every other `toren-shell <verb>` (`lock`, `hub open`, `reload`, `icons`) is a
 client that sends one line to it. The shell's own configuration is `/usr/share/asura/shell/`,
-read by `quickshell -p /usr/share/asura/shell` from the runit service. So `asura-shell`
+read by `quickshell -p /usr/share/asura/shell` from the runit service. So `toren-shell`
 serves the shell's state and Quickshell is the engine that draws it. The Ubuntu-era manifest's `asura_built:` key no longer exists: the Void manifest (`system/packages-void.yaml`) lists only repository packages, and `system/verify-packages.py` checks every one of them resolves in the configured XBPS repositories.
 
-The wire protocol the daemon speaks keeps the name `asura-shell/1`, after the shell it
+The wire protocol the daemon speaks keeps the name `toren-shell/1`, after the shell it
 serves rather than after the process that implements it. A protocol name that changed with
 its implementation would break every client that had already learned it, and the shell is
 the thing that will still be there when the daemon is replaced. Its framing is the topic
-stream and the `call` of `desktop/cmd/asura-shell/CONTRACT.md`, over
-`$XDG_RUNTIME_DIR/asura-shell.sock`; [`shell-daemon.md`](shell-daemon.md) says how it runs.
+stream and the `call` of `desktop/cmd/toren-shell/CONTRACT.md`, over
+`$XDG_RUNTIME_DIR/toren-shell.sock`; [`shell-daemon.md`](shell-daemon.md) says how it runs.
 
 The test matrix question stays open — see [open questions](#open-questions) — and the
 re-vendoring cost has joined it. A shell Toren builds is a shell Toren has to rebuild when
@@ -554,7 +554,7 @@ What Ghostty brings that a stock terminal does not, and why it is the terminal:
 | Shell integration | OSC 133 prompt marking, hyperlink handling, clickable paths |
 | Tab and split configuration | Tabs and splits configured declaratively, per config rather than per menu |
 | `ghostty +…` CLI | `ghostty +show-config`, `ghostty +list-fonts`, `ghostty +version` — the config is inspectable and scriptable rather than a GUI-only surface |
-| Single config file | `~/.config/ghostty/config`, which sits under Toren's overlay like everything else, so `asura update` cannot clobber it |
+| Single config file | `~/.config/ghostty/config`, which sits under Toren's overlay like everything else, so `toren update` cannot clobber it |
 
 Default font: **JetBrains Mono** — for the terminal's own text. A Nerd Font variant is
 bundled in `shell/assets/fonts/` for the devicon and powerline glyphs the shell's dock and
@@ -569,7 +569,7 @@ zsh is the shell, starship is the prompt, and Ghostty is where they meet.
 - Ghostty's zsh integration is sourced from `~/.zshrc`, guarded so a non-Ghostty terminal does
   not error on the missing file
 - `starship` renders the prompt; its configuration lives under Toren's overlay like everything
-  else, so `asura update` cannot clobber it
+  else, so `toren update` cannot clobber it
 - fish ships alongside zsh for users who prefer it; neither is the default
 - blesh does not ship, and this is a decision rather than an omission. It is absent from every
   component of the base layer, and it belongs with mise, fnm and uv in the setup step's offer: an
@@ -735,8 +735,8 @@ org.asura.shell  →  the settings bridge  →  upstream's Config.options.*  →
   shape from the store, so a vendored component asks for a setting the way upstream taught it
   to and gets Toren's value.
 - The **surface** binds to the property and redraws. It never writes.
-- The **writer** is `asura config set`, which the Hub calls, and nothing else. A vendored
-  component binds; it does not write. `asura config set` validates the
+- The **writer** is `toren config set`, which the Hub calls, and nothing else. A vendored
+  component binds; it does not write. `toren config set` validates the
   value against the schema's type, range and enum before it is stored — because a value that
   is well-formed GVariant and outside a declared range is accepted by GSettings, committed to
   dconf, and then read by a surface that does something nobody asked for.
@@ -794,11 +794,11 @@ against.
 | Capability | Owner | Why |
 |---|---|---|
 | The notification server | **Toren** | `org.freedesktop.Notifications` is a session-scoped bus name and no daemon in the image holds it, so the shell draws it and hosts the server |
-| The lock screen | **Toren** owns when; `hyprlock` does the locking | `hypridle`, run by the user-level runit service `~/.config/service/asura-idle` from the `org.asura.desktop` `idle-*` keys, decides *when*, and `asura-shell lock` is the one command every trigger runs; the locker owns the surface and the PAM conversation. `hyprlock` is a decision (mature, in the archive, a process of its own), not a platform limit: Quickshell here has `Quickshell.Services.Pam` |
-| The idle policy | **Toren** | The timeouts live in `org.asura.desktop`, `asura config set` is their only writer, and `~/.config/service/asura-idle` hands them to hypridle |
-| The keybind catalogue | **Toren** | `session/binds.json`, installed at `/usr/share/asura/session/binds.json`, checked in both directions against the compositor's configuration by `asura doctor` |
-| The Hub | **Toren** | The settings application: a ported Hub (`shell/hub/`) — a grouped navigation rail, a global search and a page per area of the desktop. The look pages change `shell.json` by asking the `asura-shell` daemon, the compositor and machine pages go through `asura-hubd`, and the **Toren** group draws what `asura config export` hands it (the pages, the keys, their types, their permitted values, their ranges and their current values) and writes only through `asura config set`, never through GSettings. Its chrome is the shell's own component kit, so both windows are one design system |
-| The wallpaper | **Toren** | `asura-wallpaper` chooses it (the catalogue, the choice per output, playlists, the day/night schedule) and the shell's own surface draws what the daemon publishes. `org.asura.shell`'s `wallpaper-path` and `wallpaper-path-dark` only seed a fresh account's first wallpaper |
+| The lock screen | **Toren** owns when; `hyprlock` does the locking | `hypridle`, run by the user-level runit service `~/.config/service/toren-idle` from the `org.asura.desktop` `idle-*` keys, decides *when*, and `toren-shell lock` is the one command every trigger runs; the locker owns the surface and the PAM conversation. `hyprlock` is a decision (mature, in the archive, a process of its own), not a platform limit: Quickshell here has `Quickshell.Services.Pam` |
+| The idle policy | **Toren** | The timeouts live in `org.asura.desktop`, `toren config set` is their only writer, and `~/.config/service/toren-idle` hands them to hypridle |
+| The keybind catalogue | **Toren** | `session/binds.json`, installed at `/usr/share/asura/session/binds.json`, checked in both directions against the compositor's configuration by `toren doctor` |
+| The Hub | **Toren** | The settings application: a ported Hub (`shell/hub/`) — a grouped navigation rail, a global search and a page per area of the desktop. The look pages change `shell.json` by asking the `toren-shell` daemon, the compositor and machine pages go through `toren-hubd`, and the **Toren** group draws what `toren config export` hands it (the pages, the keys, their types, their permitted values, their ranges and their current values) and writes only through `toren config set`, never through GSettings. Its chrome is the shell's own component kit, so both windows are one design system |
+| The wallpaper | **Toren** | `toren-wallpaper` chooses it (the catalogue, the choice per output, playlists, the day/night schedule) and the shell's own surface draws what the daemon publishes. `org.asura.shell`'s `wallpaper-path` and `wallpaper-path-dark` only seed a fresh account's first wallpaper |
 | The palette, the settings binding, the shell's own state | **Toren** | The three overlays, at upstream's paths |
 | The bar, the dock, the launcher and the popover surfaces | **upstream** | The components, byte-identical to the pinned commit |
 | The overview, the media controls, the on-screen display, the cheatsheet | **upstream** | The components, byte-identical to the pinned commit |
@@ -832,7 +832,7 @@ tier is determined by whether a profile exists, not by marketing.
 every laptop, but every user can test one:
 
 1. A machine boots successfully
-2. `asura hardware report` emits a candidate profile
+2. `toren hardware report` emits a candidate profile
 3. The contributor attaches it to a pull request
 4. Merged profiles ship in the next ISO and are selected automatically at install time
 
@@ -941,7 +941,7 @@ rather than inherited from a draft.
 - **void-mklive** (`installation/build-iso-void.sh`) as the ISO builder. Declarative,
   reproducible, and it ships in Void Linux. It produces a hybrid ISO that boots from
   both BIOS and UEFI.
-- **`asura install`** (`installation/asura-installer.sh`) as the installer UI. A guided
+- **`toren install`** (`installation/toren-installer.sh`) as the installer UI. A guided
   graphical installer that partitions the disk, installs the rootfs, and writes the
   `fstab` in the new root.
 - **GRUB EFI** as the boot chain, on a separate ESP with its own `/boot`. The installer
@@ -993,7 +993,7 @@ The chain, in the order it happens at login:
 | Something holds the DRM card | Toren's greeter wrapper | `weston --shell=kiosk`, run at each output's top mode so the login screen matches a high-refresh session instead of the EDID-preferred 60Hz |
 | Login form is drawn | Toren | Toren's own login surface, on the compositor above |
 | Authentication | the base layer | PAM, in `sddm-session`. Toren does not touch `/etc/pam.d/` |
-| Session starts | `asura-session` | `exec Hyprland`, then the runit service supervisor starts the shell |
+| Session starts | `toren-session` | `exec Hyprland`, then the runit service supervisor starts the shell |
 
 **Why SDDM and not `greetd`.** The greeter needs a Wayland compositor of its own, because
 there is no session to borrow one from. SDDM provides that seam — a `CompositorCommand` hook —
@@ -1067,7 +1067,7 @@ technical rather than rhetorical. SDDM's Wayland greeter mode needs a compositor
 login surface, the base layer carries one, and the only question left was who hosts it. A
 kiosk Weston is a process that starts at login and exits at logout, it needs no session, and
 it lets the login surface be drawn by the same toolkit the desktop is drawn by. Toren's copy
-must be its own — a `asura-greeter` wrapper and an Toren-drawn login surface, under a
+must be its own — a `toren-greeter` wrapper and an Toren-drawn login surface, under a
 drop-in in `/etc/sddm.conf.d/` — because a shipped file is never edited in place.
 
 ---
@@ -1136,8 +1136,8 @@ logind support. Reading works unprivileged, writing does not.
 **This is settled, and the answer is multi-tiered:**
 When `elogind` is active, it writes it directly: `org.freedesktop.login1.Session.SetBrightness(subsystem, name, value)`
 sets the value, as root, for the owner of the active session, for both `backlight` and `leds`.
-When running under pure `seatd` (without `elogind`), `asura brightness` probes `brightnessctl`, then direct sysfs
-writes if writable, and falls back seamlessly to `asura-sysd` via `/run/asura/sysd.sock`. `asura-sysd` runs as root
+When running under pure `seatd` (without `elogind`), `toren brightness` probes `brightnessctl`, then direct sysfs
+writes if writable, and falls back seamlessly to `toren-sysd` via `/run/asura/sysd.sock`. `toren-sysd` runs as root
 under runit and writes to the appropriate `/sys/class/backlight/<device>/brightness` file on behalf of the user session.
 The keys, the daemon, and the sliders all go through it as `asura-cmd-brightness`. It needs no group membership,
 no fragile desktop udev hacks, and no interactive authentication prompts on every brightness change. See [`hardware-keys.md`](hardware-keys.md).
@@ -1194,16 +1194,16 @@ same press ([the journal](journal/2026-10-23.md)).
 
 ## Why the shell subscribes to a daemon
 
-`asura state` probes five command-line tools and the sidebar redraws from its JSON.
+`toren state` probes five command-line tools and the sidebar redraws from its JSON.
 Every other widget in the shell reads a Quickshell service singleton instead —
 `PulseAudio.sinks` in `Widgets/Volume.qml`, `NetworkManager.status` in
 `Widgets/Network.qml`, `Hyprland.workspaces` in `Widgets/Workspaces.qml`. Those are
 event-driven and they push changes; this pulled and re-ran five subprocesses every
 two seconds.
 
-It does not any more. The daemon is `asura-shell daemon`, run under `~/.config/service/asura-shell`: a streaming
-Go daemon that speaks `asura-shell/1` — line-framed JSON over a Unix socket at
-`$XDG_RUNTIME_DIR/asura-shell.sock` — and the shell subscribes to the topics it publishes.
+It does not any more. The daemon is `toren-shell daemon`, run under `~/.config/service/toren-shell`: a streaming
+Go daemon that speaks `toren-shell/1` — line-framed JSON over a Unix socket at
+`$XDG_RUNTIME_DIR/toren-shell.sock` — and the shell subscribes to the topics it publishes.
 The daemon runs its collectors on a schedule it owns and pushes a frame when something
 changes. The live shell no longer polls: the two-second timer is in the old sidebar
 (`shell/Sidebar.qml`), which `shell/shell.qml` does not load.
@@ -1219,7 +1219,7 @@ The argument underneath the change is the one that was already true and is still
 2. **The parsing stays in Go.** A daemon is not a licence to move the parsers into QML. The
    collectors and their fixtures are the daemon's, and the shell reads a frame rather than
    interpreting a tool's output.
-3. **`asura state` survives as a CLI.** It is a command, it is useful at a terminal, in a
+3. **`toren state` survives as a CLI.** It is a command, it is useful at a terminal, in a
    script, and to anything that is not Quickshell. It still probes its five tools through
    `desktop/internal/desktopstate`, which the daemon does not use: the daemon is a port of
    the prior project's and has collectors of its own, so the two are separate implementations.
@@ -1237,8 +1237,8 @@ where the document is drawn.
 | ~~**The Camera portal**~~ | **Settled** — and not the way it looked. No backend implements `org.freedesktop.portal.Camera`, which reads as "nobody wrote one". But Camera is not a backend interface: `desktop-portal/camera.c` is part of the `xdg-desktop-portal` binary, which implements it over PipeWire and asks an **Access** backend for consent first. Access was falling to `[default] use=hyprland`, and Hyprland does not implement Access, so the dispatcher's own Camera portal could never obtain consent. Naming `Access` → `gtk` is the whole fix. See [the portal seam](#the-portal-seam). |
 | ~~**The icon font**~~ | **Settled** — `font-awesome` (4.7, 1.4 MB, no dependencies) for the status area and settings surfaces, and `fonts-powerline` for bar separators. Both from the archive, so the boundary holds and Toren does not become the distributor of a font blob. No Nerd Font is involved. See the `fonts-and-icons` group in [`system/packages-void.yaml`](../system/packages-void.yaml). |
 | Repository hosting | Toren's XBPS repository and ISO hosting need a home. GitHub Pages serves static files; a package repo wants object storage. |
-| ~~**Plugin mechanism**~~ | **Settled** — a plugin is a folder with a `manifest.json`, a `service/Main.qml` for the logic and a `content/Widget.qml` for the one view, drawn through the `qs.PluginKit` kit. `asura plugin new`, `audit`, `install`, `enable`, `disable`, `remove` and `list` scaffold, check and place it, the plugin runtime in `shell/plugins/` loads it, and it lives in `~/.local/share/asura/plugins/`. See [`plugins.md`](plugins.md). A package index for plugins is not built. |
-| Hardware report scope | What `asura hardware report` captures, and how aggressively it strips PII before emitting. |
+| ~~**Plugin mechanism**~~ | **Settled** — a plugin is a folder with a `manifest.json`, a `service/Main.qml` for the logic and a `content/Widget.qml` for the one view, drawn through the `qs.PluginKit` kit. `toren plugin new`, `audit`, `install`, `enable`, `disable`, `remove` and `list` scaffold, check and place it, the plugin runtime in `shell/plugins/` loads it, and it lives in `~/.local/share/asura/plugins/`. See [`plugins.md`](plugins.md). A package index for plugins is not built. |
+| Hardware report scope | What `toren hardware report` captures, and how aggressively it strips PII before emitting. |
 | The prior project's hardware tuning | Toren ports none of the per-machine tuning (udev, NetworkManager, Bluetooth, GPU, power) that the desktop it was ported from ships under `system/hardware/`; the hardware profiles own that job. Whether some of it should return as profile content is the user's decision. See [the hard list](#the-hard-list). |
 | ISO firmware policy | Whether one ISO carries firmware or firmware is fetched at install time. See [firmware and free software](#firmware-and-free-software). |
 | Test matrix | Which Hyprland, Quickshell and kernel versions CI must pass before a release. |

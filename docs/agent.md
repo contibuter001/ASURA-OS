@@ -1,43 +1,43 @@
 # Toren Agent
 
-Toren Agent (`asura-agent`) connects local coding assistants and resident agents directly to the
-Toren Linux desktop and system state. It lives in `desktop/cmd/asura-agent` and provides both the
+Toren Agent (`toren-agent`) connects local coding assistants and resident agents directly to the
+Toren Linux desktop and system state. It lives in `desktop/cmd/toren-agent` and provides both the
 CLI wiring harness for local coding agents and the knowledge skill suite.
 
 ---
 
 ## The CLI Wiring Harness
 
-The `asura-agent` binary automatically detects, wires, and inspects agent harnesses installed on
+The `toren-agent` binary automatically detects, wires, and inspects agent harnesses installed on
 the machine.
 
 ### Commands
 
 ```sh
 # Report detection in PATH and skill wiring status for all supported agents
-asura-agent status [--json]
+toren-agent status [--json]
 
 # Symlink the Toren skill suite into all or a specific agent
-asura-agent wire [agent]
+toren-agent wire [agent]
 
-# Wire every supported agent that is installed (asura-session runs this at login)
-asura-agent wire --installed
+# Wire every supported agent that is installed (toren-session runs this at login)
+toren-agent wire --installed
 
 # Remove the Toren skill symlink from all or a specific agent
-asura-agent unwire [agent]
+toren-agent unwire [agent]
 ```
 
-`asura-agent` is installed with the system (`/usr/bin/asura-agent`), and every login wires the
+`toren-agent` is installed with the system (`/usr/bin/toren-agent`), and every login wires the
 skills into the assistants that are on PATH, so OpenCode (shipped in the ISO) knows Toren out of
 the box. Assistants that are not installed get no folders.
 
 ### The shell panels (`ask`, `chat`)
 
-Toren's own shell has a quick-ask panel and a chat panel that run `asura-agent ask` and
-`asura-agent chat`. Toren does not ship a resident assistant, so these hand the question to
+Toren's own shell has a quick-ask panel and a chat panel that run `toren-agent ask` and
+`toren-agent chat`. Toren does not ship a resident assistant, so these hand the question to
 OpenCode in a terminal (`asura-app terminal -- opencode`) and answer in the panels' line
 protocols (`@answer {json}` for ask; JSON lines ending in `{"type":"done"}` for chat), instead of
-failing. `asura-agent chat --skills` lists the wired skills.
+failing. `toren-agent chat --skills` lists the wired skills.
 
 ### Supported Agents
 
@@ -58,18 +58,18 @@ and runit system shims (`shell/agent/skills/systemd-bridge`).
 The skills located in `shell/agent/skills/` (and staged to `/usr/share/asura/shell/agent/skills/` on
 installed systems) expose deep OS integration to coding agents:
 
-- **`asura`**: the system skill. `SKILL.md` sets the rules (never edit shipped files, user files
+- **`toren`**: the system skill. `SKILL.md` sets the rules (never edit shipped files, user files
   and commands instead) and routes to:
   - `desktop.md`: the default desktop: its settings file, Hyprland files, keybind functions,
     and the overlay rule for changing desktop code.
-  - `update.md`: `asura update`, the CI gate, `--check`/`--wait`/`--force`, rollback.
-  - `store.md`: installing apps, themes and plugins with `asura-store`.
-  - `diagnostics.md`: `asura doctor --json`, logs, runit services, a desktop that will not load.
-  - `bar.md`, `gui.md`, `plugins.md`: Toren's own shell (`desktop-shell` = `asura`) only.
+  - `update.md`: `toren update`, the CI gate, `--check`/`--wait`/`--force`, rollback.
+  - `store.md`: installing apps, themes and plugins with `toren-store`.
+  - `diagnostics.md`: `toren doctor --json`, logs, runit services, a desktop that will not load.
+  - `bar.md`, `gui.md`, `plugins.md`: Toren's own shell (`desktop-shell` = `toren`) only.
 - **`systemd-bridge`**: Bridges traditional `systemctl` and `journalctl` invocations to native
   Void Linux `runit` (`sv`) and `svlogd` logging structures.
 
-A Go test (`desktop/cmd/asura/skills_commands_test.go`) fails when a skill names an `asura`
+A Go test (`desktop/cmd/toren/skills_commands_test.go`) fails when a skill names an `toren`
 subcommand or `asura-*` tool that does not exist, so the skills cannot drift from the commands.
 
 ---

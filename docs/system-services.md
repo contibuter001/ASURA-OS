@@ -4,19 +4,19 @@ The system-level services every Toren install ships with and starts at boot. Pac
 listed in [`system/packages-void.yaml`](../system/packages-void.yaml). Services are linked
 into `/etc/runit/runsvdir/default` by the same loop in
 [`installation/build-iso-void.sh`](../installation/build-iso-void.sh) (live ISO) and
-[`installation/asura-installer.sh`](../installation/asura-installer.sh) (installed system).
+[`installation/toren-installer.sh`](../installation/toren-installer.sh) (installed system).
 `installation/build-iso-void_test.sh` fails if either list drops one of them.
 
 | Need | Package | Runit service | Notes |
 |---|---|---|---|
-| Clock sync | `chrony` | `chronyd` | Without it the clock drifts until TLS, `asura update` and package signature checks fail |
+| Clock sync | `chrony` | `chronyd` | Without it the clock drifts until TLS, `toren update` and package signature checks fail |
 | Inbound firewall | `nftables` | `nftables` | Loads `/etc/nftables.conf`, Toren's ruleset below |
 | Removable media | `udisks2` | none (D-Bus activated) | Lets Thunar and gvfs mount USB drives and SD cards without root |
 | Firmware updates | `fwupd` | none (D-Bus activated) | `fwupdmgr refresh && fwupdmgr update` updates BIOS, SSD and dock firmware from LVFS |
 | Printing | `cups`, `cups-filters` | `cupsd` | Add printers at <http://localhost:631> |
-| Device power saving | `tlp` | `tlp` | USB autosuspend, Wi-Fi power save, SATA and PCIe runtime PM. CPU governor, EPP and platform profile stay with `asura-sysd`; [`system/tlp.d/01-asura-cpu.conf`](../system/tlp.d/01-asura-cpu.conf) disables them in tlp |
+| Device power saving | `tlp` | `tlp` | USB autosuspend, Wi-Fi power save, SATA and PCIe runtime PM. CPU governor, EPP and platform profile stay with `toren-sysd`; [`system/tlp.d/01-asura-cpu.conf`](../system/tlp.d/01-asura-cpu.conf) disables them in tlp |
 | System log | `socklog-void` | `socklog-unix`, `nanoklogd` | Kernel and daemon messages under `/var/log/socklog` |
-| Scheduled maintenance | (none) | `asura-maintenance` | Weekly fstrim, monthly btrfs scrub, no cron daemon |
+| Scheduled maintenance | (none) | `toren-maintenance` | Weekly fstrim, monthly btrfs scrub, no cron daemon |
 | Out-of-memory protection | `earlyoom` | `earlyoom` | Protects Hyprland and quickshell; prefers killing large apps |
 | Thermal management | `thermald` | `thermald` | Enabled only on Intel CPUs |
 
@@ -58,11 +58,11 @@ signing GRUB and the kernel with machine-local keys (`sbctl`); the decision is o
 
 `socklog-void` provides `socklog-unix` (daemon messages) and `nanoklogd` (kernel
 messages), logging to `/var/log/socklog/`. `journalctl` on Toren reads these files;
-`asura doctor` reports their state.
+`toren doctor` reports their state.
 
 ## Scheduled maintenance
 
-`asura-maintenance` is a runit service with a sleep loop (no cron daemon): it runs
+`toren-maintenance` is a runit service with a sleep loop (no cron daemon): it runs
 `fstrim -av /` weekly and `btrfs scrub` monthly on btrfs roots, skipping hardware or
 filesystems that do not support it.
 

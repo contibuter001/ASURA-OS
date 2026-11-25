@@ -15,7 +15,7 @@ and adds you to its group (log out and in once for that).
 
 ## Tailscale File Sharing
 
-When Tailscale is enabled (`asura enable tailscale`), share files directly across your devices:
+When Tailscale is enabled (`toren enable tailscale`), share files directly across your devices:
 
 ```sh
 asura share devices                # list available Tailscale devices

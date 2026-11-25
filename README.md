@@ -25,7 +25,7 @@ control tools, its hardware matrix, its updater, and its supervised session daem
 Toren is not a Void spin. Void supplies the minimalist, lightning-fast substrate and nothing else. Toren is the
 distribution; Void Linux is what Toren is built on top of.
 
-> **Status: Beta.** Live bootable ISO images (`asura-os-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/Toren-Linux/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`asura install` / `asura-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
+> **Status: Beta.** Live bootable ISO images (`asura-os-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/Toren-Linux/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`toren install` / `toren-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
 
 ---
 
@@ -97,7 +97,7 @@ Any of these work:
 
 1. Turn off Secure Boot in the firmware settings.
 2. Boot from the USB stick (usually F12, F11, F8 or Esc at power-on opens the boot menu).
-3. The live session logs in automatically as `asura` and starts the desktop. Nothing is
+3. The live session logs in automatically as `toren` and starts the desktop. Nothing is
    written to your disk yet, so check that display, audio, Wi-Fi and the keyboard work.
 
 ### 5. Install
@@ -110,13 +110,13 @@ asura install
 
 The installer walks you through choosing the disk, the filesystem (Btrfs with snapshots, or
 ext4), full-disk encryption (LUKS2, on by default), your user account and hostname. It shows a
-summary and asks you to type `YES` before it erases anything. `asura install --dry-run` shows
+summary and asks you to type `YES` before it erases anything. `toren install --dry-run` shows
 what it would do without touching the disk.
 
 When it finishes, reboot and remove the USB stick. If you chose encryption, you'll be asked for
 the disk passphrase at boot.
 
-After installing, `asura hardware report --profile` produces a profile of your machine that you
+After installing, `toren hardware report --profile` produces a profile of your machine that you
 can [contribute](CONTRIBUTING.md), so the next person with the same laptop gets a verified setup.
 
 ---
@@ -134,20 +134,20 @@ hardware profile for your specific machine, and an updater that can roll back.
 | Seat Management | seatd (`LIBSEAT_BACKEND=seatd`) / elogind |
 | Compositor | Hyprland (Wayland) |
 | Desktop shell | Quickshell (QML) — bar, dock, launcher, popouts, widgets. The engine is built by Toren; the surfaces are vendored open-source components, re-themed to Toren's monochrome design language |
-| Control tools | Go — `asura`, `asura-sysd` (root daemon at `/run/asura/sysd.sock`), `asura-userd` (session daemon), `asura-shell`, `asura-hubd`, `asura-wallpaper`, and `apm` |
+| Control tools | Go — `toren`, `toren-sysd` (root daemon at `/run/asura/sysd.sock`), `toren-userd` (session daemon), `toren-shell`, `toren-hubd`, `toren-wallpaper`, and `apm` |
 | Settings store | GSettings schemas + dconf, one writer per setting |
-| GPU & Power | `asura gpu` (PCI inspection & `prime-run` offload), `asura power` (profiles & NVIDIA RTX 3050 D3cold management) |
+| GPU & Power | `toren gpu` (PCI inspection & `prime-run` offload), `toren power` (profiles & NVIDIA RTX 3050 D3cold management) |
 | Terminal | Ghostty — strictly supported, configured by Toren, never kitty |
 | User shell | zsh + starship |
 | Editor | Neovim |
 | Boot chain | GRUB EFI |
-| Installer | `asura install` / `asura-installer.desktop` guided system installer |
+| Installer | `toren install` / `toren-installer.desktop` guided system installer |
 | Desktop services | pipewire + wireplumber, tlp, NetworkManager, seatd |
 | Portals | `xdg-desktop-portal-hyprland` + `-gtk`, and `-lxqt` for Secret interface |
 | Package manager | XBPS, with first-party repository `asura-xbps-repo`, plus `apm` package manager frontend |
-| Software Store | [Toren Store](https://github.com/Toren-Linux/asura-store) — Graphical showroom window & Go data plane (`asura-store`), multi-provider XBPS/plugin/theme catalogue |
+| Software Store | [Toren Store](https://github.com/Toren-Linux/asura-store) — Graphical showroom window & Go data plane (`toren-store`), multi-provider XBPS/plugin/theme catalogue |
 | Resource Monitor | `btop` — Real-time telemetry, process manager & task manager with Toren adaptive color theming |
-| Agent layer | OpenCode with the Toren skills wired in (`asura-agent`) |
+| Agent layer | OpenCode with the Toren skills wired in (`toren-agent`) |
 
 ### Why Void Linux is the base layer
 
@@ -188,7 +188,7 @@ a machine gets, and where the two disagree that file is right.
 
 The matrix grows through [`system/hardware/`](system/hardware/) — a database of verified
 machine profiles in this repository. Nobody can test every laptop, but every user can test
-one. A machine that boots successfully emits a candidate profile via `asura hardware report`;
+one. A machine that boots successfully emits a candidate profile via `toren hardware report`;
 contributors attach it to a pull request; merged profiles ship in the next ISO and are
 selected automatically at install time.
 
@@ -201,10 +201,10 @@ into a union of working setups that grows without anyone owning a hardware lab.
 
 ```
 apps/                built-in desktop applications (Hub, Store, Sysmon, VM)
-desktop/             the control tools: cmd/asura, asura-sysd, asura-userd, asura-shell, asura-hubd, apm
+desktop/             the control tools: cmd/toren, toren-sysd, toren-userd, toren-shell, toren-hubd, apm
 system/hardware/     detection, matching, redaction, reports, profiles and tiers
 system/kernel/       pinned kernel fleet
-installation/        installer backend (asura-installer.sh) and ISO builder (build-iso-void.sh)
+installation/        installer backend (toren-installer.sh) and ISO builder (build-iso-void.sh)
 packaging/           packaging infrastructure: packaging/xbps/ with binary repo generator
 session/             session startup, Hyprland configs, binds, SDDM greeter theme, GRUB snapshots
 shell/               Quickshell QML desktop shell (bar, dock, launcher, popouts, Hub)
@@ -227,8 +227,8 @@ The four design documents, and what each one decides:
 | [`docs/hardware.md`](docs/hardware.md) | Hardware compatibility matrix, supported laptop families, support levels, and submission workflow |
 | [`docs/hardware-detection.md`](docs/hardware-detection.md) | The subsystem that decides whether Toren works on someone else's laptop — probes, matching, PII stripping, tier assignment |
 | [`docs/session.md`](docs/session.md) | The boot and login chain — GRUB through runit to Hyprland, the session entry point, what starts in what order, and who owns logout, suspend and shutdown |
-| [`docs/menu.md`](docs/menu.md) | `asura menu` — the unified "do everything" menu on Super+Alt+Space coordinating apps, setup, themes, updates and power |
-| [`docs/adopting-toren.md`](docs/adopting-toren.md) | `asura adopt` (Legacy — Ubuntu/APT design) — historical in-place adoption design; current installation uses the live ISO and `asura install` |
+| [`docs/menu.md`](docs/menu.md) | `toren menu` — the unified "do everything" menu on Super+Alt+Space coordinating apps, setup, themes, updates and power |
+| [`docs/adopting-toren.md`](docs/adopting-toren.md) | `toren adopt` (Legacy — Ubuntu/APT design) — historical in-place adoption design; current installation uses the live ISO and `toren install` |
 
 [`docs/roadmap.md`](docs/roadmap.md) orders the work.
 
@@ -254,24 +254,24 @@ on nothing outside the standard library; `desktop/` is a second module that depe
 The commands that reach it:
 
 ```console
-$ asura menu                         # open the unified "do everything" menu
-$ asura install                      # launch the guided disk installer
-$ asura hardware report              # this machine, redacted, safe to paste
-$ asura hardware report --profile    # a candidate profile to review and submit
-$ asura hardware match               # which profile claims this machine, and at what tier
-$ asura hardware lint-profiles       # check the database
-$ asura hardware capture --out DIR   # write this machine as a test fixture
+$ toren menu                         # open the unified "do everything" menu
+$ toren install                      # launch the guided disk installer
+$ toren hardware report              # this machine, redacted, safe to paste
+$ toren hardware report --profile    # a candidate profile to review and submit
+$ toren hardware match               # which profile claims this machine, and at what tier
+$ toren hardware lint-profiles       # check the database
+$ toren hardware capture --out DIR   # write this machine as a test fixture
 ```
 
 And the overlay model, which is what makes an update safe to automate:
 
 ```console
-$ asura status          # revision, paths, how much drift
-$ asura doctor          # drift, plus whether the portal config is really being read
-$ asura materialize     # re-lay the base, clobbering shipped content
-$ asura reset PATH      # drop one of your edits back to the base
-$ asura update          # snapshot, fetch, re-materialize; your edits survive
-$ asura rollback        # re-materialize the previous revision
+$ toren status          # revision, paths, how much drift
+$ toren doctor          # drift, plus whether the portal config is really being read
+$ toren materialize     # re-lay the base, clobbering shipped content
+$ toren reset PATH      # drop one of your edits back to the base
+$ toren update          # snapshot, fetch, re-materialize; your edits survive
+$ toren rollback        # re-materialize the previous revision
 ```
 
 Every command takes `--root DIR`, so the whole surface runs against a temporary tree or a
@@ -281,7 +281,7 @@ matched — an answer, not a failure.
 The one rule the overlay model exists to keep: **a user's override wins at its mirrored path,
 and no update can clobber it.**
 
-The legacy in-place adoption design (`asura adopt`) is documented in [`docs/adopting-toren.md`](docs/adopting-toren.md); current installation is driven by the bootable ISO and `asura install`.
+The legacy in-place adoption design (`toren adopt`) is documented in [`docs/adopting-toren.md`](docs/adopting-toren.md); current installation is driven by the bootable ISO and `toren install`.
 
 ## Branches
 
@@ -293,7 +293,7 @@ The legacy in-place adoption design (`asura adopt`) is documented in [`docs/adop
 Documentation changes land on `main` directly. Implementation lands on `dev-unstable`. A
 milestone is done when its code has merged forward, not when it is written.
 
-`dev-unstable` contains the complete working implementation, including the bootable Void-based Live ISO, the guided installer (`asura install`), hardware detection, and the Quickshell desktop shell. See [`docs/roadmap.md`](docs/roadmap.md) for milestone progress.
+`dev-unstable` contains the complete working implementation, including the bootable Void-based Live ISO, the guided installer (`toren install`), hardware detection, and the Quickshell desktop shell. See [`docs/roadmap.md`](docs/roadmap.md) for milestone progress.
 
 ---
 
