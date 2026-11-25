@@ -913,7 +913,8 @@ for group, body in manifest.items():
 
 filtered = [p for p in packages if p != "base-system"]
 all_requested = sorted(dict.fromkeys(str(p) for p in filtered))
-custom_pkgs = {"hyprland", "xdg-desktop-portal-hyprland", "hypridle", "hyprlock"}
+# staged above from Toren's repository (HYPR_PKGS), not in Void's
+custom_pkgs = {"hyprland", "xdg-desktop-portal-hyprland", "hypridle", "hyprlock", "hyprland-guiutils"}
 out = [p for p in all_requested if p not in custom_pkgs]
 print(" ".join(out))
 PY
