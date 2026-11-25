@@ -8,7 +8,7 @@
 
 var rows = [
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "POSITION",
         "key": "bar.bottom",
         "ctl": "sw",
@@ -17,7 +17,7 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "POSITION",
         "key": "bar.autoHide.enable",
         "ctl": "sw",
@@ -26,7 +26,7 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "SHAPE",
         "key": "bar.cornerStyle",
         "ctl": "seg",
@@ -45,7 +45,7 @@ var rows = [
         }
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "SHAPE",
         "key": "bar.showBackground",
         "ctl": "sw",
@@ -54,7 +54,7 @@ var rows = [
         "def": true
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "SHAPE",
         "key": "bar.floatStyleShadow",
         "ctl": "sw",
@@ -63,7 +63,7 @@ var rows = [
         "def": true
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "WEATHER",
         "key": "bar.weather.enable",
         "ctl": "sw",
@@ -72,7 +72,7 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "WEATHER",
         "key": "bar.weather.enableGPS",
         "ctl": "sw",
@@ -81,7 +81,7 @@ var rows = [
         "def": true
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "WEATHER",
         "key": "bar.weather.city",
         "ctl": "text",
@@ -91,7 +91,7 @@ var rows = [
         "eg": "Berlin"
     },
     {
-        "tab": "Bar",
+        "tab": "Bar & dock",
         "group": "WEATHER",
         "key": "bar.weather.useUSCS",
         "ctl": "sw",
@@ -100,7 +100,7 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Dock",
+        "tab": "Bar & dock",
         "group": "DOCK",
         "key": "dock.enable",
         "ctl": "sw",
@@ -109,7 +109,7 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Dock",
+        "tab": "Bar & dock",
         "group": "DOCK",
         "key": "dock.pinnedOnStartup",
         "ctl": "sw",
@@ -118,7 +118,7 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Dock",
+        "tab": "Bar & dock",
         "group": "DOCK",
         "key": "dock.monochromeIcons",
         "ctl": "sw",
@@ -181,6 +181,16 @@ var rows = [
     },
     {
         "tab": "Look",
+        "group": "APPS",
+        "key": "toren.gtkRoundedCorners",
+        "ctl": "sw",
+        "label": "Rounded app corners",
+        "desc": "GTK and libadwaita apps (Files, settings dialogs) draw rounded window corners. Off keeps them square. Applies to apps opened after the change",
+        "store": "gtk-corners",
+        "def": false
+    },
+    {
+        "tab": "Look",
         "group": "OVERVIEW",
         "key": "overview.rows",
         "ctl": "step",
@@ -200,6 +210,47 @@ var rows = [
         "def": 5,
         "from": 1,
         "to": 10
+    },
+    {
+        "tab": "Look",
+        "group": "NIGHT LIGHT",
+        "key": "light.night.automatic",
+        "ctl": "sw",
+        "label": "On a schedule",
+        "desc": "Warms the screen colours between the times below",
+        "def": true
+    },
+    {
+        "tab": "Look",
+        "group": "NIGHT LIGHT",
+        "key": "light.night.from",
+        "ctl": "text",
+        "label": "From",
+        "desc": "24-hour time",
+        "def": "19:00",
+        "eg": "19:00"
+    },
+    {
+        "tab": "Look",
+        "group": "NIGHT LIGHT",
+        "key": "light.night.to",
+        "ctl": "text",
+        "label": "To",
+        "desc": "24-hour time",
+        "def": "06:30",
+        "eg": "06:30"
+    },
+    {
+        "tab": "Look",
+        "group": "NIGHT LIGHT",
+        "key": "light.night.colorTemperature",
+        "ctl": "step",
+        "label": "Warmth",
+        "desc": "Lower is warmer",
+        "def": 5000,
+        "unit": "K",
+        "from": 2500,
+        "to": 6500
     },
     {
         "tab": "Clock",
@@ -254,30 +305,6 @@ var rows = [
         }
     },
     {
-        "tab": "Notifications",
-        "group": "POPUPS",
-        "key": "notifications.timeout",
-        "ctl": "step",
-        "label": "Notification time",
-        "desc": "How long a notification stays on screen",
-        "def": 7000,
-        "unit": "ms",
-        "from": 1000,
-        "to": 30000
-    },
-    {
-        "tab": "Notifications",
-        "group": "POPUPS",
-        "key": "osd.timeout",
-        "ctl": "step",
-        "label": "Volume and brightness popup",
-        "desc": "How long the volume or brightness popup stays",
-        "def": 1000,
-        "unit": "ms",
-        "from": 500,
-        "to": 5000
-    },
-    {
         "tab": "Lock screen",
         "group": "LOCK SCREEN",
         "key": "lock.centerClock",
@@ -314,7 +341,31 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Battery",
+        "tab": "System",
+        "group": "NOTIFICATIONS",
+        "key": "notifications.timeout",
+        "ctl": "step",
+        "label": "Notification time",
+        "desc": "How long a notification stays on screen",
+        "def": 7000,
+        "unit": "ms",
+        "from": 1000,
+        "to": 30000
+    },
+    {
+        "tab": "System",
+        "group": "NOTIFICATIONS",
+        "key": "osd.timeout",
+        "ctl": "step",
+        "label": "Volume and brightness popup",
+        "desc": "How long the volume or brightness popup stays",
+        "def": 1000,
+        "unit": "ms",
+        "from": 500,
+        "to": 5000
+    },
+    {
+        "tab": "System",
         "group": "WARNINGS",
         "key": "battery.low",
         "ctl": "step",
@@ -326,7 +377,7 @@ var rows = [
         "to": 50
     },
     {
-        "tab": "Battery",
+        "tab": "System",
         "group": "WARNINGS",
         "key": "battery.critical",
         "ctl": "step",
@@ -338,7 +389,7 @@ var rows = [
         "to": 20
     },
     {
-        "tab": "Battery",
+        "tab": "System",
         "group": "WARNINGS",
         "key": "sounds.battery",
         "ctl": "sw",
@@ -347,7 +398,7 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Battery",
+        "tab": "System",
         "group": "SUSPEND",
         "key": "battery.automaticSuspend",
         "ctl": "sw",
@@ -356,49 +407,8 @@ var rows = [
         "def": true
     },
     {
-        "tab": "Night light",
-        "group": "NIGHT LIGHT",
-        "key": "light.night.automatic",
-        "ctl": "sw",
-        "label": "On a schedule",
-        "desc": "Warms the screen colours between the times below",
-        "def": true
-    },
-    {
-        "tab": "Night light",
-        "group": "NIGHT LIGHT",
-        "key": "light.night.from",
-        "ctl": "text",
-        "label": "From",
-        "desc": "24-hour time",
-        "def": "19:00",
-        "eg": "19:00"
-    },
-    {
-        "tab": "Night light",
-        "group": "NIGHT LIGHT",
-        "key": "light.night.to",
-        "ctl": "text",
-        "label": "To",
-        "desc": "24-hour time",
-        "def": "06:30",
-        "eg": "06:30"
-    },
-    {
-        "tab": "Night light",
-        "group": "NIGHT LIGHT",
-        "key": "light.night.colorTemperature",
-        "ctl": "step",
-        "label": "Warmth",
-        "desc": "Lower is warmer",
-        "def": 5000,
-        "unit": "K",
-        "from": 2500,
-        "to": 6500
-    },
-    {
-        "tab": "Sound",
-        "group": "PROTECTION",
+        "tab": "System",
+        "group": "VOLUME",
         "key": "audio.protection.enable",
         "ctl": "sw",
         "label": "Limit volume jumps",

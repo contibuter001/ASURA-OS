@@ -125,7 +125,7 @@ Rectangle {
             { key: "desktop-shell", name: "Desktop", needs: { shell: "desktop" } },
             { key: "bar-studio", name: "Bar Studio", wired: true, needs: { shell: "toren" } }, { key: "desktop", name: "Desktop", wired: true, needs: { shell: "toren" } },
             { key: "widgets", name: "Widgets", needs: { shell: "toren" } }, { key: "launcher", name: "App Launcher", needs: { shell: "toren" } } ] },
-        { name: "OVERVIEW", items: [ { key: "profile", name: "Profile", needs: { shell: "toren" } }, { key: "global", name: "General", needs: { shell: "toren" } }, { key: "updates", name: "Updates" } ] },
+        { name: "OVERVIEW", items: [ { key: "profile", name: "Profile", needs: { shell: "toren" } }, { key: "global", name: "General", needs: { shell: "toren" } }, { key: "updates", name: "Updates", rail: false } ] },
         { name: "DEVICES", items: [
             { key: "displays", name: "Displays", needs: { cap: "monitorConfig" } }, { key: "connections", name: "Connections" },
             { key: "input", name: "Input" }, { key: "gpu", name: "Graphics & Power" } ] },
@@ -1206,7 +1206,7 @@ Rectangle {
                             // away instead of leaving a bare label. The open section
                             // always counts, so you never lose your place.
                             readonly property bool anyShown: grp.modelData.items.some(function (i) {
-                                return hub.needsMet(i) && (!i.adv || hub.advanced || hub.section === i.key);
+                                return hub.needsMet(i) && i.rail !== false && (!i.adv || hub.advanced || hub.section === i.key);
                             })
                             width: parent.width
                             height: !anyShown ? 0 : (grp.modelData.name === "" ? Tokens.s4 : 34)
@@ -1253,7 +1253,7 @@ Rectangle {
                                 // outright and unreachable. The open section stays put
                                 // so turning Advanced off never strands you on a page
                                 // the rail no longer lists.
-                                readonly property bool shown: hub.needsMet(modelData)
+                                readonly property bool shown: hub.needsMet(modelData) && modelData.rail !== false
                                     && (!modelData.adv || hub.advanced || hub.section === modelData.key)
                                 width: nav.width
                                 height: shown ? 36 : 0
