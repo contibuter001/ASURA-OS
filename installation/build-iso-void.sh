@@ -693,16 +693,23 @@ echo "build-iso-void: building Toren Go binaries..."
 			STORE_SRC="$REPO_ROOT/../asura-store"
 		fi
 	fi
-	if [ -n "$STORE_SRC" ] && [ -d "$STORE_SRC/cmd/asura-store" ]; then
-		echo "build-iso-void: building asura-store from standalone repo ($STORE_SRC)..."
-		( cd "$STORE_SRC/cmd/asura-store" && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$INCLUDE_DIR/usr/bin/asura-store" . )
+	if [ -n "$STORE_SRC" ] && [ -d "$STORE_SRC/cmd/toren-store" ]; then
+		echo "build-iso-void: building toren-store from standalone repo ($STORE_SRC)..."
+		( cd "$STORE_SRC/cmd/toren-store" && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$INCLUDE_DIR/usr/bin/toren-store" . )
+		if [ -d "$STORE_SRC/catalog" ]; then
+			mkdir -p "$INCLUDE_DIR/usr/share/asura/store/catalog"
+			cp -r "$STORE_SRC/catalog"/* "$INCLUDE_DIR/usr/share/asura/store/catalog/" 2>/dev/null || true
+		fi
+	elif [ -n "$STORE_SRC" ] && [ -d "$STORE_SRC/cmd/asura-store" ]; then
+		echo "build-iso-void: building toren-store from standalone repo ($STORE_SRC)..."
+		( cd "$STORE_SRC/cmd/asura-store" && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$INCLUDE_DIR/usr/bin/toren-store" . )
 		if [ -d "$STORE_SRC/catalog" ]; then
 			mkdir -p "$INCLUDE_DIR/usr/share/asura/store/catalog"
 			cp -r "$STORE_SRC/catalog"/* "$INCLUDE_DIR/usr/share/asura/store/catalog/" 2>/dev/null || true
 		fi
 	else
-		echo "build-iso-void: building asura-store from desktop tree..."
-		CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-store" ./cmd/asura-store
+		echo "build-iso-void: building toren-store from desktop tree..."
+		CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/toren-store" ./cmd/toren-store
 	fi
 
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/toren-vm-mon" ./cmd/toren-vm/mon
@@ -712,11 +719,10 @@ echo "build-iso-void: building Toren Go binaries..."
 find "$INCLUDE_DIR/usr/bin" -type f -exec chmod 0755 {} +
 # Symlinks
 ln -sf toren "$INCLUDE_DIR/usr/bin/os-ctl"
-for tool in toren toren-shell toren-wallpaper toren-hubd toren-sysd toren-userd toren-agent toren-vm-mon toren-vm-ssh toren-vmd; do
+for tool in toren toren-store toren-shell toren-wallpaper toren-hubd toren-sysd toren-userd toren-agent toren-vm-mon toren-vm-ssh toren-vmd; do
 	asura_tool=$(echo "$tool" | sed 's/^toren/asura/')
 	ln -sf "$tool" "$INCLUDE_DIR/usr/bin/$asura_tool"
 done
-ln -sf asura-store "$INCLUDE_DIR/usr/bin/toren-store"
 for f in "$INCLUDE_DIR/usr/share/asura/session"/toren-*; do
 	[ -e "$f" ] || continue
 	base=$(basename "$f")

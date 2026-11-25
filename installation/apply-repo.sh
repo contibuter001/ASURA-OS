@@ -205,7 +205,7 @@ if [ "$BUILD" -eq 1 ]; then
 			cd "$REPO/desktop"
 			export GOWORK=off GOFLAGS=-buildvcs=false CGO_ENABLED=0
 			go build -o "$out/" ./cmd/toren ./cmd/toren-sysd ./cmd/toren-userd ./cmd/toren-hubd \
-				./cmd/toren-shell ./cmd/toren-wallpaper ./cmd/apm ./cmd/asura-store ./cmd/toren-agent
+				./cmd/toren-shell ./cmd/toren-wallpaper ./cmd/apm ./cmd/toren-store ./cmd/toren-agent
 			go build -o "$out/toren-vm-mon" ./cmd/toren-vm/mon
 			go build -o "$out/toren-vm-ssh" ./cmd/toren-vm/remote
 		) && for b in "$out"/*; do
@@ -214,15 +214,12 @@ if [ "$BUILD" -eq 1 ]; then
 			mv -f "$ROOT/usr/bin/.$(basename "$b").new" "$ROOT/usr/bin/$(basename "$b")"
 		done || log "the Go build failed; the installed tools are unchanged"
 		rm -rf "$out"
-		for tool in toren toren-shell toren-wallpaper toren-hubd toren-sysd toren-userd toren-agent toren-vm toren-vm-mon toren-vm-ssh toren-vmd; do
+		for tool in toren toren-store toren-shell toren-wallpaper toren-hubd toren-sysd toren-userd toren-agent toren-vm toren-vm-mon toren-vm-ssh toren-vmd; do
 			asura_tool=$(echo "$tool" | sed 's/^toren/asura/')
 			if [ -e "$ROOT/usr/bin/$tool" ]; then
 				ln -sf "$tool" "$ROOT/usr/bin/$asura_tool"
 			fi
 		done
-		if [ -e "$ROOT/usr/bin/asura-store" ]; then
-			ln -sf asura-store "$ROOT/usr/bin/toren-store"
-		fi
 		for f in "$ROOT/usr/share/asura/session"/toren-*; do
 			[ -e "$f" ] || continue
 			base=$(basename "$f")

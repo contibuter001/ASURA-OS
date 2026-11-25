@@ -4,7 +4,7 @@ Toren Store is the package and customization showroom window and CLI data plane 
 
 The canonical standalone repository is hosted at **[github.com/ASURA-OS/asura-store](https://github.com/ASURA-OS/asura-store)**.
 The tree in this repository keeps byte-identical mirrors of the standalone store:
-- `desktop/cmd/asura-store/` mirrors `cmd/asura-store/`
+- `desktop/cmd/toren-store/` mirrors `cmd/asura-store/`
 - `shell/store/` and `shell/store.qml` mirror `ui/`
 - `desktop/catalog/` mirrors `catalog/`
 
@@ -12,7 +12,7 @@ CI parity is automatically enforced on every push and PR via `.github/workflows/
 
 | Component | Path | Function |
 |---|---|---|
-| `asura-store` | `desktop/cmd/asura-store` (binary `/usr/bin/asura-store`) | The Go data plane: catalogue, search, check, install, remove, open, settings. |
+| `toren-store` (`asura-store`) | `desktop/cmd/toren-store` (binary `/usr/bin/toren-store`) | The Go data plane: catalogue, search, check, install, remove, open, settings. |
 | Store Window | `shell/store.qml`, `shell/store/` (`/usr/share/asura/store/ui`) | Quickshell showroom window: discover stage, search shelf, product overlays. |
 | Catalog | `desktop/catalog/` (`/usr/share/asura/store/catalog/`) | Local catalogue JSON (`plugins/`, `themes/`, `barstyles/`). Updated without recompilation. |
 | Launcher | `session/asura-store` (`/usr/share/asura/session/asura-store`) | Starts the store window under a single-instance lock. |
@@ -81,7 +81,7 @@ Every freshly built catalog computes a deterministic revision hash (SHA-256 over
 
 ```sh
 # Data plane verification
-cd desktop && gofmt -l cmd/asura-store && go vet ./cmd/asura-store && go test ./cmd/asura-store
+cd desktop && gofmt -l cmd/toren-store && go vet ./cmd/toren-store && go test ./cmd/toren-store
 
 # UI logic verification
 node --test shell/store/lib/store.test.mjs
