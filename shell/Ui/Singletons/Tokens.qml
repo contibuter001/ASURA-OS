@@ -134,7 +134,7 @@ Singleton {
     // the oversized display title) is gone, and with it the `hubDecor` switch
     // that used to trade it on, so a page reads as a printed instrument sheet
     // and the ornament question does not exist.
-    readonly property int fTitle: px(32)    // page title, Fraunces
+    readonly property int fTitle: cards ? px(24) : px(32)    // page title
     readonly property int fHero: px(34)     // a headline readout
     readonly property int fValue: px(26)    // a cell's value
     readonly property int fRow: px(15)      // a row name
