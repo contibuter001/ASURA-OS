@@ -968,17 +968,17 @@ printf '%s\n' "$HOSTNAME_INPUT" > "$TARGET_DIR/etc/hostname"
 cat >"$TARGET_DIR/etc/os-release" <<'EOF'
 NAME="Toren Linux"
 PRETTY_NAME="Toren Linux Beta 001"
-ID=asura
-ID_LIKE="linux"
+ID=toren
+ID_LIKE="void linux"
 VERSION_ID="0.1"
 VERSION_CODENAME=beta-001
-HOME_URL="https://asuraos.dev/"
-SUPPORT_URL="https://asuraos.dev/support"
+HOME_URL="https://github.com/mohitjoer/Toren-Linux"
+SUPPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 BUG_REPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 EOF
 
 # Purge live installer artifacts and markers
-rm -f "$TARGET_DIR/etc/asura-live"
+rm -f "$TARGET_DIR/etc/asura-live" "$TARGET_DIR/etc/toren-live"
 rm -f "$TARGET_DIR/usr/bin/asura-installer"
 rm -f "$TARGET_DIR/usr/bin/void-installer"
 rm -f "$TARGET_DIR/usr/share/applications/asura-installer.desktop" "$TARGET_DIR/usr/share/applications/toren-installer.desktop"
@@ -986,17 +986,22 @@ rm -f "$TARGET_DIR/home"/*/Desktop/asura-installer.desktop "$TARGET_DIR/home"/*/
 rm -f "$TARGET_DIR/etc/skel/Desktop/asura-installer.desktop" "$TARGET_DIR/etc/skel/Desktop/toren-installer.desktop" 2>/dev/null || true
 
 # Ensure dedicated hardware and docker groups exist on target
+chroot "$TARGET_DIR" getent group toren-hw >/dev/null 2>&1 || chroot "$TARGET_DIR" groupadd -r toren-hw || true
 chroot "$TARGET_DIR" getent group asura-hw >/dev/null 2>&1 || chroot "$TARGET_DIR" groupadd -r asura-hw
 chroot "$TARGET_DIR" getent group docker >/dev/null 2>&1 || chroot "$TARGET_DIR" groupadd -r docker || true
 
 # Record live user hash from running environment to verify against later
-LIVE_SHADOW_HASH=$(grep '^asura:' /etc/shadow 2>/dev/null | cut -d: -f2 || true)
+LIVE_SHADOW_HASH=$(grep -E '^(toren|asura):' /etc/shadow 2>/dev/null | head -n 1 | cut -d: -f2 || true)
 
 # Completely purge live user account, credentials, and live home directory from target
-if chroot "$TARGET_DIR" id -u asura >/dev/null 2>&1; then
-	chroot "$TARGET_DIR" userdel -r asura >/dev/null 2>&1 || true
-fi
-rm -rf "$TARGET_DIR/home/asura"
+for live_user in toren asura; do
+	if chroot "$TARGET_DIR" id -u "$live_user" >/dev/null 2>&1 && [ "$live_user" != "$USERNAME_INPUT" ]; then
+		chroot "$TARGET_DIR" userdel -r "$live_user" >/dev/null 2>&1 || true
+	fi
+	if [ "$live_user" != "$USERNAME_INPUT" ]; then
+		rm -rf "$TARGET_DIR/home/$live_user"
+	fi
+done
 
 # User account creation on target
 if ! chroot "$TARGET_DIR" id -u "$USERNAME_INPUT" >/dev/null 2>&1; then

@@ -53,9 +53,16 @@ _asura_cache_eval() {
 }
 
 # A starship.toml of the user's own (at $_asura_cfg/starship.toml) wins over the packaged one.
-# The packaged starship.toml lives at $_asura_cfg/asura/apps/starship/starship.toml
-[[ -z $STARSHIP_CONFIG && ! -e $_asura_cfg/starship.toml ]] &&
-  export STARSHIP_CONFIG=$_asura_cfg/asura/apps/starship/starship.toml
+# The packaged starship.toml lives at $_asura_cfg/toren/apps/starship/starship.toml or asura/
+if [[ -z $STARSHIP_CONFIG ]]; then
+  if [[ -e $_asura_cfg/starship.toml ]]; then
+    export STARSHIP_CONFIG=$_asura_cfg/starship.toml
+  elif [[ -e $_asura_cfg/toren/apps/starship/starship.toml ]]; then
+    export STARSHIP_CONFIG=$_asura_cfg/toren/apps/starship/starship.toml
+  elif [[ -e $_asura_cfg/asura/apps/starship/starship.toml ]]; then
+    export STARSHIP_CONFIG=$_asura_cfg/asura/apps/starship/starship.toml
+  fi
+fi
 
 _asura_cache_eval starship starship init zsh
 _asura_cache_eval zoxide zoxide init zsh --cmd cd

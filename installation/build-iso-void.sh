@@ -156,12 +156,12 @@ EOF
 cat >"$INCLUDE_DIR/etc/os-release" <<'EOF'
 NAME="Toren Linux"
 PRETTY_NAME="Toren Linux Beta 001"
-ID=asura
-ID_LIKE="linux"
+ID=toren
+ID_LIKE="void linux"
 VERSION_ID="0.1"
 VERSION_CODENAME=beta-001
-HOME_URL="https://asuraos.dev/"
-SUPPORT_URL="https://asuraos.dev/support"
+HOME_URL="https://github.com/mohitjoer/Toren-Linux"
+SUPPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 BUG_REPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 EOF
 if [ -n "$ASURA_VERSION" ]; then
@@ -175,10 +175,10 @@ cat >"$INCLUDE_DIR/etc/issue" <<'EOF'
      %##                    ##%       Kernel \r on an \m (\l)
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
-%###########% %%%%%%%%  ###########%  Live Session: user 'asura' (nopasswd sudo)
- %###########          ###########%   Run 'asura install' or 'asura-installer' to install
+%###########% %%%%%%%%  ###########%  Live Session: user 'toren' (nopasswd sudo)
+ %###########          ###########%   Run 'toren install' or 'toren-installer' to install
      ########  @@@@@@  ########
-   %% ########%      %######## %%%    https://asuraos.dev
+   %% ########%      %######## %%%    https://github.com/mohitjoer/Toren-Linux
    %%  %%##################%%% %%%
    %% ##     %########%     ## %%%
    %% ####%%%%%      %%%%%#### %%
@@ -195,7 +195,7 @@ EOF
 
 cat >"$INCLUDE_DIR/etc/issue.net" <<'EOF'
        #                    #         Toren Linux Beta 001
-     %##                    ##%       https://asuraos.dev
+     %##                    ##%       https://github.com/mohitjoer/Toren-Linux
     ####   %%%%%%%%%%%%%%   ####
   ######% %%%%%%%%%%%%%%%% %######    Robust. Minimal. Kinetic.
 %###########% %%%%%%%%  ###########%  Live Session: user 'asura' (nopasswd sudo)
@@ -1101,37 +1101,46 @@ mkdir -p "$ROOTFS/etc/elogind/logind.conf.d"
 printf '[Login]\nHandlePowerKey=ignore\nHandleSuspendKey=ignore\nHandleHibernateKey=ignore\nHandleLidSwitch=ignore\n' > "$ROOTFS/etc/elogind/logind.conf.d/90-asura-powerkey.conf"
 
 # Configure seat permissions and groups for default user
+chroot "$ROOTFS" getent group toren-hw >/dev/null 2>&1 || chroot "$ROOTFS" groupadd -r toren-hw || true
 chroot "$ROOTFS" getent group asura-hw >/dev/null 2>&1 || chroot "$ROOTFS" groupadd -r asura-hw || true
 chroot "$ROOTFS" getent group docker >/dev/null 2>&1 || chroot "$ROOTFS" groupadd -r docker || true
-for user in anon asura; do
+for user in anon asura toren; do
 	if chroot "$ROOTFS" id "$user" >/dev/null 2>&1; then
-		chroot "$ROOTFS" usermod -aG _seatd,video,audio,input,wheel,storage,network,asura-hw,docker "$user" || true
+		chroot "$ROOTFS" usermod -aG _seatd,video,audio,input,wheel,storage,network,toren-hw,asura-hw,docker "$user" || true
 	fi
 done
 
-# Ensure user asura exists with zsh login shell and configure autologin
-if ! chroot "$ROOTFS" id asura >/dev/null 2>&1; then
-	chroot "$ROOTFS" useradd -m -s /bin/zsh -U -G _seatd,video,audio,input,wheel,storage,network,asura-hw,docker asura || true
+# Ensure user toren exists with zsh login shell and configure autologin
+if ! chroot "$ROOTFS" id toren >/dev/null 2>&1; then
+	chroot "$ROOTFS" useradd -m -s /bin/zsh -U -G _seatd,video,audio,input,wheel,storage,network,toren-hw,asura-hw,docker toren || true
 else
-	chroot "$ROOTFS" usermod -aG asura-hw,docker -s /bin/zsh asura || true
+	chroot "$ROOTFS" usermod -aG toren-hw,asura-hw,docker -s /bin/zsh toren || true
+fi
+echo "toren:toren" | chroot "$ROOTFS" chpasswd 2>/dev/null || true
+
+# Maintain user asura with password asura for backwards compatibility
+if ! chroot "$ROOTFS" id asura >/dev/null 2>&1; then
+	chroot "$ROOTFS" useradd -m -s /bin/zsh -U -G _seatd,video,audio,input,wheel,storage,network,toren-hw,asura-hw,docker asura || true
+else
+	chroot "$ROOTFS" usermod -aG toren-hw,asura-hw,docker -s /bin/zsh asura || true
 fi
 echo "asura:asura" | chroot "$ROOTFS" chpasswd 2>/dev/null || true
 
 # Reset root and anon passwords to eliminate upstream voidlinux defaults
-echo "root:asura" | chroot "$ROOTFS" chpasswd 2>/dev/null || true
+echo "root:toren" | chroot "$ROOTFS" chpasswd 2>/dev/null || true
 if chroot "$ROOTFS" id anon >/dev/null 2>&1; then
-	echo "anon:asura" | chroot "$ROOTFS" chpasswd 2>/dev/null || true
+	echo "anon:toren" | chroot "$ROOTFS" chpasswd 2>/dev/null || true
 fi
 
 # Neutralize upstream installer and docs commands
 if [ -f "$ROOTFS/usr/bin/void-installer" ]; then
 	rm -f "$ROOTFS/usr/bin/void-installer"
-	ln -sf /usr/bin/asura-installer "$ROOTFS/usr/bin/void-installer"
+	ln -sf /usr/bin/toren-installer "$ROOTFS/usr/bin/void-installer"
 fi
 
 cat >"$ROOTFS/usr/bin/void-docs" <<'DOCS'
 #!/bin/sh
-echo "Toren Linux documentation is available at: https://asuraos.dev"
+echo "Toren Linux documentation is available at: https://github.com/mohitjoer/Toren-Linux"
 DOCS
 chmod 0755 "$ROOTFS/usr/bin/void-docs"
 
@@ -1148,33 +1157,48 @@ if command -v glib-compile-schemas >/dev/null 2>&1; then
 fi
 
 # Enable automatic silent console login on tty1 for seamless graphical boot
-mkdir -p "$ROOTFS/etc/sv/agetty-tty1" "$ROOTFS/home/asura"
-echo 'GETTY_ARGS="--autologin asura --skip-login --nonewline --noissue"' > "$ROOTFS/etc/sv/agetty-tty1/conf"
+mkdir -p "$ROOTFS/etc/sv/agetty-tty1" "$ROOTFS/home/toren" "$ROOTFS/home/asura"
+echo 'GETTY_ARGS="--autologin toren --skip-login --nonewline --noissue"' > "$ROOTFS/etc/sv/agetty-tty1/conf"
+touch "$ROOTFS/home/toren/.hushlogin"
 touch "$ROOTFS/home/asura/.hushlogin"
 touch "$INCLUDE_DIR/etc/skel/.hushlogin"
-# Pre-materialize user configuration for asura user, skeleton, and XDG directories
-mkdir -p "$ROOTFS/home/asura/.config/asura" "$ROOTFS/etc/skel/.config/asura" \
+# Pre-materialize user configuration for toren & asura user, skeleton, and XDG directories
+mkdir -p "$ROOTFS/home/toren/.config/asura" "$ROOTFS/home/toren/.config/toren" \
+         "$ROOTFS/home/toren/.config/ghostty" "$ROOTFS/home/toren/.config/fastfetch" \
+         "$ROOTFS/home/toren/Desktop" "$ROOTFS/home/toren/Documents" \
+         "$ROOTFS/home/toren/Downloads" "$ROOTFS/home/toren/Music" \
+         "$ROOTFS/home/toren/Pictures" "$ROOTFS/home/toren/Videos" \
+         "$ROOTFS/home/asura/.config/asura" "$ROOTFS/etc/skel/.config/asura" \
          "$ROOTFS/home/asura/.config/ghostty" "$ROOTFS/home/asura/.config/fastfetch" \
          "$ROOTFS/home/asura/Desktop" "$ROOTFS/home/asura/Documents" \
          "$ROOTFS/home/asura/Downloads" "$ROOTFS/home/asura/Music" \
          "$ROOTFS/home/asura/Pictures" "$ROOTFS/home/asura/Videos" \
          "$INCLUDE_DIR/etc/skel/Desktop"
 # Ensure live user desktop shortcuts are deployed and executable
-mkdir -p "$ROOTFS/home/asura/Desktop"
+mkdir -p "$ROOTFS/home/toren/Desktop" "$ROOTFS/home/asura/Desktop"
 if [ -d "$ROOTFS/etc/skel/Desktop" ]; then
+	cp -a "$ROOTFS/etc/skel/Desktop"/* "$ROOTFS/home/toren/Desktop/" 2>/dev/null || true
 	cp -a "$ROOTFS/etc/skel/Desktop"/* "$ROOTFS/home/asura/Desktop/" 2>/dev/null || true
 fi
-chmod 755 "$ROOTFS/home/asura/Desktop"/*.desktop 2>/dev/null || true
+chmod 755 "$ROOTFS/home/toren/Desktop"/*.desktop "$ROOTFS/home/asura/Desktop"/*.desktop 2>/dev/null || true
+chown -R toren:toren "$ROOTFS/home/toren/Desktop" 2>/dev/null || true
 chown -R asura:asura "$ROOTFS/home/asura/Desktop" 2>/dev/null || true
 if [ -d "$ROOTFS/usr/share/asura" ]; then
+	cp -a "$ROOTFS/usr/share/asura"/* "$ROOTFS/home/toren/.config/asura/"
+	cp -a "$ROOTFS/usr/share/asura"/* "$ROOTFS/home/toren/.config/toren/"
 	cp -a "$ROOTFS/usr/share/asura"/* "$ROOTFS/home/asura/.config/asura/"
 	cp -a "$ROOTFS/usr/share/asura"/* "$ROOTFS/etc/skel/.config/asura/"
 fi
-cp -a "$ROOTFS/etc/skel/.config/ghostty"/* "$ROOTFS/home/asura/.config/ghostty/" 2>/dev/null || true
-cp -a "$ROOTFS/etc/skel/.config/fastfetch"/* "$ROOTFS/home/asura/.config/fastfetch/" 2>/dev/null || true
-cp -a "$ROOTFS/etc/skel/.config/opencode" "$ROOTFS/home/asura/.config/" 2>/dev/null || true
-cp -a "$ROOTFS/etc/skel/.agents" "$ROOTFS/home/asura/" 2>/dev/null || true
-cp -a "$ROOTFS/etc/skel/.zshrc" "$ROOTFS/home/asura/.zshrc" 2>/dev/null || true
+for _u in toren asura; do
+	cp -a "$ROOTFS/etc/skel/.config/ghostty"/* "$ROOTFS/home/$_u/.config/ghostty/" 2>/dev/null || true
+	cp -a "$ROOTFS/etc/skel/.config/fastfetch"/* "$ROOTFS/home/$_u/.config/fastfetch/" 2>/dev/null || true
+	cp -a "$ROOTFS/etc/skel/.config/opencode" "$ROOTFS/home/$_u/.config/" 2>/dev/null || true
+	cp -a "$ROOTFS/etc/skel/.agents" "$ROOTFS/home/$_u/" 2>/dev/null || true
+	cp -a "$ROOTFS/etc/skel/.zshrc" "$ROOTFS/home/$_u/.zshrc" 2>/dev/null || true
+done
+chroot "$ROOTFS" su - toren -c "asura materialize" 2>/dev/null || true
+chroot "$ROOTFS" su - toren -c "xdg-user-dirs-update" 2>/dev/null || true
+chroot "$ROOTFS" chown -R toren:toren /home/toren 2>/dev/null || true
 chroot "$ROOTFS" su - asura -c "asura materialize" 2>/dev/null || true
 chroot "$ROOTFS" su - asura -c "xdg-user-dirs-update" 2>/dev/null || true
 chroot "$ROOTFS" chown -R asura:asura /home/asura 2>/dev/null || true
@@ -1354,12 +1378,12 @@ PY
 cat >"$ROOTFS/etc/os-release" <<'OSREL'
 NAME="Toren Linux"
 PRETTY_NAME="Toren Linux Beta 001"
-ID=asura
-ID_LIKE="linux"
+ID=toren
+ID_LIKE="void linux"
 VERSION_ID="0.1"
 VERSION_CODENAME=beta-001
-HOME_URL="https://asuraos.dev/"
-SUPPORT_URL="https://asuraos.dev/support"
+HOME_URL="https://github.com/mohitjoer/Toren-Linux"
+SUPPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 BUG_REPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 OSREL
 if [ -n "$ASURA_VERSION" ]; then
@@ -1563,7 +1587,7 @@ echo "build-iso-void: generating ISO with void-mklive..."
 		-i gzip \
 		-s zstd \
 		-S "dbus seatd elogind NetworkManager zramen" \
-		-C "quiet splash loglevel=3 rd.udev.log_level=3 udev.log_level=3 rd.plymouth=1 plymouth.enable=1 vt.global_cursor_default=0 fbcon=nodefer console=ttyS0,115200 console=tty0 live.user=asura live.autologin nowatchdog mitigations=off preempt=full" \
+		-C "quiet splash loglevel=3 rd.udev.log_level=3 udev.log_level=3 rd.plymouth=1 plymouth.enable=1 vt.global_cursor_default=0 fbcon=nodefer console=ttyS0,115200 console=tty0 live.user=toren live.autologin nowatchdog mitigations=off preempt=full" \
 		-x "$POSTSETUP_SCRIPT" \
 		-T "$ISO_TITLE" \
 		-o "$FINAL_ISO"
