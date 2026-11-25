@@ -22,7 +22,7 @@ Hardware support is managed through a layered engine (`generic` &rarr; `vendor` 
 | Family / Line | Support Level | Driver & Layer | Notes |
 |---|---|---|---|
 | **ThinkPad** (T, X, P, E, L, Z series) | **Works** | `thinkpad_acpi` | TrackPoint, mute LEDs, battery threshold (start/stop), platform thermal profiles. |
-| **Legion** (5, 7, Pro, Slim) | **Works** | `ideapad_laptop` | Battery conservation mode (caps charge at 60–80%), Fn+Q thermal profiles (`asura power profile`). |
+| **Legion** (5, 7, Pro, Slim) | **Works** | `ideapad_laptop` | Battery conservation mode (caps charge at 60–80%), Fn+Q thermal profiles (`toren power profile`). |
 | **IdeaPad** & **Slim** | **Works** | `ideapad_laptop` | Battery conservation mode, hotkeys, precision touchpad. |
 | **Yoga** (2-in-1 convertibles) | **Works** | `ideapad_laptop`, `ymc` | Convertible tablet mode detection, display auto-rotation via `iio-sensor-proxy`. |
 | **ThinkBook** | **Works** | `ideapad_laptop` | Battery conservation mode, platform profiles. |
@@ -44,7 +44,7 @@ Hardware support is managed through a layered engine (`generic` &rarr; `vendor` 
 | **Envy** (Clamshell & x360) | **Works** | `hp-wmi` | Thermal profiles, privacy camera shutter key. |
 | **Pavilion** | **Works** | `hp-wmi` | Balanced thermal profiles, keyboard backlight. |
 | **ZBook** Mobile Workstations | **Works** | `hp-wmi` | High-load workstation cooling, sustained GPU power delivery. |
-| **Omen** & **Victus** | **Works** | `hp-wmi` | Gaming thermal modes, fan control via `asura power profile`. |
+| **Omen** & **Victus** | **Works** | `hp-wmi` | Gaming thermal modes, fan control via `toren power profile`. |
 
 ### ASUS
 | Family / Line | Support Level | Driver & Layer | Notes |
@@ -129,19 +129,19 @@ Hardware support is managed through a layered engine (`generic` &rarr; `vendor` 
 In addition to maker and family profiles, Toren matches modular components:
 
 ### Graphics
-- **NVIDIA dGPU**: PCIe RTD3 runtime power management (`D3cold`), `nvidia-drm.modeset=1`, dynamic hybrid GPU switching via `asura gpu switch [hybrid | integrated | discrete]`.
+- **NVIDIA dGPU**: PCIe RTD3 runtime power management (`D3cold`), `nvidia-drm.modeset=1`, dynamic hybrid GPU switching via `toren gpu switch [hybrid | integrated | discrete]`.
 - **AMD dGPU**: Power profile switching, hybrid rendering via `DRI_PRIME=1`.
 - **Intel Graphics**: `i915` (GuC/HuC firmware loading) and `xe` driver selection.
 
 ### Power & Battery
-- **Charge Thresholds**: Per-driver battery longevity limits (ThinkPad, ASUS, Dell, Huawei, LG, Samsung, MSI) via `asura power threshold [percentage]`.
-- **Platform Profiles**: ACPI platform profiles (quiet, balanced, performance) via `asura power profile`.
-- **Sleep Optimization**: `s2idle` vs `deep` sleep selection via `asura power sleep [s2idle | deep]`.
+- **Charge Thresholds**: Per-driver battery longevity limits (ThinkPad, ASUS, Dell, Huawei, LG, Samsung, MSI) via `toren power threshold [percentage]`.
+- **Platform Profiles**: ACPI platform profiles (quiet, balanced, performance) via `toren power profile`.
+- **Sleep Optimization**: `s2idle` vs `deep` sleep selection via `toren power sleep [s2idle | deep]`.
 
 ### Input & Sensors
 - **Precision Touchpads**: Optimized palm rejection and clickpad thresholds for I2C HID touchpads.
 - **2-in-1 Tablet Mode**: Accelerometer and orientation detection via `iio-sensor-proxy`.
-- **Fingerprint Readers**: Goodix, Elan, and Synaptics biometric sensors wired to `asura enable fingerprint` via `fprintd`.
+- **Fingerprint Readers**: Goodix, Elan, and Synaptics biometric sensors wired to `toren enable fingerprint` via `fprintd`.
 
 ### Audio & Networking
 - **Smart Amplifiers**: Firmware calibration paths for Cirrus Logic CS35L41 and Realtek ALC codecs.

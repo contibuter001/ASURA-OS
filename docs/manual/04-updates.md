@@ -26,7 +26,7 @@ sudo asura channel set unstable   # every change as soon as it passes (dev-unsta
 
 ## Going back
 
-- `asura rollback`: your desktop settings as they were before the last change.
+- `toren rollback`: your desktop settings as they were before the last change.
 - `asura snapshot`: the system snapshots, with the date, why each was taken
   (before an update, before installing apps, by hand) and which Toren it holds.
 - `sudo asura rollback --system NAME`: boot the system as it was in that

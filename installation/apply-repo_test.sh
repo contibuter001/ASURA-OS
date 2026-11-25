@@ -48,7 +48,7 @@ sh "$APPLY" --no-packages --no-build "$REPO_ROOT" "$T/root" >"$T/log" 2>&1 || { 
 for f in \
 	usr/share/asura/shell/shell.qml \
 	usr/share/asura/shell-desktop/shell.qml \
-	usr/share/asura/shell-desktop/asura/AsuraBridge.qml \
+	usr/share/asura/shell-desktop/toren/AsuraBridge.qml \
 	usr/share/asura/shell-desktop/matugen/config.toml \
 	usr/share/asura/hyprland/binds.conf \
 	usr/share/asura/runit/services/quickshell/run \
@@ -61,6 +61,6 @@ for f in \
 	[ -e "$T/root/$f" ] || { echo "apply-repo_test: $f was not installed" >&2; exit 1; }
 done
 # The desktop build tooling stays out of the system.
-[ ! -e "$T/root/usr/share/asura/shell-desktop/asura/vendor.sh" ] || { echo "apply-repo_test: vendor.sh was installed" >&2; exit 1; }
+[ ! -e "$T/root/usr/share/asura/shell-desktop/toren/vendor.sh" ] || { echo "apply-repo_test: vendor.sh was installed" >&2; exit 1; }
 [ -x "$T/root/usr/bin/asura-session" ] || { echo "apply-repo_test: asura-session is not executable" >&2; exit 1; }
 echo "apply-repo_test: ok"

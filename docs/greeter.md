@@ -1,7 +1,7 @@
 # The login screen
 
-Toren's login screen is an SDDM theme, `session/sddm/themes/asura`. SDDM runs it
-inside the kiosk Weston that `session/asura-greeter` starts. The theme logs in
+Toren's login screen is an SDDM theme, `session/sddm/themes/toren`. SDDM runs it
+inside the kiosk Weston that `session/toren-greeter` starts. The theme logs in
 through SDDM's own API (`sddm.login`), so PAM does the authenticating exactly as
 it does for any SDDM theme and Toren touches nothing under `/etc/pam.d`.
 
@@ -17,13 +17,13 @@ to log in, so the one file that turns Toren's on is copied by you, with sudo.
 
 1. `sudo xbps-install -S sddm weston`. Keep the current display manager until the
    later steps have worked.
-2. `asura greeter test` draws the screen inside your session for a minute, with
+2. `toren greeter test` draws the screen inside your session for a minute, with
    logging in switched off. Esc leaves.
-3. `asura greeter enable` checks that everything is installed and prints the
+3. `toren greeter enable` checks that everything is installed and prints the
    `sudo install` command that copies the file to `/etc/sddm.conf.d/10-asura.conf`.
 4. Start the sddm service (`sudo sv enable sddm && sudo sv start sddm`) and reboot.
 
-`asura greeter disable` prints the command that removes the file again.
+`toren greeter disable` prints the command that removes the file again.
 
 ## If the login screen is broken
 
@@ -41,7 +41,7 @@ Weston did not start.
 The theme has been driven with mock SDDM objects under `qmltestrunner` and
 rendered offscreen. It has never run inside `sddm-greeter-qt6` under Weston,
 because neither is installed on the machine it was written on. Check first that
-`asura greeter test` shows the form, then that a real login works from the
+`toren greeter test` shows the form, then that a real login works from the
 greeter, then a second monitor: every screen shows the form, and keyboard focus
 lands on whichever Weston activates.
 

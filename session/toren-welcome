@@ -27,8 +27,8 @@ if [ "${1:-}" = "--if-first-run" ]; then
         exit 0
     fi
     # Clean up any leftover installer shortcuts on an installed system
-    rm -f "$HOME/Desktop/asura-installer.desktop" 2>/dev/null || true
-    rm -f "$HOME/.local/share/applications/asura-installer.desktop" 2>/dev/null || true
+    rm -f "$HOME/Desktop/asura-installer.desktop" "$HOME/Desktop/toren-installer.desktop" 2>/dev/null || true
+    rm -f "$HOME/.local/share/applications/asura-installer.desktop" "$HOME/.local/share/applications/toren-installer.desktop" 2>/dev/null || true
 fi
 
 

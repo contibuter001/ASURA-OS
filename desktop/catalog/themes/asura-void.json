@@ -1,10 +1,10 @@
 {
   "id": "asura-void",
-  "name": "Asura Void",
+  "name": "Toren Void",
   "category": "themes",
   "summary": "Signature minimal brutalist pitch-black theme with crimson accents",
-  "description": "The canonical desktop appearance for ASURA OS: pure black backgrounds (#000000), zinc containers, crisp 1px bone hairlines, and crimson highlights (#e2342a).",
-  "author": "ASURA OS Core Team <core@asura-os.org>",
+  "description": "The canonical desktop appearance for Toren Linux: pure black backgrounds (#000000), zinc containers, crisp 1px bone hairlines, and crimson highlights (#e2342a).",
+  "author": "Toren Linux Core Team <core@torenlinux.org>",
   "version": "1.0.0",
   "license": "GPL-3.0",
   "tags": ["official", "dark", "brutalist", "minimal", "void"],

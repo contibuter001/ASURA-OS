@@ -46,7 +46,7 @@ Each option clearly describes the action it will perform and requests explicit c
 
 ---
 
-## 3. Desktop Reset: `asura reset --desktop`
+## 3. Desktop Reset: `toren reset --desktop`
 
 If your desktop layout, Hyprland binds, or Quickshell widgets are broken:
 

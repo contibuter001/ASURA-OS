@@ -18,13 +18,13 @@ key sounds) is a different thing, managed on Settings > Plugins; see
 ## The rules
 
 Eleven rules make a plugin safe to install and native to the shell.
-`asura plugin new` writes them into the plugin's `AGENTS.md`, and
-`asura plugin audit` enforces the ones a machine can check.
+`toren plugin new` writes them into the plugin's `AGENTS.md`, and
+`toren plugin audit` enforces the ones a machine can check.
 
 - **R1 Place.** A plugin is one folder named after its id, authored under
   `$(xdg-user-dir DOCUMENTS)/asura-plugins/<id>/` (fallback
-  `~/asura-plugins/<id>/`); `asura plugin new <id>` creates it there. Never write
-  into `~/.local/share/asura/plugins/` (the install root, which `asura plugin
+  `~/asura-plugins/<id>/`); `toren plugin new <id>` creates it there. Never write
+  into `~/.local/share/asura/plugins/` (the install root, which `toren plugin
   install` fills) or `/usr/share/asura/` (the shipped shell). *Why:* those trees
   belong to the installer and the package, so a stray file there is either
   loaded unaudited or replaced on the next update.
@@ -81,17 +81,17 @@ Eleven rules make a plugin safe to install and native to the shell.
 Start to finish, a plugin is one command to scaffold, an edit loop, one command
 to check, and one to install:
 
-1. **Scaffold.** `asura plugin new <id> [--bar|--desktop|--popout]` writes R1's
+1. **Scaffold.** `toren plugin new <id> [--bar|--desktop|--popout]` writes R1's
    folder from a working template (default `--bar`, which also adds
    `entryPoints.panel` and `content/Panel.qml`): the manifest, `service/Main.qml`,
    `content/Widget.qml`, `README.md`, `LICENSE`, an `AGENTS.md` carrying these
    rules, and a first git commit as the author.
 2. **Edit.** Fill in the service, the view, the panel, the manifest and the
    README, and capture `assets/preview-widget.png`.
-3. **Audit.** `asura plugin audit <dir>` runs the manifest checks and the
+3. **Audit.** `toren plugin audit <dir>` runs the manifest checks and the
    static audit. Clear every blocking finding (see [Security](#security)); the
    template audits clean, so keep it that way.
-4. **Install.** `asura plugin install <dir> --bar --yes` audits again, copies
+4. **Install.** `toren plugin install <dir> --bar --yes` audits again, copies
    the folder into the install root, and enables it on the bar; the shell picks
    it up on the `plugins.json` change, no restart.
 5. **Verify.** Confirm it on the bar and on the bar's Community page.
@@ -165,7 +165,7 @@ dragging the popout chip around a mock of their screen in Toren Settings.
 Dropped in the **middle** of that screen instead, the popout becomes a centred
 surface: it floats in the middle of the display, all four corners rounded, with
 no hover edge. A centred popout opens only when it is asked for, by
-`asura-shell plugin <id>` or a click, which makes it the placement
+`toren-shell plugin <id>` or a click, which makes it the placement
 for a modal view. It shares the middle of the screen with quick settings
 (`Super+Escape`) and the stash (`Super+S`), but the shell only ever shows one
 surface at a time, so they take turns rather than overlap.
@@ -189,7 +189,7 @@ surface at a time, so they take turns rather than overlap.
   - To override this behavior on any popout, set `"autoDismiss": true` or `false`
     in `defaults.framePopout`.
 
-`asura-shell plugin <id>` toggles your frame popout open (bind it to a key).
+`toren-shell plugin <id>` toggles your frame popout open (bind it to a key).
 
 ### 3. Bar glyph - rides the bar
 
@@ -203,7 +203,7 @@ island.
 - Toren handles the **island pill, spacing, and the bar's width arithmetic**.
 - A bar glyph **is a layout entry**, the same kind of entry as a built-in widget:
   it lives in `shell.json` `top.layout`, so a user drags it between lanes in QS
-  Bar Settings' Layout route or moves it from a terminal with `asura-shell bar
+  Bar Settings' Layout route or moves it from a terminal with `toren-shell bar
   move <id> --section left|center|right`. It shows once it is enabled with
   `host: topbarGlyph` in `plugins.json`.
 
@@ -231,12 +231,12 @@ by the bar's settings, which draw these `metadata.settings` types: `toggle`,
 menu types and do not render there, so a bar widget picks from the first set.
 
 Install a bar plugin straight from git, or from a folder on this desktop, with
-`asura plugin install <git-url|dir> --bar`: it validates the manifest, audits
+`toren plugin install <git-url|dir> --bar`: it validates the manifest, audits
 the tree, copies it to `~/.local/share/asura/plugins/<id>`, enables it on the
 bar, and the shell picks it up on the `plugins.json` change, no restart. It
 lists on the bar's Community page (any plugin whose manifest is not
 `"official": true`) with the community warning, its author, its switch and
-settings. `asura plugin list|enable|disable|remove|audit` manage it from a
+settings. `toren plugin list|enable|disable|remove|audit` manage it from a
 terminal.
 
 > Island and window hosts are planned but not built yet. Declare only
@@ -295,7 +295,7 @@ down, so the service stays alive and the panel stays open. The host destroys and
 recreates the service and the api only when the bar row itself is rebuilt, when a
 widget in that lane is moved, added, or removed.
 
-`asura plugin new <id> --bar` writes a worked bar example: a glyph that shows
+`toren plugin new <id> --bar` writes a worked bar example: a glyph that shows
 a live value, a 320-wide panel with a button, and no click on the bar that
 changes anything.
 
@@ -458,7 +458,7 @@ value for it, and `undefined` must not become your poll interval.
 - **A plugin never gets a keybind of its own.** Toren has no plugins-menu leader
   and reads no `key` field from your manifest; do not ship one, and do not tell
   users a chord opens your plugin. A frame popout opens on hover at its edge, or
-  through `asura-shell plugin <id>`, which the user can bind to whatever chord
+  through `toren-shell plugin <id>`, which the user can bind to whatever chord
   they like in Settings → Keybinds. The shipped bind table stays Toren's.
 - `files` - any extra files the plugin ships beyond its entry points and
   `commands` (helper QML a view imports, images, data). Install fetches the entry
@@ -477,9 +477,9 @@ value for it, and `undefined` must not become your poll interval.
 
 ## Security
 
-`asura plugin audit <dir>` (alias `validate`) runs the manifest checks and a
+`toren plugin audit <dir>` (alias `validate`) runs the manifest checks and a
 static audit, and prints each finding as `rule-id  path:line  message`.
-**Blocking** rules make `audit` exit non-zero and make `asura plugin install`
+**Blocking** rules make `audit` exit non-zero and make `toren plugin install`
 refuse to install (unless
 you pass `--allow-findings`); `--allow <rule>` downgrades one named blocking rule
 to a warning for the run. **Warning** rules are printed but do not block.
@@ -510,10 +510,10 @@ URL it finds.
 
 ## Install, enable, place
 
-- **Install**: `asura plugin install <git-url|dir> [--bar]` (audited, then copied
+- **Install**: `toren plugin install <git-url|dir> [--bar]` (audited, then copied
   to `~/.local/share/asura/plugins/<id>`; `add` is an alias). A folder you drop
   there by hand loads too, but nothing audited it.
-- **Enable & place**: `asura plugin enable <id> [--bar|--desktop|--popout]` and
+- **Enable & place**: `toren plugin enable <id> [--bar|--desktop|--popout]` and
   `disable <id>`, or the bar's Community page. Placement saves to
   `~/.config/asura/plugins.json`, written only by `asura-plugins-place`; the
   shell watches that file and retunes live - no restart.
@@ -524,15 +524,15 @@ URL it finds.
 
 ## Porting a prior-project plugin
 
-A plugin written for the prior project needs these renames, and `asura plugin audit` reports
+A plugin written for the prior project needs these renames, and `toren plugin audit` reports
 each one with the fix:
 
 | Prior project | Toren |
 |---|---|
 | `import <prior>.PluginKit` | `import qs.PluginKit` |
 | `import <prior>.PluginKit.Singletons` | `import qs.PluginKit.Singletons` |
-| `<prior>-shell`, `<prior>-plugins-place`, `<prior>` | `asura-shell`, `asura-plugins-place`, `asura` |
-| `~/.config/<prior>`, `~/.local/share/<prior>`, `$XDG_STATE_HOME/<prior>/plugins/<id>` | the same paths with `asura` |
+| `<prior>-shell`, `<prior>-plugins-place`, `<prior>` | `toren-shell`, `asura-plugins-place`, `toren` |
+| `~/.config/<prior>`, `~/.local/share/<prior>`, `$XDG_STATE_HOME/<prior>/plugins/<id>` | the same paths with `toren` |
 | `<PRIOR>_*`, `<PRIOR_STORE>_PLUGINS_DIR` | `ASURA_*`, `ASURA_PLUGINS_DIR` |
 
 The kit keeps every token name it had (`Theme.verm`, `Theme.flameInk` ...) so the
@@ -540,7 +540,7 @@ plugin still loads, but the values are greys: the design system has no accent
 hue, and a plugin that leaned on one will look plainer, not break.
 
 Publishing a plugin to a catalogue (`export`, `share`) is not part of Toren's
-`asura plugin`.
+`toren plugin`.
 
 ---
 

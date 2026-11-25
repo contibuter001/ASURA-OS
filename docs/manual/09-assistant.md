@@ -8,5 +8,5 @@ example, "make the dock always visible" or "why is my Wi-Fi slow".
 It needs an AI provider account (OpenCode asks on first start). It asks before
 it runs commands; read them before you agree, especially anything with sudo.
 
-`asura-agent status` shows which assistants on this machine have Toren's
+`toren-agent status` shows which assistants on this machine have Toren's
 knowledge; they are set up at every login.

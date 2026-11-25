@@ -1,6 +1,6 @@
 # Toren's package repository
 
-Toren is built into one XBPS package, `asura`, holding everything
+Toren is built into one XBPS package, `toren`, holding everything
 `installation/apply-repo.sh` installs: the Go tools, the desktop, the session,
 the migrations and the system configuration. The `xbps-repo` workflow builds it
 and publishes a signed repository.
@@ -49,14 +49,14 @@ published.
 Once the repository is published:
 
 - Add `repository=https://<owner>.github.io/<repo>/current` first in
-  `system/xbps.d/asura.conf`, so new installs use it.
+  `system/xbps.d/toren.conf`, so new installs use it.
 - Ship the public key so no one is asked to trust it by hand: after the first
   signed sync on any machine, copy its key file from `/var/db/xbps/keys/` into
   the repository, and install it with the ISO build and a migration.
 - Add a migration that writes the repository line on existing machines, then
   `sudo xbps-install -Su` updates Toren like any other package.
 
-Until then, `asura update` installs Toren from `dev-unstable` as it does now.
+Until then, `toren update` installs Toren from `dev-unstable` as it does now.
 
 ## When it publishes
 
@@ -66,6 +66,6 @@ push to `dev-unstable`, once every required job has passed, ci calls
 xbps-repo → Run workflow, on `dev-unstable`) publishes too. `main` stays the
 default branch; nothing here depends on it.
 
-`asura update` does not wait for the `Packages` checks: publishing says
+`toren update` does not wait for the `Packages` checks: publishing says
 nothing about whether a commit works, so a publishing problem never holds
 machines back.

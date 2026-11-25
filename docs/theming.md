@@ -1,7 +1,7 @@
 # Theming
 
 How a wallpaper becomes colours, which file carries them, and who writes it. The generator is
-Toren's own, in `desktop/internal/theme`: there is no matugen on the machine, so `asura theme` makes
+Toren's own, in `desktop/internal/theme`: there is no matugen on the machine, so `toren theme` makes
 the scheme matugen would and fills the templates itself.
 
 ## The pipeline
@@ -15,15 +15,15 @@ wallpaper
                                          what the apps get
 ```
 
-The daemon (`asura-shell`) runs this on every wallpaper change, in matugen's order, and swaps the
-`matugen` executable for the two `asura theme` calls. `asura theme generate IMAGE` with no
+The daemon (`toren-shell`) runs this on every wallpaper change, in matugen's order, and swaps the
+`matugen` executable for the two `toren theme` calls. `toren theme generate IMAGE` with no
 `--json` does the middle step by hand: it writes `colors.json` and `tones.json` and nothing else.
 
 ## The on-disk contract
 
 | File | Keys | Written by | Read by |
 |---|---|---|---|
-| `~/.cache/asura/colors.json` | one flat map of `#rrggbb` strings: `background`, `foreground`, `cursor`, `color0` to `color15`, and 32 camelCase Material roles (`surface`, `onSurface`, `primaryContainer`, `outlineVariant`, `shadow`, `scrim`, ...) | the daemon; `asura theme generate IMAGE` by hand | `Services/Scheme.qml`, `Ui/Singletons/Tokens.qml`, `hub/Singletons/Scheme.qml` |
+| `~/.cache/asura/colors.json` | one flat map of `#rrggbb` strings: `background`, `foreground`, `cursor`, `color0` to `color15`, and 32 camelCase Material roles (`surface`, `onSurface`, `primaryContainer`, `outlineVariant`, `shadow`, `scrim`, ...) | the daemon; `toren theme generate IMAGE` by hand | `Services/Scheme.qml`, `Ui/Singletons/Tokens.qml`, `hub/Singletons/Scheme.qml` |
 | `~/.cache/asura/tones.json` | `{ramp: {tone: hex}}` for `primary`, `secondary`, `tertiary`, `neutral`, `neutralVariant`, `error`; tones 0 to 100 in 18 steps | the same | `Ui/Singletons/Ink.qml` |
 | `~/.config/asura/theme.json` | `followWallpaper` (default true), `themeApps` | the Hub | the singletons above; the daemon |
 | `~/.config/asura/shell.json` | `themePalette`, the fixed named scheme that outranks the wallpaper | the daemon | the singletons above |
@@ -76,7 +76,7 @@ when it is installed and fail with a message saying so when it is not.
 
 ## Rendering
 
-`asura theme render --config CONFIG --palette CARRIER` (matugen's `-c CONFIG [json] CARRIER` works
+`toren theme render --config CONFIG --palette CARRIER` (matugen's `-c CONFIG [json] CARRIER` works
 too). CONFIG holds `[templates.NAME]` blocks with `input_path` and `output_path`; `~/` is the home directory. A
 template fills `{{ colors.NAME.BUCKET.FIELD }}` from the carrier, the JSON the daemon builds
 (`{"colors": {NAME: {"default": {"hex": ...}, "dark": ..., "light": ...}}}`), and understands one
@@ -84,7 +84,7 @@ filter, `| replace: "#", ""`. A colour that does not resolve fails that template
 still render; the exit code is 1 if any failed.
 
 Templates are read from `~/.config/asura/shell/matugen/` (the materialised copy, where a user edit
-wins) and from `/usr/share/asura/shell/matugen/` before `asura materialize` has run.
+wins) and from `/usr/share/asura/shell/matugen/` before `toren materialize` has run.
 
 A render writes only into an app's own per-user directory, and never over something that is not
 its own:
@@ -108,7 +108,7 @@ Each block prints `wrote`, `unchanged`, `left alone: <why>` or `error: <why>`.
 
 `config.toml` holds the first three and always renders; `apps.toml` holds the GTK pair and the
 daemon filters it by the roster. The shipped `apps/ghostty/colors` is a static default; a render
-replaces it, and `asura materialize` puts the static one back until the next render.
+replaces it, and `toren materialize` puts the static one back until the next render.
 
 Dropped, because Toren does not ship the app: kitty, fish, yazi, KDE, cava, zathura, tmux, micro,
 alacritty, OBS, Zed, Discord (vesktop, equibop), Steam, Telegram, Heroic, Obsidian, Sidra and

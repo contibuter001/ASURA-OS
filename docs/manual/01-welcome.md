@@ -9,8 +9,8 @@ other instead of overlapping, and almost everything has a keyboard shortcut.
 1. Press **Super + K** to see every shortcut. (Super is the Windows key.)
 2. Press **Super + Space** and type the name of an app to open it.
 3. Press **Super + Enter** for a terminal.
-4. Run `asura theme set` to pick a look, and `asura bundle` for ready-made app sets.
-5. Run `asura doctor` once: it checks the whole machine and tells you if
+4. Run `toren theme set` to pick a look, and `asura bundle` for ready-made app sets.
+5. Run `toren doctor` once: it checks the whole machine and tells you if
    anything is wrong.
 
 ## This manual

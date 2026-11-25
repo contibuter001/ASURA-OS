@@ -3,7 +3,7 @@
 ## The Store
 
 Open **Store** from the launcher to browse and install apps, themes and
-plugins. From a terminal: `asura-store search NAME`, `asura-store install ID`.
+plugins. From a terminal: `toren-store search NAME`, `toren-store install ID`.
 
 ## Bundles: many apps in one command
 

@@ -9,7 +9,7 @@
 - **Hyprland** (gaps, borders, window rules, monitors, keyboard layout): put
   your changes in `~/.config/asura/hyprland/user.conf`; it is read after
   Toren's, so yours win. `hyprctl reload` applies them.
-- **From a terminal**: `asura config get|set SCHEMA KEY [VALUE]`.
+- **From a terminal**: `toren config get|set SCHEMA KEY [VALUE]`.
 
 Never edit files under `/usr/share/asura`: every update replaces them. Your
 files in your home folder survive every update.

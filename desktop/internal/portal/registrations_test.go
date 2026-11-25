@@ -69,7 +69,7 @@ func mkdirAll(t *testing.T, path string) {
 // someone adding one line to a packaging script.
 func TestEveryRegistrationIsSanctioned(t *testing.T) {
 	allowed := map[string]bool{
-		"/usr/share/wayland-sessions/asura.desktop":                 true,
+		"/usr/share/wayland-sessions/toren.desktop":                 true,
 		"/usr/share/xdg-desktop-portal/asura-portals.conf":          true,
 		"/usr/share/glib-2.0/schemas/org.asura.shell.gschema.xml":   true,
 		"/usr/share/glib-2.0/schemas/org.asura.desktop.gschema.xml": true,
@@ -108,7 +108,7 @@ func TestCheckRegistrationsPassesOnACompleteTree(t *testing.T) {
 func TestMissingRegistrationIsNamed(t *testing.T) {
 	env := installedTree(t)
 	if err := os.RemoveAll(filepath.Join(env.Root,
-		"/usr/share/wayland-sessions/asura.desktop")); err != nil {
+		"/usr/share/wayland-sessions/toren.desktop")); err != nil {
 		t.Fatal(err)
 	}
 
