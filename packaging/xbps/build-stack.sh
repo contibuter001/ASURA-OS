@@ -1,9 +1,9 @@
 #!/bin/sh
-# Build the Hyprland stack packages from ASURA-OS/void-packages (branch asura).
+# Build the Hyprland stack packages from Toren-Linux/void-packages (branch Toren).
 #
 # Usage: packaging/xbps/build-stack.sh [OUT_DIR] [VOID_PACKAGES_DIR]
 #
-# Clones ASURA-OS/void-packages at the asura branch (or uses VOID_PACKAGES_DIR if provided),
+# Clones Toren-Linux/void-packages at the Toren branch (or uses VOID_PACKAGES_DIR if provided),
 # builds the Hyprland stack packages with xbps-src, and collects them in OUT_DIR.
 set -eu
 
@@ -35,8 +35,8 @@ WORK_DIR=""
 if [ -z "$VOID_PACKAGES_DIR" ] || [ ! -d "$VOID_PACKAGES_DIR" ]; then
 	WORK_DIR=$(mktemp -d -t asura-void-packages-XXXXXX)
 	trap 'rm -rf "$WORK_DIR"' EXIT INT TERM
-	echo "build-stack: cloning ASURA-OS/void-packages at branch asura..."
-	git clone --depth 1 -b asura https://github.com/ASURA-OS/void-packages.git "$WORK_DIR"
+	echo "build-stack: cloning Toren-Linux/void-packages at branch Toren..."
+	git clone --depth 1 -b Toren https://github.com/Toren-Linux/void-packages.git "$WORK_DIR"
 	VP_DIR="$WORK_DIR"
 else
 	VP_DIR="$VOID_PACKAGES_DIR"
