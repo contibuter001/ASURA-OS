@@ -41,9 +41,9 @@ func TestGithubRepoOf(t *testing.T) {
 	dir := t.TempDir()
 	git(t, dir, "init", "-q")
 	for url, want := range map[string]string{
-		"https://github.com/mohitjoer/ASURA-OS.git": "mohitjoer/ASURA-OS",
-		"https://github.com/mohitjoer/ASURA-OS":     "mohitjoer/ASURA-OS",
-		"git@github.com:contibuter001/ASURA-OS.git": "contibuter001/ASURA-OS",
+		"https://github.com/mohitjoer/Toren-Linux.git": "mohitjoer/Toren-Linux",
+		"https://github.com/mohitjoer/Toren-Linux":     "mohitjoer/Toren-Linux",
+		"git@github.com:contibuter001/Toren-Linux.git": "contibuter001/Toren-Linux",
 	} {
 		git(t, dir, "remote", "remove", "origin")
 		git(t, dir, "remote", "add", "origin", url)

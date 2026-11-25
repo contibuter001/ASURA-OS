@@ -639,7 +639,7 @@ Item {
                 // the section has to name what moves the rest.
                 Text {
                     width: idleCol.width
-                    text: I18n.tr("From the base archive, kernel included. `asura update` moves Asura's own packages; take the rest with:  sudo xbps-install -Syu")
+                    text: I18n.tr("From the base archive, kernel included. `asura update` moves Toren's own packages; take the rest with:  sudo xbps-install -Syu")
                     color: Tokens.inkFaint
                     font.family: Tokens.ui; font.pixelSize: Tokens.fTiny
                     wrapMode: Text.WordWrap

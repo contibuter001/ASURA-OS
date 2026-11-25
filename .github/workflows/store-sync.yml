@@ -1,6 +1,6 @@
 # The store's two trees must never drift.
 #
-# The standalone asura-store repository (github.com/ASURA-OS/asura-store,
+# The standalone asura-store repository (github.com/Toren-Linux/asura-store,
 # public) owns the backend and the window: the ISO builder builds the binary
 # from it whenever it is available (`ASURA_STORE_SRC`, with the checkout under
 # the tree next to this one winning), and `desktop/cmd/asura-store/` and
@@ -42,7 +42,7 @@ jobs:
   parity:
     runs-on: ubuntu-24.04
     steps:
-      - name: Check out ASURA-OS
+      - name: Check out Toren-Linux
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
@@ -50,7 +50,7 @@ jobs:
       - name: Check out the standalone store repository
         uses: actions/checkout@v5
         with:
-          repository: ASURA-OS/asura-store
+          repository: Toren-Linux/asura-store
           ref: main
           path: store-upstream
           fetch-depth: 1

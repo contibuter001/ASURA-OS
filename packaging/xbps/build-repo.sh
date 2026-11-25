@@ -68,7 +68,7 @@ echo "build-repo: creating $PKGVER"
 		-s "Toren Linux: the desktop, its tools, and its system configuration" \
 		-m "mohitjoer <mohitjoe.r@gmail.com>" \
 		-l "GPL-3.0-only" \
-		-H "https://github.com/mohitjoer/ASURA-OS" \
+		-H "https://github.com/mohitjoer/Toren-Linux" \
 		-D "hyprland>=0.57 quickshell>=0 seatd>=0 turnstile>=0" \
 		-F "$conf_files" \
 		"$STAGE"

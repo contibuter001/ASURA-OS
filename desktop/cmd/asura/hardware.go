@@ -361,7 +361,7 @@ func hardwareReport(args []string) int {
 		params.Set("title", title)
 		params.Set("body", body)
 
-		issueURL := "https://github.com/mohitjoer/ASURA-OS/issues/new?" + params.Encode()
+		issueURL := "https://github.com/mohitjoer/Toren-Linux/issues/new?" + params.Encode()
 
 		fmt.Println("Redacted hardware report prepared (no serial numbers or personal data).")
 		fmt.Println("Opening prefilled GitHub issue in your browser...")

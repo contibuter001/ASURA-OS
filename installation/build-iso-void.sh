@@ -162,7 +162,7 @@ VERSION_ID="0.1"
 VERSION_CODENAME=beta-001
 HOME_URL="https://asuraos.dev/"
 SUPPORT_URL="https://asuraos.dev/support"
-BUG_REPORT_URL="https://github.com/mohitjoer/Asura-OS/issues"
+BUG_REPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 EOF
 if [ -n "$ASURA_VERSION" ]; then
 	printf 'IMAGE_VERSION=%s\n' "$ASURA_VERSION" >>"$INCLUDE_DIR/etc/os-release"
@@ -534,7 +534,7 @@ echo "build-iso-void: staging native Void Linux Hyprland stack from ASURA reposi
 HYPR_CACHE="$BUILD_DIR/hyprland-pkgs"
 mkdir -p "$HYPR_CACHE"
 
-ASURA_REPO_URL="${ASURA_REPO_URL:-https://mohitjoer.github.io/ASURA-OS/current}"
+ASURA_REPO_URL="${ASURA_REPO_URL:-https://mohitjoer.github.io/Toren-Linux/current}"
 
 HYPR_PKGS="hyprutils-0.14.4_1.x86_64.xbps aquamarine-0.16.0_1.x86_64.xbps hyprlang-0.6.8_1.x86_64.xbps hyprcursor-0.1.14_1.x86_64.xbps hyprgraphics-0.6.0_1.x86_64.xbps hyprland-protocols-0.8.0_1.x86_64.xbps hyprwire-0.3.1_1.x86_64.xbps hyprtoolkit-0.6.0_1.x86_64.xbps hyprland-0.57.2_1.x86_64.xbps xdg-desktop-portal-hyprland-1.5.0_1.x86_64.xbps hypridle-0.1.8_1.x86_64.xbps hyprlock-0.9.7_1.x86_64.xbps"
 for hpkg in $HYPR_PKGS; do
@@ -669,7 +669,7 @@ echo "build-iso-void: building Asura Go binaries..."
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-wallpaper" ./cmd/asura-wallpaper
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/apm" ./cmd/apm
 	CGO_ENABLED=0 go build -o "$INCLUDE_DIR/usr/bin/asura-agent" ./cmd/asura-agent
-	# Build Asura Store (prioritizing standalone repository https://github.com/ASURA-OS/asura-store)
+	# Build Asura Store (prioritizing standalone repository https://github.com/Toren-Linux/asura-store)
 	STORE_SRC="${ASURA_STORE_SRC:-}"
 	if [ -z "$STORE_SRC" ]; then
 		if [ -d "$REPO_ROOT/../asura-store" ]; then
@@ -1327,7 +1327,7 @@ VERSION_ID="0.1"
 VERSION_CODENAME=beta-001
 HOME_URL="https://asuraos.dev/"
 SUPPORT_URL="https://asuraos.dev/support"
-BUG_REPORT_URL="https://github.com/mohitjoer/Asura-OS/issues"
+BUG_REPORT_URL="https://github.com/mohitjoer/Toren-Linux/issues"
 OSREL
 if [ -n "$ASURA_VERSION" ]; then
 	printf 'IMAGE_VERSION=%s\n' "$ASURA_VERSION" >>"$ROOTFS/etc/os-release"
