@@ -272,8 +272,6 @@ f4914526fe82f9bf8dd6f121422c9d2ead7d4b34 defaults/ai/prompts/ii-Default.md
 d501c318615843d4dbd50492003982ef45ad269e matugen/templates/ags/sourceviewtheme-light.xml
 71980991885fcda844deed41c620214465e0c705 matugen/templates/ags/sourceviewtheme.xml
 ec7e1a68687139ea078cb6d1cbce599719fc06ad matugen/templates/fuzzel/fuzzel_theme.ini
-0d8cb9cbe297732960ffb8500bc4e923764099a0 matugen/templates/gtk-3.0/gtk.css
-6f24e30dcce4d5527d41654210b9f910b565f23d matugen/templates/gtk-4.0/gtk.css
 0175f2d474fc694c089bed9cad83e1d6486ff20b matugen/templates/hyprland/colors.lua
 c3f8de24dba00175aff9293079083e03d5ec9dd2 matugen/templates/hyprland/hyprlock-colors.conf
 35142904ffc7b42b15d990108b85e99a53b4d338 matugen/templates/kde/color.txt

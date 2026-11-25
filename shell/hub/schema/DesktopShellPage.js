@@ -181,6 +181,16 @@ var rows = [
     },
     {
         "tab": "Look",
+        "group": "APPS",
+        "key": "toren.gtkRoundedCorners",
+        "ctl": "sw",
+        "label": "Rounded app corners",
+        "desc": "GTK and libadwaita apps (Files, settings dialogs) draw rounded window corners. Off keeps them square. Applies to apps opened after the change",
+        "store": "gtk-corners",
+        "def": false
+    },
+    {
+        "tab": "Look",
         "group": "OVERVIEW",
         "key": "overview.rows",
         "ctl": "step",

@@ -33,6 +33,10 @@ def read_keys(path):
 keys = read_keys(CONFIG)
 R = []
 def row(tab, group, key, ctl, label, desc, **kw):
+    if "store" in kw:
+        # kept outside the desktop's config.json; the page reads and writes it
+        r = {"tab": tab, "group": group, "key": key, "ctl": ctl, "label": label, "desc": desc}
+        r.update(kw); R.append(r); return
     assert key in keys, key
     d = keys[key]["def"]
     t = keys[key]["type"]
@@ -64,6 +68,9 @@ row("Look", "COLOURS", "appearance.palette.type", "seg", "Colour scheme", "How c
 row("Look", "COLOURS", "appearance.transparency.enable", "sw", "Transparency", "Lets the wallpaper show through panels and menus")
 row("Look", "SCREEN", "appearance.fakeScreenRounding", "seg", "Rounded screen corners", "Draws rounded corners over the screen's edges",
     opts=["Off", "Always", "Not fullscreen"], map={"Off": 0, "Always": 1, "Not fullscreen": 2})
+row("Look", "APPS", "toren.gtkRoundedCorners", "sw", "Rounded app corners",
+    "GTK and libadwaita apps (Files, settings dialogs) draw rounded window corners. Off keeps them square. Applies to apps opened after the change",
+    store="gtk-corners", **{"def": False})
 row("Look", "OVERVIEW", "overview.rows", "step", "Rows", "Workspaces per column in the overview", **{"from": 1, "to": 5})
 row("Look", "OVERVIEW", "overview.columns", "step", "Columns", "Workspaces per row in the overview", **{"from": 1, "to": 10})
 
