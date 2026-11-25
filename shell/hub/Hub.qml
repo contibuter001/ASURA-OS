@@ -1202,7 +1202,7 @@ Rectangle {
 
     Rectangle {
         id: rail
-        anchors { left: parent.left; top: parent.top; bottom: bar.top }
+        anchors { left: parent.left; top: parent.top; bottom: Tokens.cards ? parent.bottom : bar.top }
         width: Tokens.railW
         color: Tokens.tint5
 
@@ -1265,7 +1265,7 @@ Rectangle {
             anchors.topMargin: Tokens.s3
             contentHeight: nav.height
             clip: true
-            ScrollBar.vertical: ScrollRail { policy: ScrollBar.AsNeeded }
+            ScrollBar.vertical: ScrollRail { policy: navFlick.contentHeight > navFlick.height ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff }
             WheelScroll { }
 
             // keep the selected row on screen after a search jump or an IPC open
@@ -1488,13 +1488,14 @@ Rectangle {
         anchors.topMargin: Tokens.s5 - Math.round((height - 18) / 2); anchors.rightMargin: Tokens.s6
         z: 60
         width: ubLabel.implicitWidth + Tokens.s4 * 2
-        height: 26
+        height: Tokens.cards ? 30 : 26
         readonly property bool here: hub.section === "updates"
         Rectangle {
             anchors.fill: parent
-            radius: Tokens.radius
-            color: updatesBtn.here ? Tokens.bone : (ubh.hovered ? Tokens.paperLift : Tokens.paper)
-            border.width: Tokens.border
+            radius: Tokens.cards ? height / 2 : Tokens.radius
+            color: Tokens.cards ? (updatesBtn.here ? Qt.rgba(Tokens.sun.r, Tokens.sun.g, Tokens.sun.b, 0.2) : (ubh.hovered ? Tokens.tint16 : Tokens.tint10))
+                : (updatesBtn.here ? Tokens.bone : (ubh.hovered ? Tokens.paperLift : Tokens.paper))
+            border.width: Tokens.cards ? 0 : Tokens.border
             border.color: (updatesBtn.here || ubh.hovered) ? Tokens.lineStrong : Tokens.line
             antialiasing: false
             Behavior on color { ColorAnimation { duration: Tokens.snap } }
@@ -1503,10 +1504,10 @@ Rectangle {
         Text {
             id: ubLabel
             anchors.centerIn: parent
-            text: I18n.tr("UPDATES")
-            color: updatesBtn.here ? Tokens.inkOnBone : Tokens.inkDim
+            text: Tokens.cards ? I18n.tr("Updates") : I18n.tr("UPDATES")
+            color: (updatesBtn.here && !Tokens.cards) ? Tokens.inkOnBone : Tokens.inkDim
             font.family: Tokens.ui; font.pixelSize: Tokens.fSmall
-            font.weight: Font.Medium; font.letterSpacing: Tokens.trackLabel
+            font.weight: Font.Medium; font.letterSpacing: Tokens.cards ? 0 : Tokens.trackLabel
             Behavior on color { ColorAnimation { duration: Tokens.snap } }
         }
         // the one red accent: an update is waiting on the channel.
@@ -1532,12 +1533,13 @@ Rectangle {
         z: 60
         visible: hub.settingsFiles().length > 0
         width: fbLabel.implicitWidth + Tokens.s4 * 2
-        height: 26
+        height: Tokens.cards ? 30 : 26
         Rectangle {
             anchors.fill: parent
-            radius: Tokens.radius
-            color: filesPop.open ? Tokens.bone : (fbh.hovered ? Tokens.paperLift : Tokens.paper)
-            border.width: Tokens.border
+            radius: Tokens.cards ? height / 2 : Tokens.radius
+            color: Tokens.cards ? (filesPop.open ? Qt.rgba(Tokens.sun.r, Tokens.sun.g, Tokens.sun.b, 0.2) : (fbh.hovered ? Tokens.tint16 : Tokens.tint10))
+                : (filesPop.open ? Tokens.bone : (fbh.hovered ? Tokens.paperLift : Tokens.paper))
+            border.width: Tokens.cards ? 0 : Tokens.border
             border.color: (filesPop.open || fbh.hovered) ? Tokens.lineStrong : Tokens.line
             antialiasing: false
             Behavior on color { ColorAnimation { duration: Tokens.snap } }
@@ -1546,10 +1548,10 @@ Rectangle {
         Text {
             id: fbLabel
             anchors.centerIn: parent
-            text: I18n.tr("FILES")
-            color: filesPop.open ? Tokens.inkOnBone : Tokens.inkDim
+            text: Tokens.cards ? I18n.tr("Files") : I18n.tr("FILES")
+            color: (filesPop.open && !Tokens.cards) ? Tokens.inkOnBone : Tokens.inkDim
             font.family: Tokens.ui; font.pixelSize: Tokens.fSmall
-            font.weight: Font.Medium; font.letterSpacing: Tokens.trackLabel
+            font.weight: Font.Medium; font.letterSpacing: Tokens.cards ? 0 : Tokens.trackLabel
             Behavior on color { ColorAnimation { duration: Tokens.snap } }
         }
         HoverHandler { id: fbh; cursorShape: Qt.PointingHandCursor }
@@ -1560,7 +1562,7 @@ Rectangle {
     ActionBar {
         id: bar
         visible: !pageArea.full
-        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+        anchors { left: Tokens.cards ? rail.right : parent.left; right: parent.right; bottom: parent.bottom }
         dirty: hub.dirty
         onSaved: hub.save()
         onReverted: hub.revert()
