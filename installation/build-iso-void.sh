@@ -1026,7 +1026,7 @@ fi
 
 # Enable core system runit services (Layer 1 seatd, Layer 3 scx-lavd, ananicy-cpp, zramen). Docker is opt-in: not enabled by default (podman is the default container tool).
 mkdir -p "$ROOTFS/etc/runit/runsvdir/default"
-for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled tlp zramen chronyd nftables cupsd asura-sysd asura-boot-guard; do
+for svc in dbus seatd elogind udevd NetworkManager acpid turnstiled tlp zramen chronyd nftables cupsd asura-sysd asura-boot-guard socklog-unix nanoklogd earlyoom asura-maintenance; do
 	if [ -d "$ROOTFS/etc/sv/$svc" ]; then
 		ln -sf "/etc/sv/$svc" "$ROOTFS/etc/runit/runsvdir/default/$svc"
 	fi
@@ -1036,6 +1036,13 @@ if [ -x "$ROOTFS/usr/bin/scx_lavd" ] && [ -d "$ROOTFS/etc/sv/scx-lavd" ]; then
 fi
 if [ -x "$ROOTFS/usr/bin/ananicy-cpp" ] && [ -d "$ROOTFS/etc/sv/ananicy-cpp" ]; then
 	ln -sf /etc/sv/ananicy-cpp "$ROOTFS/etc/runit/runsvdir/default/ananicy-cpp"
+fi
+
+# thermald only on Intel CPUs
+if grep -qi "GenuineIntel" "$ROOTFS/proc/cpuinfo" 2>/dev/null || grep -qi "Intel" "$ROOTFS/proc/cpuinfo" 2>/dev/null; then
+	if [ -d "$ROOTFS/etc/sv/thermald" ]; then
+		ln -sf /etc/sv/thermald "$ROOTFS/etc/runit/runsvdir/default/thermald"
+	fi
 fi
 
 # Ensure runtime library compatibility symlinks exist inside rootfs
