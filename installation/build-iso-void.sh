@@ -3,9 +3,9 @@
 #
 # Usage: installation/build-iso-void.sh [build-directory]
 #
-# ASURA_VERSION=0.1.0-beta.1 names the image asura-os-0.1.0-beta.1-x86_64.iso
+# ASURA_VERSION=0.1.0-beta.1 names the image toren-linux-0.1.0-beta.1-x86_64.iso
 # and records IMAGE_VERSION in /etc/os-release. Unset, the image is
-# asura-os-x86_64.iso. The file name never names the base layer.
+# toren-linux-x86_64.iso. The file name never names the base layer.
 #
 set -eu
 
@@ -21,9 +21,9 @@ case "$ASURA_VERSION" in
 		;;
 esac
 if [ -n "$ASURA_VERSION" ]; then
-	ISO_NAME="asura-os-${ASURA_VERSION}-x86_64"
+	ISO_NAME="toren-linux-${ASURA_VERSION}-x86_64"
 else
-	ISO_NAME=asura-os-x86_64
+	ISO_NAME=toren-linux-x86_64
 fi
 ISO_TITLE="Toren Linux x86_64"
 export GOWORK=off

@@ -25,7 +25,7 @@ control tools, its hardware matrix, its updater, and its supervised session daem
 Toren is not a Void spin. Void supplies the minimalist, lightning-fast substrate and nothing else. Toren is the
 distribution; Void Linux is what Toren is built on top of.
 
-> **Status: Beta.** Live bootable ISO images (`asura-os-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/Toren-Linux/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`toren install` / `toren-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
+> **Status: Beta.** Live bootable ISO images (`toren-linux-<version>-x86_64.iso`, published on the [Releases](https://github.com/mohitjoer/Toren-Linux/releases) page) build cleanly in CI and run a fully functional live environment with automated Wayland desktop login. The guided desktop installer (`toren install` / `toren-installer.desktop`) partitions disks, installs rootfs, and configures GRUB EFI.
 
 ---
 
@@ -53,7 +53,7 @@ profile get conservative defaults (support tier 3) and may need manual fixes.
 Get these files from the latest release on the
 [Releases page](https://github.com/mohitjoer/Toren-Linux/releases):
 
-- `asura-os-<version>-x86_64.iso`: the installer image
+- `toren-linux-<version>-x86_64.iso`: the installer image
 - `SHA256SUMS`: its checksum
 - `SHA256SUMS.sig`: a minisign signature of the checksums, when the release is signed
 
@@ -63,7 +63,7 @@ In the folder holding both files:
 
 ```console
 $ sha256sum -c SHA256SUMS
-asura-os-<version>-x86_64.iso: OK
+toren-linux-<version>-x86_64.iso: OK
 ```
 
 Anything other than `OK` means the download is corrupt or has been tampered with. Download it
@@ -85,7 +85,7 @@ Any of these work:
   overwrites whatever you point it at.
 
   ```bash
-  sudo dd if=asura-os-<version>-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
+  sudo dd if=toren-linux-<version>-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
   ```
 
 - **[Ventoy](https://www.ventoy.net/)**: copy the ISO onto a Ventoy stick and pick it from

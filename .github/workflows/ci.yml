@@ -292,7 +292,7 @@ jobs:
   # PART 8: Void Linux Live ISO build
   # ==========================================================================
   iso:
-    name: ISO — build Asura OS
+    name: ISO — build Toren Linux
     timeout-minutes: 60
     runs-on: ubuntu-24.04
     steps:
@@ -317,7 +317,7 @@ jobs:
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v6
         with:
-          name: asura-os-iso
+          name: toren-linux-iso
           path: |
             ${{ runner.temp }}/asura-iso/*.iso
             ${{ runner.temp }}/asura-iso/*.iso.sha256
@@ -358,7 +358,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends qemu-system-x86 cryptsetup parted
       - uses: actions/download-artifact@v7
         with:
-          name: asura-os-iso
+          name: toren-linux-iso
           path: iso
       - name: Install from the ISO, then check the result
         run: |
