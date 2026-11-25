@@ -321,6 +321,15 @@ jobs:
       - name: Build, verify and boot-test the ISO
         id: iso
         uses: ./.github/actions/build-iso
+      # The log needs a sign-in to read; annotations and the summary do not.
+      - name: Show why the ISO build failed
+        if: failure()
+        run: |
+          log="$RUNNER_TEMP/iso-build.log"
+          [ -s "$log" ] || exit 0
+          tail -n 40 "$log" | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' > "$RUNNER_TEMP/iso-tail.log"
+          { echo "### The last lines of the ISO build"; echo '```'; cat "$RUNNER_TEMP/iso-tail.log"; echo; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
+          sed 's/%/%25/g' "$RUNNER_TEMP/iso-tail.log" | awk '{ m = m (NR > 1 ? "%0A" : "") $0 } END { print "::error title=Last lines of the ISO build::" m }'
       - name: Checksum
         run: sha256sum "${{ steps.iso.outputs.iso }}" | tee "${{ steps.iso.outputs.iso }}.sha256"
       - name: Upload QEMU Boot Artifacts (Screenshot & Serial Log)
