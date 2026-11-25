@@ -1063,11 +1063,12 @@ if [ -x "$ROOTFS/usr/bin/ananicy-cpp" ] && [ -d "$ROOTFS/etc/sv/ananicy-cpp" ]; 
 	ln -sf /etc/sv/ananicy-cpp "$ROOTFS/etc/runit/runsvdir/default/ananicy-cpp"
 fi
 
-# thermald only on Intel CPUs
-if grep -qi "GenuineIntel" "$ROOTFS/proc/cpuinfo" 2>/dev/null || grep -qi "Intel" "$ROOTFS/proc/cpuinfo" 2>/dev/null; then
-	if [ -d "$ROOTFS/etc/sv/thermald" ]; then
-		ln -sf /etc/sv/thermald "$ROOTFS/etc/runit/runsvdir/default/thermald"
-	fi
+# thermald: decided on the machine, at boot, by its conf (it stays down
+# without Intel coretemp sensors), not by the CPU of the machine building this
+# image.
+if [ -d "$ROOTFS/etc/sv/thermald" ]; then
+	cp "$REPO_ROOT/system/runit/sv-conf/thermald/conf" "$ROOTFS/etc/sv/thermald/conf"
+	ln -sf /etc/sv/thermald "$ROOTFS/etc/runit/runsvdir/default/thermald"
 fi
 
 # Ensure runtime library compatibility symlinks exist inside rootfs
