@@ -541,7 +541,7 @@ mkdir -p "$HYPR_CACHE"
 
 ASURA_REPO_URL="${ASURA_REPO_URL:-https://mohitjoer.github.io/Toren-Linux/current}"
 
-HYPR_PKGS="hyprutils-0.14.4_1.x86_64.xbps aquamarine-0.16.0_1.x86_64.xbps hyprlang-0.6.8_1.x86_64.xbps hyprcursor-0.1.14_1.x86_64.xbps hyprgraphics-0.6.0_1.x86_64.xbps hyprland-protocols-0.8.0_1.x86_64.xbps hyprwire-0.3.1_1.x86_64.xbps hyprtoolkit-0.6.0_1.x86_64.xbps hyprland-0.57.2_1.x86_64.xbps xdg-desktop-portal-hyprland-1.5.0_1.x86_64.xbps hypridle-0.1.8_1.x86_64.xbps hyprlock-0.9.7_1.x86_64.xbps"
+HYPR_PKGS="hyprutils-0.14.4_1.x86_64.xbps aquamarine-0.16.0_1.x86_64.xbps hyprlang-0.6.8_1.x86_64.xbps hyprcursor-0.1.14_1.x86_64.xbps hyprgraphics-0.6.0_1.x86_64.xbps hyprland-protocols-0.8.0_1.x86_64.xbps hyprwire-0.3.1_1.x86_64.xbps hyprtoolkit-0.6.0_1.x86_64.xbps hyprland-0.57.2_1.x86_64.xbps xdg-desktop-portal-hyprland-1.5.0_1.x86_64.xbps hypridle-0.1.8_1.x86_64.xbps hyprlock-0.9.7_1.x86_64.xbps hyprland-guiutils-0.2.2_1.x86_64.xbps"
 for hpkg in $HYPR_PKGS; do
 	if [ ! -f "$HYPR_CACHE/$hpkg" ]; then
 		echo "build-iso-void: downloading $hpkg from ASURA repository..."
