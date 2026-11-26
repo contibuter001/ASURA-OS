@@ -310,7 +310,7 @@ if [ -d "$REPO_ROOT/public/wallpapers" ]; then
 	cp "$REPO_ROOT/public/wallpapers"/* "$INCLUDE_DIR/etc/skel/Pictures/Wallpapers/"
 fi
 
-for s in toren-hub toren-idle toren-pin toren-reload-cover toren-shot toren-vm toren-wallpaper-ui toren-welcome toren-greeter; do
+for s in toren-hub toren-idle toren-installer-ui toren-pin toren-reload-cover toren-shot toren-vm toren-wallpaper-ui toren-welcome toren-greeter; do
 	if [ -f "$REPO_ROOT/session/$s" ]; then
 		cp "$REPO_ROOT/session/$s" "$INCLUDE_DIR/usr/bin/"
 	fi
