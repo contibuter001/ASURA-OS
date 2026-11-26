@@ -732,6 +732,7 @@ cp -a "$INCLUDE_DIR/usr/share/toren"/* "$INCLUDE_DIR/etc/skel/.config/toren/"
 cat >"$INCLUDE_DIR/etc/skel/.config/ghostty/config" <<'EOF'
 config-file = ?~/.config/toren/apps/ghostty/config
 config-file = ?/usr/share/toren/apps/ghostty/config
+config-file = ?~/.config/ghostty/colors
 working-directory = home
 EOF
 

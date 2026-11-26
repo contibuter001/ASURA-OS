@@ -4,7 +4,6 @@
 # in ~/.config/ghostty/config itself.
 
 config-file = colors
-config-file = ?~/.config/ghostty/colors
 working-directory = home
 
 font-family = "JetBrainsMono Nerd Font"
