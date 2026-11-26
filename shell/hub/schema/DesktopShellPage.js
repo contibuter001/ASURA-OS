@@ -270,32 +270,6 @@ var rows = [
         "def": false
     },
     {
-        "tab": "Clock",
-        "group": "DESKTOP CLOCK",
-        "key": "background.widgets.clock.enable",
-        "ctl": "sw",
-        "label": "Clock on the desktop",
-        "desc": "A large clock drawn on the wallpaper",
-        "def": false
-    },
-    {
-        "tab": "Clock",
-        "group": "DESKTOP CLOCK",
-        "key": "background.widgets.clock.style",
-        "ctl": "seg",
-        "label": "Style",
-        "desc": "Analogue dial or digits",
-        "def": "cookie",
-        "opts": [
-            "Analogue",
-            "Digital"
-        ],
-        "map": {
-            "Analogue": "cookie",
-            "Digital": "digital"
-        }
-    },
-    {
         "tab": "Lock screen",
         "group": "LOCK SCREEN",
         "key": "lock.centerClock",

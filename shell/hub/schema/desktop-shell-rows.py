@@ -76,9 +76,6 @@ row("Look", "OVERVIEW", "overview.columns", "step", "Columns", "Workspaces per r
 row("Clock", "TIME", "time.format", "seg", "Time format", "How the bar and lock screen show the time",
     opts=["24-hour", "12-hour"], map={"24-hour": "hh:mm", "12-hour": "h:mm ap"})
 row("Clock", "TIME", "time.secondPrecision", "sw", "Seconds", "Shows seconds in the clock")
-row("Clock", "DESKTOP CLOCK", "background.widgets.clock.enable", "sw", "Clock on the desktop", "A large clock drawn on the wallpaper")
-row("Clock", "DESKTOP CLOCK", "background.widgets.clock.style", "seg", "Style", "Analogue dial or digits",
-    opts=["Analogue", "Digital"], map={"Analogue": "cookie", "Digital": "digital"})
 
 row("System", "NOTIFICATIONS", "notifications.timeout", "step", "Notification time", "How long a notification stays on screen", unit="ms", **{"from": 1000, "to": 30000})
 row("System", "NOTIFICATIONS", "osd.timeout", "step", "Volume and brightness popup", "How long the volume or brightness popup stays", unit="ms", **{"from": 500, "to": 5000})
