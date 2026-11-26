@@ -100,9 +100,7 @@ Item {
         sourceSize.width: 36
         sourceSize.height: 36
         fillMode: Image.PreserveAspectFit
-        source: Quickshell.shellPath("assets/toren-logo-on-dark.svg")
-            ? ("file://" + Quickshell.shellPath("assets/toren-logo-on-dark.svg"))
-            : Qt.resolvedUrl("../../../../../assets/toren-logo-on-dark.svg")
+        source: Qt.resolvedUrl("../../../../../assets/toren-logo-on-dark.svg")
         smooth: true
         opacity: (ma.containsMouse || root.controlVisible) ? 1.0 : 0.9
         Behavior on opacity { NumberAnimation { duration: 150 } }
