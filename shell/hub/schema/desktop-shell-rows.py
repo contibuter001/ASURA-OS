@@ -59,12 +59,12 @@ row("Bar & dock", "WEATHER", "bar.weather.useUSCS", "sw", "Fahrenheit", "US unit
 row("Bar & dock", "DOCK", "dock.enable", "sw", "Dock", "The app dock at the bottom of the screen")
 row("Bar & dock", "DOCK", "dock.pinnedOnStartup", "sw", "Always show", "Keeps the dock on screen instead of hiding it while a window is focused")
 row("Bar & dock", "DOCK", "dock.monochromeIcons", "sw", "Monochrome icons", "Tints the dock's icons to the colour scheme")
+row("Bar & dock", "DOCK", "appearance.transparency.enable", "sw", "Transparency", "Lets the wallpaper show through panels and menus")
 
 row("Look", "COLOURS", "appearance.palette.type", "seg", "Colour scheme", "How colours are taken from the wallpaper",
     opts=["Auto", "Tonal", "Neutral", "Vibrant", "Expressive", "Monochrome"],
     map={"Auto": "auto", "Tonal": "scheme-tonal-spot", "Neutral": "scheme-neutral", "Vibrant": "scheme-rainbow",
          "Expressive": "scheme-expressive", "Monochrome": "scheme-monochrome"})
-row("Look", "COLOURS", "appearance.transparency.enable", "sw", "Transparency", "Lets the wallpaper show through panels and menus")
 row("Look", "SCREEN", "appearance.fakeScreenRounding", "seg", "Rounded screen corners", "Draws rounded corners over the screen's edges",
     opts=["Off", "Always", "Not fullscreen"], map={"Off": 0, "Always": 1, "Not fullscreen": 2})
 row("Look", "APPS", "toren.gtkRoundedCorners", "sw", "Rounded app corners",

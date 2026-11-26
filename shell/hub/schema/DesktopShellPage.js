@@ -118,6 +118,15 @@ var rows = [
         "def": true
     },
     {
+        "tab": "Bar & dock",
+        "group": "DOCK",
+        "key": "appearance.transparency.enable",
+        "ctl": "sw",
+        "label": "Transparency",
+        "desc": "Lets the wallpaper show through panels and menus",
+        "def": false
+    },
+    {
         "tab": "Look",
         "group": "COLOURS",
         "key": "appearance.palette.type",
@@ -141,15 +150,6 @@ var rows = [
             "Expressive": "scheme-expressive",
             "Monochrome": "scheme-monochrome"
         }
-    },
-    {
-        "tab": "Look",
-        "group": "COLOURS",
-        "key": "appearance.transparency.enable",
-        "ctl": "sw",
-        "label": "Transparency",
-        "desc": "Lets the wallpaper show through panels and menus",
-        "def": false
     },
     {
         "tab": "Look",
