@@ -47,15 +47,6 @@ var rows = [
     {
         "tab": "Bar & dock",
         "group": "SHAPE",
-        "key": "bar.showBackground",
-        "ctl": "sw",
-        "label": "Background",
-        "desc": "Draws the bar's background; off leaves the items over the wallpaper",
-        "def": true
-    },
-    {
-        "tab": "Bar & dock",
-        "group": "SHAPE",
         "key": "bar.floatStyleShadow",
         "ctl": "sw",
         "label": "Shadow",

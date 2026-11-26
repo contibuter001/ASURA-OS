@@ -50,7 +50,6 @@ row("Bar & dock", "POSITION", "bar.bottom", "sw", "Bar at the bottom", "Moves th
 row("Bar & dock", "POSITION", "bar.autoHide.enable", "sw", "Hide the bar", "The bar slides away and comes back when the pointer reaches its edge")
 row("Bar & dock", "SHAPE", "bar.cornerStyle", "seg", "Bar silhouette & corners", "Hug: the bar meets the screen corners. Float: a raised strip. Rect: a flat rectangle",
     opts=["Hug", "Float", "Rect"], map={"Hug": 0, "Float": 1, "Rect": 2})
-row("Bar & dock", "SHAPE", "bar.showBackground", "sw", "Background", "Draws the bar's background; off leaves the items over the wallpaper")
 row("Bar & dock", "SHAPE", "bar.floatStyleShadow", "sw", "Shadow", "A shadow under the bar when its shape is Float")
 row("Bar & dock", "WEATHER", "bar.weather.enable", "sw", "Weather in the bar", "Shows the temperature and conditions next to the clock")
 row("Bar & dock", "WEATHER", "bar.weather.enableGPS", "sw", "Find my location", "Uses the network location; turn off to name a city below")
