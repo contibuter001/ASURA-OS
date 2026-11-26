@@ -125,7 +125,6 @@ row("Look", "WALLPAPER COLOURS", "appearance.wallpaperTheming.enableTerminal", "
 row("Look", "BACKGROUND", "background.parallax.enableWorkspace", "sw", "Parallax on workspaces", "The wallpaper slides a little as you change workspace")
 row("Look", "BACKGROUND", "background.parallax.workspaceZoom", "slid", "Parallax zoom", "How much the wallpaper is enlarged to slide", **{"lo": 1.0, "hi": 1.5})
 row("Look", "BACKGROUND", "background.widgets.weather.enable", "sw", "Weather on the desktop", "A weather widget drawn on the wallpaper")
-row("Look", "OVERVIEW", "overview.enable", "sw", "Overview", "The workspace overview (Super+Tab)")
 row("Look", "OVERVIEW", "overview.scale", "slid", "Overview size", "Each workspace's size in the overview, against the screen", **{"lo": 0.1, "hi": 0.4})
 row("Look", "OVERVIEW", "overview.centerIcons", "sw", "Centred app icons", "Draws each window's app icon in its middle")
 row("Look", "OVERVIEW", "overview.orderRightLeft", "sw", "Right to left", "Orders the workspaces from right to left")
