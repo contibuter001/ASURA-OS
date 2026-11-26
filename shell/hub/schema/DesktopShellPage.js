@@ -413,15 +413,6 @@ var rows = [
     {
         "tab": "Look",
         "group": "OVERVIEW",
-        "key": "overview.enable",
-        "ctl": "sw",
-        "label": "Overview",
-        "desc": "The workspace overview (Super+Tab)",
-        "def": true
-    },
-    {
-        "tab": "Look",
-        "group": "OVERVIEW",
         "key": "overview.scale",
         "ctl": "slid",
         "label": "Overview size",
