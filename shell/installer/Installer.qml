@@ -621,7 +621,7 @@ Rectangle {
                             Text {
                                 visible: root.luksPass.length > 0 && root.luksPass !== root.luksConfirm
                                 text: I18n.tr("Passphrases do not match.")
-                                color: "#e06c75"; font.family: Tokens.ui; font.pixelSize: Tokens.fMicro
+                                color: Tokens.alert; font.family: Tokens.ui; font.pixelSize: Tokens.fMicro
                             }
                         }
                     }
@@ -677,7 +677,7 @@ Rectangle {
                             Text {
                                 visible: root.password.length > 0 && root.password !== root.passwordConfirm
                                 text: I18n.tr("Passwords do not match.")
-                                color: "#e06c75"; font.family: Tokens.ui; font.pixelSize: Tokens.fMicro
+                                color: Tokens.alert; font.family: Tokens.ui; font.pixelSize: Tokens.fMicro
                             }
                         }
                     }
@@ -716,9 +716,9 @@ Rectangle {
                             width: parent.width
                             height: warnText.implicitHeight + Tokens.s4 * 2
                             radius: Tokens.radius
-                            color: Qt.rgba(0.88, 0.42, 0.46, 0.12)
+                            color: Qt.rgba(Tokens.alert.r, Tokens.alert.g, Tokens.alert.b, 0.12)
                             border.width: Tokens.border
-                            border.color: Qt.rgba(0.88, 0.42, 0.46, 0.45)
+                            border.color: Qt.rgba(Tokens.alert.r, Tokens.alert.g, Tokens.alert.b, 0.45)
 
                             Text {
                                 id: warnText
@@ -757,7 +757,7 @@ Rectangle {
                                 width: parent.width * (root.installProgress / 100)
                                 height: parent.height
                                 radius: 4
-                                color: root.installDone && !root.installOk ? "#e06c75" : Tokens.ink
+                                color: root.installDone && !root.installOk ? Tokens.alert : Tokens.ink
                                 Behavior on width { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
                             }
                         }

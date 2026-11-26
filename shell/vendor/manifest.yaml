@@ -228,7 +228,7 @@ components:
       - path: modules/common/widgets/NotificationActionButton.qml
         blob: 89b857682c2b2945627cdd3b20d3021411699894
       - path: modules/common/widgets/NotificationAppIcon.qml
-        blob: 351da2b450abef888b00f92663d0b077cf5ade03
+        blob: 079d9ac6452b60ba34a393cc70cb43c2208b2555
       - path: modules/common/widgets/NotificationGroupExpandButton.qml
         blob: aced621ecb57e89537776725b527cd36b9b7076f
       - path: modules/common/widgets/NotificationGroup.qml

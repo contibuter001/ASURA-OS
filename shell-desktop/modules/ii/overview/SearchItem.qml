@@ -210,8 +210,9 @@ RippleButton {
 
                     // Check local shell assets if they exist in assets/icons
                     const localIcons = {
-                        "asura-hub": true, "asura-logo": true, "asura-logo-dark": true,
-                        "asura-settings": true, "asura-vm": true, "cachyos-symbolic": true,
+                        "toren-hub": true, "toren-logo": true, "toren-logo-dark": true,
+                        "toren-settings": true, "toren-vm": true, "toren-installer": true,
+                        "toren-store": true, "cachyos-symbolic": true,
                         "cloudflare-dns-symbolic": true, "crosshair-symbolic": true,
                         "debian-symbolic": true, "deepseek-symbolic": true, "desktop-symbolic": true,
                         "endeavouros-symbolic": true, "fedora-symbolic": true, "flatpak-symbolic": true,
@@ -224,7 +225,7 @@ RippleButton {
                         "utilities-system-monitor": true, "utilities-terminal": true, "computer": true
                     };
                     if (localIcons[root.iconName]) {
-                        return "file://" + Quickshell.shellPath("assets/icons/" + root.iconName + ".svg");
+                        return Quickshell.shellPath("assets/icons/" + root.iconName + ".svg");
                     }
 
                     if (AppSearch.iconExists(root.iconName)) {
@@ -234,7 +235,7 @@ RippleButton {
                     let guess = AppSearch.guessIcon(root.iconName);
                     if (guess && guess.length > 0 && guess !== root.iconName && guess !== "image-missing") {
                         if (localIcons[guess]) {
-                            return "file://" + Quickshell.shellPath("assets/icons/" + guess + ".svg");
+                            return Quickshell.shellPath("assets/icons/" + guess + ".svg");
                         }
                         if (AppSearch.iconExists(guess)) {
                             return Quickshell.iconPath(guess);
@@ -252,7 +253,7 @@ RippleButton {
                     const list = fallbacks[root.iconName] || [];
                     for (let fb of list) {
                         if (localIcons[fb]) {
-                            return "file://" + Quickshell.shellPath("assets/icons/" + fb + ".svg");
+                            return Quickshell.shellPath("assets/icons/" + fb + ".svg");
                         }
                         if (AppSearch.iconExists(fb)) {
                             return Quickshell.iconPath(fb);

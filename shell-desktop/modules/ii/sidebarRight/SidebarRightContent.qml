@@ -197,7 +197,7 @@ Item {
                                     : (btnMouse.containsMouse ? Appearance.colors.colLayer1Hover : Appearance.colors.colSecondaryContainer)
 
                                 Behavior on color {
-                                    animation: Appearance.animation.elementMove.colorAnimation.createObject(this)
+                                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
                                 }
 
                                 RowLayout {
