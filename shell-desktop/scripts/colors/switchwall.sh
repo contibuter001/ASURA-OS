@@ -146,6 +146,10 @@ set_wallpaper_path() {
     if [ -f "$SHELL_CONFIG_FILE" ]; then
         jq --arg path "$path" '.background.wallpaperPath = $path' "$SHELL_CONFIG_FILE" > "$SHELL_CONFIG_FILE.tmp" && mv "$SHELL_CONFIG_FILE.tmp" "$SHELL_CONFIG_FILE"
     fi
+    if [ -n "$path" ] && [ -e "$path" ]; then
+        mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/toren/current"
+        ln -sf "$path" "${XDG_CONFIG_HOME:-$HOME/.config}/toren/current/background"
+    fi
 }
 
 set_thumbnail_path() {
