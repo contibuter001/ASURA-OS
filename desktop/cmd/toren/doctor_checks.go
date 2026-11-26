@@ -314,6 +314,8 @@ func reportCoreServices(root string, fix bool) int {
 			problems++
 			fmt.Printf("  • %-16s CRASHING: runit keeps restarting it\n", svc)
 			fmt.Printf("    see why: sudo sv down %s; sudo sh -x /etc/sv/%s/run; sudo sv up %s\n", svc, svc, svc)
+		case st == svStopped && optional:
+			fmt.Printf("  • %-16s stopped (optional)\n", svc)
 		case st == svStopped:
 			problems++
 			fmt.Printf("  • %-16s stopped (start: sudo sv up %s)\n", svc, svc)

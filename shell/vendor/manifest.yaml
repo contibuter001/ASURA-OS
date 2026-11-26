@@ -460,13 +460,13 @@ components:
       - path: modules/ii/bar/Workspaces.qml
         blob: 34b2c573aaf26a9a0b8addf28cd0589c0304e814
       - path: modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml
-        blob: 724daee543ea65b4cb7911bbcc0b5abe73b12a2e
+        blob: 35b661416de2881934c3207fa86670f628d95e62
       - path: modules/ii/cheatsheet/CheatsheetKeybinds.qml
-        blob: 337230aba3d06c5eebf37ea94266df5f17a5a41a
+        blob: 47c0a1a6df44e2e270fcbb2b75020ced54187d4e
       - path: modules/ii/cheatsheet/CheatsheetPeriodicTable.qml
         blob: 6262ed77ae24e9c7c6c2169c67d1f0a382c19ea5
       - path: modules/ii/cheatsheet/Cheatsheet.qml
-        blob: 79b238027b49abc09793c150c90fff3ce836086d
+        blob: b44cefc332689f96aa0d01bc5465a7e2f9126090
       - path: modules/ii/cheatsheet/ElementTile.qml
         blob: e05b76a9c31bb5c5db803bf22cab55cdfd71c10c
       - path: modules/ii/cheatsheet/periodic_table.js
