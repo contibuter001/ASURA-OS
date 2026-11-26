@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"toren/desktop/internal/hub"
@@ -622,27 +623,58 @@ func gitSnapshot(paths overlay.Paths) error {
 	}
 
 	gitDir := filepath.Join(paths.Config, ".git")
-	if fi, err := os.Stat(gitDir); err == nil && fi.IsDir() {
-		if !canWriteRepo(paths.Config) && os.Geteuid() != 0 {
-			// .git exists but is not writable by current user (e.g. root-owned from earlier run)
+
+	// If running as root, fix any historical root-owned files inside the user's .git
+	if os.Geteuid() == 0 {
+		if info, err := os.Stat(paths.Config); err == nil {
+			if st, ok := info.Sys().(*syscall.Stat_t); ok && st.Uid != 0 {
+				_ = filepath.Walk(gitDir, func(path string, fi os.FileInfo, err error) error {
+					if err == nil {
+						_ = os.Chown(path, int(st.Uid), int(st.Gid))
+					}
+					return nil
+				})
+			}
+		}
+	}
+
+	// Check if git directory is writable. If not, skip snapshot gracefully without error spam.
+	if _, err := os.Stat(gitDir); err == nil {
+		if syscall.Access(gitDir, 2 /* W_OK */) != nil {
+			return nil
+		}
+		cfgPath := filepath.Join(gitDir, "config")
+		if _, err := os.Stat(cfgPath); err == nil && syscall.Access(cfgPath, 2 /* W_OK */) != nil {
+			return nil
+		}
+	} else {
+		// .git does not exist yet; check if paths.Config is writable
+		if syscall.Access(paths.Config, 2 /* W_OK */) != nil {
 			return nil
 		}
 	}
 
-	for _, args := range [][]string{
-		{"init", "--quiet"},
-		{"config", "user.email", "toren@localhost"},
-		{"config", "user.name", "toren"},
-		{"add", "--all", "."},
-		{"commit", "--allow-empty", "--quiet", "-m", "toren: snapshot before update"},
-	} {
+	var steps [][]string
+	if _, err := os.Stat(gitDir); os.IsNotExist(err) {
+		steps = [][]string{
+			{"init", "--quiet"},
+			{"config", "user.email", "toren@localhost"},
+			{"config", "user.name", "toren"},
+			{"add", "--all", "."},
+			{"commit", "--allow-empty", "--quiet", "-m", "toren: snapshot before update"},
+		}
+	} else {
+		steps = [][]string{
+			{"add", "--all", "."},
+			{"commit", "--allow-empty", "--quiet", "-m", "toren: snapshot before update"},
+		}
+	}
+
+	for _, args := range steps {
 		command := repoGit(paths.Config, args...)
-		// The snapshot must never stop an update: a failure here is worth
-		// reporting but it is not worth refusing to update over, and the base
-		// preservation that follows is what makes an update recoverable anyway.
-		if output, err := command.CombinedOutput(); err != nil {
-			fmt.Fprintf(os.Stderr, "toren update: git %v: %v\n%s\n",
-				args, err, output)
+		command.Env = append(os.Environ(),
+			"GIT_DIR="+gitDir)
+		if _, err := command.CombinedOutput(); err != nil {
 			return nil
 		}
 	}
